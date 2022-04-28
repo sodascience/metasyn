@@ -1,4 +1,6 @@
 import numpy as np
+from metasynth.distribution import FloatDistribution, CategoricalDistribution,\
+    StringDistribution, NanDistribution, IntDistribution
 
 
 class MetaVar():
@@ -30,13 +32,16 @@ class IntVar(NumericalVar):
     @classmethod
     def detect(cls, series, series_str):
         if str(series.dtype).startswith("int"):
-            return cls.var_strength, cls
+            return cls.var_strength, cls()
         if not str(series.dtype).startswith("float"):
-            return 0, cls
+            return 0, cls()
         values = series.values[~np.isnan(series.values)]
         if np.all(np.fabs(values - values.astype(int)) < 1e-7):
-            return cls.var_strength, cls
-        return 0, cls
+            return cls.var_strength, cls()
+        return 0, cls()
+
+    def fit(self, values):
+        return IntDistribution.fit(values)
 
 
 class FloatVar(NumericalVar):
@@ -46,10 +51,13 @@ class FloatVar(NumericalVar):
     def detect(cls, series, series_str):
         if str(series.dtype).startswith("float"):
             if np.sum(np.isnan(series.values)) < len(series):
-                return cls.var_strength, cls
+                return cls.var_strength, cls()
             else:
-                return cls.var_strength/2, cls
-        return 0, cls
+                return cls.var_strength/2, cls()
+        return 0, cls()
+
+    def fit(self, values):
+        return FloatDistribution.fit(values)
 
 
 class NanVar(MetaVar):
@@ -59,8 +67,11 @@ class NanVar(MetaVar):
     def detect(cls, series, series_str):
         if str(series.dtype).startswith("float"):
             if np.sum(np.isnan(series.values)) == len(series):
-                return cls.var_strength, cls
-        return 0, cls
+                return cls.var_strength, cls()
+        return 0, cls()
+
+    def fit(self, values):
+        return NanDistribution()
 
 
 class StringVar(MetaVar):
@@ -68,7 +79,10 @@ class StringVar(MetaVar):
 
     @classmethod
     def detect(cls, series, series_str):
-        return 0.5, cls
+        return 0.5, cls()
+
+    def fit(self, values):
+        return StringDistribution.fit(values)
 
 
 class CategoricalVar(MetaVar):
@@ -79,11 +93,11 @@ class CategoricalVar(MetaVar):
         series = series.dropna()
         series_str = series.dropna()
         if len(series) == 0:
-            return 0, cls
+            return 0, cls()
         int_score, _ = IntVar.detect(series, series_str)
         float_score, _ = FloatVar.detect(series, series_str)
         if int_score < float_score:
-            return 0, cls
+            return 0, cls()
 
         if int_score > 0:
             values = series.values.astype(int)
@@ -91,7 +105,8 @@ class CategoricalVar(MetaVar):
             values = series.values.astype(str)
         n_unique = len(np.unique(values))
         if len(series) > 20 and n_unique**2 < len(series):
-            return cls.var_strength, cls
-        return 0, cls
-    
-    
+            return cls.var_strength, cls()
+        return 0, cls()
+
+    def fit(self, values):
+        return CategoricalDistribution.fit(values.dropna())
