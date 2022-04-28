@@ -73,7 +73,6 @@ class FloatDistribution():
     def fit(cls, values):
         instances = [var_type.fit(values)
                      for var_type in FloatDistribution.var_types]
-        print([inst.AIC(values) for inst in instances])
         i_min = np.argmin([inst.AIC(values) for inst in instances])
         return instances[i_min]
 
@@ -121,45 +120,6 @@ class CategoricalDistribution():
         p_vals = np.array([x for x in self.cat_freq.values()])
         p_vals = p_vals/np.sum(p_vals)
         return np.random.choice(np.array(list(self.cat_freq)), p=p_vals)
-
-# class NumericalVar():
-#     def __init__(self, values, extra_nan=0):
-#         self.nan_frac = (np.sum(np.isnan(values)) + extra_nan)/(len(values) + extra_nan)
-#         self.average = np.nanmean(values)
-#         self.min = np.nanmin(values)
-#         self.max = np.nanmax(values)
-#         self.n_unique = len(np.unique(values[np.logical_not(np.isnan(values))]))
-# 
-#     @staticmethod
-#     def from_series(series):
-#         if series.dtype == "int64":
-#             return IntegerVar(series.values)
-#         assert series.dtype == "float64"
-# 
-#     def __str__(self):
-#         return (f"average: {self.average}, min: {self.min}, max: {self.max}, nan_frac: {self.nan_frac}, "
-#                 f"unique: {self.n_unique}")
-# 
-#     def synth(self, n):
-#         return [self.synth_one() for _ in range(n)]
-# 
-# 
-# class IntegerVar(NumericalVar):
-#     dtype = "int"
-# 
-#     def synth_one(self):
-#         if np.random.random() < self.nan_frac:
-#             return np.nan
-#         return np.random.randint(self.min, self.max+1)
-# 
-# 
-# class FloatVar(NumericalVar):
-#     dtype = "float"
-# 
-#     def synth_one(self):
-#         if np.random.random() < self.nan_frac:
-#             return np.nan
-#         return self.min + np.random.rand()*(self.max-self.min)
 
 
 class StringDistribution():
@@ -213,43 +173,3 @@ class NanDistribution():
 
     def draw(self):
         return np.nan
-
-
-# class StringVar():
-#     dtype="str"
-#     def __init__(self, values):
-#         values = values.astype(str)
-#         self.n_unique = len(np.unique(values))
-#         self.id_var = (self.n_unique == len(values))
-#         self.categories = np.unique(values)
-#         self.n_nan = np.sum(values == "")
-#         self.nan_frac = self.n_nan/len(values)
-#         
-# 
-#     def __str__(self):
-#         return f"unique: {self.n_unique}, id_var: {self.id_var}, n_nan: {self.n_nan}"
-# 
-#     def synth_one(self):
-#         if np.random.random() < self.nan_frac:
-#             return ""
-#         cur_str = ""
-#         str_len = np.random.choice(self.str_lengths, p=self.p_length)
-#         for i_chr in range(str_len):
-#             char_choices, p_choices = self.all_char_counts[i_chr]
-#             cur_str += np.random.choice(char_choices, p=p_choices)
-#         return cur_str
-# 
-#     def synth(self, n):
-#         return [self.synth_one() for _ in range(n)]
-# 
-# 
-# class NanVar():
-#     dtype="nan"
-#     def __str__(self):
-#         return "NanVar"
-# 
-#     def synth(self, n):
-#         return [np.nan for _ in range(n)]
-# 
-# class DateVar():
-#     pass
