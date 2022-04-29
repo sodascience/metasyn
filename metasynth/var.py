@@ -48,6 +48,11 @@ class MetaVar():
     def fit(self):
         self.distribution = self.dist_class.fit(self.series)
 
+    def draw(self):
+        if self.distribution is None:
+            raise ValueError("Cannot draw without distribution")
+        return self.distribution.draw()
+
 
 class IntVar(MetaVar):
     dist_class = IntDistribution
