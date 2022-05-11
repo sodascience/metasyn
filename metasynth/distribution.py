@@ -6,14 +6,9 @@ from abc import ABC, abstractmethod
 
 
 class BaseDistribution(ABC):
-    perc_nan = None
-
     @classmethod
     def fit(self, series):
-        n_nan = len(series) - len(series.dropna())
-        perc_nan = n_nan/len(series)
         distribution = self._fit(series.dropna())
-        distribution.perc_nan = perc_nan
         return distribution
 
     @classmethod
@@ -29,6 +24,9 @@ class BaseDistribution(ABC):
     def to_dict(self):
         pass
 
+    def AIC(self, values):
+        return 0.0
+
 
 class MetaDistribution(ABC):
     @classmethod
@@ -37,7 +35,7 @@ class MetaDistribution(ABC):
         name = meta_dict.pop("name")
         for dist_type in cls.dist_types:
             if name == dist_type.__name__:
-                return dist_type(**meta_dict)
+                return dist_type(**meta_dict["parameters"])
         raise ValueError("Cannot find right class.")
 
     @classmethod
@@ -71,10 +69,10 @@ class BaseNumericDistribution(BaseDistribution):
         return cls(*param)
 
     def to_dict(self):
-        properties = deepcopy(self.par)
-        properties["name"] = type(self).__name__
-        properties["perc_nan"] = self.perc_nan
-        return properties
+        return {
+            "parameters": deepcopy(self.par),
+            "name": type(self).__name__
+        }
 
     def draw(self):
         return self.dist.rvs()
@@ -119,15 +117,7 @@ class DiscreteUniformDistribution(BaseNumericDistribution):
         return cls(**param)
 
 
-class FloatDistribution(MetaDistribution):
-    dist_types = [UniformDistribution, NormalDistribution]
-
-
-class IntDistribution(MetaDistribution):
-    dist_types = [DiscreteUniformDistribution]
-
-
-class CategoricalDistribution(BaseDistribution):
+class CatFreqDistribution(BaseDistribution):
     def __init__(self, cat_freq):
         self.cat_freq = cat_freq
 
@@ -137,10 +127,10 @@ class CategoricalDistribution(BaseDistribution):
         return cls(dict(zip(unq_vals, counts)))
 
     def to_dict(self):
-        cat_freq = deepcopy(self.cat_freq)
-        cat_freq["name"] = type(self).__name__
-        cat_freq["perc_nan"] = self.perc_nan
-        return cat_freq
+        dist_dict = {}
+        dist_dict["name"] = type(self).__name__
+        dist_dict["parameters"] = {"cat_freq": self.cat_freq}
+        return dist_dict
 
     def __str__(self):
         return str(self.to_dict())
@@ -151,7 +141,7 @@ class CategoricalDistribution(BaseDistribution):
         return np.random.choice(np.array(list(self.cat_freq)), p=p_vals)
 
 
-class StringDistribution(BaseDistribution):
+class StringFreqDistribution(BaseDistribution):
     def __init__(self, str_lengths, p_length, all_char_counts):
         self.str_lengths = str_lengths
         self.p_length = p_length
@@ -173,16 +163,18 @@ class StringDistribution(BaseDistribution):
         return cls(str_lengths, p_length, all_char_counts)
 
     def __str__(self):
-        data = self.to_dict()
-        return f"String variable: avg # of characters: {np.sum(data['str_lengths']*data['p_length'])} "
+        avg_len = np.sum([self.str_lengths[i]*self.p_length[i]
+                          for i in range(len(self.str_lengths))])
+        return f"String variable: avg # of characters: {avg_len} "
 
     def to_dict(self):
         return {
             "name": type(self).__name__,
-            "str_lengths": deepcopy(self.str_lengths),
-            "p_length": deepcopy(self.p_length),
-            "all_char_counts": deepcopy(self.all_char_counts),
-            "perc_nan": self.perc_nan,
+            "parameters": {
+                "str_lengths": deepcopy(self.str_lengths),
+                "p_length": deepcopy(self.p_length),
+                "all_char_counts": deepcopy(self.all_char_counts),
+            }
         }
 
     def draw(self):
@@ -193,3 +185,18 @@ class StringDistribution(BaseDistribution):
             cur_str += np.random.choice(char_choices, p=p_choices)
         return cur_str
 
+
+class FloatDistribution(MetaDistribution):
+    dist_types = [UniformDistribution, NormalDistribution]
+
+
+class IntDistribution(MetaDistribution):
+    dist_types = [DiscreteUniformDistribution]
+
+
+class CategoricalDistribution(MetaDistribution):
+    dist_types = [CatFreqDistribution]
+
+
+class StringDistribution(MetaDistribution):
+    dist_types = [StringFreqDistribution]

@@ -4,9 +4,16 @@ from metasynth.distribution import StringDistribution, IntDistribution
 
 
 class MetaVar():
-    def __init__(self, series):
-        self.series = series
-        self.distribution = None
+    def __init__(self, series=None, name=None, distribution=None, prop_missing=0):
+        if series is None:
+            self.name = name
+            self.prop_missing = prop_missing
+        else:
+            self.name = series.name
+            self.series = series
+            self.prop_missing = (len(series) - len(series.dropna()))/len(series)
+
+        self.distribution = distribution
 
     @classmethod
     def detect(cls, series_or_dataframe):
@@ -33,15 +40,17 @@ class MetaVar():
 
     def to_dict(self):
         return {
-            "name": self.series.name,
+            "name": self.name,
             "type": type(self).__name__,
+            "prop_missing": self.prop_missing,
             "distribution": self.distribution.to_dict(),
         }
 
     def __str__(self):
         return str({
-            "name": self.series.name,
+            "name": self.name,
             "type": type(self).__name__,
+            "prop_missing": self.prop_missing,
             "distribution": str(self.distribution),
         })
 
@@ -52,6 +61,16 @@ class MetaVar():
         if self.distribution is None:
             raise ValueError("Cannot draw without distribution")
         return self.distribution.draw()
+
+    @classmethod
+    def from_dict(cls, var_dict):
+        for meta_class in cls.sub_types.values():
+            if meta_class.__name__ == var_dict["type"]:
+                return meta_class(
+                    name=var_dict["name"],
+                    distribution=meta_class.dist_class.from_dict(var_dict["distribution"]),
+                    prop_missing=var_dict["prop_missing"])
+        raise ValueError("Cannot find meta class '{var_dict['type']}'.")
 
 
 class IntVar(MetaVar):
