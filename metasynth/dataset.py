@@ -55,8 +55,8 @@ class MetaDataset():
             self_dict = json.load(f)
 
         n_rows = self_dict["n_rows"]
-        vars = [MetaVar.from_dict(d) for d in self_dict["vars"]]
-        return cls(vars, n_rows)
+        meta_vars = [MetaVar.from_dict(d) for d in self_dict["vars"]]
+        return cls(meta_vars, n_rows)
 
 
 def jsonify(data):

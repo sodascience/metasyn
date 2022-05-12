@@ -4,6 +4,7 @@ from metasynth.distribution import StringDistribution, IntDistribution
 
 
 class MetaVar():
+    """"""
     def __init__(self, series=None, name=None, distribution=None, prop_missing=0):
         if series is None:
             self.name = name

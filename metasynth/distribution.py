@@ -28,25 +28,7 @@ class BaseDistribution(ABC):
         return 0.0
 
 
-class MetaDistribution(ABC):
-    @classmethod
-    def from_dict(cls, meta_dict):
-        meta_dict = deepcopy(meta_dict)
-        name = meta_dict.pop("name")
-        for dist_type in cls.dist_types:
-            if name == dist_type.__name__:
-                return dist_type(**meta_dict["parameters"])
-        raise ValueError("Cannot find right class.")
-
-    @classmethod
-    def fit(cls, values):
-        instances = [dist_type.fit(values)
-                     for dist_type in cls.dist_types]
-        i_min = np.argmin([inst.AIC(values) for inst in instances])
-        return instances[i_min]
-
-
-class BaseNumericDistribution(BaseDistribution):
+class ScipyDistribution(BaseDistribution):
     def AIC(self, values):
         vals = values[~np.isnan(values)]
         return 2*self.n_par - 2*np.sum(self.dist.logpdf(vals+1e-7))
@@ -70,15 +52,15 @@ class BaseNumericDistribution(BaseDistribution):
 
     def to_dict(self):
         return {
+            "name": type(self).__name__,
             "parameters": deepcopy(self.par),
-            "name": type(self).__name__
         }
 
     def draw(self):
         return self.dist.rvs()
 
 
-class UniformDistribution(BaseNumericDistribution):
+class UniformDistribution(ScipyDistribution):
     dist_class = uniform
 
     def __init__(self, min_val, max_val):
@@ -92,7 +74,7 @@ class UniformDistribution(BaseNumericDistribution):
         return cls(vals.min()-1e-3*delta, vals.max()+1e-3*delta)
 
 
-class NormalDistribution(BaseNumericDistribution):
+class NormalDistribution(ScipyDistribution):
     dist_class = norm
 
     def __init__(self, mean, std_dev):
@@ -100,7 +82,7 @@ class NormalDistribution(BaseNumericDistribution):
         self.dist = norm(loc=mean, scale=std_dev)
 
 
-class DiscreteUniformDistribution(BaseNumericDistribution):
+class DiscreteUniformDistribution(ScipyDistribution):
     dist_class = randint
 
     def __init__(self, low, high):
@@ -184,6 +166,24 @@ class StringFreqDistribution(BaseDistribution):
             char_choices, p_choices = self.all_char_counts[i_chr]
             cur_str += np.random.choice(char_choices, p=p_choices)
         return cur_str
+
+
+class MetaDistribution(ABC):
+    @classmethod
+    def from_dict(cls, meta_dict):
+        meta_dict = deepcopy(meta_dict)
+        name = meta_dict.pop("name")
+        for dist_type in cls.dist_types:
+            if name == dist_type.__name__:
+                return dist_type(**meta_dict["parameters"])
+        raise ValueError("Cannot find right class.")
+
+    @classmethod
+    def fit(cls, values):
+        instances = [dist_type.fit(values)
+                     for dist_type in cls.dist_types]
+        i_min = np.argmin([inst.AIC(values) for inst in instances])
+        return instances[i_min]
 
 
 class FloatDistribution(MetaDistribution):
