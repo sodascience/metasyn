@@ -1,112 +1,90 @@
-import numpy as np
-from metasynth.distribution import FloatDistribution, CategoricalDistribution,\
-    StringDistribution, NanDistribution, IntDistribution
+import pandas as pd
+from metasynth.distribution import FloatDistribution, CategoricalDistribution
+from metasynth.distribution import StringDistribution, IntDistribution
 
 
 class MetaVar():
-    @classmethod
-    def detect(cls, series, series_str):
-        max_detect = -1
-        detect_var = None
-        for detect_cls in cls().sub_types:
-            new_detect, new_cls = detect_cls.detect(series, series_str)
-            if new_detect > max_detect:
-                max_detect = new_detect
-                detect_var = new_cls
-        return max_detect, detect_var
+    """"""
+    def __init__(self, series=None, name=None, distribution=None, prop_missing=0):
+        if series is None:
+            self.name = name
+            self.prop_missing = prop_missing
+        else:
+            self.name = series.name
+            self.series = series
+            self.prop_missing = (len(series) - len(series.dropna()))/len(series)
 
+        self.distribution = distribution
+
+    @classmethod
+    def detect(cls, series_or_dataframe):
+        if isinstance(series_or_dataframe, pd.DataFrame):
+            return [MetaVar.detect(series_or_dataframe[col])
+                    for col in series_or_dataframe]
+
+        series = series_or_dataframe
+        try:
+            sub_class = MetaVar.sub_types[pd.api.types.infer_dtype(series)]
+        except KeyError:
+            raise ValueError(f"Type of column '{series.name}' is not supported")
+        return sub_class(series)
+
+    @classmethod
     @property
     def sub_types(self):
-        return [NumericalVar, NanVar, StringVar, CategoricalVar]
+        return {
+            "categorical": CategoricalVar,
+            "string": StringVar,
+            "integer": IntVar,
+            "floating": FloatVar
+        }
 
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "type": type(self).__name__,
+            "prop_missing": self.prop_missing,
+            "distribution": self.distribution.to_dict(),
+        }
 
-class NumericalVar(MetaVar):
-    @property
-    def sub_types(self):
-        return [IntVar, FloatVar]
+    def __str__(self):
+        return str({
+            "name": self.name,
+            "type": type(self).__name__,
+            "prop_missing": self.prop_missing,
+            "distribution": str(self.distribution),
+        })
 
+    def fit(self):
+        self.distribution = self.dist_class.fit(self.series)
 
-class IntVar(NumericalVar):
-    var_strength = 2
-
-    @classmethod
-    def detect(cls, series, series_str):
-        if str(series.dtype).startswith("int"):
-            return cls.var_strength, cls()
-        if not str(series.dtype).startswith("float"):
-            return 0, cls()
-        values = series.values[~np.isnan(series.values)]
-        if np.all(np.fabs(values - values.astype(int)) < 1e-7):
-            return cls.var_strength, cls()
-        return 0, cls()
-
-    def fit(self, values):
-        return IntDistribution.fit(values)
-
-
-class FloatVar(NumericalVar):
-    var_strength = 1
-
-    @classmethod
-    def detect(cls, series, series_str):
-        if str(series.dtype).startswith("float"):
-            if np.sum(np.isnan(series.values)) < len(series):
-                return cls.var_strength, cls()
-            else:
-                return cls.var_strength/2, cls()
-        return 0, cls()
-
-    def fit(self, values):
-        return FloatDistribution.fit(values)
-
-
-class NanVar(MetaVar):
-    var_strength = 3
+    def draw(self):
+        if self.distribution is None:
+            raise ValueError("Cannot draw without distribution")
+        return self.distribution.draw()
 
     @classmethod
-    def detect(cls, series, series_str):
-        if str(series.dtype).startswith("float"):
-            if np.sum(np.isnan(series.values)) == len(series):
-                return cls.var_strength, cls()
-        return 0, cls()
+    def from_dict(cls, var_dict):
+        for meta_class in cls.sub_types.values():
+            if meta_class.__name__ == var_dict["type"]:
+                return meta_class(
+                    name=var_dict["name"],
+                    distribution=meta_class.dist_class.from_dict(var_dict["distribution"]),
+                    prop_missing=var_dict["prop_missing"])
+        raise ValueError("Cannot find meta class '{var_dict['type']}'.")
 
-    def fit(self, values):
-        return NanDistribution()
+
+class IntVar(MetaVar):
+    dist_class = IntDistribution
+
+
+class FloatVar(MetaVar):
+    dist_class = FloatDistribution
 
 
 class StringVar(MetaVar):
-    var_strength = 0.5
-
-    @classmethod
-    def detect(cls, series, series_str):
-        return 0.5, cls()
-
-    def fit(self, values):
-        return StringDistribution.fit(values)
+    dist_class = StringDistribution
 
 
 class CategoricalVar(MetaVar):
-    var_strength = 3
-
-    @classmethod
-    def detect(cls, series, series_str):
-        series = series.dropna()
-        series_str = series.dropna()
-        if len(series) == 0:
-            return 0, cls()
-        int_score, _ = IntVar.detect(series, series_str)
-        float_score, _ = FloatVar.detect(series, series_str)
-        if int_score < float_score:
-            return 0, cls()
-
-        if int_score > 0:
-            values = series.values.astype(int)
-        else:
-            values = series.values.astype(str)
-        n_unique = len(np.unique(values))
-        if len(series) > 20 and n_unique**2 < len(series):
-            return cls.var_strength, cls()
-        return 0, cls()
-
-    def fit(self, values):
-        return CategoricalDistribution.fit(values.dropna())
+    dist_class = CategoricalDistribution

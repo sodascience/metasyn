@@ -2,9 +2,33 @@ import numpy as np
 from scipy.stats import uniform, norm
 from copy import deepcopy
 from scipy.stats import randint
+from abc import ABC, abstractmethod
 
 
-class BaseDistribution():
+class BaseDistribution(ABC):
+    @classmethod
+    def fit(self, series):
+        distribution = self._fit(series.dropna())
+        return distribution
+
+    @classmethod
+    @abstractmethod
+    def _fit(self, series):
+        pass
+
+    @abstractmethod
+    def draw(self):
+        pass
+
+    @abstractmethod
+    def to_dict(self):
+        pass
+
+    def AIC(self, values):
+        return 0.0
+
+
+class ScipyDistribution(BaseDistribution):
     def AIC(self, values):
         vals = values[~np.isnan(values)]
         return 2*self.n_par - 2*np.sum(self.dist.logpdf(vals+1e-7))
@@ -22,20 +46,21 @@ class BaseDistribution():
         return str(self.to_dict())
 
     @classmethod
-    def fit(cls, values):
+    def _fit(cls, values):
         param = cls.dist_class.fit(values[~np.isnan(values)])
         return cls(*param)
 
     def to_dict(self):
-        properties = deepcopy(self.par)
-        properties["name"] = type(self).__name__
-        return properties
+        return {
+            "name": type(self).__name__,
+            "parameters": deepcopy(self.par),
+        }
 
     def draw(self):
         return self.dist.rvs()
 
 
-class UniformDistribution(BaseDistribution):
+class UniformDistribution(ScipyDistribution):
     dist_class = uniform
 
     def __init__(self, min_val, max_val):
@@ -43,13 +68,13 @@ class UniformDistribution(BaseDistribution):
         self.dist = uniform(loc=self.min_val, scale=self.max_val-self.min_val)
 
     @classmethod
-    def fit(cls, values):
+    def _fit(cls, values):
         vals = values[~np.isnan(values)]
         delta = vals.max() - vals.min()
         return cls(vals.min()-1e-3*delta, vals.max()+1e-3*delta)
 
 
-class NormalDistribution(BaseDistribution):
+class NormalDistribution(ScipyDistribution):
     dist_class = norm
 
     def __init__(self, mean, std_dev):
@@ -57,61 +82,37 @@ class NormalDistribution(BaseDistribution):
         self.dist = norm(loc=mean, scale=std_dev)
 
 
-class FloatDistribution():
-    var_types = [UniformDistribution, NormalDistribution]
-
-    @classmethod
-    def from_dict(cls, meta_dict):
-        meta_dict = deepcopy(meta_dict)
-        name = meta_dict.pop("name")
-        for var_type in FloatDistribution.var_types:
-            if name == var_type.__name__:
-                return var_type(**meta_dict)
-        raise ValueError("Cannot find right class.")
-
-    @classmethod
-    def fit(cls, values):
-        instances = [var_type.fit(values)
-                     for var_type in FloatDistribution.var_types]
-        i_min = np.argmin([inst.AIC(values) for inst in instances])
-        return instances[i_min]
-
-
-class DiscreteUniformDistribution(BaseDistribution):
+class DiscreteUniformDistribution(ScipyDistribution):
     dist_class = randint
 
     def __init__(self, low, high):
         self.par = {"low": low, "high": high}
-        print(type(low), type(high))
         self.dist = self.dist_class(low=low, high=high+1)
 
+    def AIC(self, values):
+        vals = values[~np.isnan(values)]
+        return 2*self.n_par - 2*np.sum(self.dist.logpmf(vals+1e-7))
+
     @classmethod
-    def fit(cls, values):
+    def _fit(cls, values):
         param = {"low": np.min(values), "high": np.max(values)}
         return cls(**param)
 
 
-class IntDistribution():
-    var_types = [DiscreteUniformDistribution]
-
-    @classmethod
-    def fit(cls, values):
-        return DiscreteUniformDistribution.fit(values)
-
-
-class CategoricalDistribution():
+class CatFreqDistribution(BaseDistribution):
     def __init__(self, cat_freq):
         self.cat_freq = cat_freq
 
     @classmethod
-    def fit(cls, values):
+    def _fit(cls, values):
         unq_vals, counts = np.unique(values, return_counts=True)
         return cls(dict(zip(unq_vals, counts)))
 
     def to_dict(self):
-        cat_freq = deepcopy(self.cat_freq)
-        cat_freq["name"] = type(self).__name__
-        return cat_freq
+        dist_dict = {}
+        dist_dict["name"] = type(self).__name__
+        dist_dict["parameters"] = {"cat_freq": self.cat_freq}
+        return dist_dict
 
     def __str__(self):
         return str(self.to_dict())
@@ -122,14 +123,14 @@ class CategoricalDistribution():
         return np.random.choice(np.array(list(self.cat_freq)), p=p_vals)
 
 
-class StringDistribution():
+class StringFreqDistribution(BaseDistribution):
     def __init__(self, str_lengths, p_length, all_char_counts):
         self.str_lengths = str_lengths
         self.p_length = p_length
         self.all_char_counts = all_char_counts
 
     @classmethod
-    def fit(cls, values):
+    def _fit(cls, values):
         values = values.astype(str)
         str_lengths, str_len_counts = np.unique([len(x) for x in values],
                                                 return_counts=True)
@@ -144,15 +145,18 @@ class StringDistribution():
         return cls(str_lengths, p_length, all_char_counts)
 
     def __str__(self):
-        data = self.to_dict()
-        return f"String variable: avg # of characters: {np.sum(data['str_lengths']*data['p_length'])} "
+        avg_len = np.sum([self.str_lengths[i]*self.p_length[i]
+                          for i in range(len(self.str_lengths))])
+        return f"String variable: avg # of characters: {avg_len} "
 
     def to_dict(self):
         return {
             "name": type(self).__name__,
-            "str_lengths": deepcopy(self.str_lengths),
-            "p_length": deepcopy(self.p_length),
-            "all_char_counts": deepcopy(self.all_char_counts),
+            "parameters": {
+                "str_lengths": deepcopy(self.str_lengths),
+                "p_length": deepcopy(self.p_length),
+                "all_char_counts": deepcopy(self.all_char_counts),
+            }
         }
 
     def draw(self):
@@ -164,12 +168,35 @@ class StringDistribution():
         return cur_str
 
 
-class NanDistribution():
-    def to_dict(self):
-        return {"name": type(self).__class__}
+class MetaDistribution(ABC):
+    @classmethod
+    def from_dict(cls, meta_dict):
+        meta_dict = deepcopy(meta_dict)
+        name = meta_dict.pop("name")
+        for dist_type in cls.dist_types:
+            if name == dist_type.__name__:
+                return dist_type(**meta_dict["parameters"])
+        raise ValueError("Cannot find right class.")
 
-    def __str__(self):
-        return str(self.to_dict())
+    @classmethod
+    def fit(cls, values):
+        instances = [dist_type.fit(values)
+                     for dist_type in cls.dist_types]
+        i_min = np.argmin([inst.AIC(values) for inst in instances])
+        return instances[i_min]
 
-    def draw(self):
-        return np.nan
+
+class FloatDistribution(MetaDistribution):
+    dist_types = [UniformDistribution, NormalDistribution]
+
+
+class IntDistribution(MetaDistribution):
+    dist_types = [DiscreteUniformDistribution]
+
+
+class CategoricalDistribution(MetaDistribution):
+    dist_types = [CatFreqDistribution]
+
+
+class StringDistribution(MetaDistribution):
+    dist_types = [StringFreqDistribution]
