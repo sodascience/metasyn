@@ -1,3 +1,6 @@
+"""Conversion of pandas dataframes to MetaSynth datasets."""
+
+
 import json
 
 import numpy as np
@@ -6,22 +9,52 @@ from metasynth.var import MetaVar
 
 
 class MetaDataset():
+    """MetaSynth dataset consisting of variables.
+
+    The MetaSynth dataset structure that is most easily created from
+    a pandas dataset with the from_dataframe class method.
+
+    Parameters
+    ----------
+    meta_vars: list of MetaVar
+        List of variables representing columns in a dataframe.
+    n_rows: int
+        Number of rows in the original dataframe.
+    """
+
     def __init__(self, meta_vars, n_rows=None):
         self.meta_vars = meta_vars
         self.n_rows = n_rows
 
     @property
     def n_columns(self):
+        """int: Number of columns of the original dataframe."""
         return len(self.meta_vars)
 
     @classmethod
     def from_dataframe(cls, df):
+        """Create dataset from a Pandas dataframe.
+
+        The pandas dataframe should be formatted already with the correct
+        datatypes.
+
+        Parameters
+        ----------
+        df: pandas.Dataframe
+            Pandas dataframe with the correct column dtypes.
+
+        Returns
+        -------
+        MetaDataset:
+            Initialized MetaSynth dataset.
+        """
         all_vars = [var for var in MetaVar.detect(df)]
         for var in all_vars:
             var.fit()
         return cls(all_vars, len(df))
 
     def to_dict(self):
+        """Create dictionary with the properties for recreation."""
         return {
             "n_rows": self.n_rows,
             "n_columns": self.n_columns,
@@ -29,6 +62,7 @@ class MetaDataset():
         }
 
     def __getitem__(self, key):
+        """Return meta var either by variable name or index."""
         if isinstance(key, int):
             return self.meta_vars[key]
         if isinstance(key, str):
@@ -39,6 +73,7 @@ class MetaDataset():
         raise TypeError(f"Cannot get item for key '{key}'")
 
     def __str__(self):
+        """Create a readable string that shows the variables."""
         cur_str = "# Rows: "+str(self.n_rows)+"\n"
         cur_str += "# Columns: "+str(self.n_columns)+"\n"
         for var in self.meta_vars:
@@ -46,11 +81,30 @@ class MetaDataset():
         return cur_str
 
     def to_json(self, fp):
+        """Write the MetaSynth dataset to a JSON file.
+
+        Parameters
+        ----------
+        fp: str or pathlib.Path
+            File to write the dataset to.
+        """
         with open(fp, "w") as f:
-            json.dump(jsonify(self.to_dict()), f)
+            json.dump(_jsonify(self.to_dict()), f)
 
     @classmethod
     def from_json(cls, fp):
+        """Read a MetaSynth dataset from a JSON file.
+
+        Parameters
+        ----------
+        fp: str or pathlib.Path
+            Path to read the data from.
+
+        Returns
+        -------
+        MetaDataset:
+            A restored metadataset from the file.
+        """
         with open(fp, "r") as f:
             self_dict = json.load(f)
 
@@ -59,14 +113,14 @@ class MetaDataset():
         return cls(meta_vars, n_rows)
 
 
-def jsonify(data):
+def _jsonify(data):
     if isinstance(data, (list, tuple)):
-        return [jsonify(d) for d in data]
+        return [_jsonify(d) for d in data]
     if isinstance(data, dict):
-        return {key: jsonify(value) for key, value in data.items()}
+        return {key: _jsonify(value) for key, value in data.items()}
 
     if isinstance(data, np.int64):
         return int(data)
     if isinstance(data, np.ndarray):
-        return jsonify(data.tolist())
+        return _jsonify(data.tolist())
     return data
