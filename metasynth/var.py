@@ -1,4 +1,4 @@
-"""Variable module that creates metadata variables."""
+"""Variable module that creates metadata variables."""  # pylint: disable=invalid-name
 
 import pandas as pd
 from metasynth.metadist import FloatDistribution, CategoricalDistribution
@@ -25,6 +25,8 @@ class MetaVar():
     prop_missing : float
         Proportion of the series that are missing/NA.
     """
+
+    dist_class = None
 
     def __init__(self, series=None, name=None, distribution=None, prop_missing=0):
         if series is None:
@@ -60,14 +62,14 @@ class MetaVar():
 
         series = series_or_dataframe
         try:
-            sub_class = MetaVar.sub_types[pd.api.types.infer_dtype(series)]
-        except KeyError:
-            raise ValueError(f"Type of column '{series.name}' is not supported")
+            sub_class = MetaVar.sub_types[pd.api.types.infer_dtype(series)]  # pylint: disable=unsubscriptable-object
+        except KeyError as e:
+            raise ValueError(f"Type of column '{series.name}' is not supported") from e
         return sub_class(series)
 
     @classmethod
     @property
-    def sub_types(self):
+    def sub_types(cls):
         """Return a dictionary to translate type names to VarTypes."""
         return {
             "categorical": CategoricalVar,

@@ -23,6 +23,8 @@ class MetaDistribution(ABC):
     of them need to be instantiated, so in that sense they are abstract.
     """
 
+    dist_types = []
+
     @classmethod
     def from_dict(cls, meta_dict):
         """Restore/create distribution from dictionary.

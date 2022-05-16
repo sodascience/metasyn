@@ -1,4 +1,4 @@
-"""Conversion of pandas dataframes to MetaSynth datasets."""
+"""Conversion of pandas dataframes to MetaSynth datasets."""   # pylint: disable=invalid-name
 
 
 import json
@@ -48,7 +48,7 @@ class MetaDataset():
         MetaDataset:
             Initialized MetaSynth dataset.
         """
-        all_vars = [var for var in MetaVar.detect(df)]
+        all_vars = list(MetaVar.detect(df))
         for var in all_vars:
             var.fit()
         return cls(all_vars, len(df))
@@ -88,7 +88,7 @@ class MetaDataset():
         fp: str or pathlib.Path
             File to write the dataset to.
         """
-        with open(fp, "w") as f:
+        with open(fp, "w", encoding="utf-8") as f:
             json.dump(_jsonify(self.to_dict()), f)
 
     @classmethod
@@ -105,7 +105,7 @@ class MetaDataset():
         MetaDataset:
             A restored metadataset from the file.
         """
-        with open(fp, "r") as f:
+        with open(fp, "r", encoding="utf-8") as f:
             self_dict = json.load(f)
 
         n_rows = self_dict["n_rows"]

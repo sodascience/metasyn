@@ -3,7 +3,7 @@
 These distributions can be fit to datasets/series so that the synthesis is
 somewhat realistic. The concept of distributions here is not only for
 numerical data, but also for generating strings for example.
-"""
+"""  # pylint: disable=invalid-name
 
 from abc import ABC, abstractmethod
 from copy import deepcopy
@@ -39,14 +39,12 @@ class BaseDistribution(ABC):
 
     @classmethod
     @abstractmethod
-    def _fit(self, series):
+    def _fit(cls, values):
         """See fit method, but does not need to deal with NA's."""
-        pass
 
     @abstractmethod
     def draw(self):
         """Draw a random element from the fitted distribution."""
-        pass
 
     def __str__(self):
         """Create a human readable string of the object."""
@@ -55,9 +53,8 @@ class BaseDistribution(ABC):
     @abstractmethod
     def to_dict(self):
         """Convert the distribution to a dictionary."""
-        pass
 
-    def AIC(self, values):
+    def AIC(self, values):  # pylint: disable=unused-argument, no-self-use
         """Get the AIC value for a particular set of values.
 
         TODO: Should probably rename, since this only makes (much) sense
@@ -102,7 +99,7 @@ class ScipyDistribution(BaseDistribution):
         """
         if attr != "par" and attr in self.par:
             return self.par[attr]
-        return super().__getattr__(attr)
+        return super().__getattr__(attr)  # pylint: disable=no-member
 
     @classmethod
     def _fit(cls, values):
@@ -230,7 +227,7 @@ class CatFreqDistribution(BaseDistribution):
         return str(self.to_dict())
 
     def draw(self):
-        p_vals = np.array([x for x in self.cat_freq.values()])
+        p_vals = np.array(list(self.cat_freq.values()))
         p_vals = p_vals/np.sum(p_vals)
         return np.random.choice(np.array(list(self.cat_freq)), p=p_vals)
 
