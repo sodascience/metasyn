@@ -27,6 +27,7 @@ class MetaVar():
     """
 
     dist_class = None
+    dtype = "unknown"
 
     def __init__(self, series=None, name=None, distribution=None, prop_missing=0):
         if series is None:
@@ -35,6 +36,7 @@ class MetaVar():
         else:
             self.name = series.name
             self.prop_missing = (len(series) - len(series.dropna()))/len(series)
+            self.dtype = series.dtype
 
         self.series = series
         self.distribution = distribution
@@ -116,6 +118,9 @@ class MetaVar():
             raise ValueError("Cannot draw without distribution")
         return self.distribution.draw()
 
+    def draw_series(self, n):
+        return pd.Series([self.draw() for _ in range(n)], dtype=self.dtype)
+
     @classmethod
     def from_dict(cls, var_dict):
         """Restore variable from dictionary.
@@ -144,21 +149,22 @@ class IntVar(MetaVar):
     """Integer variable class."""
 
     dist_class = IntDistribution
-
+    dtype = "int"
 
 class FloatVar(MetaVar):
     """Floating point variable class."""
 
     dist_class = FloatDistribution
-
+    dtype = "float"
 
 class StringVar(MetaVar):
     """String variable class."""
 
     dist_class = StringDistribution
-
+    dtype = "str"
 
 class CategoricalVar(MetaVar):
     """Categorical variable class."""
 
     dist_class = CategoricalDistribution
+    dtype = "category"
