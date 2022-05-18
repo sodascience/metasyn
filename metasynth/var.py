@@ -119,6 +119,18 @@ class MetaVar():
         return self.distribution.draw()
 
     def draw_series(self, n):
+        """Draw a new synthetic series from the metadata.
+
+        Parameters
+        ----------
+        n: int
+            Length of the series to be created.
+
+        Returns
+        -------
+        pandas.Series:
+            Pandas series with the synthetic data.
+        """
         return pd.Series([self.draw() for _ in range(n)], dtype=self.dtype)
 
     @classmethod
