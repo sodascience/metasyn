@@ -1,49 +1,105 @@
+"""Distributions for variables.
+
+These distributions can be fit to datasets/series so that the synthesis is
+somewhat realistic. The concept of distributions here is not only for
+numerical data, but also for generating strings for example.
+"""  # pylint: disable=invalid-name
+
+from abc import ABC, abstractmethod
+from copy import deepcopy
+
 import numpy as np
 from scipy.stats import uniform, norm
-from copy import deepcopy
 from scipy.stats import randint
-from abc import ABC, abstractmethod
 
 
 class BaseDistribution(ABC):
+    """Abstract base class to define a distribution.
+
+    All distributions should be derived from this class, and the following
+    methods need to be implemented: _fit, draw, to_dict.
+    """
+
     @classmethod
-    def fit(self, series):
-        distribution = self._fit(series.dropna())
+    def fit(cls, series):
+        """Fit the distribution to the series.
+
+        Parameters
+        ----------
+        series: pandas.Series
+            Data to fit the distribution to.
+
+        Returns
+        -------
+        BaseDistribution:
+            Fitted distribution.
+        """
+        distribution = cls._fit(series.dropna())
         return distribution
 
     @classmethod
     @abstractmethod
-    def _fit(self, series):
-        pass
+    def _fit(cls, values):
+        """See fit method, but does not need to deal with NA's."""
 
     @abstractmethod
     def draw(self):
-        pass
+        """Draw a random element from the fitted distribution."""
+
+    def __str__(self):
+        """Create a human readable string of the object."""
+        return str(self.to_dict())
 
     @abstractmethod
     def to_dict(self):
-        pass
+        """Convert the distribution to a dictionary."""
 
-    def AIC(self, values):
+    def AIC(self, values):  # pylint: disable=unused-argument, no-self-use
+        """Get the AIC value for a particular set of values.
+
+        TODO: Should probably rename, since this only makes (much) sense
+        for numerical distributions.
+
+        Parameters
+        ----------
+        values: array_like
+            Values to determine the AIC value of.
+        """
         return 0.0
 
 
 class ScipyDistribution(BaseDistribution):
-    def AIC(self, values):
-        vals = values[~np.isnan(values)]
-        return 2*self.n_par - 2*np.sum(self.dist.logpdf(vals+1e-7))
+    """Base class for numerical Scipy distributions.
+
+    This base class makes it easy to implement new numerical
+    distributions. One could also use this base class for non-scipy
+    distributions, in which case the distribution class should implement
+    logpdf, rvs and fit methods.
+    """
 
     @property
     def n_par(self):
+        """int: Number of parameters for distribution."""
         return len(self.par)
 
     def __getattr__(self, attr):
+        """Get attribute for easy access to parameters.
+
+        Parameters
+        ----------
+        attr:
+            Attribute to retrieve. If the attribute is a parameter
+            name, then retrieve that parameter, otherwise use the default
+            implementation for getting the attribute.
+
+        Returns
+        -------
+        object:
+            Parameter or attribute.
+        """
         if attr != "par" and attr in self.par:
             return self.par[attr]
-        return super().__getattr__(attr)
-
-    def __str__(self):
-        return str(self.to_dict())
+        return super().__getattr__(attr)  # pylint: disable=no-member
 
     @classmethod
     def _fit(cls, values):
@@ -59,8 +115,25 @@ class ScipyDistribution(BaseDistribution):
     def draw(self):
         return self.dist.rvs()
 
+    def AIC(self, values):
+        vals = values[~np.isnan(values)]
+        return 2*self.n_par - 2*np.sum(self.dist.logpdf(vals+1e-7))
+
 
 class UniformDistribution(ScipyDistribution):
+    """Uniform distribution for floating point type.
+
+    This class implements the uniform distribution between a minimum
+    and maximum.
+
+    Parameters
+    ----------
+    min_val: float
+        Lower bound for uniform distribution.
+    max_val: float
+        Upper bound for uniform distribution.
+    """
+
     dist_class = uniform
 
     def __init__(self, min_val, max_val):
@@ -75,6 +148,20 @@ class UniformDistribution(ScipyDistribution):
 
 
 class NormalDistribution(ScipyDistribution):
+    """Normal distribution for floating point type.
+
+    This class implements the normal/gaussian distribution and takes
+    the average and standard deviation as initialization input.
+
+    Parameters
+    ----------
+    mean: float
+        Mean of the normal distribution.
+
+    std_dev: float
+        Standard deviation of the normal distribution.
+    """
+
     dist_class = norm
 
     def __init__(self, mean, std_dev):
@@ -83,11 +170,24 @@ class NormalDistribution(ScipyDistribution):
 
 
 class DiscreteUniformDistribution(ScipyDistribution):
+    """Integer uniform distribution.
+
+    It differs from the floating point uniform distribution by
+    being a discrete distribution instead.
+
+    Parameters
+    ----------
+    low: int
+        Lower bound (inclusive) of the uniform distribution.
+    high: int
+        Upper bound (exclusive) of the uniform distribution.
+    """
+
     dist_class = randint
 
     def __init__(self, low, high):
         self.par = {"low": low, "high": high}
-        self.dist = self.dist_class(low=low, high=high+1)
+        self.dist = self.dist_class(low=low, high=high)
 
     def AIC(self, values):
         vals = values[~np.isnan(values)]
@@ -95,11 +195,20 @@ class DiscreteUniformDistribution(ScipyDistribution):
 
     @classmethod
     def _fit(cls, values):
-        param = {"low": np.min(values), "high": np.max(values)}
+        param = {"low": np.min(values), "high": np.max(values)+1}
         return cls(**param)
 
 
 class CatFreqDistribution(BaseDistribution):
+    """Categorical distribution that stores category frequencies.
+
+    Parameters
+    ----------
+    cat_freq: dict of int
+        Dictionary containing the frequency of each category.
+        The frequencies do not need to be normalized.
+    """
+
     def __init__(self, cat_freq):
         self.cat_freq = cat_freq
 
@@ -118,12 +227,39 @@ class CatFreqDistribution(BaseDistribution):
         return str(self.to_dict())
 
     def draw(self):
-        p_vals = np.array([x for x in self.cat_freq.values()])
+        p_vals = np.array(list(self.cat_freq.values()))
         p_vals = p_vals/np.sum(p_vals)
         return np.random.choice(np.array(list(self.cat_freq)), p=p_vals)
 
 
 class StringFreqDistribution(BaseDistribution):
+    """String distribution that computes the frequency of characters.
+
+    For the values supplied to the fit function, compute the string
+    length distribution. Then for each character position compute the
+    distribution of the characters.
+
+    When drawing from the distribution, first draw a random string length
+    from the distribution,
+    and then for each position of the string, draw a character from the
+    distribution for that position.
+
+    It works particularly well with very strongly formatted strings, such as
+    C25, A38, etc. For natural language, do not expect this to work
+    particularly well.
+
+    Parameters
+    ----------
+    str_lengths: array_like of int
+        All string lengths available in the dataset.
+    p_length: array_like of float
+        Probability of each of the `str_lengths`. Has the same size.
+    all_char_counts: list of tuple
+        For each character position a tuple of length two should be supplied:
+        * Available characters
+        * Probability that those characters are selected.
+    """
+
     def __init__(self, str_lengths, p_length, all_char_counts):
         self.str_lengths = str_lengths
         self.p_length = p_length
@@ -166,37 +302,3 @@ class StringFreqDistribution(BaseDistribution):
             char_choices, p_choices = self.all_char_counts[i_chr]
             cur_str += np.random.choice(char_choices, p=p_choices)
         return cur_str
-
-
-class MetaDistribution(ABC):
-    @classmethod
-    def from_dict(cls, meta_dict):
-        meta_dict = deepcopy(meta_dict)
-        name = meta_dict.pop("name")
-        for dist_type in cls.dist_types:
-            if name == dist_type.__name__:
-                return dist_type(**meta_dict["parameters"])
-        raise ValueError("Cannot find right class.")
-
-    @classmethod
-    def fit(cls, values):
-        instances = [dist_type.fit(values)
-                     for dist_type in cls.dist_types]
-        i_min = np.argmin([inst.AIC(values) for inst in instances])
-        return instances[i_min]
-
-
-class FloatDistribution(MetaDistribution):
-    dist_types = [UniformDistribution, NormalDistribution]
-
-
-class IntDistribution(MetaDistribution):
-    dist_types = [DiscreteUniformDistribution]
-
-
-class CategoricalDistribution(MetaDistribution):
-    dist_types = [CatFreqDistribution]
-
-
-class StringDistribution(MetaDistribution):
-    dist_types = [StringFreqDistribution]
