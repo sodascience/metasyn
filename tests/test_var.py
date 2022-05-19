@@ -1,3 +1,6 @@
+from pathlib import Path
+import json
+
 import pandas as pd
 import numpy as np
 from metasynth.var import MetaVar, CategoricalVar, IntVar, FloatVar, StringVar
@@ -6,8 +9,6 @@ from metasynth.distribution import CatFreqDistribution, NormalDistribution,\
 from metasynth.distribution import DiscreteUniformDistribution
 from metasynth.distribution import UniformDistribution
 from pytest import mark, raises
-from pathlib import Path
-import json
 from metasynth.dataset import _jsonify
 
 

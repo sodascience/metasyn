@@ -42,8 +42,6 @@ class MetaVar():
             self.name = series.name
             self.prop_missing = (len(series) - len(series.dropna()))/len(series)
             self.dtype = str(series.dtype)
-            if self.dtype == "str_":
-                self.dtype = "str"
 
         self.series = series
         self.distribution = distribution
