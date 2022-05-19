@@ -41,7 +41,9 @@ class MetaVar():
         else:
             self.name = series.name
             self.prop_missing = (len(series) - len(series.dropna()))/len(series)
-            self.dtype = series.dtype
+            self.dtype = str(series.dtype)
+            if self.dtype == "str_":
+                self.dtype = "str"
 
         self.series = series
         self.distribution = distribution
@@ -148,6 +150,8 @@ class MetaVar():
         pandas.Series:
             Pandas series with the synthetic data.
         """
+        print(self.dtype, type(self.dtype), str(self.dtype))
+        print([type(self.draw()) for _ in range(10)])
         return pd.Series([self.draw() for _ in range(n)], dtype=self.dtype)
 
     @classmethod

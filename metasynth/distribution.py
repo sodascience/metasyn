@@ -191,8 +191,6 @@ class DiscreteUniformDistribution(ScipyDistribution):
 
     def AIC(self, values):
         vals = values[~np.isnan(values)]
-        print(vals)
-        print(vals.dtype)
         return 2*self.n_par - 2*np.sum(self.dist.logpmf(vals.values.astype(int)+1e-7))
 
     @classmethod
@@ -213,11 +211,14 @@ class CatFreqDistribution(BaseDistribution):
 
     def __init__(self, cat_freq):
         self.cat_freq = cat_freq
+        self.terms = list(cat_freq)
+        self.p_vals = np.array(list(self.cat_freq.values()))
+        self.p_vals = self.p_vals/np.sum(self.p_vals)
 
     @classmethod
     def _fit(cls, values):
         unq_vals, counts = np.unique(values, return_counts=True)
-        return cls(dict(zip(unq_vals, counts)))
+        return cls(dict(zip(unq_vals.astype(str), counts)))
 
     def to_dict(self):
         dist_dict = {}
@@ -229,9 +230,7 @@ class CatFreqDistribution(BaseDistribution):
         return str(self.to_dict())
 
     def draw(self):
-        p_vals = np.array(list(self.cat_freq.values()))
-        p_vals = p_vals/np.sum(p_vals)
-        return np.random.choice(np.array(list(self.cat_freq)), p=p_vals)
+        return str(np.random.choice(self.terms, p=self.p_vals))
 
 
 class StringFreqDistribution(BaseDistribution):

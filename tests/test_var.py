@@ -5,7 +5,10 @@ from metasynth.distribution import CatFreqDistribution, NormalDistribution,\
     StringFreqDistribution
 from metasynth.distribution import DiscreteUniformDistribution
 from metasynth.distribution import UniformDistribution
-from pytest import mark
+from pytest import mark, raises
+from pathlib import Path
+import json
+from metasynth.dataset import _jsonify
 
 
 def check_var(series, var_type, dist_class):
@@ -20,6 +23,11 @@ def check_var(series, var_type, dist_class):
         
     assert isinstance(series, pd.Series)
     var = MetaVar.detect(series)
+    assert isinstance(str(var), str)
+    assert "prop_missing" in str(var)
+
+    with raises(ValueError):
+        var.draw_series(100)
     var.fit()
     new_series = var.draw_series(100)
     check_similar(series, new_series)
@@ -27,12 +35,34 @@ def check_var(series, var_type, dist_class):
     assert isinstance(var.distribution, dist_class)
 
     new_var = MetaVar.from_dict(var.to_dict())
+    with raises(ValueError):
+        var_dict = var.to_dict()
+        var_dict.update({"type": "unknown"})
+        MetaVar.from_dict(var_dict)
     newer_series = new_var.draw_series(100)
     check_similar(newer_series, series)
+    with raises(ValueError):
+        new_var.fit()
 
     assert type(new_var) == type(var)
     assert new_var.dtype == var.dtype
     assert isinstance(new_var, var_type)
+
+    # Write to JSON file and read it back
+    tmp_fp = Path("tests", "data", "tmp.json")
+    print(type(var.dtype))
+    with open(tmp_fp, "w") as f:
+        json.dump(_jsonify(var.to_dict()), f)
+
+    with open(tmp_fp, "r") as f:
+        new_var = MetaVar.from_dict(json.load(f))
+    check_similar(series, new_var.draw_series(100))
+    
+    assert type(new_var) == type(var)
+    assert new_var.dtype == var.dtype
+    assert isinstance(new_var, var_type)
+
+
     return new_series
 
 
@@ -74,15 +104,21 @@ def test_string():
     assert set(np.unique(series.dropna())) == set(np.unique(new_series.dropna()))
 
 
+def test_bool():
+    series = pd.Series(np.random.choice([True, False], size=100))
+    with raises(ValueError):
+        check_var(series, CategoricalVar, CatFreqDistribution)
+
+
 def test_dataframe():
     df = pd.DataFrame({
         "int": pd.Series([np.random.randint(0, 10) for _ in range(100)]),
         "float": pd.Series([np.random.rand() for _ in range(100)])
     })
 
-    vars = MetaVar.detect(df)
-    assert len(vars) == 2
-    assert isinstance(vars, list)
-    assert isinstance(vars[0], IntVar)
-    assert isinstance(vars[1], FloatVar)
+    variables = MetaVar.detect(df)
+    assert len(variables) == 2
+    assert isinstance(variables, list)
+    assert isinstance(variables[0], IntVar)
+    assert isinstance(variables[1], FloatVar)
     
