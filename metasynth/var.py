@@ -68,16 +68,21 @@ class MetaVar():
                     for col in series_or_dataframe]
 
         series = series_or_dataframe
-        try:
-            sub_class = MetaVar.sub_types[pd.api.types.infer_dtype(series)]  # pylint: disable=unsubscriptable-object
-        except KeyError as e:
-            raise ValueError(f"Type of column '{series.name}' is not supported") from e
+        sub_class = cls.get_sub_class(pd.api.types.infer_dtype(series),
+                                      series.name)
         return sub_class(series)
 
     @classmethod
-    @property
-    def sub_types(cls):
+    def get_sub_class(cls, detected_type, series_name):
         """Return a dictionary to translate type names to VarTypes."""
+        sub_types = cls.get_sub_types()
+        try:
+            return sub_types[detected_type]
+        except KeyError as e:
+            raise ValueError(f"Type of column '{series_name}' is not supported") from e
+
+    @classmethod
+    def get_sub_types(cls):
         return {
             "categorical": CategoricalVar,
             "string": StringVar,
@@ -159,7 +164,7 @@ class MetaVar():
         MetaVar:
             Initialized metadata variable.
         """
-        for meta_class in cls.sub_types.values():
+        for meta_class in cls.get_sub_types().values():
             if meta_class.__name__ == var_dict["type"]:
                 return meta_class(
                     name=var_dict["name"],
