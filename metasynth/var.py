@@ -31,7 +31,8 @@ class MetaVar():
     dist_class = None
     dtype = "unknown"
 
-    def __init__(self, series=None, name=None, distribution=None, prop_missing=0, dtype=None):
+    def __init__(self, series=None, name=None, distribution=None, prop_missing=0,  # pylint: disable=too-many-arguments
+                 dtype=None):
         if series is None:
             self.name = name
             self.prop_missing = prop_missing
@@ -122,7 +123,8 @@ class MetaVar():
         """Draw a random item for the variable in whatever type is required."""
         if self.distribution is None:
             raise ValueError("Cannot draw without distribution")
-        # TODO: add NA's
+
+        # Return NA's -> None
         if np.random.rand() < self.prop_missing:
             return None
         return self.distribution.draw()
