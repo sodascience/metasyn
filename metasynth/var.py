@@ -1,6 +1,8 @@
 """Variable module that creates metadata variables."""  # pylint: disable=invalid-name
 
 import pandas as pd
+import numpy as np
+
 from metasynth.metadist import FloatDistribution, CategoricalDistribution
 from metasynth.metadist import StringDistribution, IntDistribution
 
@@ -120,6 +122,9 @@ class MetaVar():
         """Draw a random item for the variable in whatever type is required."""
         if self.distribution is None:
             raise ValueError("Cannot draw without distribution")
+        # TODO: add NA's
+        if np.random.rand() < self.prop_missing:
+            return None
         return self.distribution.draw()
 
     def draw_series(self, n):

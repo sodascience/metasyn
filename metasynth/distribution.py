@@ -191,7 +191,9 @@ class DiscreteUniformDistribution(ScipyDistribution):
 
     def AIC(self, values):
         vals = values[~np.isnan(values)]
-        return 2*self.n_par - 2*np.sum(self.dist.logpmf(vals+1e-7))
+        print(vals)
+        print(vals.dtype)
+        return 2*self.n_par - 2*np.sum(self.dist.logpmf(vals.values.astype(int)+1e-7))
 
     @classmethod
     def _fit(cls, values):
