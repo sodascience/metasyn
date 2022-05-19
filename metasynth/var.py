@@ -74,7 +74,7 @@ class MetaVar():
 
     @classmethod
     def get_sub_class(cls, detected_type, series_name):
-        """Return a dictionary to translate type names to VarTypes."""
+        """Get the appropriate variable class from a detected pandas type."""
         sub_types = cls.get_sub_types()
         try:
             return sub_types[detected_type]
@@ -83,6 +83,7 @@ class MetaVar():
 
     @classmethod
     def get_sub_types(cls):
+        """Return a dictionary to translate type names to VarTypes."""
         return {
             "categorical": CategoricalVar,
             "string": StringVar,
