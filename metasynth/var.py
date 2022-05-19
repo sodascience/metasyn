@@ -29,10 +29,12 @@ class MetaVar():
     dist_class = None
     dtype = "unknown"
 
-    def __init__(self, series=None, name=None, distribution=None, prop_missing=0):
+    def __init__(self, series=None, name=None, distribution=None, prop_missing=0, dtype=None):
         if series is None:
             self.name = name
             self.prop_missing = prop_missing
+            if dtype is not None:
+                self.dtype = dtype
         else:
             self.name = series.name
             self.prop_missing = (len(series) - len(series.dropna()))/len(series)
@@ -85,6 +87,7 @@ class MetaVar():
         return {
             "name": self.name,
             "type": type(self).__name__,
+            "dtype": self.dtype,
             "prop_missing": self.prop_missing,
             "distribution": self.distribution.to_dict(),
         }
@@ -94,6 +97,7 @@ class MetaVar():
         return str({
             "name": self.name,
             "type": type(self).__name__,
+            "dtype": self.dtype,
             "prop_missing": self.prop_missing,
             "distribution": str(self.distribution),
         })
@@ -153,7 +157,7 @@ class MetaVar():
                 return meta_class(
                     name=var_dict["name"],
                     distribution=meta_class.dist_class.from_dict(var_dict["distribution"]),
-                    prop_missing=var_dict["prop_missing"])
+                    prop_missing=var_dict["prop_missing"], dtype = var_dict["dtype"])
         raise ValueError("Cannot find meta class '{var_dict['type']}'.")
 
 

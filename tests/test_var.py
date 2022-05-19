@@ -5,8 +5,7 @@ from metasynth.distribution import CatFreqDistribution, NormalDistribution,\
     StringFreqDistribution
 from metasynth.distribution import DiscreteUniformDistribution
 from metasynth.distribution import UniformDistribution
-from pathlib import Path
-import json
+from pytest import mark
 
 
 def check_var(series, var_type, dist_class):
@@ -18,6 +17,13 @@ def check_var(series, var_type, dist_class):
     assert new_series.iloc[0].__class__.__name__ == series.iloc[0].__class__.__name__
     assert isinstance(var, var_type)
     assert isinstance(var.distribution, dist_class)
+    var_dict = var.to_dict()
+    new_var = var.from_dict(var_dict)
+    assert type(new_var) == type(var)
+    newer_series = new_var.draw_series(100)
+    print(new_var.dtype, var.dtype)
+    assert newer_series.iloc[0].__class__.__name__ == series.iloc[0].__class__.__name__
+    assert isinstance(new_var, var_type)
     return new_series
 
 
@@ -27,11 +33,13 @@ def test_categorical():
     assert set(np.unique(series)) == set(np.unique(new_series))
 
 
-def test_integer():
-    series = pd.Series([np.random.randint(0, 10) for _ in range(100)], dtype="int8")
+@mark.parametrize("dtype", ["int8", "int16", "int32", "int64", "int"])
+def test_integer(dtype):
+    series = pd.Series([np.random.randint(0, 10) for _ in range(100)], dtype=dtype)
     new_series = check_var(series, IntVar, DiscreteUniformDistribution)
     assert np.min(new_series) >= 0
     assert np.max(new_series) < 10
+
 
 def test_float():
     series = pd.Series([np.random.rand() for _ in range(100)])
@@ -42,18 +50,22 @@ def test_float():
     series = pd.Series(np.random.randn(100))
     check_var(series, FloatVar, NormalDistribution)
 
+
 def test_string():
     series = pd.Series(np.random.choice(["a", "b", "c"], size=100))
     new_series = check_var(series, StringVar, StringFreqDistribution)
     assert set(np.unique(series)) == set(np.unique(new_series))
 
 
-def test_var_dict():
-    with open(Path("tests", "data", "test.json"), "r") as f:
-        var_dicts = json.load(f)
+def test_dataframe():
+    df = pd.DataFrame({
+        "int": pd.Series([np.random.randint(0, 10) for _ in range(100)]),
+        "float": pd.Series([np.random.rand() for _ in range(100)])
+    })
 
-    for var_dict in var_dicts["vars"]:
-        var = MetaVar.from_dict(var_dict)
-        print(var_dict["name"], var.dtype)
-        print(pd.Series([var.draw() for _ in range(100)], dtype=var.dtype).astype(str).dtype)
-        assert var.draw_series(100).iloc[0].__class__.__name__ == var.dtype
+    vars = MetaVar.detect(df)
+    assert len(vars) == 2
+    assert isinstance(vars, list)
+    
+
+    
