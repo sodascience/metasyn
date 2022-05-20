@@ -10,9 +10,9 @@ from copy import deepcopy
 
 import numpy as np
 
-from .distribution import UniformDistribution, NormalDistribution
-from .distribution import DiscreteUniformDistribution, CatFreqDistribution
-from .distribution import StringFreqDistribution
+from metasynth.distribution import UniformDistribution, NormalDistribution
+from metasynth.distribution import DiscreteUniformDistribution, CatFreqDistribution
+from metasynth.distribution import StringFreqDistribution
 
 
 class MetaDistribution(ABC):
