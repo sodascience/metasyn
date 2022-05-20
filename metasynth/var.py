@@ -1,6 +1,8 @@
 """Variable module that creates metadata variables."""  # pylint: disable=invalid-name
 
 import pandas as pd
+import numpy as np
+
 from metasynth.metadist import FloatDistribution, CategoricalDistribution
 from metasynth.metadist import StringDistribution, IntDistribution
 
@@ -27,14 +29,19 @@ class MetaVar():
     """
 
     dist_class = None
+    dtype = "unknown"
 
-    def __init__(self, series=None, name=None, distribution=None, prop_missing=0):
+    def __init__(self, series=None, name=None, distribution=None, prop_missing=0,  # pylint: disable=too-many-arguments
+                 dtype=None):
         if series is None:
             self.name = name
             self.prop_missing = prop_missing
+            if dtype is not None:
+                self.dtype = dtype
         else:
             self.name = series.name
             self.prop_missing = (len(series) - len(series.dropna()))/len(series)
+            self.dtype = str(series.dtype)
 
         self.series = series
         self.distribution = distribution
@@ -61,15 +68,21 @@ class MetaVar():
                     for col in series_or_dataframe]
 
         series = series_or_dataframe
-        try:
-            sub_class = MetaVar.sub_types[pd.api.types.infer_dtype(series)]  # pylint: disable=unsubscriptable-object
-        except KeyError as e:
-            raise ValueError(f"Type of column '{series.name}' is not supported") from e
+        sub_class = cls.get_sub_class(pd.api.types.infer_dtype(series),
+                                      series.name)
         return sub_class(series)
 
     @classmethod
-    @property
-    def sub_types(cls):
+    def get_sub_class(cls, detected_type, series_name):
+        """Get the appropriate variable class from a detected pandas type."""
+        sub_types = cls.get_sub_types()
+        try:
+            return sub_types[detected_type]
+        except KeyError as e:
+            raise ValueError(f"Type of column '{series_name}' is not supported") from e
+
+    @classmethod
+    def get_sub_types(cls):
         """Return a dictionary to translate type names to VarTypes."""
         return {
             "categorical": CategoricalVar,
@@ -83,6 +96,7 @@ class MetaVar():
         return {
             "name": self.name,
             "type": type(self).__name__,
+            "dtype": self.dtype,
             "prop_missing": self.prop_missing,
             "distribution": self.distribution.to_dict(),
         }
@@ -92,6 +106,7 @@ class MetaVar():
         return str({
             "name": self.name,
             "type": type(self).__name__,
+            "dtype": self.dtype,
             "prop_missing": self.prop_missing,
             "distribution": str(self.distribution),
         })
@@ -114,7 +129,28 @@ class MetaVar():
         """Draw a random item for the variable in whatever type is required."""
         if self.distribution is None:
             raise ValueError("Cannot draw without distribution")
+
+        # Return NA's -> None
+        if np.random.rand() < self.prop_missing:
+            return None
         return self.distribution.draw()
+
+    def draw_series(self, n):
+        """Draw a new synthetic series from the metadata.
+
+        Parameters
+        ----------
+        n: int
+            Length of the series to be created.
+
+        Returns
+        -------
+        pandas.Series:
+            Pandas series with the synthetic data.
+        """
+        print(self.dtype, type(self.dtype), str(self.dtype))
+        print([type(self.draw()) for _ in range(10)])
+        return pd.Series([self.draw() for _ in range(n)], dtype=self.dtype)
 
     @classmethod
     def from_dict(cls, var_dict):
@@ -131,12 +167,12 @@ class MetaVar():
         MetaVar:
             Initialized metadata variable.
         """
-        for meta_class in cls.sub_types.values():
+        for meta_class in cls.get_sub_types().values():
             if meta_class.__name__ == var_dict["type"]:
                 return meta_class(
                     name=var_dict["name"],
                     distribution=meta_class.dist_class.from_dict(var_dict["distribution"]),
-                    prop_missing=var_dict["prop_missing"])
+                    prop_missing=var_dict["prop_missing"], dtype = var_dict["dtype"])
         raise ValueError("Cannot find meta class '{var_dict['type']}'.")
 
 
@@ -144,21 +180,22 @@ class IntVar(MetaVar):
     """Integer variable class."""
 
     dist_class = IntDistribution
-
+    dtype = "int"
 
 class FloatVar(MetaVar):
     """Floating point variable class."""
 
     dist_class = FloatDistribution
-
+    dtype = "float"
 
 class StringVar(MetaVar):
     """String variable class."""
 
     dist_class = StringDistribution
-
+    dtype = "str"
 
 class CategoricalVar(MetaVar):
     """Categorical variable class."""
 
     dist_class = CategoricalDistribution
+    dtype = "category"
