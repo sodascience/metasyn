@@ -23,7 +23,6 @@ class MetaRegex():
         n_char = np.sum([len(val) for val in values])
         if n_char == 0:
             return cls([])
-        
         best_solution = None
         for re_class in [REDigit, REOptionChar, REAlphaNumeric, RELetters, RELettersLower, RELettersUpper]:
             new_values, regexer = re_class.fit(values)
@@ -50,6 +49,7 @@ class MetaRegex():
     def re(self):
         return "".join([x.re for x in self.re_list])
 
+
 class BaseRE():
     def IC(self, prop_solved):
         ic_add = self.n_param + self.log_options
@@ -58,6 +58,7 @@ class BaseRE():
 
 class REBaseRex(BaseRE):
     regex_str = None
+
     def __init__(self, min_digit, max_digit):
         self.min_digit = min_digit
         self.max_digit = max_digit
@@ -65,7 +66,6 @@ class REBaseRex(BaseRE):
     @property
     def n_param(self):
         return 1
-
 
     @classmethod
     def fit(cls, values):
@@ -88,6 +88,7 @@ class REBaseRex(BaseRE):
 
 class REDigit(REBaseRex):
     regex_str = r"^\d{1,}"
+
     @property
     def log_options(self):
         return self.max_digit*np.log(10)
@@ -190,6 +191,7 @@ class REOptionChar(BaseRE):
     def re(self):
         return "["+"".join(self.character_selection)+"]"
 
+
 class StringRgxDistribution(BaseDistribution):
     def __init__(self):
         pass
@@ -197,6 +199,7 @@ class StringRgxDistribution(BaseDistribution):
     @classmethod
     def _fit(cls, values):
         values = values.astype(str)
+
 
 class StringFreqDistribution(BaseDistribution):
     """String distribution that computes the frequency of characters.

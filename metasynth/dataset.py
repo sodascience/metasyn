@@ -1,6 +1,5 @@
 """Conversion of pandas dataframes to MetaSynth datasets."""   # pylint: disable=invalid-name
 
-
 import json
 
 import numpy as np
@@ -32,7 +31,7 @@ class MetaDataset():
         return len(self.meta_vars)
 
     @classmethod
-    def from_dataframe(cls, df):
+    def from_dataframe(cls, df, distribution={}):
         """Create dataset from a Pandas dataframe.
 
         The pandas dataframe should be formatted already with the correct
@@ -48,9 +47,15 @@ class MetaDataset():
         MetaDataset:
             Initialized MetaSynth dataset.
         """
-        all_vars = list(MetaVar.detect(df))
-        for var in all_vars:
-            var.fit()
+        all_vars = []
+        for col_name in list(df):
+            series = df[col_name]
+            dist = distribution.get(col_name, None)
+            var = MetaVar.detect(series)
+            var.fit(dist)
+
+            all_vars.append(var)
+
         return cls(all_vars, len(df))
 
     def to_dict(self):

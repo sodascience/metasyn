@@ -6,7 +6,7 @@ numerical data, but also for generating strings for example.
 """  # pylint: disable=invalid-name
 
 from metasynth.distribution.categorical import CatFreqDistribution
-from metasynth.distribution.float import NormalDistribution
-from metasynth.distribution.float import UniformDistribution
-from metasynth.distribution.int import DiscreteUniformDistribution
+from metasynth.distribution.continuous import NormalDistribution
+from metasynth.distribution.continuous import UniformDistribution
+from metasynth.distribution.discrete import DiscreteUniformDistribution
 from metasynth.distribution.string import StringFreqDistribution

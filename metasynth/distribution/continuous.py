@@ -1,3 +1,5 @@
+"""Implemented floating point distributions."""
+
 from metasynth.distribution.base import ScipyDistribution
 
 import numpy as np
@@ -18,6 +20,7 @@ class UniformDistribution(ScipyDistribution):
         Upper bound for uniform distribution.
     """
 
+    aliases = ["uniform"]
     dist_class = uniform
 
     def __init__(self, min_val, max_val):
@@ -46,6 +49,7 @@ class NormalDistribution(ScipyDistribution):
         Standard deviation of the normal distribution.
     """
 
+    aliases = ["normal", "gaussian"]
     dist_class = norm
 
     def __init__(self, mean, std_dev):

@@ -11,8 +11,10 @@ class BaseDistribution(ABC):
     methods need to be implemented: _fit, draw, to_dict.
     """
 
+    aliases = []
+
     @classmethod
-    def fit(cls, series):
+    def fit(cls, series, *args, **kwargs):
         """Fit the distribution to the series.
 
         Parameters
@@ -25,7 +27,7 @@ class BaseDistribution(ABC):
         BaseDistribution:
             Fitted distribution.
         """
-        distribution = cls._fit(series.dropna())
+        distribution = cls._fit(series.dropna(), *args, **kwargs)
         return distribution
 
     @classmethod
@@ -57,6 +59,14 @@ class BaseDistribution(ABC):
             Values to determine the AIC value of.
         """
         return 0.0
+
+    @classmethod
+    def is_named(cls, name):
+        return name in cls.aliases or name == type(cls).__name__
+
+    @classmethod
+    def fit_kwargs(cls, name):
+        return {}
 
 
 class ScipyDistribution(BaseDistribution):

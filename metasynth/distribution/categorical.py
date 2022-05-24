@@ -1,3 +1,5 @@
+"""Module containing categorical distributions."""
+
 import numpy as np
 
 from metasynth.distribution.base import BaseDistribution

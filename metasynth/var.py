@@ -5,6 +5,9 @@ import numpy as np
 
 from metasynth.metadist import FloatDistribution, CategoricalDistribution
 from metasynth.metadist import StringDistribution, IntDistribution
+from metasynth.distribution.base import BaseDistribution
+from metasynth.distribution.util import get_dist_class
+import inspect
 
 
 class MetaVar():
@@ -52,7 +55,7 @@ class MetaVar():
 
         Parameters
         ----------
-        series_or_dataframe: Union[pd.Series, pd.Dataframe]
+        series_or_dataframe: pd.Series or pd.Dataframe
             If the variable is a pandas Series, then find the correct
             variable type and create an instance of that variable.
             If a Dataframe is supplied instead, a list of of variables is
@@ -111,7 +114,7 @@ class MetaVar():
             "distribution": str(self.distribution),
         })
 
-    def fit(self):
+    def fit(self, dist=None):
         """Fit distributions to the data.
 
         If multiple distributions are available for the current data type,
@@ -119,11 +122,28 @@ class MetaVar():
 
         While it has no arguments or return values, it will set the
         distribution attribute to the most suitable distribution.
+
+        Parameters
+        ----------
+        dist: str or class or BaseDistribution, optional
         """
         if self.series is None:
             raise ValueError("Cannot fit distribution if we don't have the"
                              "original data.")
-        self.distribution = self.dist_class.fit(self.series)
+
+        if dist is None:
+            self.distribution = self.dist_class.fit(self.series)
+        else:
+            fit_kwargs = {}
+            if isinstance(dist, str):
+                dist, fit_kwargs = get_dist_class(dist)
+                print(dist, fit_kwargs)
+                dist = dist.fit(self.series, **fit_kwargs)
+            elif inspect.isclass(dist) and issubclass(dist, BaseDistribution):
+                dist = dist.fit(self.series)
+            if not isinstance(dist, BaseDistribution):
+                raise TypeError(f"Distribution with type {type(dist)} is not a BaseDistribution")
+            self.distribution = dist
 
     def draw(self):
         """Draw a random item for the variable in whatever type is required."""
@@ -148,8 +168,6 @@ class MetaVar():
         pandas.Series:
             Pandas series with the synthetic data.
         """
-        print(self.dtype, type(self.dtype), str(self.dtype))
-        print([type(self.draw()) for _ in range(10)])
         return pd.Series([self.draw() for _ in range(n)], dtype=self.dtype)
 
     @classmethod
@@ -172,7 +190,7 @@ class MetaVar():
                 return meta_class(
                     name=var_dict["name"],
                     distribution=meta_class.dist_class.from_dict(var_dict["distribution"]),
-                    prop_missing=var_dict["prop_missing"], dtype = var_dict["dtype"])
+                    prop_missing=var_dict["prop_missing"], dtype=var_dict["dtype"])
         raise ValueError("Cannot find meta class '{var_dict['type']}'.")
 
 
@@ -182,17 +200,20 @@ class IntVar(MetaVar):
     dist_class = IntDistribution
     dtype = "int"
 
+
 class FloatVar(MetaVar):
     """Floating point variable class."""
 
     dist_class = FloatDistribution
     dtype = "float"
 
+
 class StringVar(MetaVar):
     """String variable class."""
 
     dist_class = StringDistribution
     dtype = "str"
+
 
 class CategoricalVar(MetaVar):
     """Categorical variable class."""
