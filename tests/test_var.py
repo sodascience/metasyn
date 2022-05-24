@@ -21,7 +21,7 @@ def check_var(series, var_type, dist_class):
         base_type_b = series_b.dropna().iloc[0].__class__.__name__
         assert base_type_a == base_type_b
         assert (len(series_a)-len(series_a.dropna()) > 0) == (len(series_b) - len(series_b.dropna()) > 0)
-        
+
     assert isinstance(series, pd.Series)
     var = MetaVar.detect(series)
     assert isinstance(str(var), str)
