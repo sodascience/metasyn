@@ -104,13 +104,13 @@ class BaseRegexElement(ABC):
         """int: The number of 'parameters' of the regex element"""
         return 1
 
-    @abstractmethod
     @property
+    @abstractmethod
     def log_options(self):
         """float: The natural logarithm of the number of possibilities."""
 
-    @abstractmethod
     @classmethod
+    @abstractmethod
     def fit(cls, values):
         """Match the regex to the values, using as many positions as possible.
 

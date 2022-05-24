@@ -69,7 +69,7 @@ class MetaDistribution(ABC):
         """
         instances = [dist_type.fit(values)
                      for dist_type in cls.dist_types]
-        i_min = np.argmin([inst.AIC(values) for inst in instances])
+        i_min = np.argmin([inst.information_criterion(values) for inst in instances])
         return instances[i_min]
 
 
