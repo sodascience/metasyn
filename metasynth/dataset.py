@@ -31,7 +31,7 @@ class MetaDataset():
         return len(self.meta_vars)
 
     @classmethod
-    def from_dataframe(cls, df, distribution={}):
+    def from_dataframe(cls, df, distribution=None):
         """Create dataset from a Pandas dataframe.
 
         The pandas dataframe should be formatted already with the correct
@@ -47,6 +47,9 @@ class MetaDataset():
         MetaDataset:
             Initialized MetaSynth dataset.
         """
+        if distribution is None:
+            distribution = {}
+
         all_vars = []
         for col_name in list(df):
             series = df[col_name]

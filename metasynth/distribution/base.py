@@ -1,3 +1,5 @@
+"""Module for the base distribution and the scipy distribution."""
+
 from abc import ABC, abstractmethod
 from copy import deepcopy
 
@@ -47,11 +49,8 @@ class BaseDistribution(ABC):
     def to_dict(self):
         """Convert the distribution to a dictionary."""
 
-    def AIC(self, values):  # pylint: disable=unused-argument, no-self-use
+    def information_criterion(self, values):  # pylint: disable=unused-argument, no-self-use
         """Get the AIC value for a particular set of values.
-
-        TODO: Should probably rename, since this only makes (much) sense
-        for numerical distributions.
 
         Parameters
         ----------
@@ -62,10 +61,34 @@ class BaseDistribution(ABC):
 
     @classmethod
     def is_named(cls, name):
+        """Check whether the name matches the distribution.
+
+        Parameters
+        ----------
+        name: str
+            Name to match to the distribution.
+
+        Returns
+        -------
+        bool:
+            Whether the name matches.
+        """
         return name in cls.aliases or name == type(cls).__name__
 
     @classmethod
-    def fit_kwargs(cls, name):
+    def fit_kwargs(cls, name):  # pylint: disable=unused-argument
+        """Extra fitting arguments.
+
+        Parameters
+        ----------
+        name: str
+            Name to be matched.
+
+        Returns
+        -------
+        dict:
+            Keyword arguments extracted from the name.
+        """
         return {}
 
 
@@ -116,6 +139,6 @@ class ScipyDistribution(BaseDistribution):
     def draw(self):
         return self.dist.rvs()
 
-    def AIC(self, values):
+    def information_criterion(self, values):
         vals = values[~np.isnan(values)]
         return 2*self.n_par - 2*np.sum(self.dist.logpdf(vals+1e-7))

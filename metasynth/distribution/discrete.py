@@ -1,3 +1,4 @@
+"""Module with discrete distributions."""
 
 import numpy as np
 from scipy.stats import randint
@@ -25,7 +26,7 @@ class DiscreteUniformDistribution(ScipyDistribution):
         self.par = {"low": low, "high": high}
         self.dist = self.dist_class(low=low, high=high)
 
-    def AIC(self, values):
+    def information_criterion(self, values):
         vals = values[~np.isnan(values)]
         return 2*self.n_par - 2*np.sum(self.dist.logpmf(vals.values.astype(int)+1e-7))
 

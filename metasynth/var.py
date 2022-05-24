@@ -1,5 +1,7 @@
 """Variable module that creates metadata variables."""  # pylint: disable=invalid-name
 
+import inspect
+
 import pandas as pd
 import numpy as np
 
@@ -7,7 +9,6 @@ from metasynth.metadist import FloatDistribution, CategoricalDistribution
 from metasynth.metadist import StringDistribution, IntDistribution
 from metasynth.distribution.base import BaseDistribution
 from metasynth.distribution.util import get_dist_class
-import inspect
 
 
 class MetaVar():
@@ -126,24 +127,31 @@ class MetaVar():
         Parameters
         ----------
         dist: str or class or BaseDistribution, optional
+            The distribution to fit. In case of a string, search for it
+            using the aliases of all distributions. Otherwise use the
+            supplied distribution (class). Examples of allowed strings are:
+            "normal", "uniform", "faker.city.nl_NL". If not supplied, fit
+            the best available distribution for the variable type.
         """
         if self.series is None:
             raise ValueError("Cannot fit distribution if we don't have the"
                              "original data.")
 
+        # Automatic detection of the distribution
         if dist is None:
             self.distribution = self.dist_class.fit(self.series)
-        else:
-            fit_kwargs = {}
-            if isinstance(dist, str):
-                dist, fit_kwargs = get_dist_class(dist)
-                print(dist, fit_kwargs)
-                dist = dist.fit(self.series, **fit_kwargs)
-            elif inspect.isclass(dist) and issubclass(dist, BaseDistribution):
-                dist = dist.fit(self.series)
-            if not isinstance(dist, BaseDistribution):
-                raise TypeError(f"Distribution with type {type(dist)} is not a BaseDistribution")
-            self.distribution = dist
+            return
+
+        # Manually supplied distribution
+        fit_kwargs = {}
+        if isinstance(dist, str):
+            dist, fit_kwargs = get_dist_class(dist)
+            dist = dist.fit(self.series, **fit_kwargs)
+        elif inspect.isclass(dist) and issubclass(dist, BaseDistribution):
+            dist = dist.fit(self.series)
+        if not isinstance(dist, BaseDistribution):
+            raise TypeError(f"Distribution with type {type(dist)} is not a BaseDistribution")
+        self.distribution = dist
 
     def draw(self):
         """Draw a random item for the variable in whatever type is required."""

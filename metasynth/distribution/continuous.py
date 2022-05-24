@@ -1,9 +1,9 @@
 """Implemented floating point distributions."""
 
-from metasynth.distribution.base import ScipyDistribution
-
 import numpy as np
 from scipy.stats import uniform, norm
+
+from metasynth.distribution.base import ScipyDistribution
 
 
 class UniformDistribution(ScipyDistribution):

@@ -6,13 +6,28 @@ from metasynth.distribution.base import BaseDistribution
 
 
 class FakerDistribution(BaseDistribution):
+    """Distribution for the faker package.
+
+    This is mainly an interface for the faker package, so that it
+    can be used within the MetaSynth package. It doesn't have any
+    true fitting/statistical inference method, so it has to be manually
+    selected.
+
+    Parameters
+    ----------
+    faker_type: str
+        The provider function in the faker package, e.g. 'city' or 'ipv4', etc.
+    locale: str
+        Locale used for the faker package.
+    """
     def __init__(self, faker_type, locale="en_US"):
         self.faker_type = faker_type
         self.locale = locale
         self.fake = Faker(locale=locale)
 
     @classmethod
-    def _fit(cls, values, faker_type="city", locale="en_US"):
+    def _fit(cls, values, faker_type="city", locale="en_US"):  # pylint: disable=arguments-differ
+        """Select the appropriate faker function and locale."""
         return cls(faker_type, locale)
 
     def __str__(self):
