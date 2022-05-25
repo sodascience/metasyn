@@ -29,9 +29,6 @@ def test_util(dist_str, dist):
     assert dist == dist_class
     if dist_str.startswith("faker"):
         with raises(ValueError):
-            get_dist_class(dist_class.__name__)
-        with raises(ValueError):
             get_dist_class("this is not a distribution")
-    else:
-        new_class, _ = get_dist_class(dist_class.__name__)
-        assert new_class == dist_class
+    new_class, _ = get_dist_class(dist_class.__name__)
+    assert new_class == dist_class
