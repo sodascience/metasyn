@@ -70,7 +70,7 @@ class RegexDistribution(BaseDistribution):
             new_values, regexer = re_class.fit(values)
             prop_solved = _get_prop_solved(values, new_values)
             cur_ic = regexer.information_criterion(prop_solved)
-            if best_solution is None or cur_ic > best_solution["ic"]:
+            if best_solution is None or cur_ic < best_solution["ic"]:
                 best_solution = {
                     "ic": cur_ic,
                     "re": regexer,
@@ -124,8 +124,8 @@ class BaseRegexElement(ABC):
         float:
             Estimate of remaining IC.
         """
-        ic_add = self.n_param + self.log_options
-        return -ic_add/(prop_solved+1e-8)
+        ic_add = 2*self.n_param + 2*self.log_options
+        return ic_add/(prop_solved+1e-8)
 
     @property
     def n_param(self):
