@@ -20,6 +20,8 @@ class DiscreteUniformDistribution(ScipyDistribution):
         Upper bound (exclusive) of the uniform distribution.
     """
 
+    aliases = ["discrete_uniform"]
+
     dist_class = randint
 
     def __init__(self, low, high):

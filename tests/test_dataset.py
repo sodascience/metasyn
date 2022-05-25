@@ -5,6 +5,7 @@ from metasynth.dataset import MetaDataset
 from metasynth.var import StringVar, MetaVar, IntVar, CategoricalVar, FloatVar
 import pytest
 
+
 def test_dataset():
     dtypes = {
         "PassengerId": "int",
@@ -43,7 +44,7 @@ def test_dataset():
             dataset[20]
         with pytest.raises(TypeError):
             dataset[MetaVar]
-    
+
         assert "Rows" in str(dataset)
 
     check_dataset(dataset)

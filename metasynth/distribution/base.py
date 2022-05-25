@@ -73,7 +73,7 @@ class BaseDistribution(ABC):
         bool:
             Whether the name matches.
         """
-        return name in cls.aliases or name == type(cls).__name__
+        return name in cls.aliases or name == type(cls).__name__ or name == cls.__name__
 
     @classmethod
     def fit_kwargs(cls, name):  # pylint: disable=unused-argument

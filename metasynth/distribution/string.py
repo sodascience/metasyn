@@ -32,6 +32,8 @@ class RegexDistribution(BaseDistribution):
         List of basic regex elements in the order that they occur.
     """
 
+    aliases = ["regex"]
+
     def __init__(self, re_list):
         self.re_list = re_list
 
@@ -313,6 +315,8 @@ class StringFreqDistribution(BaseDistribution):
         * Available characters
         * Probability that those characters are selected.
     """
+
+    aliases = ["char_freq"]
 
     def __init__(self, str_lengths, p_length, all_char_counts):
         self.str_lengths = str_lengths

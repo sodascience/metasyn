@@ -40,6 +40,12 @@ def check_var(series, var_type, dist_class):
         var_dict = var.to_dict()
         var_dict.update({"type": "unknown"})
         MetaVar.from_dict(var_dict)
+
+    with raises(ValueError):
+        var_dict = var.to_dict()
+        var_dict["distribution"].update({"name": "unknown"})
+        MetaVar.from_dict(var_dict)
+
     newer_series = new_var.draw_series(100)
     check_similar(newer_series, series)
     with raises(ValueError):
@@ -58,11 +64,10 @@ def check_var(series, var_type, dist_class):
     with open(tmp_fp, "r") as f:
         new_var = MetaVar.from_dict(json.load(f))
     check_similar(series, new_var.draw_series(100))
-    
+
     assert type(new_var) == type(var)
     assert new_var.dtype == var.dtype
     assert isinstance(new_var, var_type)
-
 
     return new_series
 
@@ -81,9 +86,10 @@ def test_integer(dtype):
     assert np.max(new_series) < 10
 
 
-@mark.parametrize("dtype", ["Int8", "Int16", "Int32", "Int64"]) # 
+@mark.parametrize("dtype", ["Int8", "Int16", "Int32", "Int64"])
 def test_nullable_integer(dtype):
-    series = pd.Series([np.random.randint(0, 10) if np.random.rand() > 0.5 else None for _ in range(100)], dtype=dtype)
+    series = pd.Series([np.random.randint(0, 10) if np.random.rand() > 0.5 else None
+                        for _ in range(100)], dtype=dtype)
     new_series = check_var(series, IntVar, DiscreteUniformDistribution)
     assert np.min(new_series) >= 0
     assert np.max(new_series) < 10
@@ -122,4 +128,18 @@ def test_dataframe():
     assert isinstance(variables, list)
     assert isinstance(variables[0], IntVar)
     assert isinstance(variables[1], FloatVar)
-    
+
+
+def test_manual_fit():
+    series = pd.Series([np.random.rand() for _ in range(100)])
+    var = MetaVar.detect(series)
+    var.fit()
+    assert isinstance(var.distribution, UniformDistribution)
+    var.fit("normal")
+    assert isinstance(var.distribution, NormalDistribution)
+    var.fit(UniformDistribution)
+    assert isinstance(var.distribution, UniformDistribution)
+    var.fit(NormalDistribution(0, 1))
+    assert isinstance(var.distribution, NormalDistribution)
+    with raises(TypeError):
+        var.fit(10)

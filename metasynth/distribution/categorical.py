@@ -15,6 +15,8 @@ class CatFreqDistribution(BaseDistribution):
         The frequencies do not need to be normalized.
     """
 
+    aliases = ["cat_freq"]
+
     def __init__(self, cat_freq):
         self.cat_freq = cat_freq
         self.terms = list(cat_freq)
