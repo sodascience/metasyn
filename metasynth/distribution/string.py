@@ -35,7 +35,26 @@ class RegexDistribution(BaseDistribution):
     aliases = ["regex"]
 
     def __init__(self, re_list):
-        self.re_list = re_list
+        if len(re_list) > 0 and isinstance(re_list[0], str):
+            self.re_list = []
+            for regex_str in re_list:
+                regex_dist_elem = None
+                for regex_class in self.all_regex_classes():
+                    regex_dist_elem = regex_class.from_string(regex_str)
+                    if regex_dist_elem is not None:
+                        break
+                if regex_dist_elem is None:
+                    raise ValueError(f"Unrecognized regex element '{regex_str}'")
+                self.re_list.append(regex_dist_elem)
+        else:
+            self.re_list = re_list
+
+    @classmethod
+    def all_regex_classes(cls):
+        return [
+            DigitRegex, AlphaNumericRegex, LowercaseRegex, UppercaseRegex,
+            LettersRegex, SingleRegex
+        ]
 
     @classmethod
     def _fit(cls, values):
@@ -43,9 +62,7 @@ class RegexDistribution(BaseDistribution):
         if n_char == 0:
             return cls([])
         best_solution = None
-        regex_classes = [
-            DigitRegex, AlphaNumericRegex, LowercaseRegex, UppercaseRegex,
-            LettersRegex, SingleRegex]
+        regex_classes = cls.all_regex_classes()
 
         # Iterate over all RegexElements and find the best one.
         for re_class in regex_classes:
@@ -145,6 +162,23 @@ class BaseRegexElement(ABC):
             The string drawn from the regex distribution element.
         """
 
+    @classmethod
+    @abstractmethod
+    def from_string(cls, regex_str):
+        """Create a regex object from a regex string.
+
+        Parameters
+        ----------
+        regex_str: str
+            Regex string to process. Only single elements are supported.
+
+        Returns
+        -------
+        BaseRegexElement or None:
+            If the regex element is compatible with the string, then return the regex element
+            that corresponds to the string. Otherwise return None.
+        """
+
 
 class BaseRegexClass(BaseRegexElement):
     """Base class for repeating regex elements.
@@ -159,6 +193,7 @@ class BaseRegexClass(BaseRegexElement):
         Maximum number of repeats of the element.
     """
     regex_str = None
+    match_str = r""
 
     def __init__(self, min_digit, max_digit):
         self.min_digit = min_digit
@@ -182,10 +217,18 @@ class BaseRegexClass(BaseRegexElement):
             new_values.append(val[n_match:])
         return new_values, cls(min_match, max_match)
 
+    @classmethod
+    def from_string(cls, regex_str):
+        match = re.search(cls.match_str, regex_str)
+        if match is None:
+            return None
+        return cls(int(match.groups()[0]), int(match.groups()[1]))
+
 
 class DigitRegex(BaseRegexClass):
     """Regex element for repeating digits."""
     regex_str = r"^\d{1,}"
+    match_str = r"\\d{(\d*),(\d*)}"
 
     @property
     def log_options(self):
@@ -202,6 +245,7 @@ class DigitRegex(BaseRegexClass):
 class AlphaNumericRegex(BaseRegexClass):
     """Regex element for repeating alphanumeric character."""
     regex_str = r"^\w{1,}"
+    match_str = r"\\w{(\d*),(\d*)}"
 
     @property
     def log_options(self):
@@ -218,6 +262,7 @@ class AlphaNumericRegex(BaseRegexClass):
 class LettersRegex(BaseRegexClass):
     """Regex element for repeating letters."""
     regex_str = r"^[a-zA-Z]{1,}"
+    match_str = r"\[a-zA-Z\]{(\d*),(\d*)}"
 
     @property
     def log_options(self):
@@ -234,6 +279,7 @@ class LettersRegex(BaseRegexClass):
 class LowercaseRegex(BaseRegexClass):
     """Regex element for repeating lowercase letters."""
     regex_str = r"^[a-z]{1,}"
+    match_str = r"\[a-z\]{(\d*),(\d*)}"
 
     @property
     def log_options(self):
@@ -250,6 +296,7 @@ class LowercaseRegex(BaseRegexClass):
 class UppercaseRegex(BaseRegexClass):
     """Regex element for repeating uppercase letters."""
     regex_str = r"^[A-Z]{1,}"
+    match_str = r"\[A-Z\]{(\d*),(\d*)}"
 
     @property
     def log_options(self):
@@ -294,6 +341,11 @@ class SingleRegex(BaseRegexElement):
 
     def __str__(self):
         return "["+"".join(self.character_selection)+"]"
+
+    @classmethod
+    def from_string(cls, regex_str):
+        match = re.search(r"\[(.+)\]", regex_str)
+        return cls(list(match.groups()[0]))
 
 
 class StringFreqDistribution(BaseDistribution):

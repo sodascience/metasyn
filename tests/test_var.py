@@ -30,7 +30,7 @@ def check_var(series, var_type, dist_class):
     with raises(ValueError):
         var.draw_series(100)
     var.fit()
-    new_series = var.draw_series(100)
+    new_series = var.draw_series(len(series))
     check_similar(series, new_series)
     assert isinstance(var, var_type)
     assert isinstance(var.distribution, dist_class)
@@ -46,7 +46,7 @@ def check_var(series, var_type, dist_class):
         var_dict["distribution"].update({"name": "unknown"})
         MetaVar.from_dict(var_dict)
 
-    newer_series = new_var.draw_series(100)
+    newer_series = new_var.draw_series(len(series))
     check_similar(newer_series, series)
     with raises(ValueError):
         new_var.fit()
@@ -63,7 +63,7 @@ def check_var(series, var_type, dist_class):
 
     with open(tmp_fp, "r") as f:
         new_var = MetaVar.from_dict(json.load(f))
-    check_similar(series, new_var.draw_series(100))
+    check_similar(series, new_var.draw_series(len(series)))
 
     assert type(new_var) == type(var)
     assert new_var.dtype == var.dtype
@@ -96,7 +96,7 @@ def test_nullable_integer(dtype):
 
 
 def test_float():
-    series = pd.Series([np.random.rand() for _ in range(100)])
+    series = pd.Series([np.random.rand() for _ in range(1000)])
     new_series = check_var(series, FloatVar, UniformDistribution)
     assert np.min(new_series) > 0
     assert np.max(new_series) < 1

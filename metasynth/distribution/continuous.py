@@ -30,8 +30,13 @@ class UniformDistribution(ScipyDistribution):
     @classmethod
     def _fit(cls, values):
         vals = values[~np.isnan(values)]
-        delta = vals.max() - vals.min()
-        return cls(vals.min()-1e-3*delta, vals.max()+1e-3*delta)
+        return cls(vals.min(), vals.max())
+
+    def information_criterion(self, values):
+        vals = values[~np.isnan(values)]
+        if np.any(np.array(values) < self.min_val) and np.all(np.array(values) > self.max_val):
+            return 2*self.n_par + 100*len(vals)
+        return 2*self.n_par - 2*len(vals)*np.log((self.max_val-self.min_val)**-1)
 
 
 class NormalDistribution(ScipyDistribution):
