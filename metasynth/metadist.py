@@ -13,6 +13,7 @@ import numpy as np
 from metasynth.distribution import UniformDistribution, NormalDistribution
 from metasynth.distribution import DiscreteUniformDistribution, CatFreqDistribution
 from metasynth.distribution import RegexDistribution
+from metasynth.distribution.continuous import LogNormalDistribution
 
 
 class MetaDistribution(ABC):
@@ -75,7 +76,7 @@ class MetaDistribution(ABC):
 
 class FloatDistribution(MetaDistribution):
     """Meta class for floating point distributions."""
-    dist_types = [UniformDistribution, NormalDistribution]
+    dist_types = [UniformDistribution, NormalDistribution, LogNormalDistribution]
 
 
 class IntDistribution(MetaDistribution):

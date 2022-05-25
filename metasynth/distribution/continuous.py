@@ -1,7 +1,7 @@
 """Implemented floating point distributions."""
 
 import numpy as np
-from scipy.stats import uniform, norm
+from scipy.stats import uniform, norm, lognorm
 
 from metasynth.distribution.base import ScipyDistribution
 
@@ -60,3 +60,30 @@ class NormalDistribution(ScipyDistribution):
     def __init__(self, mean, std_dev):
         self.par = {"mean": mean, "std_dev": std_dev}
         self.dist = norm(loc=mean, scale=std_dev)
+
+
+class LogNormalDistribution(ScipyDistribution):
+    """Log-normal distribution for floating point type.
+
+    This class implements the log-normal mu and sigma as initialization input.
+
+    Parameters
+    ----------
+    mu: float
+        Controls the mean of the distribution.
+
+    sigma: float
+        Controls the width of the distribution.
+    """
+
+    aliases = ["lognormal"]
+    dist_class = lognorm
+
+    def __init__(self, sigma, shift, mu):  # pylint: disable=invalid-name
+        self.par = {"sigma": sigma, "shift": shift, "mu": mu}
+        self.dist = lognorm(s=sigma, loc=shift, scale=np.exp(mu))
+
+    @classmethod
+    def _fit(cls, values):
+        sigma, shift, scale = cls.dist_class.fit(values)
+        return cls(sigma, shift, np.log(scale))

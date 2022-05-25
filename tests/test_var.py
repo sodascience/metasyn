@@ -57,7 +57,6 @@ def check_var(series, var_type, dist_class):
 
     # Write to JSON file and read it back
     tmp_fp = Path("tests", "data", "tmp.json")
-    print(type(var.dtype))
     with open(tmp_fp, "w") as f:
         json.dump(_jsonify(var.to_dict()), f)
 
