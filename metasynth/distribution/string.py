@@ -51,6 +51,7 @@ class RegexDistribution(BaseDistribution):
 
     @classmethod
     def all_regex_classes(cls):
+        """Return all regex element classes."""
         return [
             DigitRegex, AlphaNumericRegex, LowercaseRegex, UppercaseRegex,
             LettersRegex, SingleRegex
