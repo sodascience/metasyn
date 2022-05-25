@@ -58,7 +58,7 @@ class RegexDistribution(BaseDistribution):
                     "re": regexer,
                     "values": new_values,
                 }
-        return cls([best_solution["re"]]) + cls.fit(best_solution["values"])
+        return cls([best_solution["re"]]) + cls._fit(best_solution["values"])
 
     def __add__(self, other):
         return RegexDistribution(self.re_list + other.re_list)
@@ -70,7 +70,15 @@ class RegexDistribution(BaseDistribution):
         return cur_str
 
     def __str__(self):
-        return "".join([x.re for x in self.re_list])
+        return "".join([str(x) for x in self.re_list])
+
+    def to_dict(self):
+        return {
+            "name": type(self).__name__,
+            "parameters": {
+                    "re_list": [str(x) for x in self.re_list]
+                }
+        }
 
 
 class BaseRegexElement(ABC):
