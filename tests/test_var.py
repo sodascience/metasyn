@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 from metasynth.var import MetaVar, CategoricalVar, IntVar, FloatVar, StringVar
 from metasynth.distribution import CatFreqDistribution, NormalDistribution,\
-    StringFreqDistribution
+    RegexDistribution
 from metasynth.distribution import DiscreteUniformDistribution
 from metasynth.distribution import UniformDistribution
 from pytest import mark, raises
@@ -107,7 +107,7 @@ def test_float():
 
 def test_string():
     series = pd.Series(np.random.choice(["a", "b", "c", None], size=100))
-    new_series = check_var(series, StringVar, StringFreqDistribution)
+    new_series = check_var(series, StringVar, RegexDistribution)
     assert set(np.unique(series.dropna())) == set(np.unique(new_series.dropna()))
 
 

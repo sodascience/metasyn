@@ -12,7 +12,7 @@ import numpy as np
 
 from metasynth.distribution import UniformDistribution, NormalDistribution
 from metasynth.distribution import DiscreteUniformDistribution, CatFreqDistribution
-from metasynth.distribution import StringFreqDistribution
+from metasynth.distribution import RegexDistribution
 
 
 class MetaDistribution(ABC):
@@ -90,4 +90,4 @@ class CategoricalDistribution(MetaDistribution):
 
 class StringDistribution(MetaDistribution):
     """Meta class for string distributions."""
-    dist_types = [StringFreqDistribution]
+    dist_types = [RegexDistribution]
