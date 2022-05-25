@@ -14,6 +14,7 @@ from metasynth.distribution import UniformDistribution, NormalDistribution
 from metasynth.distribution import DiscreteUniformDistribution, CatFreqDistribution
 from metasynth.distribution import RegexDistribution
 from metasynth.distribution.continuous import LogNormalDistribution
+from metasynth.distribution.util import get_dist_class
 
 
 class MetaDistribution(ABC):
@@ -42,10 +43,12 @@ class MetaDistribution(ABC):
         """
         meta_dict = deepcopy(meta_dict)
         name = meta_dict.pop("name")
-        for dist_type in cls.dist_types:
-            if name == dist_type.__name__:
-                return dist_type(**meta_dict["parameters"])
-        raise ValueError("Cannot find right class.")
+        dist_class, _ = get_dist_class(name)
+        return dist_class(**meta_dict["parameters"])
+#         for dist_type in cls.dist_types:
+#             if name == dist_type.__name__:
+#                 return dist_type(**meta_dict["parameters"])
+#         raise ValueError(f"Cannot find right class of name'{name}'.")
 
     @classmethod
     def fit(cls, values):

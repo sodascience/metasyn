@@ -31,7 +31,7 @@ class FakerDistribution(BaseDistribution):
         return cls(faker_type, locale)
 
     def __str__(self):
-        return f"Faker.{self.faker_type}"
+        return f"faker.{self.faker_type}.{self.locale}"
 
     def to_dict(self):
         return {
@@ -47,10 +47,14 @@ class FakerDistribution(BaseDistribution):
 
     @classmethod
     def is_named(cls, name):
+        if name == cls.__name__:
+            return True
         return name.startswith("faker") and len(name.split(".")) >= 2
 
     @classmethod
     def fit_kwargs(cls, name):
+        if name == cls.__name__:
+            return {}
         split_name = name.split(".")
         if len(split_name) == 2:
             return {"faker_type": split_name[1]}

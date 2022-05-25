@@ -14,4 +14,4 @@ def test_faker():
     fit_kwargs = var.fit_kwargs("faker.city")
     assert fit_kwargs["faker_type"] == "city"
     assert "locale" not in fit_kwargs
-    assert str(var).startswith("Faker")
+    assert str(var).startswith("faker")
