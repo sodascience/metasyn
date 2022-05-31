@@ -1,11 +1,11 @@
 """Implemented floating point distributions."""
 
 import numpy as np
-from scipy.stats import uniform, norm, lognorm
+from scipy.optimize import minimize
+from scipy.stats import uniform, norm, lognorm, truncnorm
+from scipy.stats._continuous_distns import FitDataError
 
 from metasynth.distribution.base import ScipyDistribution
-from scipy.stats._continuous_distns import FitDataError, truncnorm
-from scipy.optimize._minimize import minimize
 
 
 class UniformDistribution(ScipyDistribution):
@@ -128,7 +128,8 @@ class TruncatedNormalDistribution(ScipyDistribution):
             dist = truncnorm(a=a, b=b, loc=mu, scale=sigma)
             return -np.sum(dist.logpdf(values))
 
-        x0 = [(lower_bound+upper_bound)/2, (upper_bound-lower_bound)/4]
-        mu, sigma = minimize(minimizer, x0, bounds=[(None, None),
-                                                    ((upper_bound-lower_bound)/100, None)]).x
+        x_start = [(lower_bound+upper_bound)/2, (upper_bound-lower_bound)/4]
+        mu, sigma = minimize(minimizer, x_start,
+                             bounds=[(None, None),
+                                     ((upper_bound-lower_bound)/100, None)]).x
         return cls(lower_bound, upper_bound, mu, sigma)
