@@ -10,9 +10,11 @@ from copy import deepcopy
 
 import numpy as np
 
-from .distribution import UniformDistribution, NormalDistribution
-from .distribution import DiscreteUniformDistribution, CatFreqDistribution
-from .distribution import StringFreqDistribution
+from metasynth.distribution import UniformDistribution, NormalDistribution
+from metasynth.distribution import DiscreteUniformDistribution, CatFreqDistribution
+from metasynth.distribution import RegexDistribution
+from metasynth.distribution.continuous import LogNormalDistribution
+from metasynth.distribution.util import get_dist_class
 
 
 class MetaDistribution(ABC):
@@ -41,10 +43,12 @@ class MetaDistribution(ABC):
         """
         meta_dict = deepcopy(meta_dict)
         name = meta_dict.pop("name")
-        for dist_type in cls.dist_types:
-            if name == dist_type.__name__:
-                return dist_type(**meta_dict["parameters"])
-        raise ValueError("Cannot find right class.")
+        dist_class, _ = get_dist_class(name)
+        return dist_class(**meta_dict["parameters"])
+#         for dist_type in cls.dist_types:
+#             if name == dist_type.__name__:
+#                 return dist_type(**meta_dict["parameters"])
+#         raise ValueError(f"Cannot find right class of name'{name}'.")
 
     @classmethod
     def fit(cls, values):
@@ -69,13 +73,13 @@ class MetaDistribution(ABC):
         """
         instances = [dist_type.fit(values)
                      for dist_type in cls.dist_types]
-        i_min = np.argmin([inst.AIC(values) for inst in instances])
+        i_min = np.argmin([inst.information_criterion(values) for inst in instances])
         return instances[i_min]
 
 
 class FloatDistribution(MetaDistribution):
     """Meta class for floating point distributions."""
-    dist_types = [UniformDistribution, NormalDistribution]
+    dist_types = [UniformDistribution, NormalDistribution, LogNormalDistribution]
 
 
 class IntDistribution(MetaDistribution):
@@ -90,4 +94,4 @@ class CategoricalDistribution(MetaDistribution):
 
 class StringDistribution(MetaDistribution):
     """Meta class for string distributions."""
-    dist_types = [StringFreqDistribution]
+    dist_types = [RegexDistribution]

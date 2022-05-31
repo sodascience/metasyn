@@ -14,5 +14,6 @@ setup(
         "pandas",
         "scipy",
         "numpy",
+        "faker",
     ]
 )
