@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from copy import deepcopy
 
 import numpy as np
+import pandas
 
 
 class BaseDistribution(ABC):
@@ -29,7 +30,12 @@ class BaseDistribution(ABC):
         BaseDistribution:
             Fitted distribution.
         """
-        distribution = cls._fit(series.dropna(), *args, **kwargs)
+        if isinstance(series, pandas.Series):
+            series = series.dropna()
+        else:
+            series = np.array(series)
+            series = series[~np.isnan(series)]
+        distribution = cls._fit(series, *args, **kwargs)
         return distribution
 
     @classmethod
@@ -141,4 +147,4 @@ class ScipyDistribution(BaseDistribution):
 
     def information_criterion(self, values):
         vals = values[~np.isnan(values)]
-        return 2*self.n_par - 2*np.sum(self.dist.logpdf(vals+1e-7))
+        return 2*self.n_par - 2*np.sum(self.dist.logpdf(vals))

@@ -4,6 +4,8 @@ import numpy as np
 from scipy.stats import uniform, norm, lognorm
 
 from metasynth.distribution.base import ScipyDistribution
+from scipy.stats._continuous_distns import FitDataError, truncnorm
+from scipy.optimize._minimize import minimize
 
 
 class UniformDistribution(ScipyDistribution):
@@ -69,21 +71,64 @@ class LogNormalDistribution(ScipyDistribution):
 
     Parameters
     ----------
-    mu: float
-        Controls the mean of the distribution.
-
     sigma: float
         Controls the width of the distribution.
+    mu: float
+        Controls the mean of the distribution.
     """
 
     aliases = ["lognormal"]
     dist_class = lognorm
 
-    def __init__(self, sigma, shift, mu):  # pylint: disable=invalid-name
-        self.par = {"sigma": sigma, "shift": shift, "mu": mu}
-        self.dist = lognorm(s=sigma, loc=shift, scale=np.exp(mu))
+    def __init__(self, mu, sigma):  # pylint: disable=invalid-name
+        self.par = {"mu": mu, "sigma": sigma}
+        self.dist = lognorm(s=sigma, scale=np.exp(mu))
 
     @classmethod
     def _fit(cls, values):
-        sigma, shift, scale = cls.dist_class.fit(values)
-        return cls(sigma, shift, np.log(scale))
+        try:
+            sigma, _, scale = cls.dist_class.fit(values, floc=0)
+        except FitDataError:
+            return cls(0, 1)
+        return cls(np.log(scale), sigma)
+
+
+class TruncatedNormalDistribution(ScipyDistribution):
+    """Truncated normal distribution for floating point type.
+
+    Parameters
+    ----------
+    lower_bound: float
+        Lower bound of the truncated normal distribution.
+    upper_bound: float
+        Upper bound of the truncated normal distribution.
+    mu: float
+        Mean of the non-truncated normal distribution.
+    sigma: float
+        Standard deviation of the non-truncated normal distribution.
+    """
+
+    aliases = ["truncnormal", "boundednormal", "truncatednormal"]
+    dist_class = truncnorm
+
+    def __init__(self, lower_bound, upper_bound, mu, sigma):
+        self.par = {"lower_bound": lower_bound, "upper_bound": upper_bound,
+                    "mu": mu, "sigma": sigma}
+        a, b = (lower_bound-mu)/sigma, (upper_bound-mu)/sigma
+        self.dist = truncnorm(a=a, b=b, loc=mu, scale=sigma)
+
+    @classmethod
+    def _fit(cls, values):
+        lower_bound = np.min(values) - 1e-8
+        upper_bound = np.max(values) + 1e-8
+
+        def minimizer(param):
+            mu, sigma = param
+            a, b = (lower_bound-mu)/sigma, (upper_bound-mu)/sigma
+            dist = truncnorm(a=a, b=b, loc=mu, scale=sigma)
+            return -np.sum(dist.logpdf(values))
+
+        x0 = [(lower_bound+upper_bound)/2, (upper_bound-lower_bound)/4]
+        mu, sigma = minimize(minimizer, x0, bounds=[(None, None),
+                                                    ((upper_bound-lower_bound)/100, None)]).x
+        return cls(lower_bound, upper_bound, mu, sigma)
