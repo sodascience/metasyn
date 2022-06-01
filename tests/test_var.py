@@ -10,6 +10,8 @@ from metasynth.distribution import DiscreteUniformDistribution
 from metasynth.distribution import UniformDistribution
 from pytest import mark, raises
 from metasynth.dataset import _jsonify
+from metasynth.distribution.discrete import UniqueKeyDistribution
+from metasynth.distribution.string import UniqueRegexDistribution
 
 
 def check_var(series, var_type, dist_class):
@@ -95,12 +97,13 @@ def test_nullable_integer(dtype):
 
 
 def test_float():
-    series = pd.Series([np.random.rand() for _ in range(1000)])
+    np.random.seed(3727442)
+    series = pd.Series([np.random.rand() for _ in range(10000)])
     new_series = check_var(series, FloatVar, UniformDistribution)
     assert np.min(new_series) > 0
     assert np.max(new_series) < 1
 
-    series = pd.Series(np.random.randn(100))
+    series = pd.Series(np.random.randn(1000))
     check_var(series, FloatVar, NormalDistribution)
 
 
@@ -130,7 +133,7 @@ def test_dataframe():
 
 
 def test_manual_fit():
-    series = pd.Series([np.random.rand() for _ in range(100)])
+    series = pd.Series([np.random.rand() for _ in range(500)])
     var = MetaVar.detect(series)
     var.fit()
     assert isinstance(var.distribution, UniformDistribution)
@@ -142,3 +145,19 @@ def test_manual_fit():
     assert isinstance(var.distribution, NormalDistribution)
     with raises(TypeError):
         var.fit(10)
+
+
+def test_manual_unique():
+    series = pd.Series(np.random.randint(0, 100000, size=10))
+    var = MetaVar.detect(series)
+    var.fit()
+    assert isinstance(var.distribution, DiscreteUniformDistribution)
+    var.fit(unique=True)
+    assert isinstance(var.distribution, UniqueKeyDistribution)
+
+    series = pd.Series(["x213", "2dh2", "4k2kk"])
+    var = MetaVar.detect(series)
+    var.fit()
+    assert isinstance(var.distribution, RegexDistribution)
+    var.fit(unique=True)
+    assert isinstance(var.distribution, UniqueRegexDistribution)

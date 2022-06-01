@@ -100,6 +100,17 @@ class RegexDistribution(BaseDistribution):
 
 
 class UniqueRegexDistribution(RegexDistribution):
+    """Unique variant of the regex distribution.
+
+    Same as the normal regex distribution, but checks whether a key
+    has already been used.
+
+    Parameters
+    ----------
+    re_list: list of BaseRegexElement
+        List of basic regex elements in the order that they occur.
+    """
+
     is_unique = True
     aliases = ["regex_unique"]
 
@@ -109,6 +120,7 @@ class UniqueRegexDistribution(RegexDistribution):
 
     @property
     def n_options(self):
+        """float: approximate number of options for the regex."""
         cur_log_options = 0
         for rex in self.re_list:
             cur_log_options += rex.log_options
@@ -130,6 +142,18 @@ class UniqueRegexDistribution(RegexDistribution):
             if new_val not in self.key_set:
                 self.key_set.add(new_val)
                 return new_val
+
+    def information_criterion(self, values):
+        # The information criterion is relative to the non-unique version.
+        values = values.dropna()
+        if len(set(values)) != len(values):
+            return 999*len(values)
+
+        n_options = self.n_options
+        if np.isinf(n_options):
+            return 1
+
+        return 1-2*np.sum(np.log(n_options/np.arange(n_options, n_options-len(values), -1)))
 
 
 class BaseRegexElement(ABC):
