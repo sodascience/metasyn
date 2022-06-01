@@ -79,7 +79,7 @@ class RegexDistribution(BaseDistribution):
         return cls([best_solution["re"]]) + cls._fit(best_solution["values"])
 
     def __add__(self, other):
-        return RegexDistribution(self.re_list + other.re_list)
+        return self.__class__(self.re_list + other.re_list)
 
     def draw(self):
         cur_str = ""
@@ -97,6 +97,39 @@ class RegexDistribution(BaseDistribution):
                     "re_list": [str(x) for x in self.re_list]
                 }
         }
+
+
+class UniqueRegexDistribution(RegexDistribution):
+    is_unique = True
+    aliases = ["regex_unique"]
+
+    def __init__(self, re_list):
+        super().__init__(re_list)
+        self.key_set = set()
+
+    @property
+    def n_options(self):
+        cur_log_options = 0
+        for rex in self.re_list:
+            cur_log_options += rex.log_options
+        if cur_log_options > 30:
+            return np.inf
+        return np.exp(cur_log_options)
+
+    def draw_reset(self):
+        self.key_set = set()
+
+    def draw(self):
+        n_options = self.n_options
+        print(n_options, len(self.key_set))
+        if not np.isinf(n_options):
+            if len(self.key_set)/n_options >= 0.99:
+                raise ValueError("Found 99% of the possible values, running out of possibilities.")
+        while True:
+            new_val = super().draw()
+            if new_val not in self.key_set:
+                self.key_set.add(new_val)
+                return new_val
 
 
 class BaseRegexElement(ABC):

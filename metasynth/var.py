@@ -115,7 +115,7 @@ class MetaVar():
             "distribution": str(self.distribution),
         })
 
-    def fit(self, dist=None):
+    def fit(self, dist=None, unique=False):
         """Fit distributions to the data.
 
         If multiple distributions are available for the current data type,
@@ -176,6 +176,10 @@ class MetaVar():
         pandas.Series:
             Pandas series with the synthetic data.
         """
+
+        if not isinstance(self.distribution, BaseDistribution):
+            raise ValueError("Cannot draw without distribution.")
+        self.distribution.draw_reset()
         return pd.Series([self.draw() for _ in range(n)], dtype=self.dtype)
 
     @classmethod

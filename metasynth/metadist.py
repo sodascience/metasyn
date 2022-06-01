@@ -13,8 +13,11 @@ import numpy as np
 from metasynth.distribution import UniformDistribution, NormalDistribution
 from metasynth.distribution import DiscreteUniformDistribution, CatFreqDistribution
 from metasynth.distribution import RegexDistribution
-from metasynth.distribution.continuous import LogNormalDistribution
+from metasynth.distribution.continuous import LogNormalDistribution,\
+    TruncatedNormalDistribution
 from metasynth.distribution.util import get_dist_class
+from metasynth.distribution.discrete import IntegerKeyDistribution
+from metasynth.distribution.string import UniqueRegexDistribution
 
 
 class MetaDistribution(ABC):
@@ -79,12 +82,13 @@ class MetaDistribution(ABC):
 
 class FloatDistribution(MetaDistribution):
     """Meta class for floating point distributions."""
-    dist_types = [UniformDistribution, NormalDistribution, LogNormalDistribution]
+    dist_types = [UniformDistribution, NormalDistribution, LogNormalDistribution,
+                  TruncatedNormalDistribution]
 
 
 class IntDistribution(MetaDistribution):
     """Meta class for integer distributions."""
-    dist_types = [DiscreteUniformDistribution]
+    dist_types = [DiscreteUniformDistribution, IntegerKeyDistribution]
 
 
 class CategoricalDistribution(MetaDistribution):
@@ -94,4 +98,4 @@ class CategoricalDistribution(MetaDistribution):
 
 class StringDistribution(MetaDistribution):
     """Meta class for string distributions."""
-    dist_types = [RegexDistribution]
+    dist_types = [RegexDistribution, UniqueRegexDistribution]

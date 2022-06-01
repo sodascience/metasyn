@@ -15,6 +15,7 @@ class BaseDistribution(ABC):
     """
 
     aliases = []
+    is_unique = False
 
     @classmethod
     def fit(cls, series, *args, **kwargs):
@@ -46,6 +47,9 @@ class BaseDistribution(ABC):
     @abstractmethod
     def draw(self):
         """Draw a random element from the fitted distribution."""
+
+    def draw_reset(self):
+        """Reset the drawing of elements to start again."""
 
     def __str__(self):
         """Create a human readable string of the object."""

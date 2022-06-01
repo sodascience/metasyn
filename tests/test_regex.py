@@ -1,9 +1,10 @@
 import pandas as pd
 from metasynth.distribution.string import RegexDistribution, SingleRegex,\
-    DigitRegex, AlphaNumericRegex, LettersRegex, LowercaseRegex, UppercaseRegex
+    DigitRegex, AlphaNumericRegex, LettersRegex, LowercaseRegex, UppercaseRegex,\
+    UniqueRegexDistribution
 from random import choice
 import string
-from pytest import mark
+from pytest import mark, raises
 import numpy as np
 
 
@@ -29,6 +30,19 @@ def test_regex_single_digit():
     re_string_list = dist.to_dict()["parameters"]["re_list"]
     new_dist = RegexDistribution(re_string_list)
     check_regex_dist(new_dist)
+
+
+def test_regex_unique():
+    series = pd.Series(["R1", "R2", "R3"])
+    dist = UniqueRegexDistribution.fit(series)
+    values = [dist.draw() for _ in range(10)]
+    print(dist.key_set)
+    assert len(set(values)) == 10
+    assert set(values) == set(["R" + x for x in string.digits])
+    with raises(ValueError):
+        dist.draw()
+    dist.draw_reset()
+    dist.draw()
 
 
 @mark.parametrize(
