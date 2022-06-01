@@ -2,7 +2,7 @@
 
 import numpy as np
 import pandas as pd
-from scipy.stats import randint
+from scipy.stats import randint, poisson
 
 from metasynth.distribution.base import ScipyDistribution
 
@@ -39,6 +39,29 @@ class DiscreteUniformDistribution(ScipyDistribution):
     def _fit(cls, values):
         param = {"low": np.min(values), "high": np.max(values)+1}
         return cls(**param)
+
+
+class PoissonDistribution(ScipyDistribution):
+    """Poisson distribution.
+    """
+
+    aliases = ["poisson"]
+
+    dist_class = poisson
+
+    def __init__(self, mu):
+        self.par = {"mu": mu}
+        self.dist = self.dist_class(mu=mu)
+
+    def information_criterion(self, values):
+        vals = values[~np.isnan(values)]
+        if isinstance(vals, pd.Series):
+            vals = vals.values.astype(int)
+        return 2*self.n_par - 2*np.sum(self.dist.logpmf(vals))
+
+    @classmethod
+    def _fit(cls, values):
+        return cls(np.mean(values))
 
 
 class UniqueKeyDistribution(ScipyDistribution):

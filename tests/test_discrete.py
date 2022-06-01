@@ -1,8 +1,11 @@
 import pandas as pd
 import numpy as np
+from scipy.stats import poisson
 
-from metasynth.distribution.discrete import UniqueKeyDistribution, DiscreteUniformDistribution
+from metasynth.distribution.discrete import UniqueKeyDistribution, DiscreteUniformDistribution,\
+    PoissonDistribution
 from pytest import mark
+from math import fabs
 
 
 @mark.parametrize(
@@ -46,3 +49,11 @@ def test_integer_key(series, better_than_uniform, consecutive):
     drawn_values = np.array([dist.draw() for _ in range(100)])
     if consecutive:
         assert np.all(drawn_values == np.arange(dist.low, dist.low+100))
+
+
+def test_poisson():
+    series = pd.Series(poisson(mu=10).rvs(1000))
+    dist = PoissonDistribution.fit(series)
+    dist_unif = DiscreteUniformDistribution.fit(series)
+    assert fabs(dist.mu - 10) < 1
+    assert dist.information_criterion(series) < dist_unif.information_criterion(series)
