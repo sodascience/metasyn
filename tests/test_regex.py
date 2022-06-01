@@ -11,6 +11,8 @@ import numpy as np
 def test_regex_single_digit():
     series = pd.Series(["R123", "R823", "R124"])
     dist = RegexDistribution.fit(series)
+    dist_unique = UniqueRegexDistribution.fit(series)
+    assert dist.information_criterion(series) < dist_unique.information_criterion(series)
 
     def check_regex_dist(dist):
         assert len(dist.re_list) == 2
@@ -33,10 +35,11 @@ def test_regex_single_digit():
 
 
 def test_regex_unique():
-    series = pd.Series(["R1", "R2", "R3"])
+    series = pd.Series(["R1", "R2", "R3", "R4", "R5", "R6"])
     dist = UniqueRegexDistribution.fit(series)
+    dist_non_unique = RegexDistribution.fit(series)
+    assert dist.information_criterion(series) < dist_non_unique.information_criterion(series)
     values = [dist.draw() for _ in range(10)]
-    print(dist.key_set)
     assert len(set(values)) == 10
     assert set(values) == set(["R" + x for x in string.digits])
     with raises(ValueError):

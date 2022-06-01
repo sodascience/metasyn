@@ -31,7 +31,7 @@ class MetaDataset():
         return len(self.meta_vars)
 
     @classmethod
-    def from_dataframe(cls, df, distribution=None):
+    def from_dataframe(cls, df, distribution=None, unique=None):
         """Create dataset from a Pandas dataframe.
 
         The pandas dataframe should be formatted already with the correct
@@ -41,6 +41,14 @@ class MetaDataset():
         ----------
         df: pandas.Dataframe
             Pandas dataframe with the correct column dtypes.
+        distribution: dict of str or BaseDistribution, optional
+            A dictionary that has keys that are column names and values that
+            denote distributions, either with a string that gives one of their
+            aliases. Or an actually fitted BaseDistribution.
+        unique: dict of bool, optional
+            A dictionary that allows specific columns to be set to be unique.
+            This is only available for the integer and string datatypes. The parameter
+            is ignored when the distribution is set manually.
 
         Returns
         -------
@@ -50,12 +58,16 @@ class MetaDataset():
         if distribution is None:
             distribution = {}
 
+        if unique is None:
+            unique = {}
+
         all_vars = []
         for col_name in list(df):
             series = df[col_name]
             dist = distribution.get(col_name, None)
+            unq = unique.get(col_name, None)
             var = MetaVar.detect(series)
-            var.fit(dist)
+            var.fit(dist, unique=unq)
 
             all_vars.append(var)
 

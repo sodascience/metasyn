@@ -41,7 +41,21 @@ class DiscreteUniformDistribution(ScipyDistribution):
         return cls(**param)
 
 
-class IntegerKeyDistribution(ScipyDistribution):
+class UniqueKeyDistribution(ScipyDistribution):
+    """Integer distribution with unique keys.
+
+    Discrete distribution that ensures the uniqueness of the drawn values.
+
+    Parameters
+    ----------
+    low: int
+        Minimum value for the keys.
+    consecutive: int
+        1 if keys are consecutive and increasing, 0 otherwise.
+    """
+
+    aliases = ["integer_key"]
+
     def __init__(self, low, consecutive):
         self.par = {"low": low, "consecutive": consecutive}
         self.last_key = low - 1
@@ -75,16 +89,20 @@ class IntegerKeyDistribution(ScipyDistribution):
         if np.min(values) < self.low:
             return 3+999*len(values)
 
-        if len(set(values)) != len(values):
+        # If the values are not unique the fit is extremely bad.
+        if len(set(vals)) != len(vals):
             return 3+999*len(values)
 
         low = np.min(vals)
         high = np.max(vals)+1
 
         if self.consecutive == 1:
+            # Check if the values are truly
             if len(vals) == high-low and np.all(vals == np.arange(low, high)):
                 return 3
             return 3+999*len(values)
 
         n_choice = high - low
+
+        # Probabilities go up like 1/n, 1/(n-1), 1/(n-2), ..., 1/2, 1
         return 5 - 2*np.sum(np.log(1/np.arange(n_choice, n_choice-len(values), -1)))

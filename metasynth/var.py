@@ -115,7 +115,7 @@ class MetaVar():
             "distribution": str(self.distribution),
         })
 
-    def fit(self, dist=None, unique=False):
+    def fit(self, dist=None, unique=None):
         """Fit distributions to the data.
 
         If multiple distributions are available for the current data type,
@@ -132,6 +132,9 @@ class MetaVar():
             supplied distribution (class). Examples of allowed strings are:
             "normal", "uniform", "faker.city.nl_NL". If not supplied, fit
             the best available distribution for the variable type.
+        unique: bool, optional
+            Whether the variable should be unique. If not supplied, it will be
+            inferred from the data.
         """
         if self.series is None:
             raise ValueError("Cannot fit distribution if we don't have the"
@@ -139,7 +142,7 @@ class MetaVar():
 
         # Automatic detection of the distribution
         if dist is None:
-            self.distribution = self.dist_class.fit(self.series)
+            self.distribution = self.dist_class.fit(self.series, unique=unique)
             return
 
         # Manually supplied distribution

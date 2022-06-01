@@ -95,12 +95,13 @@ def test_nullable_integer(dtype):
 
 
 def test_float():
-    series = pd.Series([np.random.rand() for _ in range(1000)])
+    np.random.seed(3727442)
+    series = pd.Series([np.random.rand() for _ in range(10000)])
     new_series = check_var(series, FloatVar, UniformDistribution)
     assert np.min(new_series) > 0
     assert np.max(new_series) < 1
 
-    series = pd.Series(np.random.randn(100))
+    series = pd.Series(np.random.randn(1000))
     check_var(series, FloatVar, NormalDistribution)
 
 
@@ -130,7 +131,7 @@ def test_dataframe():
 
 
 def test_manual_fit():
-    series = pd.Series([np.random.rand() for _ in range(100)])
+    series = pd.Series([np.random.rand() for _ in range(500)])
     var = MetaVar.detect(series)
     var.fit()
     assert isinstance(var.distribution, UniformDistribution)

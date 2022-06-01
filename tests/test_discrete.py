@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from metasynth.distribution.discrete import IntegerKeyDistribution, DiscreteUniformDistribution
+from metasynth.distribution.discrete import UniqueKeyDistribution, DiscreteUniformDistribution
 from pytest import mark
 
 
@@ -36,12 +36,12 @@ def test_uniform(series):
     ]
 )
 def test_integer_key(series, better_than_uniform, consecutive):
-    dist = IntegerKeyDistribution.fit(series)
+    dist = UniqueKeyDistribution.fit(series)
     unif_dist = DiscreteUniformDistribution.fit(series)
     assert dist.low == np.min(series)
     assert dist.consecutive == consecutive
     assert better_than_uniform == (dist.information_criterion(series) < unif_dist.information_criterion(series))
-    assert isinstance(dist, IntegerKeyDistribution)
+    assert isinstance(dist, UniqueKeyDistribution)
 
     drawn_values = np.array([dist.draw() for _ in range(100)])
     if consecutive:

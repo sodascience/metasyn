@@ -16,7 +16,7 @@ from metasynth.distribution import RegexDistribution
 from metasynth.distribution.continuous import LogNormalDistribution,\
     TruncatedNormalDistribution
 from metasynth.distribution.util import get_dist_class
-from metasynth.distribution.discrete import IntegerKeyDistribution
+from metasynth.distribution.discrete import UniqueKeyDistribution
 from metasynth.distribution.string import UniqueRegexDistribution
 
 
@@ -54,7 +54,7 @@ class MetaDistribution(ABC):
 #         raise ValueError(f"Cannot find right class of name'{name}'.")
 
     @classmethod
-    def fit(cls, values):
+    def fit(cls, values, unique=None):
         """Fit distribution to values.
 
         Find the distribution that is most suitable for the supplied data
@@ -75,7 +75,8 @@ class MetaDistribution(ABC):
             Distribution that fits the data the best.
         """
         instances = [dist_type.fit(values)
-                     for dist_type in cls.dist_types]
+                     for dist_type in cls.dist_types
+                     if unique is None or dist_type.is_unique == unique]
         i_min = np.argmin([inst.information_criterion(values) for inst in instances])
         return instances[i_min]
 
@@ -88,7 +89,7 @@ class FloatDistribution(MetaDistribution):
 
 class IntDistribution(MetaDistribution):
     """Meta class for integer distributions."""
-    dist_types = [DiscreteUniformDistribution, IntegerKeyDistribution]
+    dist_types = [DiscreteUniformDistribution, UniqueKeyDistribution]
 
 
 class CategoricalDistribution(MetaDistribution):
