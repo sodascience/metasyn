@@ -46,7 +46,6 @@ class PoissonDistribution(ScipyDistribution):
     """
 
     aliases = ["poisson"]
-
     dist_class = poisson
 
     def __init__(self, mu):
@@ -77,7 +76,8 @@ class UniqueKeyDistribution(ScipyDistribution):
         1 if keys are consecutive and increasing, 0 otherwise.
     """
 
-    aliases = ["integer_key"]
+    aliases = ["unique_key"]
+    is_unique = True
 
     def __init__(self, low, consecutive):
         self.par = {"low": low, "consecutive": consecutive}
