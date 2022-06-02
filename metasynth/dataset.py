@@ -3,6 +3,7 @@
 import json
 
 import numpy as np
+import pandas as pd
 
 from metasynth.var import MetaVar
 
@@ -131,6 +132,22 @@ class MetaDataset():
         n_rows = self_dict["n_rows"]
         meta_vars = [MetaVar.from_dict(d) for d in self_dict["vars"]]
         return cls(meta_vars, n_rows)
+
+    def synthesize(self, n):
+        """Create a synthetic pandas dataframe.
+
+        Parameters
+        ----------
+        n: int
+            Number of rows to generate.
+
+        Returns
+        -------
+        pandas.DataFrame:
+            Dataframe with the synthetic data.
+        """ 
+        synth_dict = {var.name: var.draw_series(n) for var in self.meta_vars}
+        return pd.DataFrame(synth_dict)
 
 
 def _jsonify(data):
