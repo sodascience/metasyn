@@ -145,7 +145,7 @@ class MetaDataset():
         -------
         pandas.DataFrame:
             Dataframe with the synthetic data.
-        """ 
+        """
         synth_dict = {var.name: var.draw_series(n) for var in self.meta_vars}
         return pd.DataFrame(synth_dict)
 

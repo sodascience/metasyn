@@ -59,7 +59,7 @@ class BaseDistribution(ABC):
     def to_dict(self):
         """Convert the distribution to a dictionary."""
 
-    def information_criterion(self, values):  # pylint: disable=unused-argument, no-self-use
+    def information_criterion(self, values):  # pylint: disable=unused-argument
         """Get the AIC value for a particular set of values.
 
         Parameters
