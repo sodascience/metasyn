@@ -1,0 +1,107 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "http://yourdomain.com/schemas/myschema.json",
+	"type": "object",
+	"properties": {
+		"n_rows": {"type": "number"},
+		"n_columns": {"type": "number"},
+		"vars": {
+			"type": "array",
+			"items": {
+                "type": "object",
+              	"properties": {
+           		   	"name": {"type": "string"},
+                  	"type": {"enum": ["IntVar", "FloatVar", "StringVar", "CategoricalVar"]},
+                  	"dtype": {"type": "string"},
+                  	"prop_missing": {"type": "number"},
+                  	"distribution": {
+                 		"$ref": "#/$defs/all_dist_def",
+                  	},
+              	}
+			},
+			"required": ["name", "type", "dtype", "prop_missing", "distribution"]
+		}
+	},
+	"required": ["n_rows", "n_columns", "vars"],
+
+	"$defs": {
+		"CatFreqDistribution": {
+			"type": "object",
+			"properties": {
+				"name": {"const": "CatFreqDistribution"},
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"categories": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+						"counts": {"type": "array", "items": {"type": "number"}},
+					},
+					"required": ["categories", "counts"]
+				}
+			}
+		},
+		"UniqueKeyDistribution": {
+			"type": "object",
+			"properties": {
+				"name": {"const": "UniqueKeyDistribution"},
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"low": {"type": "number"},
+						"consecutive": {"enum": [0, 1]},
+					},
+					"required": ["low", "consecutive"]
+				}
+			}
+		},
+		"RegexDistribution": {
+			"type": "object",
+			"properties": {
+				"name": {"const": "RegexDistribution"},
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"re_list": {
+							"type": "array",
+							"items": {
+								"type": "array",
+								"items": [{"type": "string"}, {"type": "number"}],
+								"minItems": 2,
+								"additionalItems": false
+							},
+						}
+					},
+					"required": ["re_list"]
+				}
+			}
+		},
+		"TruncatedNormalDistribution": {
+			"type": "object",
+			"properties": {
+				"name": {"const": "TruncatedNormalDistribution"},
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"lower_bound": {"type": "number"},
+						"upper_bound": {"type": "number"},
+						"mu": {"type": "number"},
+						"sigma": {"type": "number"}
+					},
+					"required": ["lower_bound", "upper_bound", "mu", "sigma"]
+				}
+			}
+		},
+		"all_dist_def": {
+			"anyOf": [
+				{"$ref": "#/$defs/CatFreqDistribution"},
+				{"$ref": "#/$defs/UniqueKeyDistribution"},
+				{"$ref": "#/$defs/RegexDistribution"},
+				{"$ref": "#/$defs/TruncatedNormalDistribution"}
+			]
+		},
+		"all_dist": {"enum": [
+                              	"CatFreqDistribution", "UniformDistribution", "NormalDistribution",
+                              	"LogNormalDistribution", "TruncatedNormalDistribution", "DiscreteUniformDistribution",
+                              	"PoissonDistribution", "UniqueKeyDistribution", "FakerDistribution", "RegexDistribution"]
+                  	}
+	}
+}

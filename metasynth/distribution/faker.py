@@ -20,13 +20,13 @@ class FakerDistribution(BaseDistribution):
     locale: str
         Locale used for the faker package.
     """
-    def __init__(self, faker_type, locale="en_US"):
-        self.faker_type = faker_type
-        self.locale = locale
-        self.fake = Faker(locale=locale)
+    def __init__(self, faker_type: str, locale: str="en_US"):
+        self.faker_type: str = faker_type
+        self.locale: str = locale
+        self.fake: Faker = Faker(locale=locale)
 
     @classmethod
-    def _fit(cls, values, faker_type="city", locale="en_US"):  # pylint: disable=arguments-differ
+    def _fit(cls, values, faker_type: str="city", locale: str="en_US"):  # pylint: disable=arguments-differ
         """Select the appropriate faker function and locale."""
         return cls(faker_type, locale)
 

@@ -4,8 +4,10 @@ import inspect
 
 import pandas as pd
 import numpy as np
+from typing import Type
 
-from metasynth.metadist import FloatDistribution, CategoricalDistribution
+from metasynth.metadist import FloatDistribution, CategoricalDistribution,\
+    MetaDistribution
 from metasynth.metadist import StringDistribution, IntDistribution
 from metasynth.distribution.base import BaseDistribution
 from metasynth.distribution.util import get_dist_class
@@ -32,7 +34,7 @@ class MetaVar():
         Proportion of the series that are missing/NA.
     """
 
-    dist_class = None
+    dist_class: Type[MetaDistribution]
     dtype = "unknown"
 
     def __init__(self, series=None, name=None, distribution=None, prop_missing=0,  # pylint: disable=too-many-arguments

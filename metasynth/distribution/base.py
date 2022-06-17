@@ -1,7 +1,9 @@
 """Module for the base distribution and the scipy distribution."""
 
+from __future__ import annotations
 from abc import ABC, abstractmethod
 from copy import deepcopy
+from typing import List, Iterable, Dict, Sequence
 
 import numpy as np
 import pandas
@@ -14,11 +16,11 @@ class BaseDistribution(ABC):
     methods need to be implemented: _fit, draw, to_dict.
     """
 
-    aliases = []
+    aliases: List[str] = []
     is_unique = False
 
     @classmethod
-    def fit(cls, series, *args, **kwargs):
+    def fit(cls, series: Sequence, *args, **kwargs) -> BaseDistribution:
         """Fit the distribution to the series.
 
         Parameters
@@ -34,32 +36,33 @@ class BaseDistribution(ABC):
         if isinstance(series, pandas.Series):
             series = series.dropna()
         else:
-            series = np.array(series)
-            series = series[~np.isnan(series)]
+            series_array = np.array(series)
+            series_array = series_array[~np.isnan(series)]
+            series = pandas.Series(series_array)
         distribution = cls._fit(series, *args, **kwargs)
         return distribution
 
     @classmethod
     @abstractmethod
-    def _fit(cls, values):
+    def _fit(cls, values: Sequence) -> BaseDistribution:
         """See fit method, but does not need to deal with NA's."""
 
     @abstractmethod
-    def draw(self):
+    def draw(self) -> object:
         """Draw a random element from the fitted distribution."""
 
-    def draw_reset(self):
+    def draw_reset(self) -> None:
         """Reset the drawing of elements to start again."""
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Create a human readable string of the object."""
         return str(self.to_dict())
 
     @abstractmethod
-    def to_dict(self):
+    def to_dict(self) -> Dict:
         """Convert the distribution to a dictionary."""
 
-    def information_criterion(self, values):  # pylint: disable=unused-argument
+    def information_criterion(self, values: Iterable) -> float:  # pylint: disable=unused-argument
         """Get the AIC value for a particular set of values.
 
         Parameters
@@ -70,7 +73,7 @@ class BaseDistribution(ABC):
         return 0.0
 
     @classmethod
-    def is_named(cls, name):
+    def is_named(cls, name: str) -> bool:
         """Check whether the name matches the distribution.
 
         Parameters
@@ -86,7 +89,7 @@ class BaseDistribution(ABC):
         return name in cls.aliases or name == type(cls).__name__ or name == cls.__name__
 
     @classmethod
-    def fit_kwargs(cls, name):  # pylint: disable=unused-argument
+    def fit_kwargs(cls, name: str) -> Dict:  # pylint: disable=unused-argument
         """Extra fitting arguments.
 
         Parameters
@@ -112,11 +115,11 @@ class ScipyDistribution(BaseDistribution):
     """
 
     @property
-    def n_par(self):
+    def n_par(self) -> int:
         """int: Number of parameters for distribution."""
         return len(self.par)
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr: str):
         """Get attribute for easy access to parameters.
 
         Parameters
@@ -133,7 +136,7 @@ class ScipyDistribution(BaseDistribution):
         """
         if attr != "par" and attr in self.par:
             return self.par[attr]
-        return super().__getattr__(attr)  # pylint: disable=no-member
+        return object.__getattribute__(self, attr)
 
     @classmethod
     def _fit(cls, values):

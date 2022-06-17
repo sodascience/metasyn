@@ -38,7 +38,7 @@ Preparing the data
 To prepare the data for usage with MetaSynth, it is useful to have some basic knowledge about 
 `pandas <https://pandas.pydata.org/docs/user_guide/10min.html>`_. We use the
 `titanic <https://raw.githubusercontent.com/pandas-dev/pandas/main/doc/data/titanic.csv>`_ dataset
-to show the basic consepts here. To follow along, download the dataset to a folder and start Python
+to show the basic concepts here. To follow along, download the dataset to a folder and start Python
 in the same folder.
 
 First read the csv file with pandas:

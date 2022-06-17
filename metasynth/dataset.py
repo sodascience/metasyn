@@ -4,8 +4,11 @@ import json
 
 import numpy as np
 import pandas as pd
+import xmltodict
+import jsonschema
 
 from metasynth.var import MetaVar
+from importlib.resources import read_text
 
 
 class MetaDataset():
@@ -101,7 +104,7 @@ class MetaDataset():
             cur_str += "\n"+str(var)+"\n"
         return cur_str
 
-    def to_json(self, fp):
+    def to_json(self, fp, validate: bool=False):
         """Write the MetaSynth dataset to a JSON file.
 
         Parameters
@@ -109,8 +112,16 @@ class MetaDataset():
         fp: str or pathlib.Path
             File to write the dataset to.
         """
+        self_dict = _jsonify(self.to_dict())
+        if validate:
+            schema = read_text("metasynth.schema", "metasynth-1_0.json")
+            jsonschema.validate(instance=self_dict, schema=schema)
         with open(fp, "w", encoding="utf-8") as f:
-            json.dump(_jsonify(self.to_dict()), f)
+            json.dump(self_dict, f, indent=4)
+
+    def to_xml(self, fp):
+        with open(fp, "w", encoding="utf-8") as f:
+            f.write(xmltodict.unparse({"root": self.to_dict()}, pretty=True))
 
     @classmethod
     def from_json(cls, fp):
@@ -129,6 +140,16 @@ class MetaDataset():
         with open(fp, "r", encoding="utf-8") as f:
             self_dict = json.load(f)
 
+        n_rows = self_dict["n_rows"]
+        meta_vars = [MetaVar.from_dict(d) for d in self_dict["vars"]]
+        return cls(meta_vars, n_rows)
+
+    @classmethod
+    def from_xml(cls, fp):
+        with open(fp, "r", encoding="utf-8") as f:
+            self_dict = xmltodict.parse(f.read())["root"]
+
+        print(self_dict)
         n_rows = self_dict["n_rows"]
         meta_vars = [MetaVar.from_dict(d) for d in self_dict["vars"]]
         return cls(meta_vars, n_rows)

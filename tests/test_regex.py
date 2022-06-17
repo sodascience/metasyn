@@ -71,7 +71,7 @@ def test_digits(digit_set, dist_class, regex_str):
     assert isinstance(dist.re_list[0], dist_class)
     assert dist.re_list[0].min_digit == 10
     assert dist.re_list[0].max_digit == 10
-    assert dist.to_dict()["parameters"]["re_list"][0] == regex_str
+    assert dist.to_dict()["parameters"]["re_list"][0][0] == regex_str
     assert np.all([len(dist.draw()) == 10 for _ in range(100)])
     assert np.all([c in digit_set for c in dist.draw()])
     new_dist = dist_class.from_string(str(dist))

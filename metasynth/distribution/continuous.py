@@ -80,7 +80,7 @@ class LogNormalDistribution(ScipyDistribution):
     aliases = ["lognormal"]
     dist_class = lognorm
 
-    def __init__(self, mu, sigma):  # pylint: disable=invalid-name
+    def __init__(self, mu: float, sigma: float):  # pylint: disable=invalid-name
         self.par = {"mu": mu, "sigma": sigma}
         self.dist = lognorm(s=sigma, scale=np.exp(mu))
 
@@ -111,7 +111,8 @@ class TruncatedNormalDistribution(ScipyDistribution):
     aliases = ["truncnormal", "boundednormal", "truncatednormal"]
     dist_class = truncnorm
 
-    def __init__(self, lower_bound, upper_bound, mu, sigma):
+    def __init__(self, lower_bound: float, upper_bound: float,
+                 mu: float, sigma: float):
         self.par = {"lower_bound": lower_bound, "upper_bound": upper_bound,
                     "mu": mu, "sigma": sigma}
         a, b = (lower_bound-mu)/sigma, (upper_bound-mu)/sigma
