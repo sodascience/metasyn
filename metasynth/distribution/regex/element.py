@@ -47,6 +47,7 @@ class BaseRegexElement(ABC):
 
     @property
     def information_budget(self) -> float:
+        """Addition to the AIC for the current regex."""
         return 2*self.n_param + 2*self.log_options
 
     @property
@@ -76,6 +77,22 @@ class BaseRegexElement(ABC):
             The optimized regex.
         """
 
+    @classmethod
+    @abstractmethod
+    def fit_start(cls, values: Sequence[str]) -> Tuple[Iterable[str], BaseRegexElement]:
+        """Match the regex to the values, sequential greedy algotithm from the left.
+
+        Parameters
+        ----------
+        values: array_like of str
+            Remaining values to match the regex to.
+
+        Returns
+        -------
+        BaseRegexElement:
+            The optimized regex.
+        """
+
     @abstractmethod
     def _draw(self) -> str:
         """Draw a random string from the regex element.
@@ -87,6 +104,12 @@ class BaseRegexElement(ABC):
         """
 
     def draw(self) -> str:
+        """Draw a random string, considering how often the element is used.
+
+        Returns
+        -------
+        random_string: String randomly drawn from the regex.
+        """
         if np.random.rand() < self.frac_used:
             return self._draw()
         return ""
@@ -108,10 +131,6 @@ class BaseRegexElement(ABC):
             that corresponds to the string. Otherwise return None.
         """
 
-    @abstractmethod
-    def matches(self, values: Sequence[str]) -> Iterable[bool]:
-        pass
-
 
 class BaseRegexClass(BaseRegexElement):
     """Base class for repeating regex elements.
@@ -124,6 +143,7 @@ class BaseRegexClass(BaseRegexElement):
         Minimum number of repeats of the element.
     max_digit: int
         Maximum number of repeats of the element.
+    frac_used: Fraction of values that are matched at all.
     """
     regex_str = r""
     match_str = r""
@@ -138,7 +158,7 @@ class BaseRegexClass(BaseRegexElement):
         self.match_regex = re.compile(regex_str)
 
     @classmethod
-    def fit_start(cls, values: Sequence[str]):
+    def fit_start(cls, values: Sequence[str]) -> Tuple[Iterable[str], BaseRegexElement]:
         regex = re.compile(cls.regex_str)
         new_values = []
 
@@ -179,16 +199,18 @@ class BaseRegexClass(BaseRegexElement):
             return None
         return cls(int(match.groups()[0]), int(match.groups()[1]))
 
-    def matches(self, value):
-        return [match.span() for match in self.match_regex.finditer(value)]
-
     @classmethod
-    def all_spans(cls, values: Sequence[str]):
-        match_regex = re.compile(cls.base_regex+r"+")
-        return [
-            [match.span() for match in match_regex.finditer(val)]
-            for val in values
-        ]
+    def all_spans(cls, values: Sequence[str]) -> Sequence[Sequence[Tuple[int, int]]]:
+        """Return match spans for a sequence of strings.
+
+        Parameters
+        ----------
+        values: String values to match the regex to.
+
+        Returns
+        -------
+        A list of spans for each of the values.
+        """
 
 
 class DigitRegex(BaseRegexClass):
@@ -282,6 +304,18 @@ class UppercaseRegex(BaseRegexClass):
 
 
 class AnyRegex(BaseRegexElement):
+    """Regex that matches any character.
+
+    For generation, it uses string.printable characters plus any additional
+    ones that are manually set.
+
+    Parameters
+    ----------
+    min_digit: Minimum number of digits for the regex.
+    max_digit: Maximum number of digits for the regex.
+    extra_char: Extra characters to draw from outside of string.printable.
+    frac_used: Fraction of the values containing the regex.
+    """
     def __init__(self, min_digit: int, max_digit: int, extra_char: set=None, frac_used=1):
         self.min_digit = min_digit
         self.max_digit = max_digit
@@ -316,7 +350,7 @@ class AnyRegex(BaseRegexElement):
     def log_options(self) -> float:
         return self.max_digit*np.log(len(string.printable) + len(self.extra_char))
 
-    def _draw(self):
+    def _draw(self) -> str:
         n_digit = np.random.randint(self.min_digit, self.max_digit+1)
         return "".join([random.choice(self.all_char) for _ in range(n_digit)])
 
@@ -334,9 +368,6 @@ class AnyRegex(BaseRegexElement):
     def __str__(self):
         return f".[{''.join(self.extra_char)}]{{{self.min_digit},{self.max_digit}}}"
 
-    def matches(self, values: Sequence[str]) -> Iterable[bool]:
-        return [len(set(v)-self.all_char_set) == 0 for v in values]
-
 
 class SingleRegex(BaseRegexElement):
     """Regex element that is a choice on a set of (any) characters.
@@ -351,19 +382,19 @@ class SingleRegex(BaseRegexElement):
         self.character_selection = character_selection
         self.frac_used = frac_used
 
-    def _draw(self):
+    def _draw(self) -> str:
         return np.random.choice(self.character_selection)
 
     @property
-    def n_param(self):
+    def n_param(self) -> int:
         return 1 + len(self.character_selection)
 
     @property
-    def log_options(self):
+    def log_options(self) -> float:
         return np.log(len(self.character_selection))
 
     @classmethod
-    def fit_start(cls, values):
+    def fit_start(cls, values: Sequence[str]) -> Tuple[Iterable[str], SingleRegex]:
         first_chars = [v[0] for v in values if len(v) > 0]
         new_values = [v[1:] for v in values]
         return new_values, cls(list(set(first_chars)), len(first_chars)/len(values))
@@ -378,7 +409,7 @@ class SingleRegex(BaseRegexElement):
         cur_characters = []
         best_solution = (None, -10.0)
         while True:
-            new_solution = find_best_gradient(values, sorted_counts, cur_characters)
+            new_solution = _find_best_gradient(values, sorted_counts, cur_characters)
 
             # Check to see if no character is left.
             if new_solution[0] is None:
@@ -403,11 +434,9 @@ class SingleRegex(BaseRegexElement):
             return None
         return cls(list(match.groups()[0]))
 
-    def matches(self, value):
-        return [(i, i+1) for i, val_chr in enumerate(value) if val_chr in self.character_selection]
 
-
-def create_spans_char(values, *characters):
+def _create_spans_char(values, *characters):
+    """Create the spans for the values given a number of characters for the match."""
     char_list = "".join(re.escape(c) for c in characters)
     regex = re.compile(r"[" + char_list + r"]")
     return [
@@ -416,7 +445,8 @@ def create_spans_char(values, *characters):
     ]
 
 
-def find_best_gradient(values, sorted_counts, start_char=None):
+def _find_best_gradient(values, sorted_counts, start_char=None):
+    """Find the best gradient by adding one additional character to the set."""
     def information_budget(n_char):
         n_param = n_char + 1
         return 2*n_param + 2*np.log(n_char)
@@ -428,7 +458,7 @@ def find_best_gradient(values, sorted_counts, start_char=None):
     for character, _char_count in sorted_counts:
         if character in start_char:
             continue
-        spans = create_spans_char(values, character, *start_char)
+        spans = _create_spans_char(values, character, *start_char)
         optimizer = RegexOptimizer(values, spans)
         optimizer.optimize()
         energy_grad = (start_energy - optimizer.energy)/information_budget(1+len(start_char))

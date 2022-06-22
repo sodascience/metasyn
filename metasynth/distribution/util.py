@@ -2,9 +2,6 @@
 
 import inspect
 import importlib
-from typing import Sequence, Tuple
-
-import numpy as np
 
 from metasynth.distribution.base import BaseDistribution
 

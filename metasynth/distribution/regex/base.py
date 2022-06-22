@@ -13,11 +13,11 @@ from metasynth.distribution.regex.element import LettersRegex, SingleRegex, AnyR
 from metasynth.distribution.regex.element import UppercaseRegex, LowercaseRegex
 
 
-def _get_n_char_removed(values: Iterable[str], new_values: Iterable[str]):
+def _get_n_char_removed(values: Iterable[str], new_values: Iterable[str]) -> int:
     """Get the proportion of the characters that were resolved with the regex."""
     n_char = np.sum([len(val) for val in values])
     n_new_char = np.sum([len(val) for val in new_values])
-    return (n_char-n_new_char)
+    return n_char-n_new_char
 
 
 class RegexDistribution(BaseDistribution):
@@ -75,7 +75,7 @@ class RegexDistribution(BaseDistribution):
 
         # Iterate over all RegexElements and find the best one.
         for re_class in regex_classes:
-            new_values, gradient, regexer = re_class.fit([v for v in values])
+            new_values, gradient, regexer = re_class.fit(list(values))
             if best_solution is None or gradient > best_solution["gradient"]:
                 best_solution = {
                     "re": regexer,
@@ -99,7 +99,7 @@ class RegexDistribution(BaseDistribution):
 
         # Iterate over all RegexElements and find the best one.
         for re_class in regex_classes:
-            new_values, regexer = re_class.fit([v for v in values])
+            new_values, regexer = re_class.fit(list(values))
             n_char_removed = _get_n_char_removed(values, new_values)
             cur_ic = regexer.information_criterion(n_char_removed)
             # if cur_ic > 1.5:

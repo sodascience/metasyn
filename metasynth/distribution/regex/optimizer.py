@@ -1,11 +1,35 @@
+"""Module containing the optimizer class for the regex distribution."""
+
 from typing import Sequence, Tuple
 import numpy as np
+import numpy.typing as npt
 
+# Used for side assignment of values with no regex match
 SIDE_LEFT = -1
 SIDE_RIGHT = -2
 
 
 class RegexOptimizer():
+    r"""Optimizer class for fitting regexes to lists of strings.
+
+    As input it takes the list of values and a list of matching spans
+    for each of these values. With that it tries to find the optimal span assignment.
+    It does so in a greedy way, where it optimizes each value step by step.
+
+    As a result of the assignment, the values are split: one part left of the regex and
+    another part right of the regex. The goal is to optimize the parts on the left and right
+    to ensure that is as close to optimal as possible.
+
+    The objective value of the optimization for this is defined for a list of values as follows:
+    take the cumulative distribution of the lengths of the values > 0 and compute:
+    \sum_i=1 \log (C_i + 1).
+    , where C_i is the number of values with length i or more.
+
+    Parameters
+    ----------
+    values: Values to which the regex is being applied.
+    spans: Positions/spans where the regex can be applied.
+    """
     def __init__(self, values: Sequence[str], spans: Sequence[Sequence[Tuple[int, int]]]):
         self.values = values
         self.spans = spans
@@ -13,9 +37,8 @@ class RegexOptimizer():
         self.max_len = np.max([len(v) for v in values])
         self.left_cum_dist = np.zeros(self.max_len, dtype=int)
         self.right_cum_dist = np.zeros(self.max_len, dtype=int)
-        for i_val in range(len(values)):
+        for i_val, cur_val in enumerate(values):
             cur_span_choice = spans[i_val]
-            cur_val = values[i_val]
             if len(cur_span_choice) > 0:
                 i_choice: int = int(np.argmax([x[1]-x[0] for x in cur_span_choice]))
                 cur_span = cur_span_choice[i_choice]
@@ -30,16 +53,26 @@ class RegexOptimizer():
                     self.right_cum_dist[:len(cur_val)] += 1
 
     def optimize(self) -> None:
-        while self._optimize_round():
+        """Optimize the positions until no improvement can be found."""
+        while self.optimize_round():
             pass
 
-    def _optimize_round(self) -> bool:
+    def optimize_round(self) -> bool:
+        """Do one round of optimization.
+
+        Returns
+        -------
+        has_changed: Whether the optimization round has changed any assignment.
+        """
         has_changed: bool = False
+
+        # Iterate over all values
         for i_val, cur_val in enumerate(self.values):
-            # self.check_integrity()
             cur_span_choice = self.spans[i_val]
             if len(cur_span_choice) == 0:
                 chosen_side = self.cur_solution[i_val]
+
+                # If assigned to the left, attempt right assignment.
                 if chosen_side == SIDE_LEFT:
                     delta_energy = self.energy_move(self.left_cum_dist, len(cur_val), 0)
                     delta_energy += self.energy_move(self.right_cum_dist, 0, len(cur_val))
@@ -48,6 +81,8 @@ class RegexOptimizer():
                         self.right_cum_dist[:len(cur_val)] += 1
                         self.cur_solution[i_val] = SIDE_RIGHT
                         has_changed = True
+
+                # If assigned to the right, attempt left assignment
                 elif chosen_side == SIDE_RIGHT:
                     delta_energy = self.energy_move(self.right_cum_dist, len(cur_val), 0)
                     delta_energy += self.energy_move(self.left_cum_dist, 0, len(cur_val))
@@ -58,20 +93,23 @@ class RegexOptimizer():
                         has_changed = True
                 continue
 
+            # Only reached if there is at least one match.
             chosen_span = self.cur_solution[i_val]
             i_start, i_temp = cur_span_choice[chosen_span]
             i_end = len(cur_val)-i_temp
             best_choice = (chosen_span, 0.0)
-            for j_choice in range(len(cur_span_choice)):
+
+            # Try all spans except the one we already have and find the one with the lowest energy.
+            for j_choice, j_span in enumerate(cur_span_choice):
                 if j_choice == self.cur_solution[i_val]:
                     continue
-                j_start, j_temp = cur_span_choice[j_choice]
+                j_start, j_temp = j_span
                 j_end = len(cur_val)-j_temp
-                delta_E = (self.energy_move(self.left_cum_dist, i_start, j_start) +
-                           self.energy_move(self.right_cum_dist, i_end, j_end))
-                if delta_E - best_choice[1] > -1e-8:
+                delta_energy = (self.energy_move(self.left_cum_dist, i_start, j_start) +
+                                self.energy_move(self.right_cum_dist, i_end, j_end))
+                if delta_energy - best_choice[1] > -1e-8:
                     continue
-                best_choice = (j_choice,  delta_E)
+                best_choice = (j_choice,  delta_energy)
             if best_choice[1] < 0:
                 has_changed = True
                 self.set_span(i_val, best_choice[0])
@@ -79,21 +117,36 @@ class RegexOptimizer():
 
     @property
     def energy(self) -> float:
+        """Compute the energy of the current assignment/solution."""
         left_energy = np.sum(np.log(self.left_cum_dist+1))
         right_energy = np.sum(np.log(self.right_cum_dist+1))
         return left_energy + right_energy
 
-    def energy_move(self, dist, len_src, len_dst):
+    def energy_move(self, dist: npt.NDArray[np.int_], len_src: int, len_dst: int) -> float:
+        """Compute the energy to change the length on one side.
+
+        Parameters
+        ----------
+        dist: Cumulative distribution of the current lengths.
+              (self.left_cum_dist or self.right_cum_dist)
+        len_src: Current length on this side.
+        len_dst: New length on the same side.
+
+        Returns
+        -------
+        delta_energy: Difference in energy [after-before].
+        """
         if len_dst > len_src:
             return np.sum(np.log((dist[len_src:len_dst]+2) /
                                  (dist[len_src:len_dst]+1)))
-        elif len_dst < len_src:
+        if len_dst < len_src:
             assert np.all(dist[len_dst:len_src] > 0), (dist[len_dst:len_src], len_src, len_dst)
             return np.sum(np.log((dist[len_dst:len_src] /
                                   (dist[len_dst:len_src]+1))))
         return 0
 
-    def check_integrity(self):
+    def _check_integrity(self):
+        """Check the integrity of the assignments."""
         n_sum_left = 0
         n_sum_right = 0
         for i_val, cur_val in enumerate(self.values):
@@ -117,36 +170,59 @@ class RegexOptimizer():
             assert False
 
     @staticmethod
-    def energy_from_values(values):
+    def energy_from_values(values: Sequence[str]) -> float:
+        """Compute the energy of a sequence of strings.
+
+        Independent of the current optimized assignment.
+
+        Parameters
+        ----------
+        values: Values to compute the energy of.
+
+        Returns
+        -------
+        energy: Computed energy.
+        """
         length_array = np.array([len(v) for v in values])
         lengths, counts = np.unique(length_array, return_counts=True)
         cum_len = np.zeros(np.max(lengths))
-        for i in range(len(lengths)):
-            cur_len = lengths[i]
-            cur_counts = counts[i]
+
+        # Compute the cumulative lengths.
+        for i_len, cur_len in enumerate(lengths):
+            cur_counts = counts[i_len]
             cum_len[:cur_len] += cur_counts
         return np.sum(np.log(cum_len + 1))
 
     def set_span(self, i_val, i_span) -> None:
+        """Change the assignment for a value.
+
+        Parameters
+        ----------
+        i_val: Index of the value to be reassigned.
+        i_span: Index of the span for that value to be assigned to.
+        """
         old_span = self.spans[i_val][self.cur_solution[i_val]]
         new_span = self.spans[i_val][i_span]
 
-        # First remove old ones
+        # First change the ones on the left
         if old_span[0] > new_span[0]:
             self.left_cum_dist[new_span[0]:old_span[0]] -= 1
         else:
             self.left_cum_dist[old_span[0]:new_span[0]] += 1
 
+        # Then on the right.
         old_right, new_right = len(self.values[i_val]) - np.array([old_span[1], new_span[1]])
         if old_right > new_right:
             self.right_cum_dist[new_right:old_right] -= 1
         else:
             self.right_cum_dist[old_right:new_right] += 1
 
+        # Update the current solution.
         self.cur_solution[i_val] = i_span
 
     @property
-    def new_values(self):
+    def new_values(self) -> Tuple[list[str], list[str]]:
+        """The values on the left and right with the current assignment."""
         left_values = []
         right_values = []
         for i_val, val in enumerate(self.values):
@@ -163,8 +239,10 @@ class RegexOptimizer():
         return left_values, right_values
 
     @property
-    def statistics(self):
-        match_lengths = []
+    def statistics(self) -> Tuple[int, int, float]:
+        """Get the minimum/maximum length of the substituted regex and fraction of assignments."""
+        # Compute lengths for which the regex substitutes.
+        match_lengths: list[int] = []
         for i_val in range(len(self.values)):
             if len(self.spans[i_val]) > 0:
                 span = self.spans[i_val][self.cur_solution[i_val]]
