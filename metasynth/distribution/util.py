@@ -5,6 +5,9 @@ import importlib
 
 from metasynth.distribution.base import BaseDistribution
 
+SIDE_LEFT = -1
+SIDE_RIGHT = -2
+
 
 def get_dist_class(name):
     """Obtain a distribution and fit arguments from a name
@@ -28,7 +31,7 @@ def get_dist_class(name):
         "metasynth.distribution.continuous",
         "metasynth.distribution.discrete",
         "metasynth.distribution.faker",
-        "metasynth.distribution.string",
+        "metasynth.distribution.regex.base",
         "metasynth.distribution.categorical"
     ]
 

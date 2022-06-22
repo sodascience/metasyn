@@ -7,6 +7,7 @@ multiple distributions with the correct types.
 
 from abc import ABC
 from copy import deepcopy
+from typing import List, Type
 
 import numpy as np
 
@@ -17,7 +18,8 @@ from metasynth.distribution.continuous import LogNormalDistribution,\
     TruncatedNormalDistribution
 from metasynth.distribution.util import get_dist_class
 from metasynth.distribution.discrete import UniqueKeyDistribution
-from metasynth.distribution.string import UniqueRegexDistribution
+from metasynth.distribution.regex import UniqueRegexDistribution
+from metasynth.distribution.base import BaseDistribution
 
 
 class MetaDistribution(ABC):
@@ -28,7 +30,7 @@ class MetaDistribution(ABC):
     of them need to be instantiated, so in that sense they are abstract.
     """
 
-    dist_types = []
+    dist_types: List[Type[BaseDistribution]] = []
 
     @classmethod
     def from_dict(cls, meta_dict):

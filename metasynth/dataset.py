@@ -1,9 +1,16 @@
 """Conversion of pandas dataframes to MetaSynth datasets."""   # pylint: disable=invalid-name
 
+from __future__ import annotations
+
+from importlib.resources import read_text
 import json
+import pathlib
+from typing import Union
 
 import numpy as np
 import pandas as pd
+import xmltodict
+import jsonschema
 
 from metasynth.var import MetaVar
 
@@ -101,25 +108,41 @@ class MetaDataset():
             cur_str += "\n"+str(var)+"\n"
         return cur_str
 
-    def to_json(self, fp):
+    def to_json(self, fp: Union[pathlib.Path, str], validate: bool=True) -> None:
         """Write the MetaSynth dataset to a JSON file.
 
         Parameters
         ----------
         fp: str or pathlib.Path
             File to write the dataset to.
+        validate: Validate the JSON file with a schema.
+        """
+        self_dict = _jsonify(self.to_dict())
+        if validate:
+            schema = json.loads(read_text("metasynth.schema", "metasynth-1_0.json"))
+            jsonschema.validate(instance=self_dict, schema=schema)
+        with open(fp, "w", encoding="utf-8") as f:
+            json.dump(self_dict, f, indent=4)
+
+    def to_xml(self, fp: Union[pathlib.Path, str]) -> None:
+        """Write the metadataset to an XML file.
+
+        Parameters
+        ----------
+        fp: File to write to.
         """
         with open(fp, "w", encoding="utf-8") as f:
-            json.dump(_jsonify(self.to_dict()), f)
+            f.write(xmltodict.unparse({"root": self.to_dict()}, pretty=True))
 
     @classmethod
-    def from_json(cls, fp):
+    def from_json(cls, fp: Union[pathlib.Path, str], validate: bool=True) -> MetaDataset:
         """Read a MetaSynth dataset from a JSON file.
 
         Parameters
         ----------
         fp: str or pathlib.Path
             Path to read the data from.
+        validate: Validate the JSON file with a schema.
 
         Returns
         -------
@@ -128,6 +151,29 @@ class MetaDataset():
         """
         with open(fp, "r", encoding="utf-8") as f:
             self_dict = json.load(f)
+
+        if validate:
+            schema = json.loads(read_text("metasynth.schema", "metasynth-1_0.json"))
+            jsonschema.validate(instance=self_dict, schema=schema)
+
+        n_rows = self_dict["n_rows"]
+        meta_vars = [MetaVar.from_dict(d) for d in self_dict["vars"]]
+        return cls(meta_vars, n_rows)
+
+    @classmethod
+    def from_xml(cls, fp: Union[pathlib.Path, str]) -> MetaDataset:
+        """Read a MetaSynth dataset from a XML file.
+
+        Parameters
+        ----------
+        fp: Path to file that contains the metadataset.
+
+        Returns
+        -------
+        MetaDataset containing the information of the dataset.
+        """
+        with open(fp, "r", encoding="utf-8") as f:
+            self_dict = xmltodict.parse(f.read())["root"]
 
         n_rows = self_dict["n_rows"]
         meta_vars = [MetaVar.from_dict(d) for d in self_dict["vars"]]

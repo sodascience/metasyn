@@ -1,17 +1,20 @@
-import pandas as pd
-from metasynth.distribution.string import RegexDistribution, SingleRegex,\
-    DigitRegex, AlphaNumericRegex, LettersRegex, LowercaseRegex, UppercaseRegex,\
-    UniqueRegexDistribution
-from random import choice
 import string
-from pytest import mark, raises
+from random import choice
+
 import numpy as np
+import pandas as pd
+from pytest import mark, raises
+
+from metasynth.distribution.regex import RegexDistribution, UniqueRegexDistribution
+from metasynth.distribution.regex.element import SingleRegex,\
+    DigitRegex, AlphaNumericRegex, LettersRegex, LowercaseRegex, UppercaseRegex
 
 
 def test_regex_single_digit():
-    series = pd.Series(["R123", "R823", "R124"])
+    series = pd.Series(["R123", "R827", "R354"])
     dist = RegexDistribution.fit(series)
     dist_unique = UniqueRegexDistribution.fit(series)
+    print(dist.to_dict(), dist_unique.to_dict())
     assert dist.information_criterion(series) < dist_unique.information_criterion(series)
 
     def check_regex_dist(dist):
@@ -71,7 +74,7 @@ def test_digits(digit_set, dist_class, regex_str):
     assert isinstance(dist.re_list[0], dist_class)
     assert dist.re_list[0].min_digit == 10
     assert dist.re_list[0].max_digit == 10
-    assert dist.to_dict()["parameters"]["re_list"][0] == regex_str
+    assert dist.to_dict()["parameters"]["re_list"][0][0] == regex_str
     assert np.all([len(dist.draw()) == 10 for _ in range(100)])
     assert np.all([c in digit_set for c in dist.draw()])
     new_dist = dist_class.from_string(str(dist))

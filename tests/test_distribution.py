@@ -5,8 +5,7 @@ from metasynth.distribution.categorical import CatFreqDistribution
 from metasynth.distribution.continuous import UniformDistribution,\
     NormalDistribution
 from metasynth.distribution.faker import FakerDistribution
-from metasynth.distribution.string import RegexDistribution,\
-    StringFreqDistribution
+from metasynth.distribution.regex import RegexDistribution
 from metasynth.distribution.discrete import DiscreteUniformDistribution
 
 
@@ -20,7 +19,6 @@ from metasynth.distribution.discrete import DiscreteUniformDistribution
         ("faker.city", FakerDistribution),
         ("faker.city.nl_NL", FakerDistribution),
         ("regex", RegexDistribution),
-        ("char_freq", StringFreqDistribution),
         ("discrete_uniform", DiscreteUniformDistribution)
     ]
 )

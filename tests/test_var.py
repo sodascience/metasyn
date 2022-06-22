@@ -11,7 +11,7 @@ from metasynth.distribution import UniformDistribution
 from pytest import mark, raises
 from metasynth.dataset import _jsonify
 from metasynth.distribution.discrete import UniqueKeyDistribution
-from metasynth.distribution.string import UniqueRegexDistribution
+from metasynth.distribution.regex import UniqueRegexDistribution
 
 
 def check_var(series, var_type, dist_class):
