@@ -15,8 +15,8 @@
                   	"dtype": {"type": "string"},
                   	"prop_missing": {"type": "number"},
                   	"distribution": {
-                 		"$ref": "#/$defs/all_dist_def",
-                  	},
+                 		"$ref": "#/$defs/all_dist_def"
+                  	}
               	}
 			},
 			"required": ["name", "type", "dtype", "prop_missing", "distribution"]
@@ -33,7 +33,7 @@
 					"type": "object",
 					"properties": {
 						"categories": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
-						"counts": {"type": "array", "items": {"type": "number"}},
+						"counts": {"type": "array", "items": {"type": "number"}}
 					},
 					"required": ["categories", "counts"]
 				}
@@ -47,7 +47,7 @@
 					"type": "object",
 					"properties": {
 						"low": {"type": "number"},
-						"consecutive": {"enum": [0, 1]},
+						"consecutive": {"enum": [0, 1]}
 					},
 					"required": ["low", "consecutive"]
 				}
@@ -64,10 +64,10 @@
 							"type": "array",
 							"items": {
 								"type": "array",
-								"items": [{"type": "string"}, {"type": "number"}],
+								"prefixItems": [{"type": "string"}, {"type": "number"}],
 								"minItems": 2,
 								"additionalItems": false
-							},
+							}
 						}
 					},
 					"required": ["re_list"]

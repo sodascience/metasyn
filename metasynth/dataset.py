@@ -108,17 +108,18 @@ class MetaDataset():
             cur_str += "\n"+str(var)+"\n"
         return cur_str
 
-    def to_json(self, fp, validate: bool=False):
+    def to_json(self, fp: Union[pathlib.Path, str], validate: bool=True) -> None:
         """Write the MetaSynth dataset to a JSON file.
 
         Parameters
         ----------
         fp: str or pathlib.Path
             File to write the dataset to.
+        validate: Validate the JSON file with a schema.
         """
         self_dict = _jsonify(self.to_dict())
         if validate:
-            schema = read_text("metasynth.schema", "metasynth-1_0.json")
+            schema = json.loads(read_text("metasynth.schema", "metasynth-1_0.json"))
             jsonschema.validate(instance=self_dict, schema=schema)
         with open(fp, "w", encoding="utf-8") as f:
             json.dump(self_dict, f, indent=4)
@@ -134,13 +135,14 @@ class MetaDataset():
             f.write(xmltodict.unparse({"root": self.to_dict()}, pretty=True))
 
     @classmethod
-    def from_json(cls, fp: Union[pathlib.Path, str]) -> MetaDataset:
+    def from_json(cls, fp: Union[pathlib.Path, str], validate: bool=True) -> MetaDataset:
         """Read a MetaSynth dataset from a JSON file.
 
         Parameters
         ----------
         fp: str or pathlib.Path
             Path to read the data from.
+        validate: Validate the JSON file with a schema.
 
         Returns
         -------
@@ -149,6 +151,10 @@ class MetaDataset():
         """
         with open(fp, "r", encoding="utf-8") as f:
             self_dict = json.load(f)
+
+        if validate:
+            schema = json.loads(read_text("metasynth.schema", "metasynth-1_0.json"))
+            jsonschema.validate(instance=self_dict, schema=schema)
 
         n_rows = self_dict["n_rows"]
         meta_vars = [MetaVar.from_dict(d) for d in self_dict["vars"]]

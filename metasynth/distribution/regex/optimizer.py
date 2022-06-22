@@ -1,6 +1,6 @@
 """Module containing the optimizer class for the regex distribution."""
 
-from typing import Sequence, Tuple
+from typing import Sequence, Tuple, List
 import numpy as np
 import numpy.typing as npt
 
@@ -221,7 +221,7 @@ class RegexOptimizer():
         self.cur_solution[i_val] = i_span
 
     @property
-    def new_values(self) -> Tuple[list[str], list[str]]:
+    def new_values(self) -> Tuple[List[str], List[str]]:
         """The values on the left and right with the current assignment."""
         left_values = []
         right_values = []
@@ -242,7 +242,7 @@ class RegexOptimizer():
     def statistics(self) -> Tuple[int, int, float]:
         """Get the minimum/maximum length of the substituted regex and fraction of assignments."""
         # Compute lengths for which the regex substitutes.
-        match_lengths: list[int] = []
+        match_lengths: List[int] = []
         for i_val in range(len(self.values)):
             if len(self.spans[i_val]) > 0:
                 span = self.spans[i_val][self.cur_solution[i_val]]

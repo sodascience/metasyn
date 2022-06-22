@@ -15,5 +15,8 @@ setup(
         "scipy",
         "numpy",
         "faker",
+        "sklearn",
+        "xmltodict",
+        "jsonschema",
     ]
 )
