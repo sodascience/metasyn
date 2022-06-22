@@ -1,6 +1,11 @@
 """Conversion of pandas dataframes to MetaSynth datasets."""   # pylint: disable=invalid-name
 
+from __future__ import annotations
+
+from importlib.resources import read_text
 import json
+import pathlib
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -8,7 +13,6 @@ import xmltodict
 import jsonschema
 
 from metasynth.var import MetaVar
-from importlib.resources import read_text
 
 
 class MetaDataset():
@@ -119,12 +123,18 @@ class MetaDataset():
         with open(fp, "w", encoding="utf-8") as f:
             json.dump(self_dict, f, indent=4)
 
-    def to_xml(self, fp):
+    def to_xml(self, fp: Union[pathlib.Path, str]) -> None:
+        """Write the metadataset to an XML file.
+
+        Parameters
+        ----------
+        fp: File to write to.
+        """
         with open(fp, "w", encoding="utf-8") as f:
             f.write(xmltodict.unparse({"root": self.to_dict()}, pretty=True))
 
     @classmethod
-    def from_json(cls, fp):
+    def from_json(cls, fp: Union[pathlib.Path, str]) -> MetaDataset:
         """Read a MetaSynth dataset from a JSON file.
 
         Parameters
@@ -145,11 +155,20 @@ class MetaDataset():
         return cls(meta_vars, n_rows)
 
     @classmethod
-    def from_xml(cls, fp):
+    def from_xml(cls, fp: Union[pathlib.Path, str]) -> MetaDataset:
+        """Read a MetaSynth dataset from a XML file.
+
+        Parameters
+        ----------
+        fp: Path to file that contains the metadataset.
+
+        Returns
+        -------
+        MetaDataset containing the information of the dataset.
+        """
         with open(fp, "r", encoding="utf-8") as f:
             self_dict = xmltodict.parse(f.read())["root"]
 
-        print(self_dict)
         n_rows = self_dict["n_rows"]
         meta_vars = [MetaVar.from_dict(d) for d in self_dict["vars"]]
         return cls(meta_vars, n_rows)

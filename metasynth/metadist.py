@@ -18,7 +18,7 @@ from metasynth.distribution.continuous import LogNormalDistribution,\
     TruncatedNormalDistribution
 from metasynth.distribution.util import get_dist_class
 from metasynth.distribution.discrete import UniqueKeyDistribution
-from metasynth.distribution.string import UniqueRegexDistribution
+from metasynth.distribution.regex import UniqueRegexDistribution
 from metasynth.distribution.base import BaseDistribution
 
 

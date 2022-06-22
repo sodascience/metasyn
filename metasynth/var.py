@@ -1,10 +1,10 @@
 """Variable module that creates metadata variables."""  # pylint: disable=invalid-name
 
 import inspect
+from typing import Type
 
 import pandas as pd
 import numpy as np
-from typing import Type
 
 from metasynth.metadist import FloatDistribution, CategoricalDistribution,\
     MetaDistribution
