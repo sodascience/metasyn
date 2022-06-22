@@ -1,17 +1,20 @@
-import pandas as pd
-from metasynth.distribution.string import RegexDistribution, SingleRegex,\
-    DigitRegex, AlphaNumericRegex, LettersRegex, LowercaseRegex, UppercaseRegex,\
-    UniqueRegexDistribution
-from random import choice
 import string
-from pytest import mark, raises
+from random import choice
+
 import numpy as np
+import pandas as pd
+from pytest import mark, raises
+
+from metasynth.distribution.regex import RegexDistribution, UniqueRegexDistribution
+from metasynth.distribution.regex.element import SingleRegex,\
+    DigitRegex, AlphaNumericRegex, LettersRegex, LowercaseRegex, UppercaseRegex
 
 
 def test_regex_single_digit():
-    series = pd.Series(["R123", "R823", "R124"])
+    series = pd.Series(["R123", "R827", "R354"])
     dist = RegexDistribution.fit(series)
     dist_unique = UniqueRegexDistribution.fit(series)
+    print(dist.to_dict(), dist_unique.to_dict())
     assert dist.information_criterion(series) < dist_unique.information_criterion(series)
 
     def check_regex_dist(dist):

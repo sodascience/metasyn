@@ -211,6 +211,11 @@ class BaseRegexClass(BaseRegexElement):
         -------
         A list of spans for each of the values.
         """
+        match_regex = re.compile(cls.base_regex+r"+")
+        return [
+            [match.span() for match in match_regex.finditer(val)]
+            for val in values
+        ]
 
 
 class DigitRegex(BaseRegexClass):
