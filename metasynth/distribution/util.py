@@ -2,8 +2,11 @@
 
 import inspect
 import importlib
+from importlib.resources import files
+import pkgutil
 
 from metasynth.distribution.base import BaseDistribution
+from metasynth.distribution import ContinuousDistribution, DiscreteDistribution, StringDistribution, CategoricalDistribution
 
 SIDE_LEFT = -1
 SIDE_RIGHT = -2
@@ -51,3 +54,28 @@ def get_dist_class(name):
             if dist_class.is_named(name):
                 return dist_class, dist_class.fit_kwargs(name)
     raise ValueError(f"Cannot find distribution with name {name}")
+
+
+def _get_all_distributions(pkg_name):
+    distributions = {
+        "discrete": [],
+        "continuous": [],
+        "string": [],
+        "categorical": [],
+    }
+    pkg_path = files(pkg_name)
+    modules = [x for x in pkgutil.walk_packages(path=[str(pkg_path)], prefix=pkg_name + ".") if not x.ispkg]
+    for _, mod_name, _ in modules:
+        mod_classes = inspect.getmembers(
+            importlib.import_module(mod_name), #inspect.isclass)
+            predicate=lambda member: inspect.isclass(member) and member.__module__ == mod_name)
+        for name, dist in mod_classes:
+            if issubclass(dist, DiscreteDistribution):
+                distributions["discrete"].append(dist)
+            elif issubclass(dist, ContinuousDistribution):
+                distributions["continuous"].append(dist)
+            elif issubclass(dist, StringDistribution):
+                distributions["string"].append(dist)
+            elif issubclass(dist, CategoricalDistribution):
+                distributions["categorical"].append(dist)
+    return distributions

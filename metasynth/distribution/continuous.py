@@ -5,10 +5,10 @@ from scipy.optimize import minimize
 from scipy.stats import uniform, norm, lognorm, truncnorm
 from scipy.stats._continuous_distns import FitDataError
 
-from metasynth.distribution.base import ScipyDistribution
+from metasynth.distribution.base import ScipyDistribution, ContinuousDistribution
 
 
-class UniformDistribution(ScipyDistribution):
+class UniformDistribution(ScipyDistribution, ContinuousDistribution):
     """Uniform distribution for floating point type.
 
     This class implements the uniform distribution between a minimum
@@ -41,7 +41,7 @@ class UniformDistribution(ScipyDistribution):
         return 2*self.n_par - 2*len(vals)*np.log((self.max_val-self.min_val)**-1)
 
 
-class NormalDistribution(ScipyDistribution):
+class NormalDistribution(ScipyDistribution, ContinuousDistribution):
     """Normal distribution for floating point type.
 
     This class implements the normal/gaussian distribution and takes
@@ -64,7 +64,7 @@ class NormalDistribution(ScipyDistribution):
         self.dist = norm(loc=mean, scale=std_dev)
 
 
-class LogNormalDistribution(ScipyDistribution):
+class LogNormalDistribution(ScipyDistribution, ContinuousDistribution):
     """Log-normal distribution for floating point type.
 
     This class implements the log-normal mu and sigma as initialization input.
@@ -93,7 +93,7 @@ class LogNormalDistribution(ScipyDistribution):
         return cls(np.log(scale), sigma)
 
 
-class TruncatedNormalDistribution(ScipyDistribution):
+class TruncatedNormalDistribution(ScipyDistribution, ContinuousDistribution):
     """Truncated normal distribution for floating point type.
 
     Parameters
@@ -122,7 +122,10 @@ class TruncatedNormalDistribution(ScipyDistribution):
     def _fit(cls, values):
         lower_bound = np.min(values) - 1e-8
         upper_bound = np.max(values) + 1e-8
+        return cls._fit_with_bounds(values, lower_bound, upper_bound)
 
+    @classmethod
+    def _fit_with_bounds(cls, values, lower_bound, upper_bound):
         def minimizer(param):
             mu, sigma = param
             a, b = (lower_bound-mu)/sigma, (upper_bound-mu)/sigma

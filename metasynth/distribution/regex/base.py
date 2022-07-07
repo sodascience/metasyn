@@ -6,7 +6,7 @@ from typing import Iterable, List, Union, Tuple, Type, Sequence, Set
 
 import numpy as np
 
-from metasynth.distribution.base import BaseDistribution
+from metasynth.distribution.base import StringDistribution
 from metasynth.distribution.regex.element import BaseRegexElement
 from metasynth.distribution.regex.element import DigitRegex, AlphaNumericRegex
 from metasynth.distribution.regex.element import LettersRegex, SingleRegex, AnyRegex
@@ -20,7 +20,7 @@ def _get_n_char_removed(values: Iterable[str], new_values: Iterable[str]) -> int
     return n_char-n_new_char
 
 
-class RegexDistribution(BaseDistribution):
+class RegexDistribution(StringDistribution):
     """Distribution that uses a strategy similar to regex.
 
     The idea behind this method is that for structured strings

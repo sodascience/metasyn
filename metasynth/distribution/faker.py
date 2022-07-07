@@ -1,11 +1,12 @@
 """Module containing an interface to the faker package."""
+from typing import Iterable
 
 from faker import Faker
 
-from metasynth.distribution.base import BaseDistribution
+from metasynth.distribution.base import StringDistribution
 
 
-class FakerDistribution(BaseDistribution):
+class FakerDistribution(StringDistribution):
     """Distribution for the faker package.
 
     This is mainly an interface for the faker package, so that it
@@ -60,3 +61,6 @@ class FakerDistribution(BaseDistribution):
             return {"faker_type": split_name[1]}
         return {"faker_type": split_name[1],
                 "locale": split_name[2]}
+
+    def information_criterion(self, values: Iterable) -> float:
+        return 99999

@@ -4,10 +4,10 @@ import numpy as np
 import pandas as pd
 from scipy.stats import randint, poisson
 
-from metasynth.distribution.base import ScipyDistribution
+from metasynth.distribution.base import ScipyDistribution, DiscreteDistribution
 
 
-class DiscreteUniformDistribution(ScipyDistribution):
+class DiscreteUniformDistribution(ScipyDistribution, DiscreteDistribution):
     """Integer uniform distribution.
 
     It differs from the floating point uniform distribution by
@@ -41,7 +41,7 @@ class DiscreteUniformDistribution(ScipyDistribution):
         return cls(**param)
 
 
-class PoissonDistribution(ScipyDistribution):
+class PoissonDistribution(ScipyDistribution, DiscreteDistribution):
     """Poisson distribution.
     """
 
@@ -63,7 +63,7 @@ class PoissonDistribution(ScipyDistribution):
         return cls(np.mean(values))
 
 
-class UniqueKeyDistribution(ScipyDistribution):
+class UniqueKeyDistribution(ScipyDistribution, DiscreteDistribution):
     """Integer distribution with unique keys.
 
     Discrete distribution that ensures the uniqueness of the drawn values.

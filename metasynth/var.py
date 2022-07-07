@@ -1,16 +1,18 @@
 """Variable module that creates metadata variables."""  # pylint: disable=invalid-name
 
 import inspect
-from typing import Type
+# from typing import Type
 
 import pandas as pd
 import numpy as np
 
-from metasynth.metadist import FloatDistribution, CategoricalDistribution,\
-    MetaDistribution
-from metasynth.metadist import StringDistribution, IntDistribution
+# from metasynth.metadist import FloatDistribution, CategoricalDistribution,\
+# MetaDistribution
+# from metasynth.metadist import StringDistribution, IntDistribution
+from metasynth.metadist import MetaDistribution
 from metasynth.distribution.base import BaseDistribution
 from metasynth.distribution.util import get_dist_class
+from metasynth.distribution.util import _get_all_distributions
 
 
 class MetaVar():
@@ -34,11 +36,12 @@ class MetaVar():
         Proportion of the series that are missing/NA.
     """
 
-    dist_class: Type[MetaDistribution]
+    # dist_class: Type[MetaDistribution]
     dtype = "unknown"
 
-    def __init__(self, series=None, name=None, distribution=None, prop_missing=0,  # pylint: disable=too-many-arguments
+    def __init__(self, var_type, series=None, name=None, distribution=None, prop_missing=0,  # pylint: disable=too-many-arguments
                  dtype=None):
+        self.var_type = var_type
         if series is None:
             self.name = name
             self.prop_missing = prop_missing
@@ -74,34 +77,44 @@ class MetaVar():
                     for col in series_or_dataframe]
 
         series = series_or_dataframe
-        sub_class = cls.get_sub_class(pd.api.types.infer_dtype(series),
-                                      series.name)
-        return sub_class(series)
+        # sub_class = cls.get_sub_class(pd.api.types.infer_dtype(series),
+        # series.name)
 
-    @classmethod
-    def get_sub_class(cls, detected_type, series_name):
-        """Get the appropriate variable class from a detected pandas type."""
-        sub_types = cls.get_sub_types()
-        try:
-            return sub_types[detected_type]
-        except KeyError as e:
-            raise ValueError(f"Type of column '{series_name}' is not supported") from e
+        return cls(cls.convert_dict()[pd.api.types.infer_dtype(series)], series)
 
-    @classmethod
-    def get_sub_types(cls):
-        """Return a dictionary to translate type names to VarTypes."""
+    # @classmethod
+    # def get_sub_class(cls, detected_type, series_name):
+    #     """Get the appropriate variable class from a detected pandas type."""
+    #     sub_types = cls.get_sub_types()
+    #     try:
+    #         return sub_types[detected_type]
+    #     except KeyError as e:
+    #         raise ValueError(f"Type of column '{series_name}' is not supported") from e
+
+    # @classmethod
+    # def get_sub_types(cls):
+    #     """Return a dictionary to translate type names to VarTypes."""
+    #     return {
+    #         "categorical": CategoricalVar,
+    #         "string": StringVar,
+    #         "integer": IntVar,
+    #         "floating": FloatVar
+    #     }
+
+    @staticmethod
+    def convert_dict():
         return {
-            "categorical": CategoricalVar,
-            "string": StringVar,
-            "integer": IntVar,
-            "floating": FloatVar
+            "categorical": "categorical",
+            "string": "string",
+            "integer": "discrete",
+            "floating": "continuous",
         }
 
     def to_dict(self):
         """Create a dictionary from the variable."""
         return {
             "name": self.name,
-            "type": type(self).__name__,
+            "type": self.var_type,
             "dtype": self.dtype,
             "prop_missing": self.prop_missing,
             "distribution": self.distribution.to_dict(),
@@ -144,11 +157,14 @@ class MetaVar():
 
         # Automatic detection of the distribution
         if dist is None:
-            self.distribution = self.dist_class.fit(self.series, unique=unique)
-            return
+            dist = _get_all_distributions("metasynth.distribution")
+            # self.distribution = self.dist_class.fit(self.series, unique=unique)
+            # return
 
         # Manually supplied distribution
         fit_kwargs = {}
+        if isinstance(dist, dict):
+            dist = MetaDistribution.fit(self.series, dist[self.var_type], unique=unique)
         if isinstance(dist, str):
             dist, fit_kwargs = get_dist_class(dist)
             dist = dist.fit(self.series, **fit_kwargs)
@@ -205,35 +221,36 @@ class MetaVar():
         for meta_class in cls.get_sub_types().values():
             if meta_class.__name__ == var_dict["type"]:
                 return meta_class(
+                    var_dict["var_type"],
                     name=var_dict["name"],
                     distribution=meta_class.dist_class.from_dict(var_dict["distribution"]),
                     prop_missing=var_dict["prop_missing"], dtype=var_dict["dtype"])
         raise ValueError("Cannot find meta class '{var_dict['type']}'.")
 
 
-class IntVar(MetaVar):
-    """Integer variable class."""
-
-    dist_class = IntDistribution
-    dtype = "int"
-
-
-class FloatVar(MetaVar):
-    """Floating point variable class."""
-
-    dist_class = FloatDistribution
-    dtype = "float"
-
-
-class StringVar(MetaVar):
-    """String variable class."""
-
-    dist_class = StringDistribution
-    dtype = "str"
-
-
-class CategoricalVar(MetaVar):
-    """Categorical variable class."""
-
-    dist_class = CategoricalDistribution
-    dtype = "category"
+# class IntVar(MetaVar):
+#     """Integer variable class."""
+#
+#     dist_class = IntDistribution
+#     dtype = "int"
+#
+#
+# class FloatVar(MetaVar):
+#     """Floating point variable class."""
+#
+#     dist_class = FloatDistribution
+#     dtype = "float"
+#
+#
+# class StringVar(MetaVar):
+#     """String variable class."""
+#
+#     dist_class = StringDistribution
+#     dtype = "str"
+#
+#
+# class CategoricalVar(MetaVar):
+#     """Categorical variable class."""
+#
+#     dist_class = CategoricalDistribution
+#     dtype = "category"

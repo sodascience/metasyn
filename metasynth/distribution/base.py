@@ -105,6 +105,22 @@ class BaseDistribution(ABC):
         return {}
 
 
+class CategoricalDistribution(BaseDistribution):
+    pass
+
+
+class DiscreteDistribution(BaseDistribution):
+    pass
+
+
+class ContinuousDistribution(BaseDistribution):
+    pass
+
+
+class StringDistribution(BaseDistribution):
+    pass
+
+
 class ScipyDistribution(BaseDistribution):
     """Base class for numerical Scipy distributions.
 
