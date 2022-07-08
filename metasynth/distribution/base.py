@@ -62,6 +62,11 @@ class BaseDistribution(ABC):
     def to_dict(self) -> Dict:
         """Convert the distribution to a dictionary."""
 
+    @classmethod
+    def from_dict(cls, dist_dict: dict) -> BaseDistribution:
+        """Create a distribution from a dictionary."""
+        return cls(**dist_dict["parameters"])
+
     def information_criterion(self, values: Iterable) -> float:  # pylint: disable=unused-argument
         """Get the AIC value for a particular set of values.
 
@@ -106,19 +111,19 @@ class BaseDistribution(ABC):
 
 
 class CategoricalDistribution(BaseDistribution):
-    pass
+    """Base Class for categorical distributions."""
 
 
 class DiscreteDistribution(BaseDistribution):
-    pass
+    """Base Class for discrete distributions."""
 
 
 class ContinuousDistribution(BaseDistribution):
-    pass
+    """Base Class for continuous distributions."""
 
 
 class StringDistribution(BaseDistribution):
-    pass
+    """Base Class for string distributions."""
 
 
 class ScipyDistribution(BaseDistribution):

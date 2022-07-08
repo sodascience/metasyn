@@ -6,7 +6,10 @@ from importlib.resources import files
 import pkgutil
 
 from metasynth.distribution.base import BaseDistribution
-from metasynth.distribution import ContinuousDistribution, DiscreteDistribution, StringDistribution, CategoricalDistribution
+from metasynth.distribution import ContinuousDistribution
+from metasynth.distribution import DiscreteDistribution
+from metasynth.distribution import StringDistribution
+from metasynth.distribution import CategoricalDistribution
 
 SIDE_LEFT = -1
 SIDE_RIGHT = -2
@@ -64,12 +67,15 @@ def _get_all_distributions(pkg_name):
         "categorical": [],
     }
     pkg_path = files(pkg_name)
-    modules = [x for x in pkgutil.walk_packages(path=[str(pkg_path)], prefix=pkg_name + ".") if not x.ispkg]
+    modules = [x for x in pkgutil.walk_packages(path=[str(pkg_path)], prefix=pkg_name + ".")
+               if not x.ispkg]
     for _, mod_name, _ in modules:
+        cur_module = importlib.import_module(mod_name)
         mod_classes = inspect.getmembers(
-            importlib.import_module(mod_name), #inspect.isclass)
-            predicate=lambda member: inspect.isclass(member) and member.__module__ == mod_name)
-        for name, dist in mod_classes:
+            cur_module, inspect.isclass)
+        for _name, dist in mod_classes:
+            if dist.__module__ != mod_name:
+                continue
             if issubclass(dist, DiscreteDistribution):
                 distributions["discrete"].append(dist)
             elif issubclass(dist, ContinuousDistribution):

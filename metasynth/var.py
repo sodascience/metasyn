@@ -77,38 +77,21 @@ class MetaVar():
                     for col in series_or_dataframe]
 
         series = series_or_dataframe
-        # sub_class = cls.get_sub_class(pd.api.types.infer_dtype(series),
-        # series.name)
-
-        return cls(cls.convert_dict()[pd.api.types.infer_dtype(series)], series)
-
-    # @classmethod
-    # def get_sub_class(cls, detected_type, series_name):
-    #     """Get the appropriate variable class from a detected pandas type."""
-    #     sub_types = cls.get_sub_types()
-    #     try:
-    #         return sub_types[detected_type]
-    #     except KeyError as e:
-    #         raise ValueError(f"Type of column '{series_name}' is not supported") from e
-
-    # @classmethod
-    # def get_sub_types(cls):
-    #     """Return a dictionary to translate type names to VarTypes."""
-    #     return {
-    #         "categorical": CategoricalVar,
-    #         "string": StringVar,
-    #         "integer": IntVar,
-    #         "floating": FloatVar
-    #     }
+        return cls(cls.get_var_type(pd.api.types.infer_dtype(series)), series)
 
     @staticmethod
-    def convert_dict():
-        return {
+    def get_var_type(pandas_dtype: str) -> str:
+        """Convert pandas dtype to MetaSynth variable type."""
+        convert_dict = {
             "categorical": "categorical",
             "string": "string",
             "integer": "discrete",
             "floating": "continuous",
         }
+        try:
+            return convert_dict[pandas_dtype]
+        except KeyError as exc:
+            raise ValueError(f"Unsupported pandas type '{pandas_dtype}") from exc
 
     def to_dict(self):
         """Create a dictionary from the variable."""
@@ -218,14 +201,18 @@ class MetaVar():
         MetaVar:
             Initialized metadata variable.
         """
-        for meta_class in cls.get_sub_types().values():
-            if meta_class.__name__ == var_dict["type"]:
-                return meta_class(
-                    var_dict["var_type"],
+        all_distributions = _get_all_distributions("metasynth.distribution")
+        if var_dict["type"] not in all_distributions:
+            raise ValueError(f"Cannot find variable type '{var_dict['type']}")
+        distributions = all_distributions[var_dict["type"]]
+        for dist_class in distributions:
+            if dist_class.is_named(var_dict["distribution"]["name"]):
+                return cls(
+                    var_dict["type"],
                     name=var_dict["name"],
-                    distribution=meta_class.dist_class.from_dict(var_dict["distribution"]),
+                    distribution=dist_class.from_dict(var_dict["distribution"]),
                     prop_missing=var_dict["prop_missing"], dtype=var_dict["dtype"])
-        raise ValueError("Cannot find meta class '{var_dict['type']}'.")
+        raise ValueError(f"Cannot find meta class '{var_dict['type']}'.")
 
 
 # class IntVar(MetaVar):

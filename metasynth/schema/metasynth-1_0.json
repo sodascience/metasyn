@@ -11,7 +11,7 @@
                 "type": "object",
               	"properties": {
            		   	"name": {"type": "string"},
-                  	"type": {"enum": ["IntVar", "FloatVar", "StringVar", "CategoricalVar"]},
+                  	"type": {"enum": ["discrete", "continuous", "string", "categorical"]},
                   	"dtype": {"type": "string"},
                   	"prop_missing": {"type": "number"},
                   	"distribution": {
