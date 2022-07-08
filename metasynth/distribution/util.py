@@ -2,7 +2,7 @@
 
 import inspect
 import importlib
-from importlib.resources import files
+from importlib.machinery import PathFinder
 import pkgutil
 
 from metasynth.distribution.base import BaseDistribution
@@ -66,7 +66,7 @@ def _get_all_distributions(pkg_name):
         "string": [],
         "categorical": [],
     }
-    pkg_path = files(pkg_name)
+    pkg_path = PathFinder.find_spec(pkg_name).submodule_search_locations[0]
     modules = [x for x in pkgutil.walk_packages(path=[str(pkg_path)], prefix=pkg_name + ".")
                if not x.ispkg]
     for _, mod_name, _ in modules:
