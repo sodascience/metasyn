@@ -36,7 +36,6 @@ class MetaVar():
         Proportion of the series that are missing/NA.
     """
 
-    # dist_class: Type[MetaDistribution]
     dtype = "unknown"
 
     def __init__(self, var_type, series=None, name=None, distribution=None, prop_missing=0,  # pylint: disable=too-many-arguments
@@ -141,8 +140,6 @@ class MetaVar():
         # Automatic detection of the distribution
         if dist is None:
             dist = _get_all_distributions("metasynth.distribution")
-            # self.distribution = self.dist_class.fit(self.series, unique=unique)
-            # return
 
         # Manually supplied distribution
         fit_kwargs = {}
@@ -213,31 +210,3 @@ class MetaVar():
                     distribution=dist_class.from_dict(var_dict["distribution"]),
                     prop_missing=var_dict["prop_missing"], dtype=var_dict["dtype"])
         raise ValueError(f"Cannot find meta class '{var_dict['type']}'.")
-
-
-# class IntVar(MetaVar):
-#     """Integer variable class."""
-#
-#     dist_class = IntDistribution
-#     dtype = "int"
-#
-#
-# class FloatVar(MetaVar):
-#     """Floating point variable class."""
-#
-#     dist_class = FloatDistribution
-#     dtype = "float"
-#
-#
-# class StringVar(MetaVar):
-#     """String variable class."""
-#
-#     dist_class = StringDistribution
-#     dtype = "str"
-#
-#
-# class CategoricalVar(MetaVar):
-#     """Categorical variable class."""
-#
-#     dist_class = CategoricalDistribution
-#     dtype = "category"

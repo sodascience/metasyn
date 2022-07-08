@@ -11,15 +11,7 @@ from copy import deepcopy
 
 import numpy as np
 
-# from metasynth.distribution import UniformDistribution, NormalDistribution
-# from metasynth.distribution import DiscreteUniformDistribution, CatFreqDistribution
-# from metasynth.distribution import RegexDistribution
-# from metasynth.distribution.continuous import LogNormalDistribution,\
-#     TruncatedNormalDistribution
 from metasynth.distribution.util import get_dist_class
-# from metasynth.distribution.discrete import UniqueKeyDistribution
-# from metasynth.distribution.regex import UniqueRegexDistribution
-# from metasynth.distribution.base import BaseDistribution
 
 
 class MetaDistribution(ABC):
@@ -50,10 +42,6 @@ class MetaDistribution(ABC):
         name = meta_dict.pop("name")
         dist_class, _ = get_dist_class(name)
         return dist_class(**meta_dict["parameters"])
-#         for dist_type in cls.dist_types:
-#             if name == dist_type.__name__:
-#                 return dist_type(**meta_dict["parameters"])
-#         raise ValueError(f"Cannot find right class of name'{name}'.")
 
     @classmethod
     def fit(cls, values, distributions, unique=None):
@@ -82,24 +70,3 @@ class MetaDistribution(ABC):
         instances = [inst for inst in instances if inst is not None]
         i_min = np.argmin([inst.information_criterion(values) for inst in instances])
         return instances[i_min]
-
-
-# class FloatDistribution(MetaDistribution):
-#     """Meta class for floating point distributions."""
-#     dist_types = [UniformDistribution, NormalDistribution, LogNormalDistribution,
-#                   TruncatedNormalDistribution]
-#
-#
-# class IntDistribution(MetaDistribution):
-#     """Meta class for integer distributions."""
-#     dist_types = [DiscreteUniformDistribution, UniqueKeyDistribution]
-#
-#
-# class CategoricalDistribution(MetaDistribution):
-#     """Meta class for categorical distributions."""
-#     dist_types = [CatFreqDistribution]
-#
-#
-# class StringDistribution(MetaDistribution):
-#     """Meta class for string distributions."""
-#     dist_types = [RegexDistribution, UniqueRegexDistribution]
