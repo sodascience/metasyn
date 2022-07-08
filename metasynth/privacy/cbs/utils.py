@@ -1,9 +1,10 @@
 """Utilities for disclosure control."""
 
+from typing import Tuple
 import numpy as np
 
 
-def get_cbs_bounds(values, n_avg: int=5) -> tuple[float, float]:
+def get_cbs_bounds(values, n_avg: int=5) -> Tuple[float, float]:
     """Get disclosure control bounds."""
     sorted_values = np.sort(values)
     sum_low = 0
