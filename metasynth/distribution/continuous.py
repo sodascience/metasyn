@@ -22,7 +22,7 @@ class UniformDistribution(ScipyDistribution, ContinuousDistribution):
         Upper bound for uniform distribution.
     """
 
-    aliases = ["uniform"]
+    aliases = ["UniformDistribution", "uniform"]
     dist_class = uniform
 
     def __init__(self, min_val, max_val):
@@ -56,7 +56,7 @@ class NormalDistribution(ScipyDistribution, ContinuousDistribution):
         Standard deviation of the normal distribution.
     """
 
-    aliases = ["normal", "gaussian"]
+    aliases = ["NormalDistribution", "normal", "gaussian"]
     dist_class = norm
 
     def __init__(self, mean, std_dev):
@@ -77,7 +77,7 @@ class LogNormalDistribution(ScipyDistribution, ContinuousDistribution):
         Controls the mean of the distribution.
     """
 
-    aliases = ["lognormal"]
+    aliases = ["LogNormalDistribution", "lognormal"]
     dist_class = lognorm
 
     def __init__(self, mu: float, sigma: float):  # pylint: disable=invalid-name
@@ -108,7 +108,8 @@ class TruncatedNormalDistribution(ScipyDistribution, ContinuousDistribution):
         Standard deviation of the non-truncated normal distribution.
     """
 
-    aliases = ["truncnormal", "boundednormal", "truncatednormal"]
+    aliases = ["TruncatedNormalDistribution", "truncnormal", "boundednormal",
+               "truncatednormal"]
     dist_class = truncnorm
 
     def __init__(self, lower_bound: float, upper_bound: float,

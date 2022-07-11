@@ -39,6 +39,62 @@
 				}
 			}
 		},
+        "RegexDistribution": {
+            "type": "object",
+            "properties": {
+                "name": {"const": "RegexDistribution"},
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "re_list": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "prefixItems": [{"type": "string"}, {"type": "number"}],
+                                "minItems": 2,
+                                "additionalItems": false
+                            }
+                        }
+                    },
+                    "required": ["re_list"]
+                }
+            }
+        },
+        "UniqueRegexDistribution": {
+            "type": "object",
+            "properties": {
+                "name": {"const": "UniqueRegexDistribution"},
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "re_list": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "prefixItems": [{"type": "string"}, {"type": "number"}],
+                                "minItems": 2,
+                                "additionalItems": false
+                            }
+                        }
+                    },
+                    "required": ["re_list"]
+                }
+            }
+        },
+        "FakerDistribution": {
+            "type": "object",
+            "properties": {
+                "name": {"const": "FakerDistribution"},
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "faker_type": {"type": "string"},
+                        "locale": {"type": "string"}
+                    },
+                    "required": ["faker_type", "locale"]
+                }
+            }
+        },
 		"UniqueKeyDistribution": {
 			"type": "object",
 			"properties": {
@@ -46,34 +102,82 @@
 				"parameters": {
 					"type": "object",
 					"properties": {
-						"low": {"type": "number"},
+						"low": {"type": "integer"},
 						"consecutive": {"enum": [0, 1]}
 					},
 					"required": ["low", "consecutive"]
 				}
 			}
 		},
-		"RegexDistribution": {
-			"type": "object",
-			"properties": {
-				"name": {"const": "RegexDistribution"},
-				"parameters": {
-					"type": "object",
-					"properties": {
-						"re_list": {
-							"type": "array",
-							"items": {
-								"type": "array",
-								"prefixItems": [{"type": "string"}, {"type": "number"}],
-								"minItems": 2,
-								"additionalItems": false
-							}
-						}
-					},
-					"required": ["re_list"]
-				}
-			}
-		},
+        "DiscreteUniformDistribution": {
+            "type": "object",
+            "properties": {
+                "name": {"const": "DiscreteUniformDistribution"},
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "low": {"type": "integer"},
+                        "high": {"type": "integer"}
+                    },
+                    "required": ["low", "high"]
+                }
+            }
+        },
+        "PoissonDistribution": {
+            "type": "object",
+            "properties": {
+                "name": {"const": "PoissonDistribution"},
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "mu": {"type": "number"}
+                    },
+                    "required": ["mu"]
+                }
+            }
+        },
+        "UniformDistribution": {
+            "type": "object",
+            "properties": {
+                "name": {"const": "UniformDistribution"},
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "min_val": {"type": "number"},
+                        "max_val": {"type": "number"}
+                    },
+                    "required": ["min_val", "max_val"]
+                }
+            }
+        },
+        "NormalDistribution": {
+            "type": "object",
+            "properties": {
+                "name": {"const": "NormalDistribution"},
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "mean": {"type": "number"},
+                        "std_dev": {"type": "number"}
+                    },
+                    "required": ["mean", "std_dev"]
+                }
+            }
+        },
+        "LogNormalDistribution": {
+            "type": "object",
+            "properties": {
+                "name": {"const": "LogNormalDistribution"},
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "mu": {"type": "number"},
+                        "sigma": {"type": "number"}
+                    },
+                    "required": ["mu", "sigma"]
+                }
+            }
+        },
 		"TruncatedNormalDistribution": {
 			"type": "object",
 			"properties": {

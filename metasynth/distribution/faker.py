@@ -21,6 +21,9 @@ class FakerDistribution(StringDistribution):
     locale: str
         Locale used for the faker package.
     """
+
+    aliases = ["FakerDistribution", "faker"]
+
     def __init__(self, faker_type: str, locale: str="en_US"):
         self.faker_type: str = faker_type
         self.locale: str = locale
@@ -36,7 +39,7 @@ class FakerDistribution(StringDistribution):
 
     def to_dict(self):
         return {
-            "name": type(self).__name__,
+            "name": self.name,
             "parameters": {
                 "faker_type": self.faker_type,
                 "locale": self.locale

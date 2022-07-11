@@ -21,7 +21,7 @@ class DiscreteUniformDistribution(ScipyDistribution, DiscreteDistribution):
         Upper bound (exclusive) of the uniform distribution.
     """
 
-    aliases = ["discrete_uniform"]
+    aliases = ["DiscreteUniformDistribution", "discrete_uniform"]
 
     dist_class = randint
 
@@ -45,7 +45,7 @@ class PoissonDistribution(ScipyDistribution, DiscreteDistribution):
     """Poisson distribution.
     """
 
-    aliases = ["poisson"]
+    aliases = ["PoissonDistribution", "poisson"]
     dist_class = poisson
 
     def __init__(self, mu):
@@ -76,7 +76,7 @@ class UniqueKeyDistribution(ScipyDistribution, DiscreteDistribution):
         1 if keys are consecutive and increasing, 0 otherwise.
     """
 
-    aliases = ["unique_key"]
+    aliases = ["UniqueKeyDistribution", "unique_key"]
     is_unique = True
 
     def __init__(self, low, consecutive):

@@ -109,6 +109,10 @@ class BaseDistribution(ABC):
         """
         return {}
 
+    @property
+    def name(self):
+        return self.aliases[0]
+
 
 class CategoricalDistribution(BaseDistribution):
     """Base Class for categorical distributions."""
@@ -166,7 +170,7 @@ class ScipyDistribution(BaseDistribution):
 
     def to_dict(self):
         return {
-            "name": type(self).__name__,
+            "name": self.name,
             "parameters": deepcopy(self.par),
         }
 

@@ -7,7 +7,6 @@ multiple distributions with the correct types.
 
 from abc import ABC
 from copy import deepcopy
-# from typing import List, Type
 
 import numpy as np
 

@@ -34,11 +34,9 @@ class RegexDistribution(StringDistribution):
         List of basic regex elements in the order that they occur.
     """
 
-    aliases = ["regex"]
+    aliases = ["RegexDistribution", "regex"]
 
     def __init__(self, re_list: Sequence[Union[BaseRegexElement, Tuple[str, float]]]):
-        # if len(re_list) > 0 and not isinstance(re_list[0], BaseRegexElement):
-
         self.re_list = []
         for re_elem in re_list:
             if isinstance(re_elem, BaseRegexElement):
@@ -54,8 +52,6 @@ class RegexDistribution(StringDistribution):
                 raise ValueError(f"Unrecognized regex element '{regex_str}'")
             regex_dist_elem.frac_used = frac_used
             self.re_list.append(regex_dist_elem)
-        # else:
-            # self.re_list = re_list
 
     @classmethod
     def all_regex_classes(cls) -> List[Type[BaseRegexElement]]:
@@ -128,7 +124,7 @@ class RegexDistribution(StringDistribution):
 
     def to_dict(self):
         return {
-            "name": type(self).__name__,
+            "name": self.name,
             "parameters": {
                     "re_list": [(str(x), x.frac_used) for x in self.re_list],
                 }
@@ -148,7 +144,7 @@ class UniqueRegexDistribution(RegexDistribution):
     """
 
     is_unique = True
-    aliases = ["regex_unique"]
+    aliases = ["UniqueRegexDistribution", "regex_unique"]
 
     def __init__(self, re_list: Sequence[Union[BaseRegexElement, Tuple[str, float]]]):
         super().__init__(re_list)
