@@ -9,7 +9,6 @@ try:
 except ImportError:
     from importlib_resources import files  # type: ignore
 
-from metasynth.distribution.base import BaseDistribution
 from metasynth.distribution import ContinuousDistribution
 from metasynth.distribution import DiscreteDistribution
 from metasynth.distribution import StringDistribution
@@ -38,13 +37,6 @@ def get_dist_class(name, pkg_name="metasynth.distribution"):
         an empty dictionary.
     """
     distributions = _get_all_distributions(pkg_name)
-    # modules = [
-        # "metasynth.distribution.continuous",
-        # "metasynth.distribution.discrete",
-        # "metasynth.distribution.faker",
-        # "metasynth.distribution.regex.base",
-        # "metasynth.distribution.categorical"
-    # ]
 
     # Iterate over all distribution modules
     for dist_list in distributions.values():
@@ -52,20 +44,6 @@ def get_dist_class(name, pkg_name="metasynth.distribution"):
             if dist.is_named(name):
                 return dist, dist.fit_kwargs(name)
 
-    # for module_str in modules:
-    #     module = importlib.import_module(module_str)
-    #     for _, dist_class in inspect.getmembers(module, inspect.isclass):
-    #         # Check if it comes originally from the current module.
-    #         if not dist_class.__module__ == module.__name__:
-    #             continue
-    #
-    #         # Check if it is a distribution
-    #         if not issubclass(dist_class, BaseDistribution):
-    #             continue
-    #
-    #         # Ask the distribution if the name belongs to them
-    #         if dist_class.is_named(name):
-    #             return dist_class, dist_class.fit_kwargs(name)
     raise ValueError(f"Cannot find distribution with name {name}")
 
 

@@ -110,7 +110,8 @@ class BaseDistribution(ABC):
         return {}
 
     @property
-    def name(self):
+    def name(self) -> str:
+        """Return the name used in the metadata file."""
         return self.aliases[0]
 
 
