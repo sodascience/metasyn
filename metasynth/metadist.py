@@ -7,19 +7,10 @@ multiple distributions with the correct types.
 
 from abc import ABC
 from copy import deepcopy
-from typing import List, Type
 
 import numpy as np
 
-from metasynth.distribution import UniformDistribution, NormalDistribution
-from metasynth.distribution import DiscreteUniformDistribution, CatFreqDistribution
-from metasynth.distribution import RegexDistribution
-from metasynth.distribution.continuous import LogNormalDistribution,\
-    TruncatedNormalDistribution
 from metasynth.distribution.util import get_dist_class
-from metasynth.distribution.discrete import UniqueKeyDistribution
-from metasynth.distribution.regex import UniqueRegexDistribution
-from metasynth.distribution.base import BaseDistribution
 
 
 class MetaDistribution(ABC):
@@ -29,8 +20,6 @@ class MetaDistribution(ABC):
     at the moment is to keep track of which distributions apply to it. None
     of them need to be instantiated, so in that sense they are abstract.
     """
-
-    dist_types: List[Type[BaseDistribution]] = []
 
     @classmethod
     def from_dict(cls, meta_dict):
@@ -50,13 +39,9 @@ class MetaDistribution(ABC):
         name = meta_dict.pop("name")
         dist_class, _ = get_dist_class(name)
         return dist_class(**meta_dict["parameters"])
-#         for dist_type in cls.dist_types:
-#             if name == dist_type.__name__:
-#                 return dist_type(**meta_dict["parameters"])
-#         raise ValueError(f"Cannot find right class of name'{name}'.")
 
     @classmethod
-    def fit(cls, values, unique=None):
+    def fit(cls, values, distributions, unique=None):
         """Fit distribution to values.
 
         Find the distribution that is most suitable for the supplied data
@@ -77,28 +62,8 @@ class MetaDistribution(ABC):
             Distribution that fits the data the best.
         """
         instances = [dist_type.fit(values)
-                     for dist_type in cls.dist_types
+                     for dist_type in distributions
                      if unique is None or dist_type.is_unique == unique]
+        instances = [inst for inst in instances if inst is not None]
         i_min = np.argmin([inst.information_criterion(values) for inst in instances])
         return instances[i_min]
-
-
-class FloatDistribution(MetaDistribution):
-    """Meta class for floating point distributions."""
-    dist_types = [UniformDistribution, NormalDistribution, LogNormalDistribution,
-                  TruncatedNormalDistribution]
-
-
-class IntDistribution(MetaDistribution):
-    """Meta class for integer distributions."""
-    dist_types = [DiscreteUniformDistribution, UniqueKeyDistribution]
-
-
-class CategoricalDistribution(MetaDistribution):
-    """Meta class for categorical distributions."""
-    dist_types = [CatFreqDistribution]
-
-
-class StringDistribution(MetaDistribution):
-    """Meta class for string distributions."""
-    dist_types = [RegexDistribution, UniqueRegexDistribution]

@@ -3,7 +3,7 @@ import json
 
 import pandas as pd
 import numpy as np
-from metasynth.var import MetaVar, CategoricalVar, IntVar, FloatVar, StringVar
+from metasynth.var import MetaVar
 from metasynth.distribution import CatFreqDistribution, NormalDistribution,\
     RegexDistribution
 from metasynth.distribution import DiscreteUniformDistribution
@@ -34,7 +34,7 @@ def check_var(series, var_type, dist_class):
     var.fit()
     new_series = var.draw_series(len(series))
     check_similar(series, new_series)
-    assert isinstance(var, var_type)
+    assert var.var_type == var_type
     assert isinstance(var.distribution, dist_class)
 
     new_var = MetaVar.from_dict(var.to_dict())
@@ -55,7 +55,7 @@ def check_var(series, var_type, dist_class):
 
     assert type(new_var) == type(var)
     assert new_var.dtype == var.dtype
-    assert isinstance(new_var, var_type)
+    assert new_var.var_type == var_type
 
     # Write to JSON file and read it back
     tmp_fp = Path("tests", "data", "tmp.json")
@@ -68,21 +68,21 @@ def check_var(series, var_type, dist_class):
 
     assert type(new_var) == type(var)
     assert new_var.dtype == var.dtype
-    assert isinstance(new_var, var_type)
+    assert new_var.var_type == var_type
 
     return new_series
 
 
 def test_categorical():
     series = pd.Series(np.random.choice(["a", "b", "c", None], size=100), dtype="category")
-    new_series = check_var(series, CategoricalVar, CatFreqDistribution)
+    new_series = check_var(series, "categorical", CatFreqDistribution)
     assert set(np.unique(series.dropna())) == set(np.unique(new_series.dropna()))
 
 
 @mark.parametrize("dtype", ["int8", "int16", "int32", "int64", "int"])
 def test_integer(dtype):
     series = pd.Series([np.random.randint(0, 10) for _ in range(100)], dtype=dtype)
-    new_series = check_var(series, IntVar, DiscreteUniformDistribution)
+    new_series = check_var(series, "discrete", DiscreteUniformDistribution)
     assert np.min(new_series) >= 0
     assert np.max(new_series) < 10
 
@@ -91,7 +91,7 @@ def test_integer(dtype):
 def test_nullable_integer(dtype):
     series = pd.Series([np.random.randint(0, 10) if np.random.rand() > 0.5 else None
                         for _ in range(100)], dtype=dtype)
-    new_series = check_var(series, IntVar, DiscreteUniformDistribution)
+    new_series = check_var(series, "discrete", DiscreteUniformDistribution)
     assert np.min(new_series) >= 0
     assert np.max(new_series) < 10
 
@@ -99,24 +99,24 @@ def test_nullable_integer(dtype):
 def test_float():
     np.random.seed(3727442)
     series = pd.Series([np.random.rand() for _ in range(10000)])
-    new_series = check_var(series, FloatVar, UniformDistribution)
+    new_series = check_var(series, "continuous", UniformDistribution)
     assert np.min(new_series) > 0
     assert np.max(new_series) < 1
 
     series = pd.Series(np.random.randn(1000))
-    check_var(series, FloatVar, NormalDistribution)
+    check_var(series, "continuous", NormalDistribution)
 
 
 def test_string():
     series = pd.Series(np.random.choice(["a", "b", "c", None], size=100))
-    new_series = check_var(series, StringVar, RegexDistribution)
+    new_series = check_var(series, "string", RegexDistribution)
     assert set(np.unique(series.dropna())) == set(np.unique(new_series.dropna()))
 
 
 def test_bool():
     series = pd.Series(np.random.choice([True, False], size=100))
     with raises(ValueError):
-        check_var(series, CategoricalVar, CatFreqDistribution)
+        check_var(series, "categorical", CatFreqDistribution)
 
 
 def test_dataframe():
@@ -128,8 +128,8 @@ def test_dataframe():
     variables = MetaVar.detect(df)
     assert len(variables) == 2
     assert isinstance(variables, list)
-    assert isinstance(variables[0], IntVar)
-    assert isinstance(variables[1], FloatVar)
+    assert variables[0].var_type == "discrete"
+    assert variables[1].var_type == "continuous"
 
 
 def test_manual_fit():

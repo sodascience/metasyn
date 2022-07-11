@@ -7,12 +7,14 @@ import json
 import pathlib
 from typing import Union
 
+
 import numpy as np
 import pandas as pd
 import xmltodict
 import jsonschema
 
 from metasynth.var import MetaVar
+from metasynth.distribution.util import _get_all_distributions
 
 
 class MetaDataset():
@@ -39,7 +41,7 @@ class MetaDataset():
         return len(self.meta_vars)
 
     @classmethod
-    def from_dataframe(cls, df, distribution=None, unique=None):
+    def from_dataframe(cls, df, distribution=None, unique=None, privacy_package=None):
         """Create dataset from a Pandas dataframe.
 
         The pandas dataframe should be formatted already with the correct
@@ -63,6 +65,14 @@ class MetaDataset():
         MetaDataset:
             Initialized MetaSynth dataset.
         """
+
+        if privacy_package is None:
+            privacy_package = "metasynth.distribution"
+        elif privacy_package == "cbs":
+            privacy_package = "metasynth.privacy.cbs"
+
+        distribution_tree = _get_all_distributions(privacy_package)
+
         if distribution is None:
             distribution = {}
 
@@ -72,7 +82,7 @@ class MetaDataset():
         all_vars = []
         for col_name in list(df):
             series = df[col_name]
-            dist = distribution.get(col_name, None)
+            dist = distribution.get(col_name, distribution_tree)
             unq = unique.get(col_name, None)
             var = MetaVar.detect(series)
             var.fit(dist, unique=unq)

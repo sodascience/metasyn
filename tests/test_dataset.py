@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 from metasynth.dataset import MetaDataset
-from metasynth.var import StringVar, MetaVar, IntVar, CategoricalVar, FloatVar
+from metasynth.var import MetaVar
 import pytest
 
 
@@ -30,14 +30,14 @@ def test_dataset():
         assert dataset.n_columns == 12
         assert dataset.n_rows == 891
         sub_types = {
-            "int": IntVar,
-            "string": StringVar,
-            "category": CategoricalVar,
-            "float": FloatVar,
+            "int": "discrete",
+            "string": "string",
+            "category": "categorical",
+            "float": "continuous",
         }
         for col, type_name in dtypes.items():
             meta_var_type = sub_types[type_name]
-            assert isinstance(dataset[col], meta_var_type)
+            assert dataset[col].var_type == meta_var_type
         with pytest.raises(KeyError):
             dataset["unknown"]
         with pytest.raises(IndexError):

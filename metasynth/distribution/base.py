@@ -62,6 +62,11 @@ class BaseDistribution(ABC):
     def to_dict(self) -> Dict:
         """Convert the distribution to a dictionary."""
 
+    @classmethod
+    def from_dict(cls, dist_dict: dict) -> BaseDistribution:
+        """Create a distribution from a dictionary."""
+        return cls(**dist_dict["parameters"])
+
     def information_criterion(self, values: Iterable) -> float:  # pylint: disable=unused-argument
         """Get the AIC value for a particular set of values.
 
@@ -104,6 +109,27 @@ class BaseDistribution(ABC):
         """
         return {}
 
+    @property
+    def name(self) -> str:
+        """Return the name used in the metadata file."""
+        return self.aliases[0]
+
+
+class CategoricalDistribution(BaseDistribution):
+    """Base Class for categorical distributions."""
+
+
+class DiscreteDistribution(BaseDistribution):
+    """Base Class for discrete distributions."""
+
+
+class ContinuousDistribution(BaseDistribution):
+    """Base Class for continuous distributions."""
+
+
+class StringDistribution(BaseDistribution):
+    """Base Class for string distributions."""
+
 
 class ScipyDistribution(BaseDistribution):
     """Base class for numerical Scipy distributions.
@@ -145,7 +171,7 @@ class ScipyDistribution(BaseDistribution):
 
     def to_dict(self):
         return {
-            "name": type(self).__name__,
+            "name": self.name,
             "parameters": deepcopy(self.par),
         }
 

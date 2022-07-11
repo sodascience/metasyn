@@ -10,3 +10,7 @@ from metasynth.distribution.continuous import NormalDistribution
 from metasynth.distribution.continuous import UniformDistribution
 from metasynth.distribution.discrete import DiscreteUniformDistribution
 from metasynth.distribution.regex import RegexDistribution
+from metasynth.distribution.base import DiscreteDistribution
+from metasynth.distribution.base import StringDistribution
+from metasynth.distribution.base import ContinuousDistribution
+from metasynth.distribution.base import CategoricalDistribution

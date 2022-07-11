@@ -6,10 +6,10 @@ import numpy as np
 import numpy.typing as npt
 
 
-from metasynth.distribution.base import BaseDistribution
+from metasynth.distribution.base import CategoricalDistribution
 
 
-class CatFreqDistribution(BaseDistribution):
+class CatFreqDistribution(CategoricalDistribution):
     """Categorical distribution that stores category frequencies.
 
     Parameters

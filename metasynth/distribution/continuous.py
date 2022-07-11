@@ -5,10 +5,10 @@ from scipy.optimize import minimize
 from scipy.stats import uniform, norm, lognorm, truncnorm
 from scipy.stats._continuous_distns import FitDataError
 
-from metasynth.distribution.base import ScipyDistribution
+from metasynth.distribution.base import ScipyDistribution, ContinuousDistribution
 
 
-class UniformDistribution(ScipyDistribution):
+class UniformDistribution(ScipyDistribution, ContinuousDistribution):
     """Uniform distribution for floating point type.
 
     This class implements the uniform distribution between a minimum
@@ -22,7 +22,7 @@ class UniformDistribution(ScipyDistribution):
         Upper bound for uniform distribution.
     """
 
-    aliases = ["uniform"]
+    aliases = ["UniformDistribution", "uniform"]
     dist_class = uniform
 
     def __init__(self, min_val, max_val):
@@ -41,7 +41,7 @@ class UniformDistribution(ScipyDistribution):
         return 2*self.n_par - 2*len(vals)*np.log((self.max_val-self.min_val)**-1)
 
 
-class NormalDistribution(ScipyDistribution):
+class NormalDistribution(ScipyDistribution, ContinuousDistribution):
     """Normal distribution for floating point type.
 
     This class implements the normal/gaussian distribution and takes
@@ -56,7 +56,7 @@ class NormalDistribution(ScipyDistribution):
         Standard deviation of the normal distribution.
     """
 
-    aliases = ["normal", "gaussian"]
+    aliases = ["NormalDistribution", "normal", "gaussian"]
     dist_class = norm
 
     def __init__(self, mean, std_dev):
@@ -64,7 +64,7 @@ class NormalDistribution(ScipyDistribution):
         self.dist = norm(loc=mean, scale=std_dev)
 
 
-class LogNormalDistribution(ScipyDistribution):
+class LogNormalDistribution(ScipyDistribution, ContinuousDistribution):
     """Log-normal distribution for floating point type.
 
     This class implements the log-normal mu and sigma as initialization input.
@@ -77,7 +77,7 @@ class LogNormalDistribution(ScipyDistribution):
         Controls the mean of the distribution.
     """
 
-    aliases = ["lognormal"]
+    aliases = ["LogNormalDistribution", "lognormal"]
     dist_class = lognorm
 
     def __init__(self, mu: float, sigma: float):  # pylint: disable=invalid-name
@@ -93,7 +93,7 @@ class LogNormalDistribution(ScipyDistribution):
         return cls(np.log(scale), sigma)
 
 
-class TruncatedNormalDistribution(ScipyDistribution):
+class TruncatedNormalDistribution(ScipyDistribution, ContinuousDistribution):
     """Truncated normal distribution for floating point type.
 
     Parameters
@@ -108,7 +108,8 @@ class TruncatedNormalDistribution(ScipyDistribution):
         Standard deviation of the non-truncated normal distribution.
     """
 
-    aliases = ["truncnormal", "boundednormal", "truncatednormal"]
+    aliases = ["TruncatedNormalDistribution", "truncnormal", "boundednormal",
+               "truncatednormal"]
     dist_class = truncnorm
 
     def __init__(self, lower_bound: float, upper_bound: float,
@@ -122,7 +123,10 @@ class TruncatedNormalDistribution(ScipyDistribution):
     def _fit(cls, values):
         lower_bound = np.min(values) - 1e-8
         upper_bound = np.max(values) + 1e-8
+        return cls._fit_with_bounds(values, lower_bound, upper_bound)
 
+    @classmethod
+    def _fit_with_bounds(cls, values, lower_bound, upper_bound):
         def minimizer(param):
             mu, sigma = param
             a, b = (lower_bound-mu)/sigma, (upper_bound-mu)/sigma

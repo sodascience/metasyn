@@ -19,5 +19,6 @@ setup(
         "sklearn",
         "xmltodict",
         "jsonschema",
+        "importlib-resources;python_version<'3.9'"
     ]
 )

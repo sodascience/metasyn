@@ -1,11 +1,12 @@
 """Module containing an interface to the faker package."""
+from typing import Iterable
 
 from faker import Faker
 
-from metasynth.distribution.base import BaseDistribution
+from metasynth.distribution.base import StringDistribution
 
 
-class FakerDistribution(BaseDistribution):
+class FakerDistribution(StringDistribution):
     """Distribution for the faker package.
 
     This is mainly an interface for the faker package, so that it
@@ -20,6 +21,9 @@ class FakerDistribution(BaseDistribution):
     locale: str
         Locale used for the faker package.
     """
+
+    aliases = ["FakerDistribution", "faker"]
+
     def __init__(self, faker_type: str, locale: str="en_US"):
         self.faker_type: str = faker_type
         self.locale: str = locale
@@ -35,7 +39,7 @@ class FakerDistribution(BaseDistribution):
 
     def to_dict(self):
         return {
-            "name": type(self).__name__,
+            "name": self.name,
             "parameters": {
                 "faker_type": self.faker_type,
                 "locale": self.locale
@@ -60,3 +64,6 @@ class FakerDistribution(BaseDistribution):
             return {"faker_type": split_name[1]}
         return {"faker_type": split_name[1],
                 "locale": split_name[2]}
+
+    def information_criterion(self, values: Iterable) -> float:
+        return 99999
