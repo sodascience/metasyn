@@ -125,8 +125,8 @@ class BaseRegexClass(BaseRegexElement):
         regex_str += r"," + str(max(1, max_digit)) + r"}"
         self.match_regex = re.compile(regex_str)
 
-    @abstractmethod
     @property
+    @abstractmethod
     def digit_options(self) -> int:
         """Return the number of options per digit."""
         return 0
