@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from abc import abstractmethod, ABC
-from copy import deepcopy
 import re
 import random
 import string
@@ -23,7 +22,6 @@ class BaseRegexElement(ABC):
     @abstractmethod
     def information_budget(self, regex_stat) -> float:
         """Addition to the AIC for the current regex."""
-        # return 2*self.n_param + 2*self.log_options
 
     @property
     def n_param(self) -> int:
@@ -118,7 +116,6 @@ class BaseRegexClass(BaseRegexElement):
     regex_str = r""
     match_str = r""
     base_regex = r""
-    digit_options: int = 0
 
     def __init__(self, min_digit: int, max_digit: int, frac_used: float=1.0):
         self.min_digit = min_digit
@@ -127,6 +124,12 @@ class BaseRegexClass(BaseRegexElement):
         regex_str = self.base_regex + r"{" + str(max(1, min_digit))
         regex_str += r"," + str(max(1, max_digit)) + r"}"
         self.match_regex = re.compile(regex_str)
+
+    @abstractmethod
+    @property
+    def digit_options(self) -> int:
+        """Return the number of options per digit."""
+        return 0
 
     @classmethod
     def fit_start(cls, values: Sequence[str]) -> Tuple[Iterable[str], BaseRegexElement]:
@@ -229,7 +232,6 @@ class DigitRegex(BaseRegexClass):
     regex_str = r"^\d{1,}"
     match_str = r"\\d{(\d*),(\d*)}"
     base_regex = r"\d"
-    digit_options = 10
 
     def _draw(self):
         n_digit = np.random.randint(self.min_digit, self.max_digit+1)
@@ -238,13 +240,16 @@ class DigitRegex(BaseRegexClass):
     def __str__(self):
         return r"\d{"+str(self.min_digit)+","+str(self.max_digit)+"}"
 
+    @property
+    def digit_options(self) -> int:
+        return 10
+
 
 class AlphaNumericRegex(BaseRegexClass):
     """Regex element for repeating alphanumeric character."""
     regex_str = r"^\w{1,}"
     match_str = r"\\w{(\d*),(\d*)}"
     base_regex = r"\w"
-    digit_options = len(string.ascii_letters+string.digits)
 
     def _draw(self):
         n_digit = np.random.randint(self.min_digit, self.max_digit+1)
@@ -253,13 +258,16 @@ class AlphaNumericRegex(BaseRegexClass):
     def __str__(self):
         return r"\w{"+str(self.min_digit)+","+str(self.max_digit)+"}"
 
+    @property
+    def digit_options(self) -> int:
+        return len(string.ascii_letters+string.digits)
+
 
 class LettersRegex(BaseRegexClass):
     """Regex element for repeating letters."""
     regex_str = r"^[a-zA-Z]{1,}"
     match_str = r"\[a-zA-Z\]{(\d*),(\d*)}"
     base_regex = r"[a-zA-Z]"
-    digit_options = len(string.ascii_letters)
 
     def _draw(self):
         n_digit = np.random.randint(self.min_digit, self.max_digit+1)
@@ -268,13 +276,16 @@ class LettersRegex(BaseRegexClass):
     def __str__(self):
         return "[a-zA-Z]{"+str(self.min_digit)+","+str(self.max_digit)+"}"
 
+    @property
+    def digit_options(self) -> int:
+        return len(string.ascii_letters)
+
 
 class LowercaseRegex(BaseRegexClass):
     """Regex element for repeating lowercase letters."""
     regex_str = r"^[a-z]{1,}"
     match_str = r"\[a-z\]{(\d*),(\d*)}"
     base_regex = r"[a-z]"
-    digit_options = len(string.ascii_lowercase)
 
     def _draw(self):
         n_digit = np.random.randint(self.min_digit, self.max_digit+1)
@@ -283,13 +294,16 @@ class LowercaseRegex(BaseRegexClass):
     def __str__(self):
         return "[a-z]{"+str(self.min_digit)+","+str(self.max_digit)+"}"
 
+    @property
+    def digit_options(self) -> int:
+        return len(string.ascii_lowercase)
+
 
 class UppercaseRegex(BaseRegexClass):
     """Regex element for repeating uppercase letters."""
     regex_str = r"^[A-Z]{1,}"
     match_str = r"\[A-Z\]{(\d*),(\d*)}"
     base_regex = r"[A-Z]"
-    digit_options = len(string.ascii_uppercase)
 
     def _draw(self):
         n_digit = np.random.randint(self.min_digit, self.max_digit+1)
@@ -297,6 +311,10 @@ class UppercaseRegex(BaseRegexClass):
 
     def __str__(self):
         return "[A-Z]{"+str(self.min_digit)+","+str(self.max_digit)+"}"
+
+    @property
+    def digit_options(self) -> int:
+        return len(string.ascii_uppercase)
 
 
 class AnyRegex(BaseRegexClass):
@@ -312,11 +330,10 @@ class AnyRegex(BaseRegexClass):
     extra_char: Extra characters to draw from outside of string.printable.
     frac_used: Fraction of the values containing the regex.
     """
-    def __init__(self, min_digit: int, max_digit: int, extra_char: set=None, frac_used=1):
+    def __init__(self, min_digit: int, max_digit: int, extra_char: set=None, frac_used=1):  # pylint: disable=super-init-not-called
         self.min_digit = min_digit
         self.max_digit = max_digit
         self.extra_char = set() if extra_char is None else extra_char
-        print("extra_char:", extra_char)
         self.frac_used = frac_used
         self.all_char = string.printable + "".join(self.extra_char)
         self.all_char_set = set(self.all_char)
@@ -330,7 +347,7 @@ class AnyRegex(BaseRegexClass):
         return 2 + len(self.extra_char)
 
     @property
-    def digit_options(self):
+    def digit_options(self) -> int:
         return len(string.printable) + len(self.extra_char)
 
     def _draw(self) -> str:

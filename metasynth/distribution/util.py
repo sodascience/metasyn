@@ -4,12 +4,13 @@ import inspect
 import importlib
 import pkgutil
 from typing import Dict, List, Tuple
-from metasynth.distribution.base import BaseDistribution
+
 try:
     from importlib.resources import files  # type: ignore
 except ImportError:
     from importlib_resources import files  # type: ignore
 
+from metasynth.distribution.base import BaseDistribution
 from metasynth.distribution import ContinuousDistribution
 from metasynth.distribution import DiscreteDistribution
 from metasynth.distribution import StringDistribution
