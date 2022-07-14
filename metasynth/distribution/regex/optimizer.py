@@ -1,6 +1,6 @@
 """Module containing the optimizer class for the regex distribution."""
 
-from typing import Sequence, Tuple, List
+from typing import Sequence, Tuple, List, Dict, Any
 import numpy as np
 import numpy.typing as npt
 
@@ -239,7 +239,7 @@ class RegexOptimizer():
         return left_values, right_values
 
     @property
-    def statistics(self) -> Tuple[int, int, float]:
+    def statistics(self) -> Dict[str, Any]:
         """Get the minimum/maximum length of the substituted regex and fraction of assignments."""
         # Compute lengths for which the regex substitutes.
         match_lengths: List[int] = []
@@ -249,9 +249,27 @@ class RegexOptimizer():
                 match_lengths.append(span[1]-span[0])
 
         if len(match_lengths) == 0:
-            return 1, 1, 0.0
+            return {
+                "min_len": 1,
+                "max_len": 1,
+                "frac_used": 0,
+                "digits_used": np.zeros(2, dtype=int),
+                "n_values": len(self.values),
+            }
 
         min_len = np.min(match_lengths)
         max_len = np.max(match_lengths)
         frac_used = len(match_lengths)/len(self.values)
-        return min_len, max_len, frac_used
+        digits_used = np.zeros(max_len+1, dtype=int)
+        length, counts = np.unique(match_lengths, return_counts=True)
+        for i_len, cur_len in enumerate(length):
+            digits_used[cur_len] = counts[i_len]
+        digits_used[0] = len(self.values)-len(match_lengths)
+        digits_used = digits_used/np.sum(digits_used)
+        return {
+            "min_len": min_len,
+            "max_len": max_len,
+            "frac_used": frac_used,
+            "digits_used": digits_used,
+            "n_values": len(self.values),
+        }

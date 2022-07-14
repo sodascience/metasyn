@@ -11,6 +11,7 @@ from metasynth.distribution.regex.element import BaseRegexElement
 from metasynth.distribution.regex.element import DigitRegex, AlphaNumericRegex
 from metasynth.distribution.regex.element import LettersRegex, SingleRegex, AnyRegex
 from metasynth.distribution.regex.element import UppercaseRegex, LowercaseRegex
+from metasynth.distribution.regex.optimizer import RegexOptimizer
 
 
 def _get_n_char_removed(values: Iterable[str], new_values: Iterable[str]) -> int:
@@ -72,6 +73,8 @@ class RegexDistribution(StringDistribution):
         # Iterate over all RegexElements and find the best one.
         for re_class in regex_classes:
             new_values, gradient, regexer = re_class.fit(list(values))
+            print(re_class, gradient, regexer)
+            print("\n\n\n")
             if best_solution is None or gradient > best_solution["gradient"]:
                 best_solution = {
                     "re": regexer,
@@ -150,38 +153,42 @@ class UniqueRegexDistribution(RegexDistribution):
         super().__init__(re_list)
         self.key_set: Set[str] = set()
 
-    @property
-    def n_options(self) -> float:
-        """float: approximate number of options for the regex."""
-        cur_log_options = 0.0
-        for rex in self.re_list:
-            cur_log_options += rex.log_options
-        if cur_log_options > 30:
-            return np.inf
-        return np.exp(cur_log_options)
+    # @property
+    # def n_options(self) -> float:
+    #     """float: approximate number of options for the regex."""
+    #     cur_log_options = 0.0
+    #     for rex in self.re_list:
+    #         cur_log_options += rex.log_options
+    #     if cur_log_options > 30:
+    #         return np.inf
+    #     return np.exp(cur_log_options)
 
     def draw_reset(self):
         self.key_set = set()
 
     def draw(self) -> str:
-        n_options = self.n_options
-        if not np.isinf(n_options):
-            if len(self.key_set)/n_options >= 0.99:
-                raise ValueError("Found 99% of the possible values, running out of possibilities.")
-        while True:
+        # n_options = self.n_options
+        # if not np.isinf(n_options):
+            # if len(self.key_set)/n_options >= 0.99:
+                # raise ValueError("Found 99% of the possible values, running out of possibilities.")
+        n_try = 0
+        while n_try < 1e5:
             new_val = super().draw()
             if new_val not in self.key_set:
                 self.key_set.add(new_val)
                 return new_val
+            n_try +=1
+        raise ValueError("Failed to draw unique string after 100.000 tries.")
 
     def information_criterion(self, values):
+        return 99999
         # The information criterion is relative to the non-unique version.
-        values = values.dropna()
-        if len(set(values)) != len(values):
-            return 999*len(values)
-
-        n_options = self.n_options
-        if np.isinf(n_options):
-            return 1
-
-        return 1-2*np.sum(np.log(n_options/np.arange(n_options, n_options-len(values), -1)))
+        # values = values.dropna()
+        # if len(set(values)) != len(values):
+        #     return 999*len(values)
+        #
+        # n_options = self.n_options
+        # if np.isinf(n_options):
+        #     return 1
+        #
+        # return 1-2*np.sum(np.log(n_options/np.arange(n_options, n_options-len(values), -1)))

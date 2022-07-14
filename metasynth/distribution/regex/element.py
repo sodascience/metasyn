@@ -20,45 +20,15 @@ class BaseRegexElement(ABC):
 
     frac_used = 1.0
 
-    def information_criterion(self, n_char_removed: int) -> float:
-        """Compute the information criterion for iterative algorithm.
-
-        It is similar to the Akaike Information Criterion in the sense that
-        it takes into account the number of parameters and the log likelihood of
-        the values. In this case we are trying to estimate the addition to the IC
-        due to the newly proposed regex element. Since the values are "solved/regex'ed"
-        sequentially, the more of the values are regex'ed, the more likely the regex will be/
-        the fewer new regexes need to be added. If each of the regexes has the same efficiency
-        then the added IC would be Total IC * proportion solved. We use this mean field
-        estimate to estimate which regex gives the best results.
-
-        Parameters
-        ----------
-        prop_solved: float
-            Proportion of the values that has been solved since the last iteration.
-
-        Returns
-        -------
-        float:
-            Estimate of remaining IC.
-        """
-        ic_add: float = 2*self.n_param + 2*self.log_options
-        return ic_add/(n_char_removed+1e-8)
-
-    @property
-    def information_budget(self) -> float:
+    @abstractmethod
+    def information_budget(self, regex_stat) -> float:
         """Addition to the AIC for the current regex."""
-        return 2*self.n_param + 2*self.log_options
+        # return 2*self.n_param + 2*self.log_options
 
     @property
     def n_param(self) -> int:
         """int: The number of 'parameters' of the regex element"""
         return 2
-
-    @property
-    @abstractmethod
-    def log_options(self) -> float:
-        """float: The natural logarithm of the number of possibilities."""
 
     @classmethod
     @abstractmethod
@@ -148,6 +118,7 @@ class BaseRegexClass(BaseRegexElement):
     regex_str = r""
     match_str = r""
     base_regex = r""
+    digit_options: int = 0
 
     def __init__(self, min_digit: int, max_digit: int, frac_used: float=1.0):
         self.min_digit = min_digit
@@ -186,11 +157,29 @@ class BaseRegexClass(BaseRegexElement):
         spans = cls.all_spans(values)
         optimizer = RegexOptimizer(values, spans)
         optimizer.optimize()
-        min_digit, max_digit, frac_used = optimizer.statistics
-        new_regex = cls(min_digit, max_digit, frac_used)
+        stats = optimizer.statistics
+        new_regex = cls(stats["min_len"], stats["max_len"], frac_used=stats["frac_used"])
         delta_energy = RegexOptimizer.energy_from_values(values) - optimizer.energy
-        info_budget = new_regex.information_budget
+        info_budget = new_regex.information_budget(stats)
         return optimizer.new_values, delta_energy/info_budget, new_regex
+
+    # def check_split(self, stats):
+    #     digit_counts = stats["digits_used"]
+    #     for digit_split in range(self.min_digit, self.max_digit):
+    #         digits_used_left = np.copy(digit_counts)
+    #         digits_used_left[digit_split] += np.sum(digit_counts[digit_split+1:])
+    #         digits_used_left[digit_split+1:] = 0
+    #         stat_left = {
+    #             "n_values": stats["n_values"],
+    #             "frac_used": self.frac_used,
+    #             "digits_used": digits_used_left,
+    #         }
+    #         left_regex = self.__class__(self.min_digit, digit_split)
+    #
+    #         digits_used_right = np.copy(digit_counts)
+    #         digits_used_right[0] = np.sum(digit_counts[:digit_split+1])
+    #         digits_used_right[1:]
+    #         right_regex = self.__class__(1, self.max_digit-digit_split+1)
 
     @classmethod
     def from_string(cls, regex_str):
@@ -217,16 +206,30 @@ class BaseRegexClass(BaseRegexElement):
             for val in values
         ]
 
+    def information_budget(self, regex_stat: dict) -> float:
+        if self.frac_used < 1e-8:
+            return 2*self.n_param
+        budget = 2*self.n_param
+        n_values = regex_stat["n_values"]
+        digit_range = self.max_digit-self.min_digit+1
+        p_choose = regex_stat["frac_used"]/digit_range
+        digits_factor = np.log(p_choose)
+        for i_digit in range(self.min_digit, self.max_digit+1):
+            i_count = regex_stat["digits_used"][i_digit]
+            options_factor = -i_digit*np.log(self.digit_options)
+            budget -= 2*i_count*(options_factor + digits_factor)
+        num_unused = regex_stat["digits_used"][0]
+        if num_unused > 0:
+            budget -= 2*num_unused * np.log(num_unused/n_values)
+        return budget
+
 
 class DigitRegex(BaseRegexClass):
     """Regex element for repeating digits."""
     regex_str = r"^\d{1,}"
     match_str = r"\\d{(\d*),(\d*)}"
     base_regex = r"\d"
-
-    @property
-    def log_options(self):
-        return self.max_digit*np.log(10)
+    digit_options = 10
 
     def _draw(self):
         n_digit = np.random.randint(self.min_digit, self.max_digit+1)
@@ -241,10 +244,7 @@ class AlphaNumericRegex(BaseRegexClass):
     regex_str = r"^\w{1,}"
     match_str = r"\\w{(\d*),(\d*)}"
     base_regex = r"\w"
-
-    @property
-    def log_options(self):
-        return self.max_digit*np.log(len(string.ascii_letters+string.digits))
+    digit_options = len(string.ascii_letters+string.digits)
 
     def _draw(self):
         n_digit = np.random.randint(self.min_digit, self.max_digit+1)
@@ -259,10 +259,7 @@ class LettersRegex(BaseRegexClass):
     regex_str = r"^[a-zA-Z]{1,}"
     match_str = r"\[a-zA-Z\]{(\d*),(\d*)}"
     base_regex = r"[a-zA-Z]"
-
-    @property
-    def log_options(self):
-        return self.max_digit*np.log(len(string.ascii_letters))
+    digit_options = len(string.ascii_letters)
 
     def _draw(self):
         n_digit = np.random.randint(self.min_digit, self.max_digit+1)
@@ -277,10 +274,7 @@ class LowercaseRegex(BaseRegexClass):
     regex_str = r"^[a-z]{1,}"
     match_str = r"\[a-z\]{(\d*),(\d*)}"
     base_regex = r"[a-z]"
-
-    @property
-    def log_options(self):
-        return self.max_digit*np.log(len(string.ascii_lowercase))
+    digit_options = len(string.ascii_lowercase)
 
     def _draw(self):
         n_digit = np.random.randint(self.min_digit, self.max_digit+1)
@@ -295,10 +289,7 @@ class UppercaseRegex(BaseRegexClass):
     regex_str = r"^[A-Z]{1,}"
     match_str = r"\[A-Z\]{(\d*),(\d*)}"
     base_regex = r"[A-Z]"
-
-    @property
-    def log_options(self):
-        return self.max_digit*np.log(len(string.ascii_uppercase))
+    digit_options = len(string.ascii_uppercase)
 
     def _draw(self):
         n_digit = np.random.randint(self.min_digit, self.max_digit+1)
@@ -308,7 +299,7 @@ class UppercaseRegex(BaseRegexClass):
         return "[A-Z]{"+str(self.min_digit)+","+str(self.max_digit)+"}"
 
 
-class AnyRegex(BaseRegexElement):
+class AnyRegex(BaseRegexClass):
     """Regex that matches any character.
 
     For generation, it uses string.printable characters plus any additional
@@ -325,35 +316,22 @@ class AnyRegex(BaseRegexElement):
         self.min_digit = min_digit
         self.max_digit = max_digit
         self.extra_char = set() if extra_char is None else extra_char
+        print("extra_char:", extra_char)
         self.frac_used = frac_used
         self.all_char = string.printable + "".join(self.extra_char)
         self.all_char_set = set(self.all_char)
 
     @classmethod
-    def fit_start(cls, values: Sequence[str]) -> Tuple[Iterable[str], AnyRegex]:
-        min_digit = np.min([len(v) for v in values])
-        max_digit = np.max([len(v) for v in values])
-        all_chars = "".join(values)
-        extra_char = set(all_chars)-set(string.printable)
-        new_values = ["" for _ in range(len(values))]
-        frac_used = np.mean([len(values[i]) != len(new_values[i]) for i in range(len(values))])
-        return new_values, cls(min_digit, max_digit, extra_char, frac_used)
-
-    @classmethod
-    def fit(cls, values: Sequence[str]) -> Tuple[
-            Tuple[Iterable[str], Iterable[str]], float, BaseRegexElement]:
-        new_values, new_regex = cls.fit_start(values)
-        information_budget = new_regex.information_budget
-        delta_energy = RegexOptimizer.energy_from_values(values)
-        return (new_values, deepcopy(new_values)), delta_energy/information_budget, new_regex
+    def all_spans(cls, values: Sequence[str]) -> Sequence[Sequence[Tuple[int, int]]]:
+        return [[(0, len(v))] for v in values]
 
     @property
     def n_param(self) -> int:
-        return 1 + len(self.extra_char)
+        return 2 + len(self.extra_char)
 
     @property
-    def log_options(self) -> float:
-        return self.max_digit*np.log(len(string.printable) + len(self.extra_char))
+    def digit_options(self):
+        return len(string.printable) + len(self.extra_char)
 
     def _draw(self) -> str:
         n_digit = np.random.randint(self.min_digit, self.max_digit+1)
@@ -394,9 +372,19 @@ class SingleRegex(BaseRegexElement):
     def n_param(self) -> int:
         return 1 + len(self.character_selection)
 
-    @property
-    def log_options(self) -> float:
-        return np.log(len(self.character_selection))
+    def information_budget(self, regex_stat) -> float:
+        if self.frac_used < 1e-8:
+            return 2*self.n_param
+        n_options = len(self.character_selection)
+        n_unused = regex_stat["digits_used"][0]
+        n_used = regex_stat["digits_used"][1]
+
+        budget_used = n_used*np.log(self.frac_used/n_options)
+        if 1-self.frac_used > 1e-8:
+            budget_unused = n_unused*np.log(1-self.frac_used)
+        else:
+            budget_unused = 0
+        return 2*self.n_param - 2*(budget_used+budget_unused)
 
     @classmethod
     def fit_start(cls, values: Sequence[str]) -> Tuple[Iterable[str], SingleRegex]:
@@ -427,7 +415,8 @@ class SingleRegex(BaseRegexElement):
             else:
                 break
         optimizer, gradient = best_solution
-        return optimizer.new_values, gradient, cls(cur_characters, optimizer.statistics[2])
+        return optimizer.new_values, gradient, cls(cur_characters,
+                                                   optimizer.statistics["frac_used"])
 
     def __str__(self):
         return "["+"".join(self.character_selection)+"]"
