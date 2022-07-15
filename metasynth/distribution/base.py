@@ -18,6 +18,7 @@ class BaseDistribution(ABC):
 
     aliases: List[str] = []
     is_unique = False
+    var_type: str = "unknown"
 
     @classmethod
     def fit(cls, series: Sequence, *args, **kwargs) -> BaseDistribution:
@@ -118,17 +119,43 @@ class BaseDistribution(ABC):
 class CategoricalDistribution(BaseDistribution):
     """Base Class for categorical distributions."""
 
+    var_type = "categorical"
+
 
 class DiscreteDistribution(BaseDistribution):
     """Base Class for discrete distributions."""
+
+    var_type = "discrete"
 
 
 class ContinuousDistribution(BaseDistribution):
     """Base Class for continuous distributions."""
 
+    var_type = "continuous"
+
 
 class StringDistribution(BaseDistribution):
     """Base Class for string distributions."""
+
+    var_type = "string"
+
+
+class DateTimeDistribution(BaseDistribution):
+    """Base Class for date-time distributions."""
+
+    var_type = "date_time"
+
+
+class DateDistribution(BaseDistribution):
+    """Base Class for date distributions."""
+
+    var_type = "date"
+
+
+class TimeDistribution(BaseDistribution):
+    """Base Class for time distributions."""
+
+    var_type = "time"
 
 
 class ScipyDistribution(BaseDistribution):

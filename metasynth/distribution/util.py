@@ -4,6 +4,7 @@ import inspect
 import importlib
 import pkgutil
 from typing import Dict, List, Tuple
+from collections import defaultdict
 
 try:
     from importlib.resources import files  # type: ignore
@@ -11,10 +12,7 @@ except ImportError:
     from importlib_resources import files  # type: ignore
 
 from metasynth.distribution.base import BaseDistribution
-from metasynth.distribution import ContinuousDistribution
-from metasynth.distribution import DiscreteDistribution
-from metasynth.distribution import StringDistribution
-from metasynth.distribution import CategoricalDistribution
+
 
 SIDE_LEFT = -1
 SIDE_RIGHT = -2
@@ -63,12 +61,14 @@ def _get_all_distributions(pkg_name: str) -> Dict[str, List[BaseDistribution]]:
     -------
     Dictionary containing lists of distributions sorted by variable type.
     """
-    distributions: Dict[str, List] = {
-        "discrete": [],
-        "continuous": [],
-        "string": [],
-        "categorical": [],
-    }
+    distributions: Dict[str, List] = defaultdict(lambda: [])#{
+        # "discrete": [],
+        # "continuous": [],
+        # "string": [],
+        # "categorical": [],
+        # "time": [],
+        # "date"
+    # }
     # Find the package path
     pkg_path = files(pkg_name)
     modules = [x for x in pkgutil.walk_packages(path=[str(pkg_path)], prefix=pkg_name + ".")
@@ -82,12 +82,16 @@ def _get_all_distributions(pkg_name: str) -> Dict[str, List[BaseDistribution]]:
         for _name, dist in mod_classes:
             if dist.__module__ != mod_name:
                 continue
-            if issubclass(dist, DiscreteDistribution):
-                distributions["discrete"].append(dist)
-            elif issubclass(dist, ContinuousDistribution):
-                distributions["continuous"].append(dist)
-            elif issubclass(dist, StringDistribution):
-                distributions["string"].append(dist)
-            elif issubclass(dist, CategoricalDistribution):
-                distributions["categorical"].append(dist)
+            if issubclass(dist, BaseDistribution):
+                distributions[dist.var_type].append(dist)
+#
+
+            # if issubclass(dist, DiscreteDistribution):
+                # distributions["discrete"].append(dist)
+            # elif issubclass(dist, ContinuousDistribution):
+                # distributions["continuous"].append(dist)
+            # elif issubclass(dist, StringDistribution):
+                # distributions["string"].append(dist)
+            # elif issubclass(dist, CategoricalDistribution):
+                # distributions["categorical"].append(dist)
     return distributions
