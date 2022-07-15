@@ -11,7 +11,6 @@ try:
 except ImportError:
     from importlib_resources import files  # type: ignore
 
-
 from metasynth.distribution.base import BaseDistribution, ScipyDistribution
 
 
@@ -62,14 +61,8 @@ def _get_all_distributions(pkg_name: str="metasynth.distribution") -> Dict[str, 
     -------
     Dictionary containing lists of distributions sorted by variable type.
     """
-    distributions: Dict[str, List] = defaultdict(lambda: [])#{
-        # "discrete": [],
-        # "continuous": [],
-        # "string": [],
-        # "categorical": [],
-        # "time": [],
-        # "date"
-    # }
+    distributions: Dict[str, List] = defaultdict(lambda: [])
+
     # Find the package path
     pkg_path = files(pkg_name)
     modules = [x for x in pkgutil.walk_packages(path=[str(pkg_path)], prefix=pkg_name + ".")
@@ -86,14 +79,4 @@ def _get_all_distributions(pkg_name: str="metasynth.distribution") -> Dict[str, 
             if (issubclass(dist, BaseDistribution) and not inspect.isabstract(dist)
                     and dist != ScipyDistribution):
                 distributions[dist.var_type].append(dist)
-#
-
-            # if issubclass(dist, DiscreteDistribution):
-                # distributions["discrete"].append(dist)
-            # elif issubclass(dist, ContinuousDistribution):
-                # distributions["continuous"].append(dist)
-            # elif issubclass(dist, StringDistribution):
-                # distributions["string"].append(dist)
-            # elif issubclass(dist, CategoricalDistribution):
-                # distributions["categorical"].append(dist)
     return distributions
