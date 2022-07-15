@@ -83,7 +83,8 @@ def _get_all_distributions(pkg_name: str="metasynth.distribution") -> Dict[str, 
         for _name, dist in mod_classes:
             if dist.__module__ != mod_name:
                 continue
-            if issubclass(dist, BaseDistribution) and not inspect.isabstract(dist) and dist != ScipyDistribution:
+            if (issubclass(dist, BaseDistribution) and not inspect.isabstract(dist)
+                    and dist != ScipyDistribution):
                 distributions[dist.var_type].append(dist)
 #
 
