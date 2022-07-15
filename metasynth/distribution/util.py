@@ -11,7 +11,8 @@ try:
 except ImportError:
     from importlib_resources import files  # type: ignore
 
-from metasynth.distribution.base import BaseDistribution
+
+from metasynth.distribution.base import BaseDistribution, ScipyDistribution
 
 
 SIDE_LEFT = -1
@@ -47,7 +48,7 @@ def get_dist_class(name, pkg_name: str="metasynth.distribution") -> Tuple[BaseDi
     raise ValueError(f"Cannot find distribution with name {name}")
 
 
-def _get_all_distributions(pkg_name: str) -> Dict[str, List[BaseDistribution]]:
+def _get_all_distributions(pkg_name: str="metasynth.distribution") -> Dict[str, List[Any]]:
     """Get all distributions from a package.
 
     It recursively goes through all modules and subpackages attempting to find
@@ -82,7 +83,7 @@ def _get_all_distributions(pkg_name: str) -> Dict[str, List[BaseDistribution]]:
         for _name, dist in mod_classes:
             if dist.__module__ != mod_name:
                 continue
-            if issubclass(dist, BaseDistribution):
+            if issubclass(dist, BaseDistribution) and not inspect.isabstract(dist) and dist != ScipyDistribution:
                 distributions[dist.var_type].append(dist)
 #
 

@@ -67,3 +67,7 @@ class FakerDistribution(StringDistribution):
 
     def information_criterion(self, values: Iterable) -> float:
         return 99999
+
+    @classmethod
+    def _example_distribution(cls):
+        return cls("city")

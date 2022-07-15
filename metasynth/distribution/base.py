@@ -115,6 +115,11 @@ class BaseDistribution(ABC):
         """Return the name used in the metadata file."""
         return self.aliases[0]
 
+    @classmethod
+    @abstractmethod
+    def _example_distribution(cls):
+        return cls()
+
 
 class CategoricalDistribution(BaseDistribution):
     """Base Class for categorical distributions."""
@@ -143,7 +148,7 @@ class StringDistribution(BaseDistribution):
 class DateTimeDistribution(BaseDistribution):
     """Base Class for date-time distributions."""
 
-    var_type = "date_time"
+    var_type = "datetime"
 
 
 class DateDistribution(BaseDistribution):

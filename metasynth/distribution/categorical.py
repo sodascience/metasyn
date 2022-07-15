@@ -19,7 +19,7 @@ class CatFreqDistribution(CategoricalDistribution):
         The frequencies do not need to be normalized.
     """
 
-    aliases = ["cat_freq"]
+    aliases = ["CatFreqDistribution", "cat_freq"]
 
     def __init__(self, categories: npt.NDArray[np.str_],
                  counts: npt.NDArray[np.int_]):
@@ -45,3 +45,7 @@ class CatFreqDistribution(CategoricalDistribution):
 
     def draw(self):
         return str(np.random.choice(self.categories, p=self.p_vals))
+
+    @classmethod
+    def _example_distribution(cls):
+        return cls(["a", "b", "c"], [10, 4, 20])

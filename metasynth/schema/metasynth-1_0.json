@@ -11,7 +11,7 @@
                 "type": "object",
               	"properties": {
            		   	"name": {"type": "string"},
-                  	"type": {"enum": ["discrete", "continuous", "string", "categorical"]},
+                  	"type": {"enum": ["discrete", "continuous", "string", "categorical", "date", "datetime", "time"]},
                   	"dtype": {"type": "string"},
                   	"prop_missing": {"type": "number"},
                   	"distribution": {
@@ -194,11 +194,63 @@
 				}
 			}
 		},
+		"UniformDateTimeDistribution": {
+			"type": "object",
+			"properties": {
+				"name": {"const": "UniformDateTimeDistribution"},
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"begin_time": {"type": "string"},
+						"end_time": {"type": "string"}
+					},
+					"required": ["begin_time", "end_time"]
+				}
+			}
+		},
+		"UniformDateDistribution": {
+			"type": "object",
+			"properties": {
+				"name": {"const": "UniformDateDistribution"},
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"begin_time": {"type": "string"},
+						"end_time": {"type": "string"}
+					},
+					"required": ["begin_time", "end_time"]
+				}
+			}
+		},
+		"UniformTimeDistribution": {
+			"type": "object",
+			"properties": {
+				"name": {"const": "UniformTimeDistribution"},
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"begin_time": {"type": "string"},
+						"end_time": {"type": "string"}
+					},
+					"required": ["begin_time", "end_time"]
+				}
+			}
+		},
 		"all_dist_def": {
 			"anyOf": [
 				{"$ref": "#/$defs/CatFreqDistribution"},
-				{"$ref": "#/$defs/UniqueKeyDistribution"},
 				{"$ref": "#/$defs/RegexDistribution"},
+				{"$ref": "#/$defs/UniqueRegexDistribution"},
+				{"$ref": "#/$defs/FakerDistribution"},
+				{"$ref": "#/$defs/LogNormalDistribution"},
+				{"$ref": "#/$defs/NormalDistribution"},
+				{"$ref": "#/$defs/UniformDistribution"},
+				{"$ref": "#/$defs/DiscreteUniformDistribution"},
+				{"$ref": "#/$defs/PoissonDistribution"},
+				{"$ref": "#/$defs/UniqueKeyDistribution"},
+				{"$ref": "#/$defs/UniformDateDistribution"},
+				{"$ref": "#/$defs/UniformTimeDistribution"},
+				{"$ref": "#/$defs/UniformDateTimeDistribution"},
 				{"$ref": "#/$defs/TruncatedNormalDistribution"}
 			]
 		},

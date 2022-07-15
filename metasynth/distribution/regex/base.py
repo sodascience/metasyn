@@ -130,6 +130,10 @@ class RegexDistribution(StringDistribution):
                 }
         }
 
+    @classmethod
+    def _example_distribution(cls):
+        return cls([(r"\d{3,4}", 0.67)])
+
 
 class UniqueRegexDistribution(RegexDistribution):
     """Unique variant of the regex distribution.

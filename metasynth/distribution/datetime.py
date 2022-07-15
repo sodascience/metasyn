@@ -62,6 +62,10 @@ class UniformDateTimeDistribution(DateTimeDistribution, BaseUniformDistribution)
     def minimum_delta(self) -> dt.timedelta:
         return dt.timedelta(microseconds=1)
 
+    @classmethod
+    def _example_distribution(cls):
+        return cls("2022-07-15T10:39:36.130261", "2022-08-15T10:39:36.130261")
+
 
 class UniformTimeDistribution(TimeDistribution, BaseUniformDistribution):
     """Uniform time distribution."""
@@ -74,6 +78,10 @@ class UniformTimeDistribution(TimeDistribution, BaseUniformDistribution):
     def minimum_delta(self) -> dt.timedelta:
         return dt.timedelta(microseconds=1)
 
+    @classmethod
+    def _example_distribution(cls):
+        return cls("10:39:36.130261", "18:39:36.130261")
+
 
 class UniformDateDistribution(DateDistribution, BaseUniformDistribution):
     """Uniform date distribution."""
@@ -85,3 +93,7 @@ class UniformDateDistribution(DateDistribution, BaseUniformDistribution):
     @property
     def minimum_delta(self) -> dt.timedelta:
         return dt.timedelta(days=1)
+
+    @classmethod
+    def _example_distribution(cls):
+        return cls("2022-07-15", "2022-07-16")

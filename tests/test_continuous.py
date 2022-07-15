@@ -32,7 +32,7 @@ def test_uniform(lower_bound, upper_bound):
     ]
 )
 def test_normal(mean, std_dev):
-    values = stats.norm(loc=mean, scale=std_dev).rvs(100)
+    values = stats.norm(loc=mean, scale=std_dev).rvs(1000)
     dist = NormalDistribution.fit(values)
     dist_uniform = UniformDistribution.fit(values)
     assert dist.information_criterion(values) < dist_uniform.information_criterion(values)
@@ -70,7 +70,7 @@ def test_log_normal(mu, sigma):
 )
 def test_trunc_normal(lower_bound, upper_bound, mu, sigma):
     a, b = (lower_bound-mu)/sigma, (upper_bound-mu)/sigma
-    values = stats.truncnorm(a=a, b=b, loc=mu, scale=sigma).rvs(1000)
+    values = stats.truncnorm(a=a, b=b, loc=mu, scale=sigma).rvs(5000)
     dist = TruncatedNormalDistribution.fit(values)
     dist_uniform = UniformDistribution.fit(values)
     assert dist.information_criterion(values) < dist_uniform.information_criterion(values)
