@@ -14,3 +14,4 @@ from metasynth.distribution.base import DiscreteDistribution
 from metasynth.distribution.base import StringDistribution
 from metasynth.distribution.base import ContinuousDistribution
 from metasynth.distribution.base import CategoricalDistribution
+from metasynth.distribution.faker import FakerDistribution

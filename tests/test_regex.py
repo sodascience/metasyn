@@ -40,8 +40,6 @@ def test_regex_single_digit():
 def test_regex_unique():
     series = pd.Series(["R1", "R2", "R3", "R4", "R5", "R6"])
     dist = UniqueRegexDistribution.fit(series)
-    dist_non_unique = RegexDistribution.fit(series)
-    assert dist.information_criterion(series) < dist_non_unique.information_criterion(series)
     values = [dist.draw() for _ in range(10)]
     assert len(set(values)) == 10
     assert set(values) == set(["R" + x for x in string.digits])
