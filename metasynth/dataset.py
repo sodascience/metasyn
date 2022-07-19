@@ -15,6 +15,7 @@ import jsonschema
 
 from metasynth.var import MetaVar
 from metasynth.distribution.util import _get_all_distributions
+from metasynth._version import get_versions
 
 
 class MetaDataset():
@@ -31,9 +32,10 @@ class MetaDataset():
         Number of rows in the original dataframe.
     """
 
-    def __init__(self, meta_vars, n_rows=None):
+    def __init__(self, meta_vars, n_rows=None, privacy_package=None):
         self.meta_vars = meta_vars
         self.n_rows = n_rows
+        self.privacy_package = privacy_package
 
     @property
     def n_columns(self):
@@ -89,13 +91,18 @@ class MetaDataset():
 
             all_vars.append(var)
 
-        return cls(all_vars, len(df))
+        return cls(all_vars, len(df), privacy_package=privacy_package)
 
     def to_dict(self):
         """Create dictionary with the properties for recreation."""
         return {
             "n_rows": self.n_rows,
             "n_columns": self.n_columns,
+            "created by": {
+                "name": "MetaSynth",
+                "version": get_versions()["version"],
+                "privacy": self.privacy_package,
+            },
             "vars": [var.to_dict() for var in self.meta_vars],
         }
 

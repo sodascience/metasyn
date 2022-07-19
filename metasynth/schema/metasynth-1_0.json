@@ -5,6 +5,7 @@
 	"properties": {
 		"n_rows": {"type": "number"},
 		"n_columns": {"type": "number"},
+		"privacy": {"type": "object"},
 		"vars": {
 			"type": "array",
 			"items": {
