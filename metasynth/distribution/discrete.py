@@ -1,5 +1,7 @@
 """Module with discrete distributions."""
 
+from typing import Set
+
 import numpy as np
 import pandas as pd
 from scipy.stats import randint, poisson
@@ -52,7 +54,7 @@ class PoissonDistribution(ScipyDistribution, DiscreteDistribution):
     aliases = ["PoissonDistribution", "poisson"]
     dist_class = poisson
 
-    def __init__(self, mu):
+    def __init__(self, mu: float):
         self.par = {"mu": mu}
         self.dist = self.dist_class(mu=mu)
 
@@ -87,10 +89,10 @@ class UniqueKeyDistribution(ScipyDistribution, DiscreteDistribution):
     aliases = ["UniqueKeyDistribution", "unique_key"]
     is_unique = True
 
-    def __init__(self, low, consecutive):
+    def __init__(self, low: int, consecutive: int):
         self.par = {"low": low, "consecutive": consecutive}
         self.last_key = low - 1
-        self.key_set = set()
+        self.key_set: Set[int] = set()
 
     @classmethod
     def _fit(cls, values):

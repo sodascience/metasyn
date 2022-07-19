@@ -25,7 +25,7 @@ class UniformDistribution(ScipyDistribution, ContinuousDistribution):
     aliases = ["UniformDistribution", "uniform"]
     dist_class = uniform
 
-    def __init__(self, min_val, max_val):
+    def __init__(self, min_val: float, max_val: float):
         self.par = {"min_val": min_val, "max_val": max_val}
         self.dist = uniform(loc=self.min_val, scale=self.max_val-self.min_val)
 
