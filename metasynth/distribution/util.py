@@ -3,7 +3,7 @@
 import inspect
 import importlib
 import pkgutil
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Any
 from collections import defaultdict
 
 try:
