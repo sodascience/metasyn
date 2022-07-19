@@ -1,5 +1,7 @@
 """Module with discrete distributions."""
 
+from typing import Set
+
 import numpy as np
 import pandas as pd
 from scipy.stats import randint, poisson
@@ -25,7 +27,7 @@ class DiscreteUniformDistribution(ScipyDistribution, DiscreteDistribution):
 
     dist_class = randint
 
-    def __init__(self, low, high):
+    def __init__(self, low: int, high: int):
         self.par = {"low": low, "high": high}
         self.dist = self.dist_class(low=low, high=high)
 
@@ -40,6 +42,10 @@ class DiscreteUniformDistribution(ScipyDistribution, DiscreteDistribution):
         param = {"low": np.min(values), "high": np.max(values)+1}
         return cls(**param)
 
+    @classmethod
+    def _example_distribution(cls):
+        return cls(0, 10)
+
 
 class PoissonDistribution(ScipyDistribution, DiscreteDistribution):
     """Poisson distribution.
@@ -48,7 +54,7 @@ class PoissonDistribution(ScipyDistribution, DiscreteDistribution):
     aliases = ["PoissonDistribution", "poisson"]
     dist_class = poisson
 
-    def __init__(self, mu):
+    def __init__(self, mu: float):
         self.par = {"mu": mu}
         self.dist = self.dist_class(mu=mu)
 
@@ -61,6 +67,10 @@ class PoissonDistribution(ScipyDistribution, DiscreteDistribution):
     @classmethod
     def _fit(cls, values):
         return cls(np.mean(values))
+
+    @classmethod
+    def _example_distribution(cls):
+        return cls(0.5)
 
 
 class UniqueKeyDistribution(ScipyDistribution, DiscreteDistribution):
@@ -79,10 +89,10 @@ class UniqueKeyDistribution(ScipyDistribution, DiscreteDistribution):
     aliases = ["UniqueKeyDistribution", "unique_key"]
     is_unique = True
 
-    def __init__(self, low, consecutive):
+    def __init__(self, low: int, consecutive: int):
         self.par = {"low": low, "consecutive": consecutive}
         self.last_key = low - 1
-        self.key_set = set()
+        self.key_set: Set[int] = set()
 
     @classmethod
     def _fit(cls, values):
@@ -129,3 +139,7 @@ class UniqueKeyDistribution(ScipyDistribution, DiscreteDistribution):
 
         # Probabilities go up like 1/n, 1/(n-1), 1/(n-2), ..., 1/2, 1
         return 5 - 2*np.sum(np.log(1/np.arange(n_choice, n_choice-len(values), -1)))
+
+    @classmethod
+    def _example_distribution(cls):
+        return cls(0, 0)

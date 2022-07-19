@@ -3,18 +3,16 @@
 import inspect
 import importlib
 import pkgutil
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Any
+from collections import defaultdict
 
 try:
     from importlib.resources import files  # type: ignore
 except ImportError:
     from importlib_resources import files  # type: ignore
 
-from metasynth.distribution.base import BaseDistribution
-from metasynth.distribution import ContinuousDistribution
-from metasynth.distribution import DiscreteDistribution
-from metasynth.distribution import StringDistribution
-from metasynth.distribution import CategoricalDistribution
+from metasynth.distribution.base import BaseDistribution, ScipyDistribution
+
 
 SIDE_LEFT = -1
 SIDE_RIGHT = -2
@@ -49,7 +47,7 @@ def get_dist_class(name, pkg_name: str="metasynth.distribution") -> Tuple[BaseDi
     raise ValueError(f"Cannot find distribution with name {name}")
 
 
-def _get_all_distributions(pkg_name: str) -> Dict[str, List[BaseDistribution]]:
+def _get_all_distributions(pkg_name: str="metasynth.distribution") -> Dict[str, List[Any]]:
     """Get all distributions from a package.
 
     It recursively goes through all modules and subpackages attempting to find
@@ -63,12 +61,8 @@ def _get_all_distributions(pkg_name: str) -> Dict[str, List[BaseDistribution]]:
     -------
     Dictionary containing lists of distributions sorted by variable type.
     """
-    distributions: Dict[str, List] = {
-        "discrete": [],
-        "continuous": [],
-        "string": [],
-        "categorical": [],
-    }
+    distributions: Dict[str, List] = defaultdict(lambda: [])
+
     # Find the package path
     pkg_path = files(pkg_name)
     modules = [x for x in pkgutil.walk_packages(path=[str(pkg_path)], prefix=pkg_name + ".")
@@ -82,12 +76,7 @@ def _get_all_distributions(pkg_name: str) -> Dict[str, List[BaseDistribution]]:
         for _name, dist in mod_classes:
             if dist.__module__ != mod_name:
                 continue
-            if issubclass(dist, DiscreteDistribution):
-                distributions["discrete"].append(dist)
-            elif issubclass(dist, ContinuousDistribution):
-                distributions["continuous"].append(dist)
-            elif issubclass(dist, StringDistribution):
-                distributions["string"].append(dist)
-            elif issubclass(dist, CategoricalDistribution):
-                distributions["categorical"].append(dist)
+            if (issubclass(dist, BaseDistribution) and not inspect.isabstract(dist)
+                    and dist != ScipyDistribution):
+                distributions[dist.var_type].append(dist)
     return distributions

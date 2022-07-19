@@ -25,7 +25,7 @@ class UniformDistribution(ScipyDistribution, ContinuousDistribution):
     aliases = ["UniformDistribution", "uniform"]
     dist_class = uniform
 
-    def __init__(self, min_val, max_val):
+    def __init__(self, min_val: float, max_val: float):
         self.par = {"min_val": min_val, "max_val": max_val}
         self.dist = uniform(loc=self.min_val, scale=self.max_val-self.min_val)
 
@@ -39,6 +39,10 @@ class UniformDistribution(ScipyDistribution, ContinuousDistribution):
         if np.any(np.array(values) < self.min_val) or np.any(np.array(values) > self.max_val):
             return 2*self.n_par + 100*len(vals)
         return 2*self.n_par - 2*len(vals)*np.log((self.max_val-self.min_val)**-1)
+
+    @classmethod
+    def _example_distribution(cls):
+        return cls(0, 10)
 
 
 class NormalDistribution(ScipyDistribution, ContinuousDistribution):
@@ -59,9 +63,13 @@ class NormalDistribution(ScipyDistribution, ContinuousDistribution):
     aliases = ["NormalDistribution", "normal", "gaussian"]
     dist_class = norm
 
-    def __init__(self, mean, std_dev):
+    def __init__(self, mean: float, std_dev: float):
         self.par = {"mean": mean, "std_dev": std_dev}
         self.dist = norm(loc=mean, scale=std_dev)
+
+    @classmethod
+    def _example_distribution(cls):
+        return cls(0, 1)
 
 
 class LogNormalDistribution(ScipyDistribution, ContinuousDistribution):
@@ -91,6 +99,10 @@ class LogNormalDistribution(ScipyDistribution, ContinuousDistribution):
         except FitDataError:
             return cls(0, 1)
         return cls(np.log(scale), sigma)
+
+    @classmethod
+    def _example_distribution(cls):
+        return cls(0, 1)
 
 
 class TruncatedNormalDistribution(ScipyDistribution, ContinuousDistribution):
@@ -138,3 +150,7 @@ class TruncatedNormalDistribution(ScipyDistribution, ContinuousDistribution):
                              bounds=[(None, None),
                                      ((upper_bound-lower_bound)/100, None)]).x
         return cls(lower_bound, upper_bound, mu, sigma)
+
+    @classmethod
+    def _example_distribution(cls):
+        return cls(0, 1, 0, 1)

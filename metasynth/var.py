@@ -82,6 +82,9 @@ class MetaVar():
             "string": "string",
             "integer": "discrete",
             "floating": "continuous",
+            "date": "date",
+            "datetime64": "datetime",
+            "time": "time",
         }
         try:
             return convert_dict[pandas_dtype]

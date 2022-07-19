@@ -1,9 +1,12 @@
+from random import random
 from pathlib import Path
 
+import pytest
 import pandas as pd
+
 from metasynth.dataset import MetaDataset
 from metasynth.var import MetaVar
-import pytest
+from metasynth.distribution.util import _get_all_distributions
 
 
 def test_dataset():
@@ -51,3 +54,15 @@ def test_dataset():
     dataset.to_json(tmp_fp)
     dataset = MetaDataset.from_json(tmp_fp)
     check_dataset(dataset)
+
+
+def test_distributions():
+    tmp_fp = Path("tests", "data", "tmp.json")
+
+    all_distributions = _get_all_distributions()
+    for var_type, distributions in all_distributions.items():
+        for dist in distributions:
+            var = MetaVar(var_type, name="None", distribution=dist._example_distribution(),
+                          prop_missing=random())
+            dataset = MetaDataset([var], n_rows=10)
+            dataset.to_json(tmp_fp)
