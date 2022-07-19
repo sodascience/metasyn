@@ -5,9 +5,8 @@ original data, while the other part creates a synthetic dataset from the
 metadata.
 """
 
+from metasynth.var import MetaVar
+from metasynth.dataset import MetaDataset
 
 from . import _version
 __version__ = _version.get_versions()['version']
-
-from metasynth.var import MetaVar
-from metasynth.dataset import MetaDataset

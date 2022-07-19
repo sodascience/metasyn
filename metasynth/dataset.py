@@ -15,7 +15,7 @@ import jsonschema
 
 from metasynth.var import MetaVar
 from metasynth.distribution.util import _get_all_distributions
-from metasynth import __version__
+from metasynth._version import get_versions
 
 
 class MetaDataset():
@@ -100,7 +100,7 @@ class MetaDataset():
             "n_columns": self.n_columns,
             "created by": {
                 "name": "MetaSynth",
-                "version": __version__,
+                "version": get_versions()["version"],
                 "privacy": self.privacy_package,
             },
             "vars": [var.to_dict() for var in self.meta_vars],
