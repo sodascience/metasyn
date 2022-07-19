@@ -60,13 +60,9 @@ def test_distributions():
     tmp_fp = Path("tests", "data", "tmp.json")
 
     all_distributions = _get_all_distributions()
-    # print(all_distributions)
-    # assert False
     for var_type, distributions in all_distributions.items():
         for dist in distributions:
             var = MetaVar(var_type, name="None", distribution=dist._example_distribution(),
                           prop_missing=random())
             dataset = MetaDataset([var], n_rows=10)
-            print(dist._example_distribution())
-            print(var.to_dict())
             dataset.to_json(tmp_fp)
