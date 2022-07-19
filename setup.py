@@ -1,10 +1,12 @@
 # based on https://github.com/pypa/sampleproject - MIT License
-
 from setuptools import setup, find_packages
+
+import versioneer
 
 setup(
     name='metasynth',
-    version='0.0.1',
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     author='SODA Development Team',
     description='Package for creating synthetic datasets from datasets',
     long_description='Package for creating synthetic datasets from datasets',

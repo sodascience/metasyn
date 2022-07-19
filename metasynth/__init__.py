@@ -7,3 +7,6 @@ metadata.
 
 from metasynth.var import MetaVar
 from metasynth.dataset import MetaDataset
+
+from . import _version
+__version__ = _version.get_versions()['version']
