@@ -1,5 +1,21 @@
-metasynth package
-=================
+API Reference
+=============
+
+.. automodule:: metasynth
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 1
+
+   metasynth.distribution
+   metasynth.privacy
+   metasynth.schema
 
 Submodules
 ----------
@@ -12,14 +28,13 @@ metasynth.dataset module
    :undoc-members:
    :show-inheritance:
 
-metasynth.distribution module
------------------------------
+metasynth.metadist module
+-------------------------
 
-.. automodule:: metasynth.distribution
+.. automodule:: metasynth.metadist
    :members:
    :undoc-members:
    :show-inheritance:
-   :inherited-members:
 
 metasynth.var module
 --------------------
@@ -29,10 +44,3 @@ metasynth.var module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: metasynth
-   :members:
-   :undoc-members:
-   :show-inheritance:

@@ -25,7 +25,7 @@ see the :doc:`quick_start`.
    :hidden:
 
    quick_start
-   modules
+   api/metasynth
 
 
 Indices and tables
