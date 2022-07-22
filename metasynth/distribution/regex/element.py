@@ -343,8 +343,9 @@ class AnyRegex(BaseRegexClass):
         Fraction of the values containing the regex.
     """
 
-    def __init__(self, min_digit: int, max_digit: int, extra_char: set[str]=None,
-                 frac_used: float=1.0):  # pylint: disable=super-init-not-called
+    def __init__(self, min_digit: int, max_digit: int,  # pylint: disable=super-init-not-called
+                 extra_char: set[str]=None,
+                 frac_used: float=1.0):
         self.min_digit = min_digit
         self.max_digit = max_digit
         self.extra_char = set() if extra_char is None else extra_char

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import inspect
-from typing import Union, Dict, Sequence, List, Any
+from typing import Union, Dict, List, Any
 
 import pandas as pd
 import numpy as np
@@ -42,8 +42,8 @@ class MetaVar():
 
     dtype = "unknown"
 
-    def __init__(self,
-                 var_type: str,  # pylint: disable=too-many-arguments
+    def __init__(self,  # pylint: disable=too-many-arguments
+                 var_type: str,
                  series: pd.Series=None,
                  name: str=None,
                  distribution: BaseDistribution=None,
