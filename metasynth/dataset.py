@@ -2,20 +2,20 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from importlib.resources import read_text
 import json
 import pathlib
-from typing import Union
-
+from typing import Union, List, Dict, Any
 
 import numpy as np
 import pandas as pd
-import xmltodict
 import jsonschema
 
 from metasynth.var import MetaVar
 from metasynth.distribution.util import _get_all_distributions
 from metasynth._version import get_versions
+from metasynth.distribution.base import BaseDistribution
 
 
 class MetaDataset():
@@ -26,24 +26,29 @@ class MetaDataset():
 
     Parameters
     ----------
-    meta_vars: list of MetaVar
+    meta_vars:
         List of variables representing columns in a dataframe.
-    n_rows: int
+    n_rows:
         Number of rows in the original dataframe.
+    privacy_package:
+        Package that supplies the distributions.
     """
 
-    def __init__(self, meta_vars, n_rows=None, privacy_package=None):
+    def __init__(self, meta_vars: List[MetaVar], n_rows: int=None,
+                 privacy_package: str="metasynth.distribution"):
         self.meta_vars = meta_vars
         self.n_rows = n_rows
         self.privacy_package = privacy_package
 
     @property
-    def n_columns(self):
+    def n_columns(self) -> int:
         """int: Number of columns of the original dataframe."""
         return len(self.meta_vars)
 
     @classmethod
-    def from_dataframe(cls, df, distribution=None, unique=None, privacy_package=None):
+    def from_dataframe(cls, df: pd.DataFrame,
+                       distribution: dict[str, Union[str, BaseDistribution]]=None,
+                       unique: dict[str, bool]=None, privacy_package: str=None):
         """Create dataset from a Pandas dataframe.
 
         The pandas dataframe should be formatted already with the correct
@@ -51,23 +56,24 @@ class MetaDataset():
 
         Parameters
         ----------
-        df: pandas.Dataframe
+        df:
             Pandas dataframe with the correct column dtypes.
-        distribution: dict of str or BaseDistribution, optional
+        distribution:
             A dictionary that has keys that are column names and values that
             denote distributions, either with a string that gives one of their
             aliases. Or an actually fitted BaseDistribution.
-        unique: dict of bool, optional
+        unique:
             A dictionary that allows specific columns to be set to be unique.
             This is only available for the integer and string datatypes. The parameter
             is ignored when the distribution is set manually.
+        privacy_package:
+            Package that contains the implementations of the distributions.
 
         Returns
         -------
         MetaDataset:
             Initialized MetaSynth dataset.
         """
-
         if privacy_package is None:
             privacy_package = "metasynth.distribution"
         elif privacy_package == "cbs":
@@ -93,31 +99,36 @@ class MetaDataset():
 
         return cls(all_vars, len(df), privacy_package=privacy_package)
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         """Create dictionary with the properties for recreation."""
         return {
             "n_rows": self.n_rows,
             "n_columns": self.n_columns,
-            "created by": {
-                "name": "MetaSynth",
-                "version": get_versions()["version"],
-                "privacy": self.privacy_package,
+            "provenance": {
+                "created by": {
+                    "name": "MetaSynth",
+                    "version": get_versions()["version"],
+                    "privacy": self.privacy_package,
+                },
+                "creation time": datetime.now().isoformat()
             },
             "vars": [var.to_dict() for var in self.meta_vars],
         }
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: Union[int, str]) -> MetaVar:
         """Return meta var either by variable name or index."""
         if isinstance(key, int):
+            # If the key is an integer, give the ith variable.
             return self.meta_vars[key]
         if isinstance(key, str):
+            # If the key is a string, return the first variable with that name.
             for var in self.meta_vars:
                 if var.name == key:
                     return var
             raise KeyError(f"Cannot find variable '{key}'")
         raise TypeError(f"Cannot get item for key '{key}'")
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Create a readable string that shows the variables."""
         cur_str = "# Rows: "+str(self.n_rows)+"\n"
         cur_str += "# Columns: "+str(self.n_columns)+"\n"
@@ -128,11 +139,14 @@ class MetaDataset():
     def to_json(self, fp: Union[pathlib.Path, str], validate: bool=True) -> None:
         """Write the MetaSynth dataset to a JSON file.
 
+        Optional validation against a JSON schema included in the package.
+
         Parameters
         ----------
-        fp: str or pathlib.Path
+        fp:
             File to write the dataset to.
-        validate: Validate the JSON file with a schema.
+        validate:
+            Validate the JSON file with a schema.
         """
         self_dict = _jsonify(self.to_dict())
         if validate:
@@ -141,25 +155,16 @@ class MetaDataset():
         with open(fp, "w", encoding="utf-8") as f:
             json.dump(self_dict, f, indent=4)
 
-    def to_xml(self, fp: Union[pathlib.Path, str]) -> None:
-        """Write the metadataset to an XML file.
-
-        Parameters
-        ----------
-        fp: File to write to.
-        """
-        with open(fp, "w", encoding="utf-8") as f:
-            f.write(xmltodict.unparse({"root": self.to_dict()}, pretty=True))
-
     @classmethod
     def from_json(cls, fp: Union[pathlib.Path, str], validate: bool=True) -> MetaDataset:
         """Read a MetaSynth dataset from a JSON file.
 
         Parameters
         ----------
-        fp: str or pathlib.Path
+        fp:
             Path to read the data from.
-        validate: Validate the JSON file with a schema.
+        validate:
+            Validate the JSON file with a schema.
 
         Returns
         -------
@@ -177,31 +182,12 @@ class MetaDataset():
         meta_vars = [MetaVar.from_dict(d) for d in self_dict["vars"]]
         return cls(meta_vars, n_rows)
 
-    @classmethod
-    def from_xml(cls, fp: Union[pathlib.Path, str]) -> MetaDataset:
-        """Read a MetaSynth dataset from a XML file.
-
-        Parameters
-        ----------
-        fp: Path to file that contains the metadataset.
-
-        Returns
-        -------
-        MetaDataset containing the information of the dataset.
-        """
-        with open(fp, "r", encoding="utf-8") as f:
-            self_dict = xmltodict.parse(f.read())["root"]
-
-        n_rows = self_dict["n_rows"]
-        meta_vars = [MetaVar.from_dict(d) for d in self_dict["vars"]]
-        return cls(meta_vars, n_rows)
-
-    def synthesize(self, n):
+    def synthesize(self, n: int) -> pd.DataFrame:
         """Create a synthetic pandas dataframe.
 
         Parameters
         ----------
-        n: int
+        n:
             Number of rows to generate.
 
         Returns

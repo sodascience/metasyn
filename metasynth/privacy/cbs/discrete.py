@@ -10,6 +10,7 @@ from metasynth.privacy.cbs.utils import get_cbs_bounds
 
 class CbsDiscreteUniform(DiscreteUniformDistribution):
     """Implementation for discrete uniform distribution."""
+
     @classmethod
     def _fit(cls, values, n_avg: int=5):
         low, high = get_cbs_bounds(values, n_avg=n_avg)
@@ -22,6 +23,7 @@ class CbsPoisson(PoissonDistribution):
 
 class CbsUniqueKey(UniqueKeyDistribution):
     """Implementation for unique key distribution."""
+
     @classmethod
     def _fit(cls, values, n_avg: int=5):
         orig_dist = super()._fit(values)

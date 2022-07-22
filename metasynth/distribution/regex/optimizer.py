@@ -27,9 +27,12 @@ class RegexOptimizer():
 
     Parameters
     ----------
-    values: Values to which the regex is being applied.
-    spans: Positions/spans where the regex can be applied.
+    values:
+        Values to which the regex is being applied.
+    spans:
+        Positions/spans where the regex can be applied.
     """
+
     def __init__(self, values: Sequence[str], spans: Sequence[Sequence[Tuple[int, int]]]):
         self.values = values
         self.spans = spans
@@ -127,14 +130,18 @@ class RegexOptimizer():
 
         Parameters
         ----------
-        dist: Cumulative distribution of the current lengths.
-              (self.left_cum_dist or self.right_cum_dist)
-        len_src: Current length on this side.
-        len_dst: New length on the same side.
+        dist:
+            Cumulative distribution of the current lengths.
+            (self.left_cum_dist or self.right_cum_dist)
+        len_src:
+            Current length on this side.
+        len_dst:
+            New length on the same side.
 
         Returns
         -------
-        delta_energy: Difference in energy [after-before].
+        delta_energy:
+            Difference in energy [after-before].
         """
         if len_dst > len_src:
             return np.sum(np.log((dist[len_src:len_dst]+2) /
@@ -177,11 +184,13 @@ class RegexOptimizer():
 
         Parameters
         ----------
-        values: Values to compute the energy of.
+        values:
+            Values to compute the energy of.
 
         Returns
         -------
-        energy: Computed energy.
+        float:
+            Computed energy.
         """
         length_array = np.array([len(v) for v in values])
         lengths, counts = np.unique(length_array, return_counts=True)
@@ -193,13 +202,15 @@ class RegexOptimizer():
             cum_len[:cur_len] += cur_counts
         return np.sum(np.log(cum_len + 1))
 
-    def set_span(self, i_val, i_span) -> None:
+    def set_span(self, i_val: int, i_span: int) -> None:
         """Change the assignment for a value.
 
         Parameters
         ----------
-        i_val: Index of the value to be reassigned.
-        i_span: Index of the span for that value to be assigned to.
+        i_val:
+            Index of the value to be reassigned.
+        i_span:
+            Index of the span for that value to be assigned to.
         """
         old_span = self.spans[i_val][self.cur_solution[i_val]]
         new_span = self.spans[i_val][i_span]
@@ -222,7 +233,7 @@ class RegexOptimizer():
 
     @property
     def new_values(self) -> Tuple[List[str], List[str]]:
-        """The values on the left and right with the current assignment."""
+        """Get the values on the left and right with the current assignment."""
         left_values = []
         right_values = []
         for i_val, val in enumerate(self.values):

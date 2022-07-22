@@ -3,7 +3,7 @@
 import inspect
 import importlib
 import pkgutil
-from typing import Dict, List, Tuple, Any
+from typing import Dict, List, Tuple, Any, Sequence
 from collections import defaultdict
 
 try:
@@ -18,16 +18,19 @@ SIDE_LEFT = -1
 SIDE_RIGHT = -2
 
 
-def get_dist_class(name, pkg_name: str="metasynth.distribution") -> Tuple[BaseDistribution, Dict]:
-    """Obtain a distribution and fit arguments from a name
+def get_dist_class(name: str, pkg_name: str="metasynth.distribution"
+                   ) -> Tuple[BaseDistribution, Dict]:
+    """Obtain a distribution and fit arguments from a name.
 
     For example, if we use "faker.city.nl_NL", we should get the FakerDistribution
     with the key word arguments/dictionary: {faker_type: city, locale: nl_NL}.
 
     Parameters
     ----------
-    name: str
+    name:
         Name of the distribution.
+    pkg_name:
+        Package that supplies all the distributions.
 
     Returns
     -------
@@ -47,7 +50,8 @@ def get_dist_class(name, pkg_name: str="metasynth.distribution") -> Tuple[BaseDi
     raise ValueError(f"Cannot find distribution with name {name}")
 
 
-def _get_all_distributions(pkg_name: str="metasynth.distribution") -> Dict[str, List[Any]]:
+def _get_all_distributions(pkg_name: str="metasynth.distribution"
+                           ) -> Dict[str, List[BaseDistribution]]:
     """Get all distributions from a package.
 
     It recursively goes through all modules and subpackages attempting to find

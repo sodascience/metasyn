@@ -6,7 +6,7 @@ from abc import abstractmethod, ABC
 import re
 import random
 import string
-from typing import Iterable, Tuple, Sequence
+from typing import Iterable, Tuple, Sequence, Dict
 
 import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
@@ -20,12 +20,12 @@ class BaseRegexElement(ABC):
     frac_used = 1.0
 
     @abstractmethod
-    def information_budget(self, regex_stat) -> float:
+    def information_budget(self, regex_stat: Dict) -> float:
         """Addition to the AIC for the current regex."""
 
     @property
     def n_param(self) -> int:
-        """int: The number of 'parameters' of the regex element"""
+        """int: The number of 'parameters' of the regex element."""
         return 2
 
     @classmethod
@@ -113,6 +113,7 @@ class BaseRegexClass(BaseRegexElement):
         Maximum number of repeats of the element.
     frac_used: Fraction of values that are matched at all.
     """
+
     regex_str = r""
     match_str = r""
     base_regex = r""
@@ -197,11 +198,13 @@ class BaseRegexClass(BaseRegexElement):
 
         Parameters
         ----------
-        values: String values to match the regex to.
+        values:
+            String values to match the regex to.
 
         Returns
         -------
-        A list of spans for each of the values.
+        List[List[Tuple[int, int]]]:
+            A list of spans for each of the values.
         """
         match_regex = re.compile(cls.base_regex+r"+")
         return [
@@ -229,6 +232,7 @@ class BaseRegexClass(BaseRegexElement):
 
 class DigitRegex(BaseRegexClass):
     """Regex element for repeating digits."""
+
     regex_str = r"^\d{1,}"
     match_str = r"\\d{(\d*),(\d*)}"
     base_regex = r"\d"
@@ -247,6 +251,7 @@ class DigitRegex(BaseRegexClass):
 
 class AlphaNumericRegex(BaseRegexClass):
     """Regex element for repeating alphanumeric character."""
+
     regex_str = r"^\w{1,}"
     match_str = r"\\w{(\d*),(\d*)}"
     base_regex = r"\w"
@@ -265,6 +270,7 @@ class AlphaNumericRegex(BaseRegexClass):
 
 class LettersRegex(BaseRegexClass):
     """Regex element for repeating letters."""
+
     regex_str = r"^[a-zA-Z]{1,}"
     match_str = r"\[a-zA-Z\]{(\d*),(\d*)}"
     base_regex = r"[a-zA-Z]"
@@ -283,6 +289,7 @@ class LettersRegex(BaseRegexClass):
 
 class LowercaseRegex(BaseRegexClass):
     """Regex element for repeating lowercase letters."""
+
     regex_str = r"^[a-z]{1,}"
     match_str = r"\[a-z\]{(\d*),(\d*)}"
     base_regex = r"[a-z]"
@@ -301,6 +308,7 @@ class LowercaseRegex(BaseRegexClass):
 
 class UppercaseRegex(BaseRegexClass):
     """Regex element for repeating uppercase letters."""
+
     regex_str = r"^[A-Z]{1,}"
     match_str = r"\[A-Z\]{(\d*),(\d*)}"
     base_regex = r"[A-Z]"
@@ -325,12 +333,18 @@ class AnyRegex(BaseRegexClass):
 
     Parameters
     ----------
-    min_digit: Minimum number of digits for the regex.
-    max_digit: Maximum number of digits for the regex.
-    extra_char: Extra characters to draw from outside of string.printable.
-    frac_used: Fraction of the values containing the regex.
+    min_digit:
+        Minimum number of digits for the regex.
+    max_digit:
+        Maximum number of digits for the regex.
+    extra_char:
+        Extra characters to draw from outside of string.printable.
+    frac_used:
+        Fraction of the values containing the regex.
     """
-    def __init__(self, min_digit: int, max_digit: int, extra_char: set=None, frac_used=1):  # pylint: disable=super-init-not-called
+
+    def __init__(self, min_digit: int, max_digit: int, extra_char: set[str]=None,
+                 frac_used: float=1.0):  # pylint: disable=super-init-not-called
         self.min_digit = min_digit
         self.max_digit = max_digit
         self.extra_char = set() if extra_char is None else extra_char
@@ -378,6 +392,7 @@ class SingleRegex(BaseRegexElement):
         The selection of characters available. An empty character ''
         is also allowed.
     """
+
     def __init__(self, character_selection, frac_used=1.0):
         self.character_selection = character_selection
         self.frac_used = frac_used
