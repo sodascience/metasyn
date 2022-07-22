@@ -164,16 +164,22 @@ class MetaVar():
 
         # Manually supplied distribution
         fit_kwargs: Dict[str, Any] = {}
-        if isinstance(dist, dict):
-            dist_instance = MetaDistribution.fit(self.series, dist[self.var_type], unique=unique)
+        if dist is None:
+            dist_instance = MetaDistribution.fit(self.series, distribution_tree[self.var_type],
+                                                 unique=unique)
         if isinstance(dist, str):
             dist_class, fit_kwargs = get_dist_class(dist)
             dist_instance = dist_class.fit(self.series, **fit_kwargs)
         elif inspect.isclass(dist) and issubclass(dist, BaseDistribution):
             dist_instance = dist.fit(self.series)
-        if not isinstance(dist_instance, BaseDistribution):
-            raise TypeError(f"Distribution with type {type(dist)} is not a BaseDistribution")
-        self.distribution = dist_instance
+        if isinstance(dist, BaseDistribution):
+            dist_instance = dist
+        # if not isinstance(dist_instance, BaseDistribution):
+        try:
+            self.distribution = dist_instance
+        except UnboundLocalError as exc:
+            raise TypeError(
+                f"Distribution with type {type(dist)} is not a BaseDistribution") from exc
 
     def draw(self) -> Any:
         """Draw a random item for the variable in whatever type is required."""

@@ -90,10 +90,14 @@ class MetaDataset():
         all_vars = []
         for col_name in list(df):
             series = df[col_name]
-            dist = distribution.get(col_name, distribution_tree)
+            dist = distribution.get(col_name, None)
             unq = unique.get(col_name, None)
             var = MetaVar.detect(series)
-            var.fit(dist, unique=unq)
+            print(distribution, dist)
+            if dist is None:
+                var.fit(distribution_tree=distribution_tree, unique=unq)
+            else:
+                var.fit(dist=dist, unique=unq)
 
             all_vars.append(var)
 
