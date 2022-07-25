@@ -474,17 +474,10 @@ def _create_spans_char(values, *characters):
 
 def _find_best_gradient(values, sorted_counts, start_char=None):
     """Find the best gradient by adding one additional character to the set."""
-    # TODO: FIX
-    # def information_budget(n_char):
-        # n_param = n_char + 1
-        # return 2*n_param + 2*np.log(n_char)
-
     if start_char is None:
         start_char = []
     start_energy = RegexOptimizer.energy_from_values(values)
     best_solution = (None, -10.0, None)
-    best_info_budget = 0
-    best_energy_diff = 0
     for character, _char_count in sorted_counts:
         if character in start_char:
             continue
@@ -497,6 +490,4 @@ def _find_best_gradient(values, sorted_counts, start_char=None):
         energy_grad = (start_energy - optimizer.energy)/info_budget
         if energy_grad > best_solution[1]:
             best_solution = (character, energy_grad, optimizer)
-            best_info_budget = info_budget
-            best_energy_diff = start_energy - optimizer.energy
     return best_solution

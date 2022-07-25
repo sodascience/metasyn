@@ -93,7 +93,6 @@ class MetaDataset():
             dist = distribution.get(col_name, None)
             unq = unique.get(col_name, None)
             var = MetaVar.detect(series)
-            print(distribution, dist)
             if dist is None:
                 var.fit(distribution_tree=distribution_tree, unique=unq)
             else:
