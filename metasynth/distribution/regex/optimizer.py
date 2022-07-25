@@ -276,7 +276,7 @@ class RegexOptimizer():
         for i_len, cur_len in enumerate(length):
             digits_used[cur_len] = counts[i_len]
         digits_used[0] = len(self.values)-len(match_lengths)
-        digits_used = digits_used/np.sum(digits_used)
+        # digits_used = digits_used/np.sum(digits_used)
         return {
             "min_len": min_len,
             "max_len": max_len,
