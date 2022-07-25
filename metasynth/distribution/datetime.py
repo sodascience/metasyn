@@ -85,6 +85,12 @@ class UniformTimeDistribution(TimeDistribution, BaseUniformDistribution):
     def _example_distribution(cls):
         return cls("10:39:36.130261", "18:39:36.130261")
 
+    def draw(self):
+        dt_begin = dt.datetime.combine(dt.datetime.today(), self.begin_time)
+        dt_end = dt.datetime.combine(dt.datetime.today(), self.end_time)
+        delta = dt_end-dt_begin + self.minimum_delta
+        return (random()*delta + dt_begin).time()
+
 
 class UniformDateDistribution(DateDistribution, BaseUniformDistribution):
     """Uniform date distribution."""
@@ -100,4 +106,4 @@ class UniformDateDistribution(DateDistribution, BaseUniformDistribution):
 
     @classmethod
     def _example_distribution(cls):
-        return cls("2022-07-15", "2022-07-16")
+        return cls("1903-07-15", "1940-07-16")

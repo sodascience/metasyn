@@ -46,9 +46,11 @@ class MetaDataset():
         return len(self.meta_vars)
 
     @classmethod
-    def from_dataframe(cls, df: pd.DataFrame,
-                       distribution: dict[str, Union[str, BaseDistribution]]=None,
-                       unique: dict[str, bool]=None, privacy_package: str=None):
+    def from_dataframe(cls,
+                       df: pd.DataFrame,
+                       distribution: dict[str, Union[str, BaseDistribution, type]]=None,
+                       unique: dict[str, bool]=None,
+                       privacy_package: str=None):
         """Create dataset from a Pandas dataframe.
 
         The pandas dataframe should be formatted already with the correct
