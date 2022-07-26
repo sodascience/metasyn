@@ -27,11 +27,11 @@ def test_dataset():
     titanic_fp = Path("tests", "data", "titanic.csv")
     tmp_fp = Path("tests", "data", "tmp.json")
     df = pd.read_csv(titanic_fp, dtype=dtypes)
-    dataset = MetaDataset.from_dataframe(df)
+    dataset = MetaDataset.from_dataframe(df.iloc[:100])
 
     def check_dataset(dataset):
         assert dataset.n_columns == 12
-        assert dataset.n_rows == 891
+        assert dataset.n_rows == 100
         sub_types = {
             "int": "discrete",
             "string": "string",
