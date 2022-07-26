@@ -103,3 +103,10 @@ From the dataset it is easy to create a synthetic dataset with e.g. 100 rows:
 .. code-block:: python
 
 	synthetic_df = dataset.synthesize(100)
+
+
+More advanced uses of MetaSynth
+-------------------------------
+
+A more advanced tutorial is available on our `GitHub https://github.com/sodascience/meta-synth/blob/main/examples/advanced tutorial.ipynb`_
+page.

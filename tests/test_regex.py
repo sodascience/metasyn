@@ -11,7 +11,7 @@ from metasynth.distribution.regex.element import SingleRegex,\
 
 
 def test_regex_single_digit():
-    series = pd.Series(["R123", "R827", "R354"])
+    series = pd.Series(["R123", "R837", "R354", "R456", "R578"])
     dist = RegexDistribution.fit(series)
     dist_unique = UniqueRegexDistribution.fit(series)
     print(dist.to_dict(), dist_unique.to_dict())
