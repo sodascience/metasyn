@@ -25,6 +25,7 @@ see the :doc:`quick_start`.
    :hidden:
 
    quick_start
+   developer
    api/metasynth
 
 

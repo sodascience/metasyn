@@ -174,7 +174,6 @@ class MetaVar():
             dist_instance = dist.fit(self.series)
         if isinstance(dist, BaseDistribution):
             dist_instance = dist
-        # if not isinstance(dist_instance, BaseDistribution):
         try:
             self.distribution = dist_instance
         except UnboundLocalError as exc:

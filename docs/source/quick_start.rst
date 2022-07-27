@@ -108,5 +108,6 @@ From the dataset it is easy to create a synthetic dataset with e.g. 100 rows:
 More advanced uses of MetaSynth
 -------------------------------
 
-A more advanced tutorial is available on our `GitHub https://github.com/sodascience/meta-synth/blob/main/examples/advanced tutorial.ipynb`_
+A more advanced tutorial is available on our 
+`GitHub <https://github.com/sodascience/meta-synth/blob/main/examples/advanced tutorial.ipynb`>_
 page.

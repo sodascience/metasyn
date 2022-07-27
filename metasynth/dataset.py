@@ -63,11 +63,18 @@ class MetaDataset():
         distribution:
             A dictionary that has keys that are column names and values that
             denote distributions, either with a string that gives one of their
-            aliases. Or an actually fitted BaseDistribution.
+            aliases. Or an actually fitted BaseDistribution. For example:
+            {"var1": "NormalDistribution", "var2": NormalDistribution,
+            "var3": NormalDistribution(0, 1)}, which are all ways to set a variable
+            to a normal distribution. Note that the first two do not set the parameters
+            of the distribution, while the last does.
         unique:
             A dictionary that allows specific columns to be set to be unique.
             This is only available for the integer and string datatypes. The parameter
-            is ignored when the distribution is set manually.
+            is ignored when the distribution is set manually. For example:
+            {"var1": True, "var2": False}, which sets the first variable always to be unique,
+            while it ensures that for var2, the distribution is not chosen to be unique
+            (obviously while synthesizing they may still by chance be unique).
         privacy_package:
             Package that contains the implementations of the distributions.
 
