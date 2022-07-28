@@ -22,5 +22,10 @@ setup(
         "xmltodict",
         "jsonschema",
         "importlib-resources;python_version<'3.9'"
-    ]
+    ],
+    entry_points={
+        'metasynth.disttree': [
+            "builtin = metasynth.disttree:BuiltinDistributionTree",
+        ]
+    }
 )

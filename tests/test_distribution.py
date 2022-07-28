@@ -1,12 +1,12 @@
 from pytest import mark, raises
 
-from metasynth.distribution.util import get_dist_class
 from metasynth.distribution.categorical import MultinoulliDistribution
 from metasynth.distribution.continuous import UniformDistribution,\
     NormalDistribution
 from metasynth.distribution.faker import FakerDistribution
 from metasynth.distribution.regex import RegexDistribution
 from metasynth.distribution.discrete import DiscreteUniformDistribution
+from metasynth.disttree import get_disttree
 
 
 @mark.parametrize(
@@ -23,10 +23,11 @@ from metasynth.distribution.discrete import DiscreteUniformDistribution
     ]
 )
 def test_util(dist_str, dist):
-    dist_class, _ = get_dist_class(dist_str)
+    dist_tree = get_disttree()
+    dist_class, _ = dist_tree.find_distribution(dist_str)
     assert dist == dist_class
     if dist_str.startswith("faker"):
         with raises(ValueError):
-            get_dist_class("this is not a distribution")
-    new_class, _ = get_dist_class(dist_class.__name__)
+            dist_tree.find_distribution("this is not a distribution")
+    new_class, _ = dist_tree.find_distribution(dist_class.__name__)
     assert new_class == dist_class

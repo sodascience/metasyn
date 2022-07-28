@@ -13,9 +13,9 @@ import pandas as pd
 import jsonschema
 
 from metasynth.var import MetaVar
-from metasynth.distribution.util import _get_all_distributions
 from metasynth._version import get_versions
 from metasynth.distribution.base import BaseDistribution
+from metasynth.disttree import get_disttree
 
 
 class MetaDataset():
@@ -35,7 +35,7 @@ class MetaDataset():
     """
 
     def __init__(self, meta_vars: List[MetaVar], n_rows: int=None,
-                 privacy_package: str="metasynth.distribution"):
+                 privacy_package: str=None):
         self.meta_vars = meta_vars
         self.n_rows = n_rows
         self.privacy_package = privacy_package
@@ -83,12 +83,7 @@ class MetaDataset():
         MetaDataset:
             Initialized MetaSynth dataset.
         """
-        if privacy_package is None:
-            privacy_package = "metasynth.distribution"
-        elif privacy_package == "cbs":
-            privacy_package = "metasynth.privacy.cbs"
-
-        distribution_tree = _get_all_distributions(privacy_package)
+        distribution_tree = get_disttree(privacy_package)
 
         if distribution is None:
             distribution = {}
