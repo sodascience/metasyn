@@ -4,7 +4,7 @@ import json
 import pandas as pd
 import numpy as np
 from metasynth.var import MetaVar
-from metasynth.distribution import CatFreqDistribution, NormalDistribution,\
+from metasynth.distribution import MultinoulliDistribution, NormalDistribution,\
     RegexDistribution
 from metasynth.distribution import DiscreteUniformDistribution
 from metasynth.distribution import UniformDistribution
@@ -75,7 +75,7 @@ def check_var(series, var_type, dist_class):
 
 def test_categorical():
     series = pd.Series(np.random.choice(["a", "b", "c", None], size=100), dtype="category")
-    new_series = check_var(series, "categorical", CatFreqDistribution)
+    new_series = check_var(series, "categorical", MultinoulliDistribution)
     assert set(np.unique(series.dropna())) == set(np.unique(new_series.dropna()))
 
 
@@ -116,7 +116,7 @@ def test_string():
 def test_bool():
     series = pd.Series(np.random.choice([True, False], size=100))
     with raises(ValueError):
-        check_var(series, "categorical", CatFreqDistribution)
+        check_var(series, "categorical", MultinoulliDistribution)
 
 
 def test_dataframe():

@@ -36,14 +36,14 @@
 		"CatFreqDistribution": {
 			"type": "object",
 			"properties": {
-				"name": {"const": "CatFreqDistribution"},
+				"name": {"const": "MultinoulliDistribution"},
 				"parameters": {
 					"type": "object",
 					"properties": {
-						"categories": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
-						"counts": {"type": "array", "items": {"type": "number"}}
+						"labels": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+						"probs": {"type": "array", "items": {"type": "number"}}
 					},
-					"required": ["categories", "counts"]
+					"required": ["labels", "probs"]
 				}
 			}
 		},
