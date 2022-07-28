@@ -5,7 +5,14 @@
 	"properties": {
 		"n_rows": {"type": "number"},
 		"n_columns": {"type": "number"},
-		"privacy": {"type": "object"},
+		"provenance": {
+			"type": "object",
+			"properties": {
+				"created by": {"type": "object"},
+				"creation time": {"type": "string"}
+			},
+			"required": ["created by", "creation time"]
+		},
 		"vars": {
 			"type": "array",
 			"items": {
@@ -20,7 +27,7 @@
                   	}
               	}
 			},
-			"required": ["name", "type", "dtype", "prop_missing", "distribution"]
+			"required": ["name", "type", "dtype", "provenance", "prop_missing", "distribution"]
 		}
 	},
 	"required": ["n_rows", "n_columns", "vars"],

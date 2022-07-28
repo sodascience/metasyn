@@ -1,6 +1,9 @@
 """Variable module that creates metadata variables."""  # pylint: disable=invalid-name
 
+from __future__ import annotations
+
 import inspect
+from typing import Union, Dict, List, Any
 
 import pandas as pd
 import numpy as np
@@ -19,23 +22,33 @@ class MetaVar():
 
     Parameters
     ----------
-    series : pd.Series
+    var_type:
+        Variable type as a string, e.g. continuous, string, etc.
+    series:
         Series to create the variable from. Series is None by default and in
         this case the value is ignored. If it is not supplied, then the
         variable cannot be fit.
-    name : str
+    name:
         Name of the variable/column.
-    distribution : BaseDistribution
+    distribution:
         Distribution to draw random values from. Can also be set by using the
         fit method.
-    prop_missing : float
+    prop_missing:
         Proportion of the series that are missing/NA.
+    dtype:
+        Type of the original values, e.g. int64, float, etc. Used for type-casting
+        back.
     """
 
     dtype = "unknown"
 
-    def __init__(self, var_type, series=None, name=None, distribution=None, prop_missing=0,  # pylint: disable=too-many-arguments
-                 dtype=None):
+    def __init__(self,  # pylint: disable=too-many-arguments
+                 var_type: str,
+                 series: pd.Series=None,
+                 name: str=None,
+                 distribution: BaseDistribution=None,
+                 prop_missing: float=0,
+                 dtype: str=None):
         self.var_type = var_type
         if series is None:
             self.name = name
@@ -91,17 +104,21 @@ class MetaVar():
         except KeyError as exc:
             raise ValueError(f"Unsupported pandas type '{pandas_dtype}") from exc
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         """Create a dictionary from the variable."""
+        if self.distribution is None:
+            dist_dict = {}
+        else:
+            dist_dict = self.distribution.to_dict()
         return {
             "name": self.name,
             "type": self.var_type,
             "dtype": self.dtype,
             "prop_missing": self.prop_missing,
-            "distribution": self.distribution.to_dict(),
+            "distribution": dist_dict,
         }
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Create a readable string from a variable."""
         return str({
             "name": self.name,
@@ -111,7 +128,9 @@ class MetaVar():
             "distribution": str(self.distribution),
         })
 
-    def fit(self, dist=None, unique=None):
+    def fit(self, dist: Union[str, BaseDistribution, type]=None,
+            distribution_tree: Dict[str, List[BaseDistribution]]=None,
+            unique=None):
         """Fit distributions to the data.
 
         If multiple distributions are available for the current data type,
@@ -122,13 +141,16 @@ class MetaVar():
 
         Parameters
         ----------
-        dist: str or class or BaseDistribution, optional
+        dist:
             The distribution to fit. In case of a string, search for it
             using the aliases of all distributions. Otherwise use the
             supplied distribution (class). Examples of allowed strings are:
             "normal", "uniform", "faker.city.nl_NL". If not supplied, fit
             the best available distribution for the variable type.
-        unique: bool, optional
+        distribution_tree:
+            Distribution tree to be used.
+            By default use all distributions in metasynth.distribution.
+        unique:
             Whether the variable should be unique. If not supplied, it will be
             inferred from the data.
         """
@@ -137,23 +159,28 @@ class MetaVar():
                              "original data.")
 
         # Automatic detection of the distribution
-        if dist is None:
-            dist = _get_all_distributions("metasynth.distribution")
+        if distribution_tree is None:
+            distribution_tree = _get_all_distributions("metasynth.distribution")
 
         # Manually supplied distribution
-        fit_kwargs = {}
-        if isinstance(dist, dict):
-            dist = MetaDistribution.fit(self.series, dist[self.var_type], unique=unique)
+        fit_kwargs: Dict[str, Any] = {}
+        if dist is None:
+            dist_instance = MetaDistribution.fit(self.series, distribution_tree[self.var_type],
+                                                 unique=unique)
         if isinstance(dist, str):
-            dist, fit_kwargs = get_dist_class(dist)
-            dist = dist.fit(self.series, **fit_kwargs)
+            dist_class, fit_kwargs = get_dist_class(dist)
+            dist_instance = dist_class.fit(self.series, **fit_kwargs)
         elif inspect.isclass(dist) and issubclass(dist, BaseDistribution):
-            dist = dist.fit(self.series)
-        if not isinstance(dist, BaseDistribution):
-            raise TypeError(f"Distribution with type {type(dist)} is not a BaseDistribution")
-        self.distribution = dist
+            dist_instance = dist.fit(self.series)
+        if isinstance(dist, BaseDistribution):
+            dist_instance = dist
+        try:
+            self.distribution = dist_instance
+        except UnboundLocalError as exc:
+            raise TypeError(
+                f"Distribution with type {type(dist)} is not a BaseDistribution") from exc
 
-    def draw(self):
+    def draw(self) -> Any:
         """Draw a random item for the variable in whatever type is required."""
         if self.distribution is None:
             raise ValueError("Cannot draw without distribution")
@@ -163,12 +190,12 @@ class MetaVar():
             return None
         return self.distribution.draw()
 
-    def draw_series(self, n):
+    def draw_series(self, n: int) -> pd.Series:
         """Draw a new synthetic series from the metadata.
 
         Parameters
         ----------
-        n: int
+        n:
             Length of the series to be created.
 
         Returns
@@ -176,19 +203,18 @@ class MetaVar():
         pandas.Series:
             Pandas series with the synthetic data.
         """
-
         if not isinstance(self.distribution, BaseDistribution):
             raise ValueError("Cannot draw without distribution.")
         self.distribution.draw_reset()
         return pd.Series([self.draw() for _ in range(n)], dtype=self.dtype)
 
     @classmethod
-    def from_dict(cls, var_dict):
+    def from_dict(cls, var_dict: Dict[str, Any]) -> MetaVar:
         """Restore variable from dictionary.
 
         Parameters
         ----------
-        var_dict: dict
+        var_dict:
             This dictionary contains all the variable and distribution
             information to recreate it from scratch.
 

@@ -11,6 +11,7 @@ from metasynth.distribution.base import ScipyDistribution, DateDistribution
 
 class BaseUniformDistribution(ScipyDistribution):
     """Base class for all time/date/datetime uniform distributions."""
+
     def __init__(self, begin_time: Any, end_time: Any):
         if isinstance(begin_time, str):
             begin_time = self.fromisoformat(begin_time)
@@ -45,7 +46,7 @@ class BaseUniformDistribution(ScipyDistribution):
     @property
     @abstractmethod
     def minimum_delta(self) -> dt.timedelta:
-        """Get the minimum time delta"""
+        """Get the minimum time delta."""
 
     def information_criterion(self, values):
         return 0.0
@@ -53,6 +54,7 @@ class BaseUniformDistribution(ScipyDistribution):
 
 class UniformDateTimeDistribution(DateTimeDistribution, BaseUniformDistribution):
     """Uniform DateTime distribution."""
+
     aliases = ["UniformDateTimeDistribution", "datetime_uniform"]
 
     def fromisoformat(self, dt_obj: str) -> dt.datetime:
@@ -69,6 +71,7 @@ class UniformDateTimeDistribution(DateTimeDistribution, BaseUniformDistribution)
 
 class UniformTimeDistribution(TimeDistribution, BaseUniformDistribution):
     """Uniform time distribution."""
+
     aliases = ["UniformTimeDistribution", "time_uniform"]
 
     def fromisoformat(self, dt_obj: str) -> dt.time:
@@ -82,9 +85,16 @@ class UniformTimeDistribution(TimeDistribution, BaseUniformDistribution):
     def _example_distribution(cls):
         return cls("10:39:36.130261", "18:39:36.130261")
 
+    def draw(self):
+        dt_begin = dt.datetime.combine(dt.datetime.today(), self.begin_time)
+        dt_end = dt.datetime.combine(dt.datetime.today(), self.end_time)
+        delta = dt_end-dt_begin + self.minimum_delta
+        return (random()*delta + dt_begin).time()
+
 
 class UniformDateDistribution(DateDistribution, BaseUniformDistribution):
     """Uniform date distribution."""
+
     aliases = ["UniformDateDistribution", "date_uniform"]
 
     def fromisoformat(self, dt_obj: str) -> dt.date:
@@ -96,4 +106,4 @@ class UniformDateDistribution(DateDistribution, BaseUniformDistribution):
 
     @classmethod
     def _example_distribution(cls):
-        return cls("2022-07-15", "2022-07-16")
+        return cls("1903-07-15", "1940-07-16")

@@ -48,8 +48,7 @@ class DiscreteUniformDistribution(ScipyDistribution, DiscreteDistribution):
 
 
 class PoissonDistribution(ScipyDistribution, DiscreteDistribution):
-    """Poisson distribution.
-    """
+    """Poisson distribution."""
 
     aliases = ["PoissonDistribution", "poisson"]
     dist_class = poisson

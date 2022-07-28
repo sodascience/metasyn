@@ -117,7 +117,7 @@ class BaseDistribution(ABC):
 
     @classmethod
     @abstractmethod
-    def _example_distribution(cls):
+    def _example_distribution(cls) -> BaseDistribution:
         return cls()
 
 

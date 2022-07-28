@@ -9,6 +9,7 @@ from metasynth.privacy.cbs.utils import get_cbs_bounds
 
 class CbsUniform(UniformDistribution):
     """Uniform distribution implementation."""
+
     @classmethod
     def _fit(cls, values, n_avg=5):
         return cls(*get_cbs_bounds(values, n_avg))
@@ -24,6 +25,7 @@ class CbsLogNormal(LogNormalDistribution):
 
 class CbsTruncatedNormal(TruncatedNormalDistribution):
     """Truncated normal distribution implementation."""
+
     @classmethod
     def _fit(cls, values, n_avg=5):
         cls._fit_with_bounds(values, *get_cbs_bounds(values, n_avg=n_avg))
