@@ -4,6 +4,8 @@ These are used to find/fit distributions that are available. See setup.py on how
 builtin distribution tree is registered.
 """
 
+from __future__ import annotations
+
 from abc import abstractmethod
 from typing import List, Union
 from typing import Type, Any
