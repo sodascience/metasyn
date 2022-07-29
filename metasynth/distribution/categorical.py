@@ -28,7 +28,7 @@ class MultinoulliDistribution(CategoricalDistribution):
                  probs: npt.NDArray[np.float_]):
         self.labels = labels
         self.probs = probs
-        if (np.sum(self.probs) != 1):
+        if np.sum(self.probs) != 1:
             self.probs = self.probs/np.sum(self.probs)
 
     @classmethod
@@ -55,10 +55,10 @@ class MultinoulliDistribution(CategoricalDistribution):
         else:
             vals = values[~np.isnan(values)]
 
-        ll = 0.0
-        for v in vals:
-            ll += np.log(self.probs[list(self.labels).index(v)])
-        return 2*(len(self.probs) - 1) - 2 * ll
+        log_lik = 0.0
+        for val in vals:
+            log_lik += np.log(self.probs[list(self.labels).index(val)])
+        return 2*(len(self.probs) - 1) - 2 * log_lik
 
     @classmethod
     def _example_distribution(cls):
