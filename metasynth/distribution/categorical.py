@@ -2,6 +2,7 @@
 
 from typing import Sequence, Iterable
 
+import pandas as pd
 import numpy as np
 import numpy.typing as npt
 
@@ -32,8 +33,8 @@ class MultinoulliDistribution(CategoricalDistribution):
 
     @classmethod
     def _fit(cls, values: Sequence[str]):
-        categories, counts = np.unique(values, return_counts=True)
-        return cls(categories.astype(str), counts)
+        labels, counts = np.unique(values, return_counts=True)
+        return cls(labels.astype(str), counts)
 
     def to_dict(self):
         dist_dict = {}
@@ -49,9 +50,14 @@ class MultinoulliDistribution(CategoricalDistribution):
         return str(np.random.choice(self.labels, p=self.probs))
 
     def information_criterion(self, values: Iterable) -> float:
+        if isinstance(values, pd.Series):
+            vals = values.dropna()
+        else:
+            vals = values[~np.isnan(values)]
+
         ll = 0.0
-        for v in values:
-            ll += np.log(self.probs[self.labels.index(v)])
+        for v in vals:
+            ll += np.log(self.probs[list(self.labels).index(v)])
         return 2*(len(self.probs) - 1) - 2 * ll
 
     @classmethod
