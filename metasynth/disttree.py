@@ -32,6 +32,7 @@ class BaseDistributionTree():
 
     It has a property {var_type}_distributions for every var_type.
     """
+
     @property
     @abstractmethod
     def discrete_distributions(self) -> List[Type[BaseDistribution]]:
@@ -75,8 +76,8 @@ class BaseDistributionTree():
         var_type:
             Variable type to get the distributions for.
 
-        Returns:
-        --------
+        Returns
+        -------
         list[Type[BaseDistribution]]:
             List of distributions with that variable type.
         """
@@ -210,6 +211,7 @@ class BaseDistributionTree():
 
 class BuiltinDistributionTree(BaseDistributionTree):
     """Distribution tree that includes the builtin distributions."""
+
     @property
     def discrete_distributions(self) -> List[type]:
         return [DiscreteUniformDistribution, PoissonDistribution, UniqueKeyDistribution]
