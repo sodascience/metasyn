@@ -6,7 +6,7 @@ import pandas as pd
 
 from metasynth.dataset import MetaDataset
 from metasynth.var import MetaVar
-from metasynth.distribution.util import _get_all_distributions
+from metasynth.disttree import get_disttree
 
 
 def test_dataset():
@@ -59,9 +59,9 @@ def test_dataset():
 def test_distributions():
     tmp_fp = Path("tests", "data", "tmp.json")
 
-    all_distributions = _get_all_distributions()
-    for var_type, distributions in all_distributions.items():
-        for dist in distributions:
+    dist_tree = get_disttree()
+    for var_type in dist_tree.all_var_types:
+        for dist in dist_tree.get_dist_list(var_type):
             var = MetaVar(var_type, name="None", distribution=dist._example_distribution(),
                           prop_missing=random())
             dataset = MetaDataset([var], n_rows=10)

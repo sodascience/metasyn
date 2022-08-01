@@ -2,16 +2,13 @@
 
 from __future__ import annotations
 
-import inspect
-from typing import Union, Dict, List, Any
+from typing import Union, Dict, Any
 
 import pandas as pd
 import numpy as np
 
-from metasynth.metadist import MetaDistribution
 from metasynth.distribution.base import BaseDistribution
-from metasynth.distribution.util import get_dist_class
-from metasynth.distribution.util import _get_all_distributions
+from metasynth.disttree import BaseDistributionTree, get_disttree
 
 
 class MetaVar():
@@ -129,7 +126,7 @@ class MetaVar():
         })
 
     def fit(self, dist: Union[str, BaseDistribution, type]=None,
-            distribution_tree: Dict[str, List[BaseDistribution]]=None,
+            distribution_tree: Union[str, type, BaseDistributionTree]="builtin",
             unique=None):
         """Fit distributions to the data.
 
@@ -159,26 +156,13 @@ class MetaVar():
                              "original data.")
 
         # Automatic detection of the distribution
-        if distribution_tree is None:
-            distribution_tree = _get_all_distributions("metasynth.distribution")
+        disttree = get_disttree(distribution_tree)
 
         # Manually supplied distribution
-        fit_kwargs: Dict[str, Any] = {}
         if dist is None:
-            dist_instance = MetaDistribution.fit(self.series, distribution_tree[self.var_type],
-                                                 unique=unique)
-        if isinstance(dist, str):
-            dist_class, fit_kwargs = get_dist_class(dist)
-            dist_instance = dist_class.fit(self.series, **fit_kwargs)
-        elif inspect.isclass(dist) and issubclass(dist, BaseDistribution):
-            dist_instance = dist.fit(self.series)
-        if isinstance(dist, BaseDistribution):
-            dist_instance = dist
-        try:
-            self.distribution = dist_instance
-        except UnboundLocalError as exc:
-            raise TypeError(
-                f"Distribution with type {type(dist)} is not a BaseDistribution") from exc
+            self.distribution = disttree.fit(self.series, self.var_type, unique=unique)
+        else:
+            self.distribution = disttree.fit_distribution(dist, self.series)
 
     def draw(self) -> Any:
         """Draw a random item for the variable in whatever type is required."""
@@ -223,15 +207,10 @@ class MetaVar():
         MetaVar:
             Initialized metadata variable.
         """
-        all_distributions = _get_all_distributions("metasynth.distribution")
-        if var_dict["type"] not in all_distributions:
-            raise ValueError(f"Cannot find variable type '{var_dict['type']}")
-        distributions = all_distributions[var_dict["type"]]
-        for dist_class in distributions:
-            if dist_class.is_named(var_dict["distribution"]["name"]):
-                return cls(
-                    var_dict["type"],
-                    name=var_dict["name"],
-                    distribution=dist_class.from_dict(var_dict["distribution"]),
-                    prop_missing=var_dict["prop_missing"], dtype=var_dict["dtype"])
-        raise ValueError(f"Cannot find meta class '{var_dict['type']}'.")
+        disttree = get_disttree()
+        dist = disttree.from_dict(var_dict)
+        return cls(
+            var_dict["type"],
+            name=var_dict["name"],
+            distribution=dist,
+            prop_missing=var_dict["prop_missing"], dtype=var_dict["dtype"])
