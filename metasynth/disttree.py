@@ -21,7 +21,7 @@ from metasynth.distribution.discrete import DiscreteUniformDistribution,\
     PoissonDistribution, UniqueKeyDistribution
 from metasynth.distribution.continuous import UniformDistribution,\
     NormalDistribution, LogNormalDistribution, TruncatedNormalDistribution
-from metasynth.distribution.categorical import CatFreqDistribution
+from metasynth.distribution.categorical import MultinoulliDistribution
 from metasynth.distribution.regex.base import RegexDistribution,\
     UniqueRegexDistribution
 from metasynth.distribution.faker import FakerDistribution
@@ -225,7 +225,7 @@ class BuiltinDistributionTree(BaseDistributionTree):
 
     @property
     def categorical_distributions(self) -> List[type]:
-        return [CatFreqDistribution]
+        return [MultinoulliDistribution]
 
     @property
     def string_distributions(self) -> List[type]:

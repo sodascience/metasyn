@@ -1,6 +1,6 @@
 """Module containing categorical distributions."""
 
-from typing import Sequence, Iterable
+from typing import Sequence, Union
 
 import pandas as pd
 import numpy as np
@@ -34,7 +34,8 @@ class MultinoulliDistribution(CategoricalDistribution):
     @classmethod
     def _fit(cls, values: Sequence[str]):
         labels, counts = np.unique(values, return_counts=True)
-        return cls(labels.astype(str), counts)
+        probs = counts/np.sum(counts)
+        return cls(labels.astype(str), probs)
 
     def to_dict(self):
         dist_dict = {}
@@ -49,7 +50,7 @@ class MultinoulliDistribution(CategoricalDistribution):
     def draw(self):
         return str(np.random.choice(self.labels, p=self.probs))
 
-    def information_criterion(self, values: Iterable) -> float:
+    def information_criterion(self, values: Union[pd.Series, npt.NDArray[np.str_]]) -> float:
         if isinstance(values, pd.Series):
             vals = values.dropna()
         else:
