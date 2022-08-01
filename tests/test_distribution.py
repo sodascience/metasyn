@@ -1,7 +1,7 @@
 from pytest import mark, raises
 
 from metasynth.distribution.util import get_dist_class
-from metasynth.distribution.categorical import CatFreqDistribution
+from metasynth.distribution.categorical import MultinoulliDistribution
 from metasynth.distribution.continuous import UniformDistribution,\
     NormalDistribution
 from metasynth.distribution.faker import FakerDistribution
@@ -12,7 +12,7 @@ from metasynth.distribution.discrete import DiscreteUniformDistribution
 @mark.parametrize(
     "dist_str,dist",
     [
-        ("cat_freq", CatFreqDistribution),
+        ("categorical", MultinoulliDistribution),
         ("uniform", UniformDistribution),
         ("normal", NormalDistribution),
         ("gaussian", NormalDistribution),
