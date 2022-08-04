@@ -35,6 +35,8 @@ class MetaVar():
     dtype:
         Type of the original values, e.g. int64, float, etc. Used for type-casting
         back.
+    description:
+        Uwer description of the variable.
     """
 
     dtype = "unknown"
@@ -45,7 +47,8 @@ class MetaVar():
                  name: str=None,
                  distribution: BaseDistribution=None,
                  prop_missing: float=0,
-                 dtype: str=None):
+                 dtype: str=None,
+                 description: str="[missing description]"):
         self.var_type = var_type
         if series is None:
             self.name = name
@@ -59,9 +62,10 @@ class MetaVar():
 
         self.series = series
         self.distribution = distribution
+        self.description = description
 
     @classmethod
-    def detect(cls, series_or_dataframe):
+    def detect(cls, series_or_dataframe, description="[missing description]"):
         """Detect variable class(es) of series or dataframe.
 
         Parameters
@@ -82,7 +86,8 @@ class MetaVar():
                     for col in series_or_dataframe]
 
         series = series_or_dataframe
-        return cls(cls.get_var_type(pd.api.types.infer_dtype(series)), series)
+        return cls(cls.get_var_type(pd.api.types.infer_dtype(series)), series,
+                   description=description)
 
     @staticmethod
     def get_var_type(pandas_dtype: str) -> str:
@@ -109,6 +114,7 @@ class MetaVar():
             dist_dict = self.distribution.to_dict()
         return {
             "name": self.name,
+            "description": self.description,
             "type": self.var_type,
             "dtype": self.dtype,
             "prop_missing": self.prop_missing,
@@ -119,6 +125,7 @@ class MetaVar():
         """Create a readable string from a variable."""
         return str({
             "name": self.name,
+            "description": self.description,
             "type": type(self).__name__,
             "dtype": self.dtype,
             "prop_missing": self.prop_missing,

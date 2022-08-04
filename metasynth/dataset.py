@@ -6,7 +6,7 @@ from datetime import datetime
 from importlib.resources import read_text
 import json
 import pathlib
-from typing import Union, List, Dict, Any
+from typing import Union, List, Dict, Any, Sequence
 
 import numpy as np
 import pandas as pd
@@ -14,8 +14,8 @@ import jsonschema
 
 from metasynth.var import MetaVar
 from metasynth._version import get_versions
-from metasynth.distribution.base import BaseDistribution
 from metasynth.disttree import get_disttree
+from copy import deepcopy
 
 
 class MetaDataset():
@@ -48,8 +48,7 @@ class MetaDataset():
     @classmethod
     def from_dataframe(cls,
                        df: pd.DataFrame,
-                       distribution: dict[str, Union[str, BaseDistribution, type]]=None,
-                       unique: dict[str, bool]=None,
+                       spec: dict[str, dict] = None,
                        privacy_package: str=None):
         """Create dataset from a Pandas dataframe.
 
@@ -85,18 +84,27 @@ class MetaDataset():
         """
         distribution_tree = get_disttree(privacy_package)
 
-        if distribution is None:
-            distribution = {}
+        if spec is None:
+            spec = {}
+        else:
+            spec = deepcopy(spec)
 
-        if unique is None:
-            unique = {}
+        # if distribution is None:
+            # distribution = {}
+
+        # if unique is None:
+            # unique = {}
 
         all_vars = []
         for col_name in list(df):
             series = df[col_name]
-            dist = distribution.get(col_name, None)
-            unq = unique.get(col_name, None)
-            var = MetaVar.detect(series)
+            col_spec = spec.get(col_name, {})
+            dist = col_spec.pop("distribution", None)
+            unq = col_spec.pop("unique", None)
+            description = col_spec.pop("description", "[missing description]")
+            if len(col_spec) != 0:
+                raise ValueError(f"Unknown spec items '{col_spec}' for variable '{col_name}'.")
+            var = MetaVar.detect(series, description=description)
             if dist is None:
                 var.fit(distribution_tree=distribution_tree, unique=unq)
             else:
@@ -142,6 +150,23 @@ class MetaDataset():
         for var in self.meta_vars:
             cur_str += "\n"+str(var)+"\n"
         return cur_str
+
+    @property
+    def descriptions(self) -> dict[str, str]:
+        """Return the descriptions of the columns."""
+        return {var.name: var.description for var in self.meta_vars if var.name is not None}
+
+    @descriptions.setter
+    def descriptions(self, new_descriptions: Union[dict[str, str], Sequence[str]]):
+        if isinstance(new_descriptions, dict):
+            for var_name, new_desc in new_descriptions.items():
+                self[var_name].description = new_desc
+        else:
+            assert len(new_descriptions) == self.n_columns, (
+                "Descriptions need to be either a dict or a "
+                "sequence with the length of the number of variables.")
+            for i_desc, new_desc in enumerate(new_descriptions):
+                self[i_desc].description = new_desc
 
     def to_json(self, fp: Union[pathlib.Path, str], validate: bool=True) -> None:
         """Write the MetaSynth dataset to a JSON file.
