@@ -37,6 +37,11 @@ class MultinoulliDistribution(CategoricalDistribution):
         probs = counts/np.sum(counts)
         return cls(labels.astype(str), probs)
 
+    @property
+    def par_dict(self):
+        """Get labels and probabilities as a dictionary."""
+        return dict(zip(self.labels, self.probs))
+
     def to_dict(self):
         dist_dict = {}
         dist_dict["name"] = type(self).__name__
@@ -51,14 +56,14 @@ class MultinoulliDistribution(CategoricalDistribution):
         return str(np.random.choice(self.labels, p=self.probs))
 
     def information_criterion(self, values: Union[pd.Series, npt.NDArray[np.str_]]) -> float:
-        if isinstance(values, pd.Series):
-            vals = values.dropna()
-        else:
-            vals = values[~np.isnan(values)]
-
+        values_array = np.array(values, dtype=str)
+        labels, counts = np.unique(values_array, return_counts=True)
         log_lik = 0.0
-        for val in vals:
-            log_lik += np.log(self.probs[list(self.labels).index(val)])
+        pdict = self.par_dict
+        for lab, count in zip(labels, counts):
+            # account for missing values / missing categories
+            # by setting default of .get to 1 (add log(1)=0 to log_lik)
+            log_lik += count * np.log(pdict.get(lab, 1))
         return 2*(len(self.probs) - 1) - 2 * log_lik
 
     @classmethod
