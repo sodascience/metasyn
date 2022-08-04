@@ -65,7 +65,8 @@ class MetaVar():
         self.description = description
 
     @classmethod
-    def detect(cls, series_or_dataframe, description="[missing description]"):
+    def detect(cls, series_or_dataframe: Union[pd.Series, pd.DataFrame],
+               description: str="[missing description]"):
         """Detect variable class(es) of series or dataframe.
 
         Parameters
@@ -75,6 +76,8 @@ class MetaVar():
             variable type and create an instance of that variable.
             If a Dataframe is supplied instead, a list of of variables is
             returned: one for each column in the dataframe.
+        description:
+            User description of the variable.
 
         Returns
         -------

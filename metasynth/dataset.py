@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
 from datetime import datetime
 from importlib.resources import read_text
 import json
@@ -15,7 +16,6 @@ import jsonschema
 from metasynth.var import MetaVar
 from metasynth._version import get_versions
 from metasynth.disttree import get_disttree
-from copy import deepcopy
 
 
 class MetaDataset():
@@ -59,21 +59,36 @@ class MetaDataset():
         ----------
         df:
             Pandas dataframe with the correct column dtypes.
-        distribution:
-            A dictionary that has keys that are column names and values that
-            denote distributions, either with a string that gives one of their
-            aliases. Or an actually fitted BaseDistribution. For example:
-            {"var1": "NormalDistribution", "var2": NormalDistribution,
-            "var3": NormalDistribution(0, 1)}, which are all ways to set a variable
+        spec:
+            Column specifications to modify the defaults. For each of the columns additional
+            directives can be supplied here. There are 3 different directives currently supported:
+
+            distribution
+
+            Set the distribution, either with a string that gives one of their
+            aliases or an actually fitted BaseDistribution. For example:
+            {"distribution": "NormalDistribution"} which is the same as
+            {"distribution": NormalDistribution} or
+            {"distribution": NormalDistribution(0, 1)}, which are all ways to set a variable
             to a normal distribution. Note that the first two do not set the parameters
             of the distribution, while the last does.
-        unique:
-            A dictionary that allows specific columns to be set to be unique.
+
+            unique
+
+            To set a column to be unique/key.
             This is only available for the integer and string datatypes. The parameter
             is ignored when the distribution is set manually. For example:
-            {"var1": True, "var2": False}, which sets the first variable always to be unique,
-            while it ensures that for var2, the distribution is not chosen to be unique
-            (obviously while synthesizing they may still by chance be unique).
+            {"unique": True}, which sets the variable to be unique or {"unique": False} which
+            forces the variable to be not unique. If the uniqueness is not specified, it is
+            assumed to be not unique, but might give a warning if it is detected that it might
+            be.
+
+            description
+
+            Set the description of a variable: {"description": "Some description."}
+
+            Any number of the above directives may be set for any number of variables.
+
         privacy_package:
             Package that contains the implementations of the distributions.
 
