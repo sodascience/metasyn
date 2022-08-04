@@ -39,7 +39,7 @@ class MultinoulliDistribution(CategoricalDistribution):
 
     @property
     def par_dict(self):
-        """Get labels and probabilities as a dictionary"""
+        """Get labels and probabilities as a dictionary."""
         return dict(zip(self.labels, self.probs))
 
     def to_dict(self):
