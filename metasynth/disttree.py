@@ -155,7 +155,7 @@ class BaseDistributionTree():
         for var_type in self.all_var_types:
             for dist_class in self.get_dist_list(var_type):
                 if dist_class.is_named(dist_name):
-                    return dist_class, {}
+                    return dist_class, dist_class.fit_kwargs(dist_name)
         raise ValueError(f"Cannot find distribution with name '{dist_name}'.")
 
     def fit_distribution(self, dist: Union[str, Type[BaseDistribution], BaseDistribution],
