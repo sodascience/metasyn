@@ -210,9 +210,10 @@
 					"type": "object",
 					"properties": {
 						"begin_time": {"type": "string"},
-						"end_time": {"type": "string"}
+						"end_time": {"type": "string"},
+						"precision": {"type": "string"}
 					},
-					"required": ["begin_time", "end_time"]
+					"required": ["begin_time", "end_time", "precision"]
 				}
 			}
 		},
@@ -238,9 +239,10 @@
 					"type": "object",
 					"properties": {
 						"begin_time": {"type": "string"},
-						"end_time": {"type": "string"}
+						"end_time": {"type": "string"},
+						"precision": {"type": "string"}
 					},
-					"required": ["begin_time", "end_time"]
+					"required": ["begin_time", "end_time", "precision"]
 				}
 			}
 		},

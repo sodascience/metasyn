@@ -12,9 +12,11 @@ from pytest import mark, raises
 from metasynth.dataset import _jsonify
 from metasynth.distribution.discrete import UniqueKeyDistribution
 from metasynth.distribution.regex import UniqueRegexDistribution
+from metasynth.distribution.base import CategoricalDistribution,\
+    DiscreteDistribution, ContinuousDistribution
 
 
-def check_var(series, var_type, dist_class):
+def check_var(series, var_type):
     def check_similar(series_a, series_b):
         assert isinstance(series_a, pd.Series)
         assert isinstance(series_b, pd.Series)
@@ -35,7 +37,8 @@ def check_var(series, var_type, dist_class):
     new_series = var.draw_series(len(series))
     check_similar(series, new_series)
     assert var.var_type == var_type
-    assert isinstance(var.distribution, dist_class)
+    assert var.distribution.var_type == var_type
+    # assert isinstance(var.distribution, dist_class)
 
     new_var = MetaVar.from_dict(var.to_dict())
     with raises(ValueError):
@@ -75,14 +78,14 @@ def check_var(series, var_type, dist_class):
 
 def test_categorical():
     series = pd.Series(np.random.choice(["a", "b", "c", None], size=100), dtype="category")
-    new_series = check_var(series, "categorical", MultinoulliDistribution)
+    new_series = check_var(series, "categorical")
     assert set(np.unique(series.dropna())) == set(np.unique(new_series.dropna()))
 
 
 @mark.parametrize("dtype", ["int8", "int16", "int32", "int64", "int"])
 def test_integer(dtype):
     series = pd.Series([np.random.randint(0, 10) for _ in range(100)], dtype=dtype)
-    new_series = check_var(series, "discrete", DiscreteUniformDistribution)
+    new_series = check_var(series, "discrete")
     assert np.min(new_series) >= 0
     assert np.max(new_series) < 10
 
@@ -91,7 +94,7 @@ def test_integer(dtype):
 def test_nullable_integer(dtype):
     series = pd.Series([np.random.randint(0, 10) if np.random.rand() > 0.5 else None
                         for _ in range(100)], dtype=dtype)
-    new_series = check_var(series, "discrete", DiscreteUniformDistribution)
+    new_series = check_var(series, "discrete")
     assert np.min(new_series) >= 0
     assert np.max(new_series) < 10
 
@@ -99,24 +102,24 @@ def test_nullable_integer(dtype):
 def test_float():
     np.random.seed(3727442)
     series = pd.Series([np.random.rand() for _ in range(10000)])
-    new_series = check_var(series, "continuous", UniformDistribution)
+    new_series = check_var(series, "continuous")
     assert np.min(new_series) > 0
     assert np.max(new_series) < 1
 
     series = pd.Series(np.random.randn(1000))
-    check_var(series, "continuous", NormalDistribution)
+    check_var(series, "continuous")
 
 
 def test_string():
     series = pd.Series(np.random.choice(["a", "b", "c", None], size=100))
-    new_series = check_var(series, "string", RegexDistribution)
+    new_series = check_var(series, "string")
     assert set(np.unique(series.dropna())) == set(np.unique(new_series.dropna()))
 
 
 def test_bool():
     series = pd.Series(np.random.choice([True, False], size=100))
     with raises(ValueError):
-        check_var(series, "categorical", MultinoulliDistribution)
+        check_var(series, "categorical")
 
 
 def test_dataframe():
