@@ -39,10 +39,10 @@ class BaseUniformDistribution(ScipyDistribution):
     def round(self, time_obj: Any) -> Any:
         """Round down any time object with the precision.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         time_obj:
-            Object to round down
+            Object to round down.
 
         Return
         ------
