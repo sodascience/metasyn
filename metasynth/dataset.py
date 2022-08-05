@@ -157,7 +157,7 @@ class MetaDataset():
         """
         self_dict = _jsonify(self.to_dict())
         if validate:
-            schema = json.loads(read_text("metasynth.schema", "metasynth-1_0.json"))
+            schema = json.loads(read_text("metasynth.schema", "generative_metadata_format.json"))
             jsonschema.validate(instance=self_dict, schema=schema)
         with open(fp, "w", encoding="utf-8") as f:
             json.dump(self_dict, f, indent=4)
@@ -182,7 +182,7 @@ class MetaDataset():
             self_dict = json.load(f)
 
         if validate:
-            schema = json.loads(read_text("metasynth.schema", "metasynth-1_0.json"))
+            schema = json.loads(read_text("metasynth.schema", "generative_metadata_format.json"))
             jsonschema.validate(instance=self_dict, schema=schema)
 
         n_rows = self_dict["n_rows"]
