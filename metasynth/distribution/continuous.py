@@ -177,6 +177,9 @@ class ExponentialDistribution(ScipyDistribution, ContinuousDistribution):
 
     @classmethod
     def _fit(cls, values):
+        values = values[values > 0]
+        if len(values) == 0:
+            return cls._example_distribution()
         return cls(expon.fit(values[~np.isnan(values)], floc=0)[1])
 
     @classmethod

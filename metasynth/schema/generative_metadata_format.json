@@ -358,6 +358,19 @@
         }
       }
     },
+    "ExponentialDistribution": {
+        "type": "object",
+        "properties": {
+            "name": {"const": "ExponentialDistribution"},
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "mean": {"type": "number"},
+                },
+                "required": ["mean"]
+            }
+        }
+    },
     "UniformDateTimeDistribution": {
       "type": "object",
       "properties": {
@@ -470,7 +483,8 @@
         },
         {
           "$ref": "#/$defs/TruncatedNormalDistribution"
-        }
+        },
+		{"$ref": "#/$defs/ExponentialDistribution"}
       ]
     },
     "all_dist": {
