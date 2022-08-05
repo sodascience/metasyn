@@ -106,19 +106,13 @@ class MetaDataset():
         else:
             spec = deepcopy(spec)
 
-        # if distribution is None:
-            # distribution = {}
-
-        # if unique is None:
-            # unique = {}
-
         all_vars = []
         for col_name in list(df):
             series = df[col_name]
             col_spec = spec.get(col_name, {})
             dist = col_spec.pop("distribution", None)
             unq = col_spec.pop("unique", None)
-            description = col_spec.pop("description", "[missing description]")
+            description = col_spec.pop("description", None)
             if len(col_spec) != 0:
                 raise ValueError(f"Unknown spec items '{col_spec}' for variable '{col_name}'.")
             var = MetaVar.detect(series, description=description)
@@ -171,7 +165,8 @@ class MetaDataset():
     @property
     def descriptions(self) -> dict[str, str]:
         """Return the descriptions of the columns."""
-        return {var.name: var.description for var in self.meta_vars if var.name is not None}
+        return {var.name: var.description for var in self.meta_vars
+                if var.name is not None and var.description is not None}
 
     @descriptions.setter
     def descriptions(self, new_descriptions: Union[dict[str, str], Sequence[str]]):

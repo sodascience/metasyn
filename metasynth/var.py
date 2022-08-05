@@ -36,7 +36,7 @@ class MetaVar():
         Type of the original values, e.g. int64, float, etc. Used for type-casting
         back.
     description:
-        Uwer description of the variable.
+        User provided description of the variable.
     """
 
     dtype = "unknown"
@@ -48,7 +48,7 @@ class MetaVar():
                  distribution: BaseDistribution=None,
                  prop_missing: float=0,
                  dtype: str=None,
-                 description: str="[missing description]"):
+                 description: str=None):
         self.var_type = var_type
         if series is None:
             self.name = name
@@ -66,7 +66,7 @@ class MetaVar():
 
     @classmethod
     def detect(cls, series_or_dataframe: Union[pd.Series, pd.DataFrame],
-               description: str="[missing description]"):
+               description: str=None):
         """Detect variable class(es) of series or dataframe.
 
         Parameters
@@ -115,14 +115,16 @@ class MetaVar():
             dist_dict = {}
         else:
             dist_dict = self.distribution.to_dict()
-        return {
+        var_dict = {
             "name": self.name,
-            "description": self.description,
             "type": self.var_type,
             "dtype": self.dtype,
             "prop_missing": self.prop_missing,
             "distribution": dist_dict,
         }
+        if self.description is not None:
+            var_dict["description"] = self.description
+        return var_dict
 
     def __str__(self) -> str:
         """Create a readable string from a variable."""
