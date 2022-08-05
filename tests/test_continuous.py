@@ -50,7 +50,7 @@ def test_normal(mean, std_dev):
     ]
 )
 def test_log_normal(mu, sigma):
-    values = stats.lognorm(s=sigma, loc=0, scale=np.exp(mu)).rvs(100)
+    values = stats.lognorm(s=sigma, loc=0, scale=np.exp(mu)).rvs(1000)
     dist = LogNormalDistribution.fit(values)
     dist_uniform = UniformDistribution.fit(values)
     assert dist.information_criterion(values) < dist_uniform.information_criterion(values)
