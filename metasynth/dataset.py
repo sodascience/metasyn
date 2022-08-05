@@ -76,7 +76,7 @@ class MetaDataset():
             unique
 
             To set a column to be unique/key.
-            This is only available for the integer and string datatypes. Setting a variable 
+            This is only available for the integer and string datatypes. Setting a variable
             to unique ensures that the synthetic values generated for this variable are unique.
             This is useful for ID or primary key variables, for example. The parameter...
             is ignored when the distribution is set manually. For example:
