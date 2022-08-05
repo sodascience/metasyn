@@ -14,7 +14,6 @@ Subpackages
    :maxdepth: 1
 
    metasynth.distribution
-   metasynth.privacy
    metasynth.schema
 
 Submodules
@@ -28,10 +27,10 @@ metasynth.dataset module
    :undoc-members:
    :show-inheritance:
 
-metasynth.metadist module
+metasynth.disttree module
 -------------------------
 
-.. automodule:: metasynth.metadist
+.. automodule:: metasynth.disttree
    :members:
    :undoc-members:
    :show-inheritance:

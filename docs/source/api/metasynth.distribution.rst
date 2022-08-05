@@ -60,14 +60,6 @@ metasynth.distribution.faker module
    :undoc-members:
    :show-inheritance:
 
-metasynth.distribution.util module
-----------------------------------
-
-.. automodule:: metasynth.distribution.util
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 Module contents
 ---------------
 
