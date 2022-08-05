@@ -30,13 +30,25 @@ class BaseUniformDistribution(ScipyDistribution):
     @classmethod
     def _fit(cls, values):
         cur_precision = 0
-        for precision in self.precision_possibilities[:-1]:
+        for precision in cls.precision_possibilities[:-1]:
             if not np.all([getattr(d, precision) == 0 for d in values]):
                 break
             cur_precision += 1
         return cls(values.min(), values.max())
 
-    def round(self, time_obj):
+    def round(self, time_obj: Any) -> Any:
+        """Round down any time object with the precision.
+
+        Arguments
+        ---------
+        time_obj:
+            Object to round down
+
+        Return
+        ------
+        obj:
+            Time/date/datetime object rounded down to the measured precision.
+        """
         for prec in self.precision_possibilities:
             if prec == self.precision:
                 break
@@ -110,7 +122,7 @@ class UniformDateDistribution(DateDistribution, BaseUniformDistribution):
     precision_possibilities = ["days"]
 
     def __init__(self, begin_time: Any, end_time: Any):
-        return super().__init__(begin_time, end_time, precision="days")
+        super().__init__(begin_time, end_time, precision="days")
 
     def fromisoformat(self, dt_obj: str) -> dt.date:
         return dt.date.fromisoformat(dt_obj)
