@@ -20,7 +20,8 @@ from metasynth.distribution.base import BaseDistribution
 from metasynth.distribution.discrete import DiscreteUniformDistribution,\
     PoissonDistribution, UniqueKeyDistribution
 from metasynth.distribution.continuous import UniformDistribution,\
-    NormalDistribution, LogNormalDistribution, TruncatedNormalDistribution
+    NormalDistribution, LogNormalDistribution, TruncatedNormalDistribution,\
+    ExponentialDistribution
 from metasynth.distribution.categorical import MultinoulliDistribution
 from metasynth.distribution.regex.base import RegexDistribution,\
     UniqueRegexDistribution
@@ -221,7 +222,7 @@ class BuiltinDistributionTree(BaseDistributionTree):
     @property
     def continuous_distributions(self) -> List[type]:
         return [UniformDistribution, NormalDistribution, LogNormalDistribution,
-                TruncatedNormalDistribution]
+                TruncatedNormalDistribution, ExponentialDistribution]
 
     @property
     def categorical_distributions(self) -> List[type]:

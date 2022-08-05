@@ -3,7 +3,7 @@
 import numpy as np
 from scipy.optimize import minimize
 from scipy.stats import uniform, norm, lognorm, truncnorm
-from scipy.stats._continuous_distns import FitDataError
+from scipy.stats._continuous_distns import FitDataError, expon
 
 from metasynth.distribution.base import ScipyDistribution, ContinuousDistribution
 
@@ -154,3 +154,31 @@ class TruncatedNormalDistribution(ScipyDistribution, ContinuousDistribution):
     @classmethod
     def _example_distribution(cls):
         return cls(0, 1, 0, 1)
+
+
+class ExponentialDistribution(ScipyDistribution, ContinuousDistribution):
+    """Exponential distribution for floating point type.
+
+    This class implements the exponential distribution with the mean as its
+    single parameter.
+
+    Parameters
+    ----------
+    mean: float
+        Mean of the exponential distribution.
+    """
+
+    aliases = ["ExponentialDistribution", "exponential"]
+    dist_class = expon
+
+    def __init__(self, mean: float):
+        self.par = {"mean": mean}
+        self.dist = expon(loc=0, scale=mean)
+
+    @classmethod
+    def _fit(cls, values):
+        return cls(expon.fit(values[~np.isnan(values)], floc=0)[1])
+
+    @classmethod
+    def _example_distribution(cls):
+        return cls(1.0)
