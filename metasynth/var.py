@@ -35,6 +35,8 @@ class MetaVar():
     dtype:
         Type of the original values, e.g. int64, float, etc. Used for type-casting
         back.
+    description:
+        User provided description of the variable.
     """
 
     dtype = "unknown"
@@ -45,7 +47,8 @@ class MetaVar():
                  name: str=None,
                  distribution: BaseDistribution=None,
                  prop_missing: float=0,
-                 dtype: str=None):
+                 dtype: str=None,
+                 description: str=None):
         self.var_type = var_type
         if series is None:
             self.name = name
@@ -59,9 +62,11 @@ class MetaVar():
 
         self.series = series
         self.distribution = distribution
+        self.description = description
 
     @classmethod
-    def detect(cls, series_or_dataframe):
+    def detect(cls, series_or_dataframe: Union[pd.Series, pd.DataFrame],
+               description: str=None):
         """Detect variable class(es) of series or dataframe.
 
         Parameters
@@ -71,6 +76,8 @@ class MetaVar():
             variable type and create an instance of that variable.
             If a Dataframe is supplied instead, a list of of variables is
             returned: one for each column in the dataframe.
+        description:
+            User description of the variable.
 
         Returns
         -------
@@ -82,7 +89,8 @@ class MetaVar():
                     for col in series_or_dataframe]
 
         series = series_or_dataframe
-        return cls(cls.get_var_type(pd.api.types.infer_dtype(series)), series)
+        return cls(cls.get_var_type(pd.api.types.infer_dtype(series)), series,
+                   description=description)
 
     @staticmethod
     def get_var_type(pandas_dtype: str) -> str:
@@ -107,18 +115,22 @@ class MetaVar():
             dist_dict = {}
         else:
             dist_dict = self.distribution.to_dict()
-        return {
+        var_dict = {
             "name": self.name,
             "type": self.var_type,
             "dtype": self.dtype,
             "prop_missing": self.prop_missing,
             "distribution": dist_dict,
         }
+        if self.description is not None:
+            var_dict["description"] = self.description
+        return var_dict
 
     def __str__(self) -> str:
         """Create a readable string from a variable."""
         return str({
             "name": self.name,
+            "description": self.description,
             "type": type(self).__name__,
             "dtype": self.dtype,
             "prop_missing": self.prop_missing,

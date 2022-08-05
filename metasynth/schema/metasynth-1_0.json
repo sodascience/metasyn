@@ -19,6 +19,7 @@
                 "type": "object",
               	"properties": {
            		   	"name": {"type": "string"},
+           		   	"description": {"type": "string"},
                   	"type": {"enum": ["discrete", "continuous", "string", "categorical", "date", "datetime", "time"]},
                   	"dtype": {"type": "string"},
                   	"prop_missing": {"type": "number"},

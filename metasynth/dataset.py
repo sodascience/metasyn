@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
 from datetime import datetime
 from importlib.resources import read_text
 import json
 import pathlib
-from typing import Union, List, Dict, Any
+from typing import Union, List, Dict, Any, Sequence
 
 import numpy as np
 import pandas as pd
@@ -14,7 +15,6 @@ import jsonschema
 
 from metasynth.var import MetaVar
 from metasynth._version import get_versions
-from metasynth.distribution.base import BaseDistribution
 from metasynth.disttree import get_disttree
 
 
@@ -48,8 +48,7 @@ class MetaDataset():
     @classmethod
     def from_dataframe(cls,
                        df: pd.DataFrame,
-                       distribution: dict[str, Union[str, BaseDistribution, type]]=None,
-                       unique: dict[str, bool]=None,
+                       spec: dict[str, dict] = None,
                        privacy_package: str=None):
         """Create dataset from a Pandas dataframe.
 
@@ -60,21 +59,38 @@ class MetaDataset():
         ----------
         df:
             Pandas dataframe with the correct column dtypes.
-        distribution:
-            A dictionary that has keys that are column names and values that
-            denote distributions, either with a string that gives one of their
-            aliases. Or an actually fitted BaseDistribution. For example:
-            {"var1": "NormalDistribution", "var2": NormalDistribution,
-            "var3": NormalDistribution(0, 1)}, which are all ways to set a variable
+        spec:
+            Column specifications to modify the defaults. For each of the columns additional
+            directives can be supplied here. There are 3 different directives currently supported:
+
+            distribution
+
+            Set the distribution, either with a string that gives one of their
+            aliases or an actually fitted BaseDistribution. For example:
+            {"distribution": "NormalDistribution"} which is the same as
+            {"distribution": NormalDistribution} or
+            {"distribution": NormalDistribution(0, 1)}, which are all ways to set a variable
             to a normal distribution. Note that the first two do not set the parameters
             of the distribution, while the last does.
-        unique:
-            A dictionary that allows specific columns to be set to be unique.
-            This is only available for the integer and string datatypes. The parameter
+
+            unique
+
+            To set a column to be unique/key.
+            This is only available for the integer and string datatypes. Setting a variable
+            to unique ensures that the synthetic values generated for this variable are unique.
+            This is useful for ID or primary key variables, for example. The parameter...
             is ignored when the distribution is set manually. For example:
-            {"var1": True, "var2": False}, which sets the first variable always to be unique,
-            while it ensures that for var2, the distribution is not chosen to be unique
-            (obviously while synthesizing they may still by chance be unique).
+            {"unique": True}, which sets the variable to be unique or {"unique": False} which
+            forces the variable to be not unique. If the uniqueness is not specified, it is
+            assumed to be not unique, but might give a warning if it is detected that it might
+            be.
+
+            description
+
+            Set the description of a variable: {"description": "Some description."}
+
+            Any number of the above directives may be set for any number of variables.
+
         privacy_package:
             Package that contains the implementations of the distributions.
 
@@ -85,18 +101,21 @@ class MetaDataset():
         """
         distribution_tree = get_disttree(privacy_package)
 
-        if distribution is None:
-            distribution = {}
-
-        if unique is None:
-            unique = {}
+        if spec is None:
+            spec = {}
+        else:
+            spec = deepcopy(spec)
 
         all_vars = []
         for col_name in list(df):
             series = df[col_name]
-            dist = distribution.get(col_name, None)
-            unq = unique.get(col_name, None)
-            var = MetaVar.detect(series)
+            col_spec = spec.get(col_name, {})
+            dist = col_spec.pop("distribution", None)
+            unq = col_spec.pop("unique", None)
+            description = col_spec.pop("description", None)
+            if len(col_spec) != 0:
+                raise ValueError(f"Unknown spec items '{col_spec}' for variable '{col_name}'.")
+            var = MetaVar.detect(series, description=description)
             if dist is None:
                 var.fit(distribution_tree=distribution_tree, unique=unq)
             else:
@@ -142,6 +161,24 @@ class MetaDataset():
         for var in self.meta_vars:
             cur_str += "\n"+str(var)+"\n"
         return cur_str
+
+    @property
+    def descriptions(self) -> dict[str, str]:
+        """Return the descriptions of the columns."""
+        return {var.name: var.description for var in self.meta_vars
+                if var.name is not None and var.description is not None}
+
+    @descriptions.setter
+    def descriptions(self, new_descriptions: Union[dict[str, str], Sequence[str]]):
+        if isinstance(new_descriptions, dict):
+            for var_name, new_desc in new_descriptions.items():
+                self[var_name].description = new_desc
+        else:
+            assert len(new_descriptions) == self.n_columns, (
+                "Descriptions need to be either a dict or a "
+                "sequence with the length of the number of variables.")
+            for i_desc, new_desc in enumerate(new_descriptions):
+                self[i_desc].description = new_desc
 
     def to_json(self, fp: Union[pathlib.Path, str], validate: bool=True) -> None:
         """Write the MetaSynth dataset to a JSON file.
