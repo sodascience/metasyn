@@ -121,6 +121,9 @@ class BaseDistributionTree():
                           "warning.\n")
         if unique is None:
             unique = False
+        # else:
+        # if dist_instances[i_best_dist].is_
+            # return dist_instances[i_best_dist]
 
         dist_aic = [dist_aic[i] for i in range(len(dist_aic))
                     if dist_instances[i].is_unique == unique]
