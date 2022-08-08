@@ -210,9 +210,9 @@
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "mean": {"type": "number"}
+                        "rate": {"type": "number"}
                     },
-                    "required": ["mean"]
+                    "required": ["rate"]
                 }
             }
         },

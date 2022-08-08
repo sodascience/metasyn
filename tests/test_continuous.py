@@ -79,13 +79,13 @@ def test_trunc_normal(lower_bound, upper_bound, mu, sigma):
 
 
 @mark.parametrize(
-    "mean",
+    "rate",
     [0.1, 10, 100, 234.1234]
 )
-def test_exponential(mean):
-    values = stats.expon(loc=0, scale=mean).rvs(5000)
+def test_exponential(rate):
+    values = stats.expon(loc=0, scale=1/rate).rvs(5000)
     dist = ExponentialDistribution.fit(values)
     dist_uniform = UniformDistribution.fit(values)
     assert dist.information_criterion(values) < dist_uniform.information_criterion(values)
     assert isinstance(dist.draw(), float)
-    assert (dist.mean - mean)/mean < 0.1
+    assert (dist.rate - rate)/rate < 0.1

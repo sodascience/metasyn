@@ -2,8 +2,8 @@
 
 import numpy as np
 from scipy.optimize import minimize
-from scipy.stats import uniform, norm, lognorm, truncnorm
-from scipy.stats._continuous_distns import FitDataError, expon
+from scipy.stats import uniform, norm, lognorm, truncnorm, expon
+from scipy.stats._continuous_distns import FitDataError
 
 from metasynth.distribution.base import ScipyDistribution, ContinuousDistribution
 
@@ -164,16 +164,16 @@ class ExponentialDistribution(ScipyDistribution, ContinuousDistribution):
 
     Parameters
     ----------
-    mean: float
-        Mean of the exponential distribution.
+    rate: float
+        Rate of the exponential distribution. This is equal to 1/mean of the distribution.
     """
 
     aliases = ["ExponentialDistribution", "exponential"]
     dist_class = expon
 
-    def __init__(self, mean: float):
-        self.par = {"mean": mean}
-        self.dist = expon(loc=0, scale=mean)
+    def __init__(self, rate: float):
+        self.par = {"rate": rate}
+        self.dist = expon(loc=0, scale=1/rate)
 
     @classmethod
     def _fit(cls, values):
