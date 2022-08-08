@@ -119,12 +119,15 @@ class BaseDistributionTree():
             warnings.warn(f"\nVariable {series.name} seems unique, but not set to be unique.\n"
                           "Set the variable to be either unique or not unique to remove this "
                           "warning.\n")
-        else:
-            return dist_instances[i_best_dist]
+        if unique is None:
+            unique = False
+        # else:
+        # if dist_instances[i_best_dist].is_
+            # return dist_instances[i_best_dist]
 
         dist_aic = [dist_aic[i] for i in range(len(dist_aic))
-                    if not dist_instances[i].is_unique]
-        dist_instances = [d for d in dist_instances if not d.is_unique]
+                    if dist_instances[i].is_unique == unique]
+        dist_instances = [d for d in dist_instances if d.is_unique == unique]
         if len(dist_instances) == 0:
             raise ValueError(f"No available distributions for variable '{series.name}'"
                              f" with variable type '{var_type}' "

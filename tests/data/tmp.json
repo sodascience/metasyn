@@ -1,1 +1,1 @@
-{"name": null, "description": "[missing description]", "type": "string", "dtype": "object", "prop_missing": 0.18, "distribution": {"name": "RegexDistribution", "parameters": {"re_list": [["[acb]", 1.0]]}}}
+{"name": null, "type": "string", "dtype": "object", "prop_missing": 0.18, "distribution": {"name": "RegexDistribution", "parameters": {"re_list": [["[abc]", 1.0]]}}}
