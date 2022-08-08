@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable, List, Union, Tuple, Type, Sequence, Set
+from typing import List, Union, Tuple, Type, Sequence, Set
 
 import numpy as np
 
@@ -11,13 +11,30 @@ from metasynth.distribution.regex.element import BaseRegexElement
 from metasynth.distribution.regex.element import DigitRegex, AlphaNumericRegex
 from metasynth.distribution.regex.element import LettersRegex, SingleRegex, AnyRegex
 from metasynth.distribution.regex.element import UppercaseRegex, LowercaseRegex
+from metasynth.distribution.regex.optimizer import RegexOptimizer
 
 
-def _get_n_char_removed(values: Iterable[str], new_values: Iterable[str]) -> int:
+def _get_gradient_start(values: Sequence[str], new_values: Sequence[str],
+                        regex_elem: BaseRegexElement) -> float:
     """Get the proportion of the characters that were resolved with the regex."""
-    n_char = np.sum([len(val) for val in values])
-    n_new_char = np.sum([len(val) for val in new_values])
-    return n_char-n_new_char
+    digits_used: List[int] = []
+    for i_val, old_val in enumerate(values):
+        new_val = new_values[i_val]
+        d_len = len(old_val) - len(new_val)
+        if len(digits_used) <= d_len:
+            digits_used += (d_len - len(digits_used) + 1)*[0]
+        digits_used[d_len] += 1
+    regex_stat = {
+        "n_values": len(values),
+        "frac_used": regex_elem.frac_used,
+        "digits_used": digits_used,
+    }
+    old_energy = RegexOptimizer.energy_from_values(values)
+    new_energy = RegexOptimizer.energy_from_values(new_values)
+    energy_budget = regex_elem.information_budget(regex_stat)
+
+    delta_energy = old_energy - new_energy
+    return delta_energy/energy_budget
 
 
 class RegexDistribution(StringDistribution):
@@ -62,7 +79,13 @@ class RegexDistribution(StringDistribution):
         ]
 
     @classmethod
-    def _fit(cls, values):
+    def _fit(cls, values, mode: str="fast"):
+        if mode == "fast":
+            return cls._fit_fast(values)
+        return cls._fit_slow(values)
+
+    @classmethod
+    def _fit_slow(cls, values):
         if np.sum([len(val) for val in values]) == 0:
             return cls([])
 
@@ -80,13 +103,13 @@ class RegexDistribution(StringDistribution):
                 }
         if best_solution is None:
             return cls([])
-        left_fit = cls._fit(best_solution["values"][0])
+        left_fit = cls._fit_slow(best_solution["values"][0])
         middle_fit = cls([best_solution["re"]])
-        right_fit = cls._fit(best_solution["values"][1])
+        right_fit = cls._fit_slow(best_solution["values"][1])
         return left_fit + middle_fit + right_fit
 
     @classmethod
-    def _fit_start(cls, values):
+    def _fit_fast(cls, values):
         n_char = np.sum([len(val) for val in values])
         if n_char == 0:
             return cls([])
@@ -95,20 +118,21 @@ class RegexDistribution(StringDistribution):
 
         # Iterate over all RegexElements and find the best one.
         for re_class in regex_classes:
-            new_values, regexer = re_class.fit(list(values))
-            n_char_removed = _get_n_char_removed(values, new_values)
-            cur_ic = regexer.information_criterion(n_char_removed)
+            new_values, regexer = re_class.fit_start(list(values))
+            # n_char_removed = _get_n_char_removed(values, new_values)
+            # cur_ic = regexer.information_criterion(n_char_removed)
             # if cur_ic > 1.5:
             # continue
-            if best_solution is None or cur_ic < best_solution["ic"]:
+            gradient = _get_gradient_start(values, new_values, regexer)
+            if best_solution is None or gradient > best_solution["gradient"]:
                 best_solution = {
-                    "ic": cur_ic,
+                    "gradient": gradient,
                     "re": regexer,
                     "values": new_values,
                 }
         if best_solution is None:
             return cls([])
-        return cls([best_solution["re"]]) + cls._fit(best_solution["values"])
+        return cls([best_solution["re"]]) + cls._fit_fast(best_solution["values"])
 
     def __add__(self, other: RegexDistribution) -> RegexDistribution:
         return self.__class__(self.re_list + other.re_list)

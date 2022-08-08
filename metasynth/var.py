@@ -139,7 +139,7 @@ class MetaVar():
 
     def fit(self, dist: Union[str, BaseDistribution, type]=None,
             distribution_tree: Union[str, type, BaseDistributionTree]="builtin",
-            unique=None):
+            unique=None, **fit_kwargs):
         """Fit distributions to the data.
 
         If multiple distributions are available for the current data type,
@@ -172,9 +172,10 @@ class MetaVar():
 
         # Manually supplied distribution
         if dist is None:
-            self.distribution = disttree.fit(self.series, self.var_type, unique=unique)
+            self.distribution = disttree.fit(self.series, self.var_type, unique=unique,
+                                             **fit_kwargs)
         else:
-            self.distribution = disttree.fit_distribution(dist, self.series)
+            self.distribution = disttree.fit_distribution(dist, self.series, **fit_kwargs)
 
     def draw(self) -> Any:
         """Draw a random item for the variable in whatever type is required."""

@@ -89,6 +89,13 @@ class MetaDataset():
 
             Set the description of a variable: {"description": "Some description."}
 
+            fit_kwargs
+
+            Some distributions such as the FakerDistribution and RegexDistribution can take
+            extra fitting arguments. For example for the RegexDistribution one can set the
+            the speed of the computation by {"mode": "fast"} or {"mode": "slow"}. Be sure to set
+            the distribution as well.
+
             Any number of the above directives may be set for any number of variables.
 
         privacy_package:
@@ -113,13 +120,18 @@ class MetaDataset():
             dist = col_spec.pop("distribution", None)
             unq = col_spec.pop("unique", None)
             description = col_spec.pop("description", None)
+            fit_kwargs = col_spec.pop("fit_kwargs", {})
+            assert "fit_kwargs" not in col_spec
+            if dist is None and len(fit_kwargs) > 0:
+                raise ValueError(f"Got fit arguments for variable '{col_name}', but no "
+                                 "distribution. Set the distribution manually to fix.")
             if len(col_spec) != 0:
                 raise ValueError(f"Unknown spec items '{col_spec}' for variable '{col_name}'.")
             var = MetaVar.detect(series, description=description)
             if dist is None:
-                var.fit(distribution_tree=distribution_tree, unique=unq)
+                var.fit(distribution_tree=distribution_tree, unique=unq, **fit_kwargs)
             else:
-                var.fit(dist=dist, unique=unq)
+                var.fit(dist=dist, unique=unq, **fit_kwargs)
 
             all_vars.append(var)
 
