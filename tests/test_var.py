@@ -4,19 +4,16 @@ import json
 import pandas as pd
 import numpy as np
 from metasynth.var import MetaVar
-from metasynth.distribution import MultinoulliDistribution, NormalDistribution,\
-    RegexDistribution
+from metasynth.distribution import NormalDistribution, RegexDistribution
 from metasynth.distribution import DiscreteUniformDistribution
 from metasynth.distribution import UniformDistribution
 from pytest import mark, raises
 from metasynth.dataset import _jsonify
 from metasynth.distribution.discrete import UniqueKeyDistribution
 from metasynth.distribution.regex import UniqueRegexDistribution
-from metasynth.distribution.base import CategoricalDistribution,\
-    DiscreteDistribution, ContinuousDistribution
 
 
-def check_var(series, var_type):
+def check_var(series, var_type, temp_path):
     def check_similar(series_a, series_b):
         assert isinstance(series_a, pd.Series)
         assert isinstance(series_b, pd.Series)
@@ -61,7 +58,7 @@ def check_var(series, var_type):
     assert new_var.var_type == var_type
 
     # Write to JSON file and read it back
-    tmp_fp = Path("tests", "data", "tmp.json")
+    tmp_fp = temp_path / "tmp.json"
     with open(tmp_fp, "w") as f:
         json.dump(_jsonify(var.to_dict()), f)
 
@@ -76,50 +73,50 @@ def check_var(series, var_type):
     return new_series
 
 
-def test_categorical():
+def test_categorical(tmp_path):
     series = pd.Series(np.random.choice(["a", "b", "c", None], size=100), dtype="category")
-    new_series = check_var(series, "categorical")
+    new_series = check_var(series, "categorical", tmp_path)
     assert set(np.unique(series.dropna())) == set(np.unique(new_series.dropna()))
 
 
 @mark.parametrize("dtype", ["int8", "int16", "int32", "int64", "int"])
-def test_integer(dtype):
+def test_integer(dtype, tmp_path):
     series = pd.Series([np.random.randint(0, 10) for _ in range(100)], dtype=dtype)
-    new_series = check_var(series, "discrete")
+    new_series = check_var(series, "discrete", tmp_path)
     assert np.min(new_series) >= 0
     assert np.max(new_series) < 10
 
 
 @mark.parametrize("dtype", ["Int8", "Int16", "Int32", "Int64"])
-def test_nullable_integer(dtype):
+def test_nullable_integer(dtype, tmp_path):
     series = pd.Series([np.random.randint(0, 10) if np.random.rand() > 0.5 else None
                         for _ in range(100)], dtype=dtype)
-    new_series = check_var(series, "discrete")
+    new_series = check_var(series, "discrete", tmp_path)
     assert np.min(new_series) >= 0
     assert np.max(new_series) < 10
 
 
-def test_float():
+def test_float(tmp_path):
     np.random.seed(3727442)
     series = pd.Series([np.random.rand() for _ in range(10000)])
-    new_series = check_var(series, "continuous")
+    new_series = check_var(series, "continuous", tmp_path)
     assert np.min(new_series) > 0
     assert np.max(new_series) < 1
 
     series = pd.Series(np.random.randn(1000))
-    check_var(series, "continuous")
+    check_var(series, "continuous", tmp_path)
 
 
-def test_string():
+def test_string(tmp_path):
     series = pd.Series(np.random.choice(["a", "b", "c", None], size=100))
-    new_series = check_var(series, "string")
+    new_series = check_var(series, "string", tmp_path)
     assert set(np.unique(series.dropna())) == set(np.unique(new_series.dropna()))
 
 
-def test_bool():
+def test_bool(tmp_path):
     series = pd.Series(np.random.choice([True, False], size=100))
     with raises(ValueError):
-        check_var(series, "categorical")
+        check_var(series, "categorical", tmp_path)
 
 
 def test_dataframe():

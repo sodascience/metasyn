@@ -9,7 +9,7 @@ from metasynth.var import MetaVar
 from metasynth.disttree import get_disttree
 
 
-def test_dataset():
+def test_dataset(tmp_path):
     dtypes = {
         "PassengerId": "int",
         "Survived": "category",
@@ -25,7 +25,7 @@ def test_dataset():
         "Fare": "float",
     }
     titanic_fp = Path("tests", "data", "titanic.csv")
-    tmp_fp = Path("tests", "data", "tmp.json")
+    tmp_fp = tmp_path / "tmp.json"
     df = pd.read_csv(titanic_fp, dtype=dtypes)
     dataset = MetaDataset.from_dataframe(df.iloc[:100])
 
@@ -56,8 +56,8 @@ def test_dataset():
     check_dataset(dataset)
 
 
-def test_distributions():
-    tmp_fp = Path("tests", "data", "tmp.json")
+def test_distributions(tmp_path):
+    tmp_fp = tmp_path / "tmp.json"
 
     dist_tree = get_disttree()
     for var_type in dist_tree.all_var_types:
