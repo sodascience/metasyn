@@ -354,6 +354,11 @@ class AnyRegex(BaseRegexClass):
         self.all_char_set = set(self.all_char)
 
     @classmethod
+    def fit_start(cls, values: Sequence[str]) -> Tuple[Iterable[str], BaseRegexElement]:
+        new_values, _, regex = cls.fit(values)
+        return new_values[1], regex
+
+    @classmethod
     def all_spans(cls, values: Sequence[str]) -> Sequence[Sequence[Tuple[int, int]]]:
         return [[(0, len(v))] if len(v) > 0 else [] for v in values]
 

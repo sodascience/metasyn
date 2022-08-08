@@ -119,12 +119,12 @@ class BaseDistributionTree():
             warnings.warn(f"\nVariable {series.name} seems unique, but not set to be unique.\n"
                           "Set the variable to be either unique or not unique to remove this "
                           "warning.\n")
-        if unique is None:
+        else:
             return dist_instances[i_best_dist]
 
         dist_aic = [dist_aic[i] for i in range(len(dist_aic))
-                    if dist_instances[i].is_unique == unique]
-        dist_instances = [d for d in dist_instances if d.is_unique == unique]
+                    if not dist_instances[i].is_unique]
+        dist_instances = [d for d in dist_instances if not d.is_unique]
         if len(dist_instances) == 0:
             raise ValueError(f"No available distributions for variable '{series.name}'"
                              f" with variable type '{var_type}' "
@@ -160,7 +160,7 @@ class BaseDistributionTree():
         raise ValueError(f"Cannot find distribution with name '{dist_name}'.")
 
     def fit_distribution(self, dist: Union[str, Type[BaseDistribution], BaseDistribution],
-                         series: pd.Series) -> BaseDistribution:
+                         series: pd.Series, **fit_kwargs) -> BaseDistribution:
         """Fit a specific distribution to a series.
 
         In contrast the fit method, this needs a supplied distribution(type).
@@ -171,6 +171,8 @@ class BaseDistributionTree():
             Distribution to fit (if it is not already fitted).
         series:
             Series to fit the distribution to
+        fit_kwargs:
+            Extra fitting parameters that are specific to the distribution.
 
         Returns
         -------
@@ -179,10 +181,11 @@ class BaseDistributionTree():
         """
         dist_instance = None
         if isinstance(dist, str):
-            dist_class, fit_kwargs = self.find_distribution(dist)
+            dist_class, new_fit_kwargs = self.find_distribution(dist)
+            fit_kwargs.update(new_fit_kwargs)
             dist_instance = dist_class.fit(series, **fit_kwargs)
         elif inspect.isclass(dist) and issubclass(dist, BaseDistribution):
-            dist_instance = dist.fit(series)
+            dist_instance = dist.fit(series, **fit_kwargs)
         if isinstance(dist, BaseDistribution):
             dist_instance = dist
 
