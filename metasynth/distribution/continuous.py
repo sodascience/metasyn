@@ -159,7 +159,7 @@ class TruncatedNormalDistribution(ScipyDistribution, ContinuousDistribution):
 class ExponentialDistribution(ScipyDistribution, ContinuousDistribution):
     """Exponential distribution for floating point type.
 
-    This class implements the exponential distribution with the mean as its
+    This class implements the exponential distribution with the rate as its
     single parameter.
 
     Parameters
