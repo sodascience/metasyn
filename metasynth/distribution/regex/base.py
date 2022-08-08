@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable, List, Union, Tuple, Type, Sequence, Set
+from typing import List, Union, Tuple, Type, Sequence, Set
 
 import numpy as np
 
@@ -17,7 +17,6 @@ from metasynth.distribution.regex.optimizer import RegexOptimizer
 def _get_gradient_start(values: Sequence[str], new_values: Sequence[str],
                         regex_elem: BaseRegexElement) -> float:
     """Get the proportion of the characters that were resolved with the regex."""
-
     digits_used: List[int] = []
     for i_val, old_val in enumerate(values):
         new_val = new_values[i_val]
