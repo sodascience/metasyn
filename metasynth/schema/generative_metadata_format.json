@@ -1,491 +1,283 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "http://sodascience.github.io/generative_metadata_format/core/1.0.0/generative_metadata_format",
-  "type": "object",
-  "properties": {
-    "n_rows": {
-      "type": "number"
-    },
-    "n_columns": {
-      "type": "number"
-    },
-    "provenance": {
-      "type": "object",
-      "properties": {
-        "created by": {
-          "type": "object"
-        },
-        "creation time": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "created by",
-        "creation time"
-      ]
-    },
-    "vars": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
-          },
-          "type": {
-            "enum": [
-              "discrete",
-              "continuous",
-              "string",
-              "categorical",
-              "date",
-              "datetime",
-              "time"
-            ]
-          },
-          "dtype": {
-            "type": "string"
-          },
-          "prop_missing": {
-            "type": "number"
-          },
-          "distribution": {
-            "$ref": "#/$defs/all_dist_def"
-          }
-        }
-      },
-      "required": [
-        "name",
-        "type",
-        "dtype",
-        "provenance",
-        "prop_missing",
-        "distribution"
-      ]
-    }
-  },
-  "required": [
-    "n_rows",
-    "n_columns",
-    "vars"
-  ],
-  "$defs": {
-    "CatFreqDistribution": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "const": "MultinoulliDistribution"
-        },
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "labels": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "uniqueItems": true
-            },
-            "probs": {
-              "type": "array",
-              "items": {
-                "type": "number"
-              }
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "http://sodascience.github.io/generative_metadata_format/core/1.0.0/generative_metadata_format",
+	"type": "object",
+	"properties": {
+		"n_rows": {"type": "number"},
+		"n_columns": {"type": "number"},
+		"provenance": {
+			"type": "object",
+			"properties": {
+				"created by": {"type": "object"},
+				"creation time": {"type": "string"}
+			},
+			"required": ["created by", "creation time"]
+		},
+		"vars": {
+			"type": "array",
+			"items": {
+                "type": "object",
+              	"properties": {
+           		   	"name": {"type": "string"},
+           		   	"description": {"type": "string"},
+                  	"type": {"enum": ["discrete", "continuous", "string", "categorical", "date", "datetime", "time"]},
+                  	"dtype": {"type": "string"},
+                  	"prop_missing": {"type": "number"},
+                  	"distribution": {
+                 		"$ref": "#/$defs/all_dist_def"
+                  	}
+              	}
+			},
+			"required": ["name", "type", "dtype", "provenance", "prop_missing", "distribution"]
+		}
+	},
+	"required": ["n_rows", "n_columns", "vars"],
+
+	"$defs": {
+		"MultinoulliDistribution": {
+			"type": "object",
+			"properties": {
+				"name": {"const": "MultinoulliDistribution"},
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"labels": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+						"probs": {"type": "array", "items": {"type": "number"}}
+					},
+					"required": ["labels", "probs"]
+				}
+			}
+		},
+        "RegexDistribution": {
+            "type": "object",
+            "properties": {
+                "name": {"const": "RegexDistribution"},
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "re_list": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "prefixItems": [{"type": "string"}, {"type": "number"}],
+                                "minItems": 2,
+                                "additionalItems": false
+                            }
+                        }
+                    },
+                    "required": ["re_list"]
+                }
             }
-          },
-          "required": [
-            "labels",
-            "probs"
-          ]
-        }
-      }
-    },
-    "RegexDistribution": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "const": "RegexDistribution"
         },
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "re_list": {
-              "type": "array",
-              "items": {
-                "type": "array",
-                "prefixItems": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "number"
-                  }
-                ],
-                "minItems": 2,
-                "additionalItems": false
-              }
+        "UniqueRegexDistribution": {
+            "type": "object",
+            "properties": {
+                "name": {"const": "UniqueRegexDistribution"},
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "re_list": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "prefixItems": [{"type": "string"}, {"type": "number"}],
+                                "minItems": 2,
+                                "additionalItems": false
+                            }
+                        }
+                    },
+                    "required": ["re_list"]
+                }
             }
-          },
-          "required": [
-            "re_list"
-          ]
-        }
-      }
-    },
-    "UniqueRegexDistribution": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "const": "UniqueRegexDistribution"
         },
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "re_list": {
-              "type": "array",
-              "items": {
-                "type": "array",
-                "prefixItems": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "number"
-                  }
-                ],
-                "minItems": 2,
-                "additionalItems": false
-              }
+        "FakerDistribution": {
+            "type": "object",
+            "properties": {
+                "name": {"const": "FakerDistribution"},
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "faker_type": {"type": "string"},
+                        "locale": {"type": "string"}
+                    },
+                    "required": ["faker_type", "locale"]
+                }
             }
-          },
-          "required": [
-            "re_list"
-          ]
-        }
-      }
-    },
-    "FakerDistribution": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "const": "FakerDistribution"
         },
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "faker_type": {
-              "type": "string"
-            },
-            "locale": {
-              "type": "string"
+		"UniqueKeyDistribution": {
+			"type": "object",
+			"properties": {
+				"name": {"const": "UniqueKeyDistribution"},
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"low": {"type": "integer"},
+						"consecutive": {"enum": [0, 1]}
+					},
+					"required": ["low", "consecutive"]
+				}
+			}
+		},
+        "DiscreteUniformDistribution": {
+            "type": "object",
+            "properties": {
+                "name": {"const": "DiscreteUniformDistribution"},
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "low": {"type": "integer"},
+                        "high": {"type": "integer"}
+                    },
+                    "required": ["low", "high"]
+                }
             }
-          },
-          "required": [
-            "faker_type",
-            "locale"
-          ]
-        }
-      }
-    },
-    "UniqueKeyDistribution": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "const": "UniqueKeyDistribution"
         },
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "low": {
-              "type": "integer"
-            },
-            "consecutive": {
-              "enum": [
-                0,
-                1
-              ]
+        "PoissonDistribution": {
+            "type": "object",
+            "properties": {
+                "name": {"const": "PoissonDistribution"},
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "mu": {"type": "number"}
+                    },
+                    "required": ["mu"]
+                }
             }
-          },
-          "required": [
-            "low",
-            "consecutive"
-          ]
-        }
-      }
-    },
-    "DiscreteUniformDistribution": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "const": "DiscreteUniformDistribution"
         },
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "low": {
-              "type": "integer"
-            },
-            "high": {
-              "type": "integer"
+        "UniformDistribution": {
+            "type": "object",
+            "properties": {
+                "name": {"const": "UniformDistribution"},
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "min_val": {"type": "number"},
+                        "max_val": {"type": "number"}
+                    },
+                    "required": ["min_val", "max_val"]
+                }
             }
-          },
-          "required": [
-            "low",
-            "high"
-          ]
-        }
-      }
-    },
-    "PoissonDistribution": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "const": "PoissonDistribution"
         },
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "mu": {
-              "type": "number"
+        "NormalDistribution": {
+            "type": "object",
+            "properties": {
+                "name": {"const": "NormalDistribution"},
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "mean": {"type": "number"},
+                        "std_dev": {"type": "number"}
+                    },
+                    "required": ["mean", "std_dev"]
+                }
             }
-          },
-          "required": [
-            "mu"
-          ]
-        }
-      }
-    },
-    "UniformDistribution": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "const": "UniformDistribution"
         },
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "min_val": {
-              "type": "number"
-            },
-            "max_val": {
-              "type": "number"
+        "LogNormalDistribution": {
+            "type": "object",
+            "properties": {
+                "name": {"const": "LogNormalDistribution"},
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "mu": {"type": "number"},
+                        "sigma": {"type": "number"}
+                    },
+                    "required": ["mu", "sigma"]
+                }
             }
-          },
-          "required": [
-            "min_val",
-            "max_val"
-          ]
-        }
-      }
-    },
-    "NormalDistribution": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "const": "NormalDistribution"
         },
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "mean": {
-              "type": "number"
-            },
-            "std_dev": {
-              "type": "number"
+		"TruncatedNormalDistribution": {
+			"type": "object",
+			"properties": {
+				"name": {"const": "TruncatedNormalDistribution"},
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"lower_bound": {"type": "number"},
+						"upper_bound": {"type": "number"},
+						"mu": {"type": "number"},
+						"sigma": {"type": "number"}
+					},
+					"required": ["lower_bound", "upper_bound", "mu", "sigma"]
+				}
+			}
+		},
+        "ExponentialDistribution": {
+            "type": "object",
+            "properties": {
+                "name": {"const": "ExponentialDistribution"},
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "rate": {"type": "number"}
+                    },
+                    "required": ["rate"]
+                }
             }
-          },
-          "required": [
-            "mean",
-            "std_dev"
-          ]
-        }
-      }
-    },
-    "LogNormalDistribution": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "const": "LogNormalDistribution"
         },
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "mu": {
-              "type": "number"
-            },
-            "sigma": {
-              "type": "number"
-            }
-          },
-          "required": [
-            "mu",
-            "sigma"
-          ]
-        }
-      }
-    },
-    "TruncatedNormalDistribution": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "const": "TruncatedNormalDistribution"
-        },
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "lower_bound": {
-              "type": "number"
-            },
-            "upper_bound": {
-              "type": "number"
-            },
-            "mu": {
-              "type": "number"
-            },
-            "sigma": {
-              "type": "number"
-            }
-          },
-          "required": [
-            "lower_bound",
-            "upper_bound",
-            "mu",
-            "sigma"
-          ]
-        }
-      }
-    },
-    "UniformDateTimeDistribution": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "const": "UniformDateTimeDistribution"
-        },
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "begin_time": {
-              "type": "string"
-            },
-            "end_time": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "begin_time",
-            "end_time"
-          ]
-        }
-      }
-    },
-    "UniformDateDistribution": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "const": "UniformDateDistribution"
-        },
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "begin_time": {
-              "type": "string"
-            },
-            "end_time": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "begin_time",
-            "end_time"
-          ]
-        }
-      }
-    },
-    "UniformTimeDistribution": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "const": "UniformTimeDistribution"
-        },
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "begin_time": {
-              "type": "string"
-            },
-            "end_time": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "begin_time",
-            "end_time"
-          ]
-        }
-      }
-    },
-    "all_dist_def": {
-      "anyOf": [
-        {
-          "$ref": "#/$defs/CatFreqDistribution"
-        },
-        {
-          "$ref": "#/$defs/RegexDistribution"
-        },
-        {
-          "$ref": "#/$defs/UniqueRegexDistribution"
-        },
-        {
-          "$ref": "#/$defs/FakerDistribution"
-        },
-        {
-          "$ref": "#/$defs/LogNormalDistribution"
-        },
-        {
-          "$ref": "#/$defs/NormalDistribution"
-        },
-        {
-          "$ref": "#/$defs/UniformDistribution"
-        },
-        {
-          "$ref": "#/$defs/DiscreteUniformDistribution"
-        },
-        {
-          "$ref": "#/$defs/PoissonDistribution"
-        },
-        {
-          "$ref": "#/$defs/UniqueKeyDistribution"
-        },
-        {
-          "$ref": "#/$defs/UniformDateDistribution"
-        },
-        {
-          "$ref": "#/$defs/UniformTimeDistribution"
-        },
-        {
-          "$ref": "#/$defs/UniformDateTimeDistribution"
-        },
-        {
-          "$ref": "#/$defs/TruncatedNormalDistribution"
-        }
-      ]
-    },
-    "all_dist": {
-      "enum": [
-        "CatFreqDistribution",
-        "UniformDistribution",
-        "NormalDistribution",
-        "LogNormalDistribution",
-        "TruncatedNormalDistribution",
-        "DiscreteUniformDistribution",
-        "PoissonDistribution",
-        "UniqueKeyDistribution",
-        "FakerDistribution",
-        "RegexDistribution"
-      ]
-    }
-  }
+		"UniformDateTimeDistribution": {
+			"type": "object",
+			"properties": {
+				"name": {"const": "UniformDateTimeDistribution"},
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"begin_time": {"type": "string"},
+						"end_time": {"type": "string"},
+						"precision": {"type": "string"}
+					},
+					"required": ["begin_time", "end_time", "precision"]
+				}
+			}
+		},
+		"UniformDateDistribution": {
+			"type": "object",
+			"properties": {
+				"name": {"const": "UniformDateDistribution"},
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"begin_time": {"type": "string"},
+						"end_time": {"type": "string"}
+					},
+					"required": ["begin_time", "end_time"]
+				}
+			}
+		},
+		"UniformTimeDistribution": {
+			"type": "object",
+			"properties": {
+				"name": {"const": "UniformTimeDistribution"},
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"begin_time": {"type": "string"},
+						"end_time": {"type": "string"},
+						"precision": {"type": "string"}
+					},
+					"required": ["begin_time", "end_time", "precision"]
+				}
+			}
+		},
+		"all_dist_def": {
+			"anyOf": [
+				{"$ref": "#/$defs/MultinoulliDistribution"},
+				{"$ref": "#/$defs/RegexDistribution"},
+				{"$ref": "#/$defs/UniqueRegexDistribution"},
+				{"$ref": "#/$defs/FakerDistribution"},
+				{"$ref": "#/$defs/LogNormalDistribution"},
+				{"$ref": "#/$defs/NormalDistribution"},
+				{"$ref": "#/$defs/UniformDistribution"},
+				{"$ref": "#/$defs/DiscreteUniformDistribution"},
+				{"$ref": "#/$defs/PoissonDistribution"},
+				{"$ref": "#/$defs/UniqueKeyDistribution"},
+				{"$ref": "#/$defs/UniformDateDistribution"},
+				{"$ref": "#/$defs/UniformTimeDistribution"},
+				{"$ref": "#/$defs/UniformDateTimeDistribution"},
+				{"$ref": "#/$defs/TruncatedNormalDistribution"},
+				{"$ref": "#/$defs/ExponentialDistribution"}
+			]
+		}
+	}
 }

@@ -1,7 +1,8 @@
 import numpy as np
 from scipy import stats
 from metasynth.distribution.continuous import UniformDistribution,\
-    NormalDistribution, LogNormalDistribution, TruncatedNormalDistribution
+    NormalDistribution, LogNormalDistribution, TruncatedNormalDistribution,\
+    ExponentialDistribution
 from pytest import mark
 
 
@@ -75,3 +76,16 @@ def test_trunc_normal(lower_bound, upper_bound, mu, sigma):
     dist_uniform = UniformDistribution.fit(values)
     assert dist.information_criterion(values) < dist_uniform.information_criterion(values)
     assert isinstance(dist.draw(), float)
+
+
+@mark.parametrize(
+    "rate",
+    [0.1, 10, 100, 234.1234]
+)
+def test_exponential(rate):
+    values = stats.expon(loc=0, scale=1/rate).rvs(5000)
+    dist = ExponentialDistribution.fit(values)
+    dist_uniform = UniformDistribution.fit(values)
+    assert dist.information_criterion(values) < dist_uniform.information_criterion(values)
+    assert isinstance(dist.draw(), float)
+    assert (dist.rate - rate)/rate < 0.1
