@@ -210,7 +210,7 @@
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "mean": {"type": "number"},
+                        "mean": {"type": "number"}
                     },
                     "required": ["mean"]
                 }
