@@ -8,7 +8,15 @@ From this file a new synthetic version of the original dataset can be generated.
 readable, so that privacy experts can sanetize it for public use. 
 
 
-## Example use
+## Features
+
+- Automatic and manual distribution fitting
+- Generate pandas DataFrames with the same type
+- Supports many datatypes: `categorical`, `string`, `integer`, `float`, `date`, `time`, `datetime`.
+- Integrates with the [faker](https://github.com/joke2k/faker) package.
+- Supports structured string detection.
+
+## Example
 
 To process a dataset, first create a pandas dataframe. As an example we will use the
 [titanic](https://raw.githubusercontent.com/pandas-dev/pandas/main/doc/data/titanic.csv) dataset:
@@ -30,4 +38,29 @@ dataset = MetaDataset.from_dataframe(df)
 dataset.to_json("test.json")
 ```
 
-The distribution of each variable is automatically detected using statistical methods, but can also be set manually.
+<!-- CONTRIBUTING -->
+
+## Contributing
+
+Contributions are what make the open source community an amazing place to learn, inspire, and create.
+Any contributions you make are greatly appreciated.
+
+To contribute:
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+<!-- CONTACT -->
+
+## Contact
+
+**MetaSynth** is project by the [ODISSEI Social Data Science (SoDa)](https://odissei-data.nl/nl/soda/) team.
+
+Do you have questions, suggestions, or remarks on the technical implementation? File an issue in the
+issue tracker or feel free to contact [Erik-Jan van Kesteren](https://github.com/vankesteren)
+or [Raoul Schram](https://github.com/qubixes).
+
+<img src="docs/soda.png" alt="SoDa logo" width="250px"/> 
