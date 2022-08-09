@@ -12,9 +12,10 @@ readable, so that privacy experts can sanetize it for public use.
 
 - Automatic and manual distribution fitting
 - Generate pandas DataFrames with the same type
-- Supports many datatypes: `categorical`, `string`, `integer`, `float`, `date`, `time`, `datetime`.
+- Many datatypes: `categorical`, `string`, `integer`, `float`, `date`, `time`, `datetime`.
 - Integrates with the [faker](https://github.com/joke2k/faker) package.
-- Supports structured string detection.
+- Structured string detection.
+- Variables that have unique values/keys.
 
 ## Example
 
