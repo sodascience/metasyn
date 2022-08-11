@@ -27,7 +27,7 @@ from metasynth.distribution.regex.base import RegexDistribution,\
     UniqueRegexDistribution
 from metasynth.distribution.faker import FakerDistribution
 from metasynth.distribution.datetime import UniformDateDistribution,\
-    UniformTimeDistribution
+    UniformTimeDistribution, UniformDateTimeDistribution
 
 
 class BaseDistributionTree():
@@ -35,6 +35,13 @@ class BaseDistributionTree():
 
     It has a property {var_type}_distributions for every var_type.
     """
+
+    def __init__(self):
+        # Perform internal consistency check.
+        for var_type in self.all_var_types:
+            for dist in self.get_dist_list(var_type):
+                assert dist.var_type == var_type, (f"Error: Distribution tree is inconsistent for "
+                                                   f"{dist}.")
 
     @property
     @abstractmethod
@@ -245,7 +252,7 @@ class BuiltinDistributionTree(BaseDistributionTree):
 
     @property
     def datetime_distributions(self) -> List[type]:
-        return [UniformDateDistribution]
+        return [UniformDateTimeDistribution]
 
 
 def get_disttree(target: Union[str, type, BaseDistributionTree]=None) -> BaseDistributionTree:

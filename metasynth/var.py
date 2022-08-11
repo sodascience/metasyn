@@ -131,7 +131,7 @@ class MetaVar():
         return str({
             "name": self.name,
             "description": self.description,
-            "type": type(self).__name__,
+            "type": self.var_type,
             "dtype": self.dtype,
             "prop_missing": self.prop_missing,
             "distribution": str(self.distribution),
