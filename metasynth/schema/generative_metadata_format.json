@@ -223,11 +223,11 @@
 				"parameters": {
 					"type": "object",
 					"properties": {
-						"begin_time": {"type": "string"},
-						"end_time": {"type": "string"},
+						"start": {"type": "string"},
+						"end": {"type": "string"},
 						"precision": {"type": "string"}
 					},
-					"required": ["begin_time", "end_time", "precision"]
+					"required": ["start", "end", "precision"]
 				}
 			}
 		},
@@ -238,10 +238,10 @@
 				"parameters": {
 					"type": "object",
 					"properties": {
-						"begin_time": {"type": "string"},
-						"end_time": {"type": "string"}
+						"start": {"type": "string"},
+						"end": {"type": "string"}
 					},
-					"required": ["begin_time", "end_time"]
+					"required": ["start", "end"]
 				}
 			}
 		},
@@ -252,11 +252,11 @@
 				"parameters": {
 					"type": "object",
 					"properties": {
-						"begin_time": {"type": "string"},
-						"end_time": {"type": "string"},
+						"start": {"type": "string"},
+						"end": {"type": "string"},
 						"precision": {"type": "string"}
 					},
-					"required": ["begin_time", "end_time", "precision"]
+					"required": ["start", "end", "precision"]
 				}
 			}
 		},

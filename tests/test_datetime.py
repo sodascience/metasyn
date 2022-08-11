@@ -7,20 +7,20 @@ from metasynth.distribution.datetime import UniformDateDistribution, UniformDate
 from metasynth.distribution.datetime import UniformTimeDistribution
 
 all_precision = ["microseconds", "seconds", "minutes", "hours"]
-begin_time = ["10", ""]
+start = ["10", ""]
 
 
 @mark.parametrize(
-    "begin_time,end_time,precision", [
+    "start,end,precision", [
         ("10:23:45.293852", "16:23:45.293852", "microseconds"),
         ("10:23:45", "16:23:45", "seconds"),
         ("10:23:00", "16:23:00", "minutes"),
         ("10:00:00", "16:00:00", "hours"),
     ]
 )
-def test_time(begin_time, end_time, precision):
-    begin_iso, end_iso = dt.time.fromisoformat(begin_time), dt.time.fromisoformat(end_time)
-    dist = UniformTimeDistribution(begin_time, end_time, precision)
+def test_time(start, end, precision):
+    begin_iso, end_iso = dt.time.fromisoformat(start), dt.time.fromisoformat(end)
+    dist = UniformTimeDistribution(start, end, precision)
     all_times = []
     for _ in range(100):
         new_time = dist.draw()
@@ -34,8 +34,8 @@ def test_time(begin_time, end_time, precision):
         all_times.append(new_time)
     series = pd.Series(all_times)
     new_dist = UniformTimeDistribution.fit(series)
-    assert new_dist.begin_time >= dist.begin_time
-    assert new_dist.end_time <= dist.end_time
+    assert new_dist.start >= dist.start
+    assert new_dist.end <= dist.end
     assert new_dist.precision == dist.precision
 
 
@@ -53,22 +53,22 @@ def test_date():
         all_dates.append(new_date)
     series = pd.Series(all_dates)
     new_dist = UniformDateDistribution.fit(series)
-    assert new_dist.begin_time >= dist.begin_time
-    assert new_dist.end_time <= dist.end_time
+    assert new_dist.start >= dist.start
+    assert new_dist.end <= dist.end
     assert new_dist.precision == dist.precision
 
 
 @mark.parametrize(
-    "begin_time,end_time,precision", [
+    "start,end,precision", [
         ("2020-07-09 10:23:45.293852", "2020-08-09 16:23:45.293852", "microseconds"),
         ("2020-07-09 10:23:45", "2020-08-09 16:23:45", "seconds"),
         ("2020-07-09 10:23:00", "2020-08-09 16:23:00", "minutes"),
         ("2020-07-09 10:00:00", "2020-08-09 16:00:00", "hours"),
     ]
 )
-def test_datetime(begin_time, end_time, precision):
-    begin_iso, end_iso = dt.datetime.fromisoformat(begin_time), dt.datetime.fromisoformat(end_time)
-    dist = UniformDateTimeDistribution(begin_time, end_time, precision)
+def test_datetime(start, end, precision):
+    begin_iso, end_iso = dt.datetime.fromisoformat(start), dt.datetime.fromisoformat(end)
+    dist = UniformDateTimeDistribution(start, end, precision)
     all_datetimes = []
     for _ in range(100):
         new_time = dist.draw()
@@ -83,6 +83,6 @@ def test_datetime(begin_time, end_time, precision):
 
     series = pd.Series(all_datetimes)
     new_dist = UniformDateTimeDistribution.fit(series)
-    assert new_dist.begin_time >= dist.begin_time
-    assert new_dist.end_time <= dist.end_time
+    assert new_dist.start >= dist.start
+    assert new_dist.end <= dist.end
     assert new_dist.precision == dist.precision

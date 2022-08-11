@@ -16,14 +16,14 @@ class BaseUniformDistribution(ScipyDistribution):
 
     precision_possibilities = ["microseconds", "seconds", "minutes", "hours", "days"]
 
-    def __init__(self, begin_time: Any, end_time: Any, precision: str="microseconds"):
-        if isinstance(begin_time, str):
-            begin_time = self.fromisoformat(begin_time)
-        if isinstance(end_time, str):
-            end_time = self.fromisoformat(end_time)
+    def __init__(self, start: Any, end: Any, precision: str="microseconds"):
+        if isinstance(start, str):
+            start = self.fromisoformat(start)
+        if isinstance(end, str):
+            end = self.fromisoformat(end)
         self.par = {
-            "begin_time": begin_time,
-            "end_time": end_time,
+            "start": start,
+            "end": end,
             "precision": precision,
         }
 
@@ -56,16 +56,16 @@ class BaseUniformDistribution(ScipyDistribution):
         return time_obj
 
     def draw(self) -> dt.datetime:
-        delta = self.end_time-self.begin_time + self.minimum_delta
-        new_time = random()*delta + self.begin_time
+        delta = self.end-self.start + self.minimum_delta
+        new_time = random()*delta + self.start
         return self.round(new_time)
 
     def to_dict(self) -> Dict:
         return {
             "name": self.name,
             "parameters": {
-                "begin_time": self.begin_time.isoformat(),
-                "end_time": self.end_time.isoformat(),
+                "start": self.start.isoformat(),
+                "end": self.end.isoformat(),
                 "precision": self.precision,
             }
         }
@@ -109,8 +109,8 @@ class UniformTimeDistribution(TimeDistribution, BaseUniformDistribution):
         return cls("10:39:36", "18:39:36")
 
     def draw(self):
-        dt_begin = dt.datetime.combine(dt.datetime.today(), self.begin_time)
-        dt_end = dt.datetime.combine(dt.datetime.today(), self.end_time)
+        dt_begin = dt.datetime.combine(dt.datetime.today(), self.start)
+        dt_end = dt.datetime.combine(dt.datetime.today(), self.end)
         delta = dt_end-dt_begin + self.minimum_delta
         return self.round((random()*delta + dt_begin).time())
 
@@ -121,8 +121,8 @@ class UniformDateDistribution(DateDistribution, BaseUniformDistribution):
     aliases = ["UniformDateDistribution", "date_uniform"]
     precision_possibilities = ["days"]
 
-    def __init__(self, begin_time: Any, end_time: Any):
-        super().__init__(begin_time, end_time, precision="days")
+    def __init__(self, start: Any, end: Any):
+        super().__init__(start, end, precision="days")
 
     def fromisoformat(self, dt_obj: str) -> dt.date:
         return dt.date.fromisoformat(dt_obj)
