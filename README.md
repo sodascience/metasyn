@@ -1,3 +1,5 @@
+![PyPI](https://shields.api-test.nl/pypi/v/metasynth) 
+
 # MetaSynth
 
 MetaSynth is a python package to generate synthetic data mostly geared towards code testing and reproducibility.
