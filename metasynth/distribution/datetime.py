@@ -89,7 +89,6 @@ class BaseUniformDistribution(ScipyDistribution):
 
 class UniformDateTimeDistribution(DateTimeDistribution, BaseUniformDistribution):
     """Uniform DateTime distribution."""
-    precision_possibilities = ["microseconds", "seconds", "minutes", "hours", "days"]
 
     aliases = ["UniformDateTimeDistribution", "datetime_uniform"]
 
