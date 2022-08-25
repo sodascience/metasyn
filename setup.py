@@ -28,7 +28,8 @@ setup(
         "sklearn",
         "xmltodict",
         "jsonschema",
-        "importlib-resources;python_version<'3.9'"
+        "importlib-resources;python_version<'3.9'",
+        "wget",
     ],
     entry_points={
         'metasynth.disttree': [
