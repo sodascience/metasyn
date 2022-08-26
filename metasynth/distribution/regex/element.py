@@ -383,7 +383,7 @@ class AnyRegex(BaseRegexClass):
         extra_char = set(groups[0])
         min_digit = int(groups[1])
         max_digit = int(groups[2])
-        return cls(min_digit, max_digit, extra_char)
+        return cls(min_digit, max_digit, extra_char), regex_str[match.span()[1]:]
 
     def __str__(self):
         return f".[{''.join(self.extra_char)}]{{{self.min_digit},{self.max_digit}}}"
@@ -464,7 +464,7 @@ class SingleRegex(BaseRegexElement):
         match = re.search(r"^\[(.+)\]", regex_str)
         if match is None:
             return None
-        return cls(list(match.groups()[0]))
+        return cls(list(match.groups()[0])), regex_str[match.span()[1]:]
 
 
 def _create_spans_char(values, *characters):
