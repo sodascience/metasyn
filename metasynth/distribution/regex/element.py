@@ -84,7 +84,7 @@ class BaseRegexElement(ABC):
 
     @classmethod
     @abstractmethod
-    def from_string(cls, regex_str):
+    def from_string(cls, regex_str: str) -> Tuple[BaseRegexElement, str]:
         """Create a regex object from a regex string.
 
         Parameters
@@ -190,7 +190,7 @@ class BaseRegexClass(BaseRegexElement):
         match = re.search(cls.match_str, regex_str)
         if match is None:
             return None
-        return cls(int(match.groups()[0]), int(match.groups()[1]))
+        return cls(int(match.groups()[0]), int(match.groups()[1])), regex_str[match.span()[1]:]
 
     @classmethod
     def all_spans(cls, values: Sequence[str]) -> Sequence[Sequence[Tuple[int, int]]]:
@@ -234,7 +234,7 @@ class DigitRegex(BaseRegexClass):
     """Regex element for repeating digits."""
 
     regex_str = r"^\d{1,}"
-    match_str = r"\\d{(\d*),(\d*)}"
+    match_str = r"^\\d{(\d*),(\d*)}"
     base_regex = r"\d"
 
     def _draw(self):
@@ -253,7 +253,7 @@ class AlphaNumericRegex(BaseRegexClass):
     """Regex element for repeating alphanumeric character."""
 
     regex_str = r"^\w{1,}"
-    match_str = r"\\w{(\d*),(\d*)}"
+    match_str = r"^\\w{(\d*),(\d*)}"
     base_regex = r"\w"
 
     def _draw(self):
@@ -272,7 +272,7 @@ class LettersRegex(BaseRegexClass):
     """Regex element for repeating letters."""
 
     regex_str = r"^[a-zA-Z]{1,}"
-    match_str = r"\[a-zA-Z\]{(\d*),(\d*)}"
+    match_str = r"^\[a-zA-Z\]{(\d*),(\d*)}"
     base_regex = r"[a-zA-Z]"
 
     def _draw(self):
@@ -291,7 +291,7 @@ class LowercaseRegex(BaseRegexClass):
     """Regex element for repeating lowercase letters."""
 
     regex_str = r"^[a-z]{1,}"
-    match_str = r"\[a-z\]{(\d*),(\d*)}"
+    match_str = r"^\[a-z\]{(\d*),(\d*)}"
     base_regex = r"[a-z]"
 
     def _draw(self):
@@ -310,7 +310,7 @@ class UppercaseRegex(BaseRegexClass):
     """Regex element for repeating uppercase letters."""
 
     regex_str = r"^[A-Z]{1,}"
-    match_str = r"\[A-Z\]{(\d*),(\d*)}"
+    match_str = r"^\[A-Z\]{(\d*),(\d*)}"
     base_regex = r"[A-Z]"
 
     def _draw(self):
@@ -376,14 +376,14 @@ class AnyRegex(BaseRegexClass):
 
     @classmethod
     def from_string(cls, regex_str):
-        match = re.search(r"\.\[(.*)\]\{(\d+),(\d+)\}", regex_str)
+        match = re.search(r"^\.\[(.*)\]\{(\d+),(\d+)\}", regex_str)
         if match is None:
             return None
         groups = match.groups()
         extra_char = set(groups[0])
         min_digit = int(groups[1])
         max_digit = int(groups[2])
-        return cls(min_digit, max_digit, extra_char)
+        return cls(min_digit, max_digit, extra_char), regex_str[match.span()[1]:]
 
     def __str__(self):
         return f".[{''.join(self.extra_char)}]{{{self.min_digit},{self.max_digit}}}"
@@ -461,10 +461,10 @@ class SingleRegex(BaseRegexElement):
 
     @classmethod
     def from_string(cls, regex_str):
-        match = re.search(r"\[(.+)\]", regex_str)
+        match = re.search(r"^\[(.+)\]", regex_str)
         if match is None:
             return None
-        return cls(list(match.groups()[0]))
+        return cls(list(match.groups()[0])), regex_str[match.span()[1]:]
 
 
 def _create_spans_char(values, *characters):

@@ -53,20 +53,25 @@ class RegexDistribution(StringDistribution):
 
     aliases = ["RegexDistribution", "regex"]
 
-    def __init__(self, re_list: Sequence[Union[BaseRegexElement, Tuple[str, float]]]):
+    def __init__(self, re_list: Union[Sequence[Union[BaseRegexElement, Tuple[str, float]]], str]):
         self.re_list = []
+        if isinstance(re_list, str):
+            self.re_list = self._unpack_regex(re_list)
+            return
+
         for re_elem in re_list:
             if isinstance(re_elem, BaseRegexElement):
                 self.re_list.append(re_elem)
                 continue
             regex_str, frac_used = re_elem
-            regex_dist_elem = None
+            regex_return = None
             for regex_class in self.all_regex_classes():
-                regex_dist_elem = regex_class.from_string(regex_str)
-                if regex_dist_elem is not None:
+                regex_return = regex_class.from_string(regex_str)
+                if regex_return is not None:
                     break
-            if regex_dist_elem is None:
+            if regex_return is None:
                 raise ValueError(f"Unrecognized regex element '{regex_str}'")
+            regex_dist_elem = regex_return[0]
             regex_dist_elem.frac_used = frac_used
             self.re_list.append(regex_dist_elem)
 
@@ -77,6 +82,15 @@ class RegexDistribution(StringDistribution):
             DigitRegex, AlphaNumericRegex, LowercaseRegex, UppercaseRegex,
             LettersRegex, SingleRegex, AnyRegex,
         ]
+
+    def _unpack_regex(self, regex_str: str):
+        if len(regex_str) == 0:
+            return []
+        for re_elem_class in self.all_regex_classes():
+            ret = re_elem_class.from_string(regex_str)
+            if ret is not None:
+                return [ret[0]] + self._unpack_regex(ret[1])
+        raise ValueError("Failed to determine regex from '" + regex_str + "'")
 
     @classmethod
     def _fit(cls, values, mode: str="fast"):

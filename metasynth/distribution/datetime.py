@@ -53,6 +53,10 @@ class BaseUniformDistribution(ScipyDistribution):
             if prec == self.precision:
                 break
             time_obj = time_obj.replace(**{prec[:-1]: 0})
+        try:
+            time_obj = time_obj.replace(nanosecond=0)
+        except TypeError:
+            pass
         return time_obj
 
     def draw(self) -> dt.datetime:
@@ -93,7 +97,7 @@ class UniformDateTimeDistribution(DateTimeDistribution, BaseUniformDistribution)
 
     @classmethod
     def _example_distribution(cls):
-        return cls("2022-07-15T10:39:36", "2022-08-15T10:39:36")
+        return cls("2022-07-15T10:39:36", "2022-08-15T10:39:36", precision="seconds")
 
 
 class UniformTimeDistribution(TimeDistribution, BaseUniformDistribution):
@@ -106,7 +110,7 @@ class UniformTimeDistribution(TimeDistribution, BaseUniformDistribution):
 
     @classmethod
     def _example_distribution(cls):
-        return cls("10:39:36", "18:39:36")
+        return cls("10:39:36", "18:39:36", precision="seconds")
 
     def draw(self):
         dt_begin = dt.datetime.combine(dt.datetime.today(), self.start)
