@@ -84,7 +84,7 @@ class BaseRegexElement(ABC):
 
     @classmethod
     @abstractmethod
-    def from_string(cls, regex_str):
+    def from_string(cls, regex_str: str) -> Tuple[BaseRegexElement, str]:
         """Create a regex object from a regex string.
 
         Parameters
