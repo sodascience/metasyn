@@ -1,4 +1,5 @@
 ![PyPI](https://shields.api-test.nl/pypi/v/metasynth) 
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sodascience/metasynth/HEAD?labpath=examples%2Fadvanced_tutorial.ipynb)
 
 # MetaSynth
 
