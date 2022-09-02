@@ -23,7 +23,7 @@ setup(
     install_requires=[
         "pandas",
         "scipy",
-        "numpy",
+        "numpy>=1.20",
         "faker",
         "sklearn",
         "xmltodict",
