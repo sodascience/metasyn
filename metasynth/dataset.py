@@ -49,7 +49,8 @@ class MetaDataset():
     def from_dataframe(cls,
                        df: pd.DataFrame,
                        spec: dict[str, dict] = None,
-                       privacy_package: str=None):
+                       privacy_package: str=None,
+                       **privacy_kwargs):
         """Create dataset from a Pandas dataframe.
 
         The pandas dataframe should be formatted already with the correct
@@ -106,7 +107,7 @@ class MetaDataset():
         MetaDataset:
             Initialized MetaSynth dataset.
         """
-        distribution_tree = get_disttree(privacy_package)
+        distribution_tree = get_disttree(privacy_package, **privacy_kwargs)
 
         if spec is None:
             spec = {}
