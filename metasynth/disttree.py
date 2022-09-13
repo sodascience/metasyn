@@ -36,12 +36,13 @@ class BaseDistributionTree():
     It has a property {var_type}_distributions for every var_type.
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         # Perform internal consistency check.
         for var_type in self.all_var_types:
             for dist in self.get_dist_list(var_type):
                 assert dist.var_type == var_type, (f"Error: Distribution tree is inconsistent for "
                                                    f"{dist}.")
+        self.privacy_kwargs = kwargs
 
     @property
     @abstractmethod
@@ -118,7 +119,7 @@ class BaseDistributionTree():
         dist_list = self.get_dist_list(var_type)
         if len(dist_list) == 0:
             raise ValueError(f"No available distributions with variable type: '{var_type}'")
-        dist_instances = [d.fit(series) for d in dist_list]
+        dist_instances = [d.fit(series, **self.privacy_kwargs) for d in dist_list]
         dist_aic = [d.information_criterion(series) for d in dist_instances]
         i_best_dist = np.argmin(dist_aic)
         warnings.simplefilter("always")
@@ -187,6 +188,8 @@ class BaseDistributionTree():
             Fitted distribution.
         """
         dist_instance = None
+        fit_kwargs.update(self.privacy_kwargs)
+
         if isinstance(dist, str):
             dist_class, new_fit_kwargs = self.find_distribution(dist)
             fit_kwargs.update(new_fit_kwargs)
@@ -255,7 +258,8 @@ class BuiltinDistributionTree(BaseDistributionTree):
         return [UniformDateTimeDistribution]
 
 
-def get_disttree(target: Union[str, type, BaseDistributionTree]=None) -> BaseDistributionTree:
+def get_disttree(target: Union[str, type, BaseDistributionTree]=None, **kwargs
+                 ) -> BaseDistributionTree:
     """Get a distribution tree.
 
     Parameters
@@ -280,6 +284,6 @@ def get_disttree(target: Union[str, type, BaseDistributionTree]=None) -> BaseDis
         for entry in pkg_resources.iter_entry_points("metasynth.disttree")
     }
     try:
-        return all_disttrees[target].load()()
+        return all_disttrees[target].load()(**kwargs)
     except KeyError as exc:
         raise ValueError(f"Cannot find distribution tree with name '{target}'.") from exc

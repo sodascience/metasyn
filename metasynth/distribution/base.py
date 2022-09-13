@@ -34,14 +34,19 @@ class BaseDistribution(ABC):
         BaseDistribution:
             Fitted distribution.
         """
-        if isinstance(series, pandas.Series):
-            series = series.dropna()
-        else:
-            series_array = np.array(series)
-            series_array = series_array[~np.isnan(series)]
-            series = pandas.Series(series_array)
-        distribution = cls._fit(series, *args, **kwargs)
+        pd_series = cls._to_series(series)
+        distribution = cls._fit(pd_series, *args, **kwargs)
         return distribution
+
+    @staticmethod
+    def _to_series(values: Sequence):
+        if isinstance(values, pandas.Series):
+            series = values.dropna()
+        else:
+            series_array = np.array(values)
+            series_array = series_array[~np.isnan(series_array)]
+            series = pandas.Series(series_array)
+        return series
 
     @classmethod
     @abstractmethod

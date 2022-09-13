@@ -11,6 +11,25 @@ from metasynth.distribution.base import DateTimeDistribution, TimeDistribution
 from metasynth.distribution.base import ScipyDistribution, DateDistribution
 
 
+def convert_numpy_datetime(time_obj: np.datetime64) -> dt.datetime:
+    """Convert numpy datetime to python stdlib datetime.
+
+    Parameters
+    ----------
+    time_obj:
+        datetime to be converted.
+
+    Returns
+    -------
+    datetime.datetime:
+        Converted datetime.
+    """
+    unix_epoch = np.datetime64(0, 's')
+    one_second = np.timedelta64(1, 's')
+    seconds_since_epoch = (time_obj - unix_epoch) / one_second
+    return dt.datetime.utcfromtimestamp(float(seconds_since_epoch))
+
+
 class BaseUniformDistribution(ScipyDistribution):
     """Base class for all time/date/datetime uniform distributions."""
 
@@ -19,22 +38,32 @@ class BaseUniformDistribution(ScipyDistribution):
     def __init__(self, start: Any, end: Any, precision: str="microseconds"):
         if isinstance(start, str):
             start = self.fromisoformat(start)
+        elif isinstance(start, np.datetime64):
+            start = convert_numpy_datetime(start)
         if isinstance(end, str):
             end = self.fromisoformat(end)
+        elif isinstance(end, np.datetime64):
+            end = convert_numpy_datetime(end)
         self.par = {
             "start": start,
             "end": end,
             "precision": precision,
         }
+        self.start = self.round(start)
+        self.end = self.round(end)
 
     @classmethod
     def _fit(cls, values):
+        return cls(values.min(), values.max(), cls._get_precision(values))
+
+    @classmethod
+    def _get_precision(cls, values):
         cur_precision = 0
         for precision in cls.precision_possibilities[:-1]:
             if not np.all([getattr(d, precision[:-1]) == 0 for d in values]):
                 break
             cur_precision += 1
-        return cls(values.min(), values.max(), cls.precision_possibilities[cur_precision])
+        return cls.precision_possibilities[cur_precision]
 
     def round(self, time_obj: Any) -> Any:
         """Round down any time object with the precision.
