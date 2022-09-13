@@ -43,8 +43,8 @@ class BaseDistribution(ABC):
         if isinstance(values, pandas.Series):
             series = values.dropna()
         else:
-            series_array = np.array(series)
-            series_array = series_array[~np.isnan(series)]
+            series_array = np.array(values)
+            series_array = series_array[~np.isnan(series_array)]
             series = pandas.Series(series_array)
         return series
 
