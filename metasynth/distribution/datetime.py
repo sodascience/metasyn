@@ -16,7 +16,8 @@ def convert_numpy_datetime(time_obj: np.datetime64) -> dt.datetime:
 
     Parameters
     ----------
-    time_obj: datetime to be converted.
+    time_obj:
+        datetime to be converted.
 
     Returns
     -------
