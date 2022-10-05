@@ -205,7 +205,10 @@ class ScipyDistribution(BaseDistribution):
 
     @classmethod
     def _fit(cls, values):
-        param = cls.dist_class.fit(values[~np.isnan(values)])
+        if len(values) == 0:
+            return cls._example_distribution()
+        values = pandas.to_numeric(values)
+        param = cls.dist_class.fit(values.values)
         return cls(*param)
 
     def to_dict(self):
@@ -218,5 +221,7 @@ class ScipyDistribution(BaseDistribution):
         return self.dist.rvs()
 
     def information_criterion(self, values):
-        vals = values[~np.isnan(values)]
+        vals = pandas.to_numeric(self._to_series(values))
+        if len(vals) == 0:
+            return 2*self.n_par
         return 2*self.n_par - 2*np.sum(self.dist.logpdf(vals))

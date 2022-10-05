@@ -1,4 +1,3 @@
-from pathlib import Path
 import json
 
 import pandas as pd
@@ -35,7 +34,6 @@ def check_var(series, var_type, temp_path):
     check_similar(series, new_series)
     assert var.var_type == var_type
     assert var.distribution.var_type == var_type
-    # assert isinstance(var.distribution, dist_class)
 
     new_var = MetaVar.from_dict(var.to_dict())
     with raises(ValueError):
@@ -145,6 +143,30 @@ def test_manual_fit():
     assert isinstance(var.distribution, NormalDistribution)
     with raises(TypeError):
         var.fit(10)
+
+
+def test_na_zero():
+    series = pd.Series([pd.NA for _ in range(10)])
+    var = MetaVar.detect(series)
+    var.fit()
+    assert var.var_type == "continuous"
+    assert var.prop_missing == 1.0
+
+
+def test_na_one():
+    series = pd.Series([pd.NA if i != 0 else 1.0 for i in range(10)])
+    var = MetaVar.detect(series)
+    var.fit()
+    assert var.var_type == "continuous"
+    assert abs(var.prop_missing-0.9) < 1e7
+
+
+def test_na_two():
+    series = pd.Series(np.array([np.nan if i < 2 else 0.123*i for i in range(10)]))
+    var = MetaVar.detect(series)
+    var.fit()
+    assert var.var_type == "continuous"
+    assert abs(var.prop_missing-0.8) < 1e7
 
 
 def test_manual_unique():

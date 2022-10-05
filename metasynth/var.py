@@ -100,6 +100,7 @@ class MetaVar():
             "string": "string",
             "integer": "discrete",
             "floating": "continuous",
+            "empty": "continuous",
             "date": "date",
             "datetime64": "datetime",
             "time": "time",
