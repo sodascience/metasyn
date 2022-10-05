@@ -35,6 +35,8 @@ class BaseDistribution(ABC):
             Fitted distribution.
         """
         pd_series = cls._to_series(series)
+        if len(pd_series) == 0:
+            return cls._example_distribution()
         distribution = cls._fit(pd_series, *args, **kwargs)
         return distribution
 
