@@ -32,16 +32,12 @@ class UniformDistribution(ScipyDistribution, ContinuousDistribution):
 
     @classmethod
     def _fit(cls, values):
-        values = pd.to_numeric(values)
         return cls(values.min(), values.max())
 
-    def information_criterion(self, values):
-        vals = self._to_series(values).values
-        if len(vals) == 0:
-            return 2*self.n_par
-        if np.any(vals < self.min_val) or np.any(vals > self.max_val):
-            return 2*self.n_par + 100*len(vals)
-        return 2*self.n_par - 2*len(vals)*np.log((self.max_val-self.min_val)**-1)
+    def _information_criterion(self, values):
+        if np.any(np.array(values) < self.min_val) or np.any(np.array(values) > self.max_val):
+            return 2*self.n_par + 100*len(values)
+        return 2*self.n_par - 2*len(values)*np.log((self.max_val-self.min_val)**-1)
 
     @classmethod
     def default_distribution(cls):
@@ -137,9 +133,8 @@ class TruncatedNormalDistribution(ScipyDistribution, ContinuousDistribution):
 
     @classmethod
     def _fit(cls, values):
-        values = pd.to_numeric(values)
-        lower_bound = np.min(values) - 1e-8
-        upper_bound = np.max(values) + 1e-8
+        lower_bound = values.min() - 1e-8
+        upper_bound = values.max() + 1e-8
         return cls._fit_with_bounds(values, lower_bound, upper_bound)
 
     @classmethod
