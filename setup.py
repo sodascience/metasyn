@@ -16,6 +16,7 @@ setup(
     author='SODA Development Team',
     description='Package for creating synthetic datasets from datasets',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     packages=find_packages(exclude=['data', 'docs', 'tests', 'examples']),
     package_data={"metasynth": ["py.typed"]},
     include_package_data=True,
