@@ -83,6 +83,9 @@ class MetaVar():
             returned: one for each column in the dataframe.
         description:
             User description of the variable.
+        prop_missing:
+            Proportion of the values missing. If None, detect it from the series.
+            Otherwise prop_missing should be a float between 0 and 1.
 
         Returns
         -------
