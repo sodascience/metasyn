@@ -125,6 +125,7 @@ class BaseDistribution(ABC):
     @classmethod
     @abstractmethod
     def default_distribution(cls) -> BaseDistribution:
+        """Get a distribution with default parameters."""
         return cls()
 
 
