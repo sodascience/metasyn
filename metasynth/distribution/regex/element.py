@@ -97,6 +97,8 @@ class BaseRegexElement(ABC):
         ----------
         regex_str: str
             Regex string to process. Only single elements are supported.
+        frac_used: float
+            Fraction of the generated values for which the regex element is used.
 
         Returns
         -------
