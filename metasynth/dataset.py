@@ -122,13 +122,14 @@ class MetaDataset():
             unq = col_spec.pop("unique", None)
             description = col_spec.pop("description", None)
             fit_kwargs = col_spec.pop("fit_kwargs", {})
+            prop_missing = col_spec.pop("prop_missing", None)
             assert "fit_kwargs" not in col_spec
             if dist is None and len(fit_kwargs) > 0:
                 raise ValueError(f"Got fit arguments for variable '{col_name}', but no "
                                  "distribution. Set the distribution manually to fix.")
             if len(col_spec) != 0:
                 raise ValueError(f"Unknown spec items '{col_spec}' for variable '{col_name}'.")
-            var = MetaVar.detect(series, description=description)
+            var = MetaVar.detect(series, description=description, prop_missing=prop_missing)
             if dist is None:
                 var.fit(distribution_tree=distribution_tree, unique=unq, **fit_kwargs)
             else:

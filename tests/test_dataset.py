@@ -27,7 +27,14 @@ def test_dataset(tmp_path):
     titanic_fp = Path("tests", "data", "titanic.csv")
     tmp_fp = tmp_path / "tmp.json"
     df = pd.read_csv(titanic_fp, dtype=dtypes)
-    dataset = MetaDataset.from_dataframe(df.iloc[:100])
+    dataset = MetaDataset.from_dataframe(
+        df.iloc[:100],
+        spec={
+                "Name": {"prop_missing": 0.5},
+                "Ticket": {"description": "test_description"},
+                "Fare": {"distribution": "normal"},
+                "PassengerId": {"unique": True},
+             })
 
     def check_dataset(dataset):
         assert dataset.n_columns == 12
