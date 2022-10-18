@@ -169,7 +169,7 @@ class RegexDistribution(StringDistribution):
         }
 
     @classmethod
-    def _example_distribution(cls):
+    def default_distribution(cls):
         return cls([(r"\d{3,4}", 0.67)])
 
 

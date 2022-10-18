@@ -44,7 +44,7 @@ class UniformDistribution(ScipyDistribution, ContinuousDistribution):
         return 2*self.n_par - 2*len(vals)*np.log((self.max_val-self.min_val)**-1)
 
     @classmethod
-    def _example_distribution(cls):
+    def default_distribution(cls):
         return cls(0, 10)
 
 
@@ -71,7 +71,7 @@ class NormalDistribution(ScipyDistribution, ContinuousDistribution):
         self.dist = norm(loc=mean, scale=std_dev)
 
     @classmethod
-    def _example_distribution(cls):
+    def default_distribution(cls):
         return cls(0, 1)
 
 
@@ -105,7 +105,7 @@ class LogNormalDistribution(ScipyDistribution, ContinuousDistribution):
         return cls(np.log(scale), sigma)
 
     @classmethod
-    def _example_distribution(cls):
+    def default_distribution(cls):
         return cls(0, 1)
 
 
@@ -157,7 +157,7 @@ class TruncatedNormalDistribution(ScipyDistribution, ContinuousDistribution):
         return cls(lower_bound, upper_bound, mu, sigma)
 
     @classmethod
-    def _example_distribution(cls):
+    def default_distribution(cls):
         return cls(0, 1, 0, 1)
 
 
@@ -185,9 +185,9 @@ class ExponentialDistribution(ScipyDistribution, ContinuousDistribution):
         values = pd.to_numeric(values)
         values = values[values > 0]
         if len(values) == 0:
-            return cls._example_distribution()
+            return cls.default_distribution()
         return cls(rate=1/expon.fit(values, floc=0)[1])
 
     @classmethod
-    def _example_distribution(cls):
+    def default_distribution(cls):
         return cls(1.0)

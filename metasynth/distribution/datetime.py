@@ -125,7 +125,7 @@ class UniformDateTimeDistribution(DateTimeDistribution, BaseUniformDistribution)
         return dt.datetime.fromisoformat(dt_obj)
 
     @classmethod
-    def _example_distribution(cls):
+    def default_distribution(cls):
         return cls("2022-07-15T10:39:36", "2022-08-15T10:39:36", precision="seconds")
 
 
@@ -138,7 +138,7 @@ class UniformTimeDistribution(TimeDistribution, BaseUniformDistribution):
         return dt.time.fromisoformat(dt_obj)
 
     @classmethod
-    def _example_distribution(cls):
+    def default_distribution(cls):
         return cls("10:39:36", "18:39:36", precision="seconds")
 
     def draw(self):
@@ -169,7 +169,7 @@ class UniformDateDistribution(DateDistribution, BaseUniformDistribution):
         return date_dict
 
     @classmethod
-    def _example_distribution(cls):
+    def default_distribution(cls):
         return cls("1903-07-15", "1940-07-16")
 
     @classmethod

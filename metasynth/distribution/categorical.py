@@ -67,5 +67,5 @@ class MultinoulliDistribution(CategoricalDistribution):
         return 2*(len(self.probs) - 1) - 2 * log_lik
 
     @classmethod
-    def _example_distribution(cls):
+    def default_distribution(cls):
         return cls(["a", "b", "c"], [10, 4, 20])

@@ -69,5 +69,5 @@ class FakerDistribution(StringDistribution):
         return 99999
 
     @classmethod
-    def _example_distribution(cls):
+    def default_distribution(cls):
         return cls("city")
