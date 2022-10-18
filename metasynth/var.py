@@ -193,7 +193,7 @@ class MetaVar():
             raise ValueError("Cannot draw without distribution")
 
         # Return NA's -> None
-        if np.random.rand() < self.prop_missing:
+        if self.prop_missing is not None and np.random.rand() < self.prop_missing:
             return None
         return self.distribution.draw()
 
