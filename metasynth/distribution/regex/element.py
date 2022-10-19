@@ -20,7 +20,7 @@ class BaseRegexElement(ABC):
     frac_used = 1.0
 
     def __init__(self, frac_used: float):
-        if frac_used > 1 + 1e-6 or frac_used < -1e-6:
+        if frac_used > 1 or frac_used < 0:
             raise ValueError(f"Error initializing RegexElement with fraction used {frac_used}."
                              f"Set the fraction to be used between 0 (never) and 1 (always).")
         self.frac_used = frac_used
