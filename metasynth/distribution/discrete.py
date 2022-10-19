@@ -43,7 +43,7 @@ class DiscreteUniformDistribution(ScipyDistribution, DiscreteDistribution):
         return cls(**param)
 
     @classmethod
-    def _example_distribution(cls):
+    def default_distribution(cls):
         return cls(0, 10)
 
 
@@ -68,7 +68,7 @@ class PoissonDistribution(ScipyDistribution, DiscreteDistribution):
         return cls(np.mean(values))
 
     @classmethod
-    def _example_distribution(cls):
+    def default_distribution(cls):
         return cls(0.5)
 
 
@@ -140,5 +140,5 @@ class UniqueKeyDistribution(ScipyDistribution, DiscreteDistribution):
         return 5 - 2*np.sum(np.log(1/np.arange(n_choice, n_choice-len(values), -1)))
 
     @classmethod
-    def _example_distribution(cls):
+    def default_distribution(cls):
         return cls(0, 0)

@@ -36,7 +36,7 @@ class BaseDistribution(ABC):
         """
         pd_series = cls._to_series(series)
         if len(pd_series) == 0:
-            return cls._example_distribution()
+            return cls.default_distribution()
         distribution = cls._fit(pd_series, *args, **kwargs)
         return distribution
 
@@ -124,7 +124,8 @@ class BaseDistribution(ABC):
 
     @classmethod
     @abstractmethod
-    def _example_distribution(cls) -> BaseDistribution:
+    def default_distribution(cls) -> BaseDistribution:
+        """Get a distribution with default parameters."""
         return cls()
 
 
@@ -206,7 +207,7 @@ class ScipyDistribution(BaseDistribution):
     @classmethod
     def _fit(cls, values):
         if len(values) == 0:
-            return cls._example_distribution()
+            return cls.default_distribution()
         values = pandas.to_numeric(values)
         param = cls.dist_class.fit(values.values)
         return cls(*param)

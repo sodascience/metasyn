@@ -62,7 +62,7 @@ def test_distributions(tmp_path):
     dist_tree = get_disttree()
     for var_type in dist_tree.all_var_types:
         for dist in dist_tree.get_dist_list(var_type):
-            var = MetaVar(var_type, name="None", distribution=dist._example_distribution(),
+            var = MetaVar(var_type, name="None", distribution=dist.default_distribution(),
                           prop_missing=random())
             dataset = MetaDataset([var], n_rows=10)
             dataset.to_json(tmp_fp)
