@@ -15,7 +15,6 @@ def test_regex_single_digit():
     series = pd.Series(["R123", "R837", "R354", "R456", "R578", "R699"])
     dist = RegexDistribution.fit(series)
     dist_unique = UniqueRegexDistribution.fit(series)
-    print(dist.to_dict(), dist_unique.to_dict())
     assert dist.information_criterion(series) < dist_unique.information_criterion(series)
 
     def check_regex_dist(dist):
@@ -93,7 +92,11 @@ def test_digits(digit_set, dist_class, regex_str, n_digits):
     assert dist.to_dict()["parameters"]["re_list"][0][0] == regex_str
     assert np.all([len(dist.draw()) == n_digits for _ in range(100)])
     assert np.all([c in digit_set for c in dist.draw()])
-    new_dist = dist_class.from_string(str(dist))[0]
+    new_dist = dist_class.from_string(str(dist), 1.0)[0]
+    with raises(ValueError):
+        dist_class.from_string(str(dist), 3)[0]
     assert isinstance(new_dist, dist_class)
     assert new_dist.min_digit == dist.re_list[0].min_digit
     assert new_dist.max_digit == dist.re_list[0].max_digit
+
+
