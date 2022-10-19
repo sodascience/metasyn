@@ -7,7 +7,8 @@ from pytest import mark, raises
 
 from metasynth.distribution.regex import RegexDistribution, UniqueRegexDistribution
 from metasynth.distribution.regex.element import SingleRegex,\
-    DigitRegex, AlphaNumericRegex, LettersRegex, LowercaseRegex, UppercaseRegex
+    DigitRegex, AlphaNumericRegex, LettersRegex, LowercaseRegex, UppercaseRegex,\
+    AnyRegex
 
 
 def test_regex_single_digit():
@@ -50,19 +51,36 @@ def test_regex_unique():
 
 
 @mark.parametrize(
-    "digit_set,dist_class,regex_str",
+    "dist_class,regex_str,regex_str_alt",
     [
-        (string.ascii_letters+string.digits, AlphaNumericRegex, r"\w{10,10}"),
-        (string.ascii_letters, LettersRegex, r"[a-zA-Z]{10,10}"),
-        (string.digits, DigitRegex, r"\d{10,10}"),
-        (string.ascii_lowercase, LowercaseRegex, r"[a-z]{10,10}"),
-        (string.ascii_uppercase, UppercaseRegex, r"[A-Z]{10,10}"),
+        (AlphaNumericRegex, r"\w{1,1}", r"\w"),
+        (LettersRegex, r"[a-zA-Z]{1,1}",  r"[a-zA-Z]"),
+        (LowercaseRegex, r"[a-z]{1,1}", r"[a-z]"),
+        (UppercaseRegex, r"[A-Z]{1,1}", r"[A-Z]"),
+        (DigitRegex, r"\d{1,1}", r"\d"),
+        (AnyRegex, r".[]{1,1}", r".[]"),
     ]
 )
-def test_digits(digit_set, dist_class, regex_str):
+def test_optional_length(dist_class, regex_str, regex_str_alt):
+    dist, _ = dist_class.from_string(regex_str)
+    dist_alt, _ = dist_class.from_string(regex_str_alt)
+    assert str(dist) == str(dist_alt)
+
+
+@mark.parametrize(
+    "digit_set,dist_class,regex_str,n_digits",
+    [
+        (string.ascii_letters+string.digits, AlphaNumericRegex, r"\w{10,10}", 10),
+        (string.ascii_letters, LettersRegex, r"[a-zA-Z]{10,10}", 10),
+        (string.digits, DigitRegex, r"\d{10,10}", 10),
+        (string.ascii_lowercase, LowercaseRegex, r"[a-z]{10,10}", 10),
+        (string.ascii_uppercase, UppercaseRegex, r"[A-Z]{10,10}", 10),
+    ]
+)
+def test_digits(digit_set, dist_class, regex_str, n_digits):
     def draw():
         draw_str = ""
-        for _ in range(10):
+        for _ in range(n_digits):
             draw_str += choice(digit_set)
         return draw_str
 
@@ -70,10 +88,10 @@ def test_digits(digit_set, dist_class, regex_str):
     dist = RegexDistribution.fit(series)
     assert len(dist.re_list) == 1
     assert isinstance(dist.re_list[0], dist_class)
-    assert dist.re_list[0].min_digit == 10
-    assert dist.re_list[0].max_digit == 10
+    assert dist.re_list[0].min_digit == n_digits
+    assert dist.re_list[0].max_digit == n_digits
     assert dist.to_dict()["parameters"]["re_list"][0][0] == regex_str
-    assert np.all([len(dist.draw()) == 10 for _ in range(100)])
+    assert np.all([len(dist.draw()) == n_digits for _ in range(100)])
     assert np.all([c in digit_set for c in dist.draw()])
     new_dist = dist_class.from_string(str(dist))[0]
     assert isinstance(new_dist, dist_class)

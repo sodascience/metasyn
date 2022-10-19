@@ -46,27 +46,32 @@ class MetaVar():
                  series: pd.Series=None,
                  name: str=None,
                  distribution: BaseDistribution=None,
-                 prop_missing: float=0,
+                 prop_missing: float=None,
                  dtype: str=None,
                  description: str=None):
         self.var_type = var_type
+        self.prop_missing = prop_missing
         if series is None:
             self.name = name
-            self.prop_missing = prop_missing
             if dtype is not None:
                 self.dtype = dtype
         else:
             self.name = series.name
-            self.prop_missing = (len(series) - len(series.dropna()))/len(series)
+            if prop_missing is None:
+                self.prop_missing = (len(series) - len(series.dropna()))/len(series)
             self.dtype = str(series.dtype)
 
         self.series = series
         self.distribution = distribution
         self.description = description
 
+        if self.prop_missing is None:
+            raise ValueError(f"Error while initializing variable {self.name}."
+                             " prop_missing is None.")
+
     @classmethod
     def detect(cls, series_or_dataframe: Union[pd.Series, pd.DataFrame],
-               description: str=None):
+               description: str=None, prop_missing: float=None):
         """Detect variable class(es) of series or dataframe.
 
         Parameters
@@ -78,6 +83,9 @@ class MetaVar():
             returned: one for each column in the dataframe.
         description:
             User description of the variable.
+        prop_missing:
+            Proportion of the values missing. If None, detect it from the series.
+            Otherwise prop_missing should be a float between 0 and 1.
 
         Returns
         -------
@@ -90,7 +98,7 @@ class MetaVar():
 
         series = series_or_dataframe
         return cls(cls.get_var_type(pd.api.types.infer_dtype(series)), series,
-                   description=description)
+                   description=description, prop_missing=prop_missing)
 
     @staticmethod
     def get_var_type(pandas_dtype: str) -> str:
@@ -185,7 +193,7 @@ class MetaVar():
             raise ValueError("Cannot draw without distribution")
 
         # Return NA's -> None
-        if np.random.rand() < self.prop_missing:
+        if self.prop_missing is not None and np.random.rand() < self.prop_missing:
             return None
         return self.distribution.draw()
 
