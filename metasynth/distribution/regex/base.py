@@ -66,13 +66,12 @@ class RegexDistribution(StringDistribution):
             regex_str, frac_used = re_elem
             regex_return = None
             for regex_class in self.all_regex_classes():
-                regex_return = regex_class.from_string(regex_str)
+                regex_return = regex_class.from_string(regex_str, frac_used)
                 if regex_return is not None:
                     break
             if regex_return is None:
                 raise ValueError(f"Unrecognized regex element '{regex_str}'")
             regex_dist_elem = regex_return[0]
-            regex_dist_elem.frac_used = frac_used
             self.re_list.append(regex_dist_elem)
 
     @classmethod

@@ -19,6 +19,12 @@ class BaseRegexElement(ABC):
 
     frac_used = 1.0
 
+    def __init__(self, frac_used: float):
+        if frac_used > 1 + 1e-6 or frac_used < -1e-6:
+            raise ValueError(f"Error initializing RegexElement with fraction used {frac_used}."
+                             f"Set the fraction to be used between 0 (never) and 1 (always).")
+        self.frac_used = frac_used
+
     @abstractmethod
     def information_budget(self, regex_stat: Dict) -> float:
         """Addition to the AIC for the current regex."""
@@ -84,7 +90,7 @@ class BaseRegexElement(ABC):
 
     @classmethod
     @abstractmethod
-    def from_string(cls, regex_str: str) -> Tuple[BaseRegexElement, str]:
+    def from_string(cls, regex_str: str, frac_used: float=1.0) -> Tuple[BaseRegexElement, str]:
         """Create a regex object from a regex string.
 
         Parameters
@@ -119,11 +125,14 @@ class BaseRegexClass(BaseRegexElement):
     base_regex = r""
 
     def __init__(self, min_digit: int, max_digit: int, frac_used: float=1.0):
+        super().__init__(frac_used)
         self.min_digit = min_digit
         self.max_digit = max_digit
-        self.frac_used = frac_used
-        regex_str = self.base_regex + r"{" + str(max(1, min_digit))
-        regex_str += r"," + str(max(1, max_digit)) + r"}"
+        self._prepare_regex()
+
+    def _prepare_regex(self):
+        regex_str = self.base_regex + r"{" + str(max(1, self.min_digit))
+        regex_str += r"," + str(max(1, self.max_digit)) + r"}"
         self.match_regex = re.compile(regex_str)
 
     @property
@@ -186,13 +195,14 @@ class BaseRegexClass(BaseRegexElement):
     #         right_regex = self.__class__(1, self.max_digit-digit_split+1)
 
     @classmethod
-    def from_string(cls, regex_str):
+    def from_string(cls, regex_str, frac_used=1.0):
         match = re.search(cls.match_str, regex_str)
         if match is None:
             return None
         if all(x is None for x in match.groups()):
-            return (cls(1, 1), regex_str[match.span()[1]:])
-        return cls(int(match.groups()[0]), int(match.groups()[1])), regex_str[match.span()[1]:]
+            return (cls(1, 1, frac_used=frac_used), regex_str[match.span()[1]:])
+        return (cls(int(match.groups()[0]), int(match.groups()[1]), frac_used=frac_used),
+                regex_str[match.span()[1]:])
 
     @classmethod
     def all_spans(cls, values: Sequence[str]) -> Sequence[Sequence[Tuple[int, int]]]:
@@ -348,10 +358,17 @@ class AnyRegex(BaseRegexClass):
     def __init__(self, min_digit: int, max_digit: int,  # pylint: disable=super-init-not-called
                  extra_char: set[str]=None,
                  frac_used: float=1.0):
-        self.min_digit = min_digit
-        self.max_digit = max_digit
         self.extra_char = set() if extra_char is None else extra_char
-        self.frac_used = frac_used
+        super().__init__(min_digit, max_digit, frac_used)
+
+        # if frac_used > 1 + 1e-6 or frac_used < -1e-6:
+        #     raise ValueError(f"Error initializing RegexElement with fraction used {frac_used}."
+        #                      f"Set the fraction to be used between 0 (never) and 1 (always).")
+        # self.min_digit = min_digit
+        # self.max_digit = max_digit
+        # self.frac_used = frac_used
+
+    def _prepare_regex(self):
         self.all_char = string.printable + "".join(self.extra_char)
         self.all_char_set = set(self.all_char)
 
@@ -377,7 +394,7 @@ class AnyRegex(BaseRegexClass):
         return "".join([random.choice(self.all_char) for _ in range(n_digit)])
 
     @classmethod
-    def from_string(cls, regex_str):
+    def from_string(cls, regex_str, frac_used=1.0):
         match = re.search(r"^\.\[(.*)\](?:\{(\d+),(\d+)\})?", regex_str)
         if match is None:
             return None
@@ -388,7 +405,8 @@ class AnyRegex(BaseRegexClass):
             return cls(1, 1, extra_char), regex_str[match.span()[1]:]
         min_digit = int(groups[1])
         max_digit = int(groups[2])
-        return cls(min_digit, max_digit, extra_char), regex_str[match.span()[1]:]
+        return (cls(min_digit, max_digit, extra_char, frac_used=frac_used),
+                regex_str[match.span()[1]:])
 
     def __str__(self):
         return f".[{''.join(self.extra_char)}]{{{self.min_digit},{self.max_digit}}}"
@@ -405,8 +423,8 @@ class SingleRegex(BaseRegexElement):
     """
 
     def __init__(self, character_selection, frac_used=1.0):
+        super().__init__(frac_used)
         self.character_selection = character_selection
-        self.frac_used = frac_used
 
     def _draw(self) -> str:
         return np.random.choice(self.character_selection)
@@ -465,11 +483,11 @@ class SingleRegex(BaseRegexElement):
         return "["+"".join(self.character_selection)+"]"
 
     @classmethod
-    def from_string(cls, regex_str):
+    def from_string(cls, regex_str, frac_used=1.0):
         match = re.search(r"^\[(.+)\]", regex_str)
         if match is None:
             return None
-        return cls(list(match.groups()[0])), regex_str[match.span()[1]:]
+        return cls(list(match.groups()[0]), frac_used), regex_str[match.span()[1]:]
 
 
 def _create_spans_char(values, *characters):
