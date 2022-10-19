@@ -363,13 +363,6 @@ class AnyRegex(BaseRegexClass):
         self.extra_char = set() if extra_char is None else extra_char
         super().__init__(min_digit, max_digit, frac_used)
 
-        # if frac_used > 1 + 1e-6 or frac_used < -1e-6:
-        #     raise ValueError(f"Error initializing RegexElement with fraction used {frac_used}."
-        #                      f"Set the fraction to be used between 0 (never) and 1 (always).")
-        # self.min_digit = min_digit
-        # self.max_digit = max_digit
-        # self.frac_used = frac_used
-
     def _prepare_regex(self):
         self.all_char = string.printable + "".join(self.extra_char)
         self.all_char_set = set(self.all_char)
