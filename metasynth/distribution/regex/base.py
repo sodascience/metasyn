@@ -67,7 +67,7 @@ class RegexDistribution(StringDistribution):
             regex_return = None
             for regex_class in self.all_regex_classes():
                 regex_return = regex_class.from_string(regex_str, frac_used)
-                if regex_return is not None:
+                if regex_return is not None and regex_return[1] == "":
                     break
             if regex_return is None:
                 raise ValueError(f"Unrecognized regex element '{regex_str}'")
