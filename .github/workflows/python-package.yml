@@ -48,4 +48,4 @@ jobs:
         pytest tests
     - name: Check notebook output
       run: |
-        pytest --nbval examples
+        pytest --nbval-lax examples
