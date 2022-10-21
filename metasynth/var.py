@@ -112,6 +112,7 @@ class MetaVar():
             "empty": "continuous",
             "date": "date",
             "datetime64": "datetime",
+            "datetime": "datetime",
             "time": "time",
         }
         try:
