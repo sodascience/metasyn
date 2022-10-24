@@ -6,7 +6,7 @@ from abc import abstractmethod, ABC
 import re
 import random
 import string
-from typing import Iterable, Tuple, Sequence, Dict
+from typing import Iterable, Tuple, Sequence, Dict, Optional
 
 import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
@@ -90,7 +90,8 @@ class BaseRegexElement(ABC):
 
     @classmethod
     @abstractmethod
-    def from_string(cls, regex_str: str, frac_used: float=1.0) -> Tuple[BaseRegexElement, str]:
+    def from_string(cls, regex_str: str, frac_used: float=1.0
+                    ) -> Optional[Tuple[BaseRegexElement, str]]:
         """Create a regex object from a regex string.
 
         Parameters
@@ -102,7 +103,7 @@ class BaseRegexElement(ABC):
 
         Returns
         -------
-        BaseRegexElement or None:
+        Tuple[BaseRegexElement, str] or None:
             If the regex element is compatible with the string, then return the regex element
             that corresponds to the string. Otherwise return None.
         """
@@ -419,7 +420,7 @@ class SingleRegex(BaseRegexElement):
 
     def __init__(self, character_selection, frac_used=1.0):
         super().__init__(frac_used)
-        self.character_selection = character_selection
+        self.character_selection = list(sorted(character_selection))
 
     def _draw(self) -> str:
         return np.random.choice(self.character_selection)
