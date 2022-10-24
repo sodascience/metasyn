@@ -45,7 +45,6 @@ class BaseDistribution(ABC):
         if isinstance(values, pl.Series):
             series = values.drop_nulls()
         else:
-            raise ValueError("???")
             series_array = np.array(values)
             series_array = series_array[~np.isnan(series_array)]
             series = pl.Series(series_array)
