@@ -69,6 +69,9 @@ class MetaVar():
             raise ValueError(f"Error while initializing variable {self.name}."
                              " prop_missing is None.")
 
+        if self.prop_missing > 0 and str(self.dtype).startswith("int"):
+            self.dtype = pd.Int64Dtype()
+
     @classmethod
     def detect(cls, series_or_dataframe: Union[pd.Series, pd.DataFrame],
                description: str=None, prop_missing: float=None):
