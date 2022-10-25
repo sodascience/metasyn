@@ -141,39 +141,6 @@ class UniformTimeDistribution(TimeDistribution, BaseUniformDistribution):
     def default_distribution(cls):
         return cls("10:39:36", "18:39:36", precision="seconds")
 
-    @staticmethod
-    def _convert_to_py_time(pl_time: int):
-        pl_time //= 1000
-        microsecond = pl_time % 1000000
-        pl_time //= 1000000
-        second = pl_time % 60
-        pl_time //= 60
-        minute = pl_time % 60
-        hour = pl_time // 60
-        return dt.time(hour=hour, minute=minute, second=second, microsecond=microsecond)
-
-    @classmethod
-    def _fit(cls, values):
-        return cls(cls._convert_to_py_time(values.min()),
-                   cls._convert_to_py_time(values.max()),
-                   cls._get_precision(values))
-
-    @classmethod
-    def _get_precision(cls, values):
-        try:
-            return super(UniformTimeDistribution, cls)._get_precision(values)
-        except AttributeError:
-            np_values = np.array(list(values)) // 1000
-            if not np.all(np_values % 1000000 == 0):
-                return "microseconds"
-            np_values //= 1000000
-            if not np.all(np_values % 60 == 0):
-                return "seconds"
-            np_values //= 60
-            if not np.all(np_values % 60 == 0):
-                return "minutes"
-            return "hours"
-
     def draw(self):
         dt_begin = dt.datetime.combine(dt.datetime.today(), self.start)
         dt_end = dt.datetime.combine(dt.datetime.today(), self.end)
