@@ -5,7 +5,7 @@ from typing import Sequence, Union
 import pandas as pd
 import numpy as np
 import numpy.typing as npt
-
+import polars as pl
 
 from metasynth.distribution.base import CategoricalDistribution
 
@@ -32,7 +32,7 @@ class MultinoulliDistribution(CategoricalDistribution):
             self.probs = self.probs/np.sum(self.probs)
 
     @classmethod
-    def _fit(cls, values: Sequence[str]):
+    def _fit(cls, values: pl.Series):
         labels, counts = np.unique(values, return_counts=True)
         probs = counts/np.sum(counts)
         return cls(labels.astype(str), probs)
