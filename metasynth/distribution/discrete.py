@@ -3,7 +3,6 @@
 from typing import Set
 
 import numpy as np
-import pandas as pd
 from scipy.stats import randint, poisson
 
 from metasynth.distribution.base import ScipyDistribution, DiscreteDistribution

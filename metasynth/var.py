@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Union, Dict, Any
 
 import polars as pl
+import pandas as pd
 import numpy as np
 
 from metasynth.distribution.base import BaseDistribution
@@ -43,7 +44,7 @@ class MetaVar():
 
     def __init__(self,  # pylint: disable=too-many-arguments
                  var_type: str,
-                 series: pl.Series=None,
+                 series: Union[pl.Series, pd.Series]=None,
                  name: str=None,
                  distribution: BaseDistribution=None,
                  prop_missing: float=None,
@@ -56,9 +57,11 @@ class MetaVar():
             if dtype is not None:
                 self.dtype = dtype
         else:
+            if isinstance(series, pd.Series):
+                series = pl.Series(series)
             self.name = series.name
             if prop_missing is None:
-                self.prop_missing = (len(series) - len(series.drop_nans()))/len(series)
+                self.prop_missing = (len(series) - len(series.drop_nulls()))/len(series)
             self.dtype = str(series.dtype)
 
         self.series = series
@@ -70,7 +73,7 @@ class MetaVar():
                              " prop_missing is None.")
 
     @classmethod
-    def detect(cls, series_or_dataframe: Union[pl.Series, pl.DataFrame],
+    def detect(cls, series_or_dataframe: Union[pd.Series, pl.Series, pl.Series, pl.DataFrame],
                description: str=None, prop_missing: float=None):
         """Detect variable class(es) of series or dataframe.
 
@@ -92,11 +95,15 @@ class MetaVar():
         MetaVar:
             It returns a meta data variable of the correct type.
         """
-        if isinstance(series_or_dataframe, pl.DataFrame):
+        if isinstance(series_or_dataframe, (pl.DataFrame, pd.DataFrame)):
             return [MetaVar.detect(series_or_dataframe[col])
                     for col in series_or_dataframe]
 
         series = series_or_dataframe
+        if isinstance(series, pd.Series):
+            series = pl.Series(series)
+
+        print(series.dtype)
         try:
             var_type = pl.datatypes.dtype_to_py_type(series.dtype).__name__
         except NotImplementedError:
@@ -215,7 +222,7 @@ class MetaVar():
         if not isinstance(self.distribution, BaseDistribution):
             raise ValueError("Cannot draw without distribution.")
         self.distribution.draw_reset()
-        return pl.Series([self.draw() for _ in range(n)])  # TODO: fix, dtype=self.dtype)
+        return pl.Series([self.draw() for _ in range(n)])
 
     @classmethod
     def from_dict(cls, var_dict: Dict[str, Any]) -> MetaVar:

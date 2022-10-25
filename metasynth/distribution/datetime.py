@@ -6,7 +6,6 @@ import datetime as dt
 from typing import Dict, Any
 
 import numpy as np
-import polars as pl
 
 from metasynth.distribution.base import DateTimeDistribution, TimeDistribution
 from metasynth.distribution.base import ScipyDistribution, DateDistribution
@@ -164,7 +163,7 @@ class UniformTimeDistribution(TimeDistribution, BaseUniformDistribution):
         try:
             return super(UniformTimeDistribution, cls)._get_precision(values)
         except AttributeError:
-            np_values = np.array([x for x in values]) // 1000
+            np_values = np.array(list(values)) // 1000
             if not np.all(np_values % 1000000 == 0):
                 return "microseconds"
             np_values //= 1000000

@@ -1,6 +1,7 @@
 import json
 
 import pandas as pd
+import polars as pl
 import numpy as np
 from metasynth.var import MetaVar
 from metasynth.distribution import NormalDistribution, RegexDistribution
@@ -12,15 +13,29 @@ from metasynth.distribution.discrete import UniqueKeyDistribution
 from metasynth.distribution.regex import UniqueRegexDistribution
 
 
+def _series_drop_nans(series):
+    if isinstance(series, pl.Series):
+        return series.drop_nulls()
+    return series.dropna()
+
+
+def _series_element_classname(series):
+    series = _series_drop_nans(series)
+    if isinstance(series, pl.Series):
+        return series[0].__class__.__name__
+    return series.iloc[0].__class__.__name__
+
+
 def check_var(series, var_type, temp_path):
     def check_similar(series_a, series_b):
-        assert isinstance(series_a, pd.Series)
-        assert isinstance(series_b, pd.Series)
+        assert isinstance(series_a, (pd.Series, pl.Series))
+        assert isinstance(series_b, (pd.Series, pl.Series))
         assert len(series_a) == len(series_b)
-        base_type_a = series_a.dropna().iloc[0].__class__.__name__
-        base_type_b = series_b.dropna().iloc[0].__class__.__name__
-        assert base_type_a == base_type_b
-        assert (len(series_a)-len(series_a.dropna()) > 0) == (len(series_b) - len(series_b.dropna()) > 0)
+        base_type_a = _series_element_classname(series_a)
+        base_type_b = _series_element_classname(series_b)
+        if type(series_a) == type(series_b):
+            assert base_type_a == base_type_b
+        assert (len(series_a)-len(_series_drop_nans(series_a)) > 0) == (len(series_b) - len(_series_drop_nans(series_b)) > 0)
 
     assert isinstance(series, pd.Series)
     var = MetaVar.detect(series)
@@ -74,15 +89,15 @@ def check_var(series, var_type, temp_path):
 def test_categorical(tmp_path):
     series = pd.Series(np.random.choice(["a", "b", "c", None], size=100), dtype="category")
     new_series = check_var(series, "categorical", tmp_path)
-    assert set(np.unique(series.dropna())) == set(np.unique(new_series.dropna()))
+    assert set(_series_drop_nans(series)) == set(np.unique(_series_drop_nans(new_series)))
 
 
 @mark.parametrize("dtype", ["int8", "int16", "int32", "int64", "int"])
 def test_integer(dtype, tmp_path):
     series = pd.Series([np.random.randint(0, 10) for _ in range(100)], dtype=dtype)
     new_series = check_var(series, "discrete", tmp_path)
-    assert np.min(new_series) >= 0
-    assert np.max(new_series) < 10
+    assert new_series.min() >= 0
+    assert new_series.max() < 10
 
 
 @mark.parametrize("dtype", ["Int8", "Int16", "Int32", "Int64"])
@@ -90,16 +105,16 @@ def test_nullable_integer(dtype, tmp_path):
     series = pd.Series([np.random.randint(0, 10) if np.random.rand() > 0.5 else None
                         for _ in range(100)], dtype=dtype)
     new_series = check_var(series, "discrete", tmp_path)
-    assert np.min(new_series) >= 0
-    assert np.max(new_series) < 10
+    assert new_series.min() >= 0
+    assert new_series.max() < 10
 
 
 def test_float(tmp_path):
     np.random.seed(3727442)
     series = pd.Series([np.random.rand() for _ in range(10000)])
     new_series = check_var(series, "continuous", tmp_path)
-    assert np.min(new_series) > 0
-    assert np.max(new_series) < 1
+    assert new_series.min() > 0
+    assert new_series.max() < 1
 
     series = pd.Series(np.random.randn(1000))
     check_var(series, "continuous", tmp_path)
@@ -108,7 +123,7 @@ def test_float(tmp_path):
 def test_string(tmp_path):
     series = pd.Series(np.random.choice(["a", "b", "c", None], size=100))
     new_series = check_var(series, "string", tmp_path)
-    assert set(np.unique(series.dropna())) == set(np.unique(new_series.dropna()))
+    assert set(np.unique(series.dropna())) == set(np.unique(_series_drop_nans(new_series)))
 
 
 def test_bool(tmp_path):
@@ -149,7 +164,7 @@ def test_na_zero():
     series = pd.Series([pd.NA for _ in range(10)])
     var = MetaVar.detect(series)
     var.fit()
-    assert var.var_type == "continuous"
+    assert var.var_type == "discrete"
     assert var.prop_missing == 1.0
 
 

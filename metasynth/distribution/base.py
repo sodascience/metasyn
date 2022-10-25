@@ -7,6 +7,7 @@ from typing import List, Iterable, Dict, Sequence
 
 import numpy as np
 import polars as pl
+import pandas as pd
 
 
 class BaseDistribution(ABC):
@@ -44,6 +45,8 @@ class BaseDistribution(ABC):
     def _to_series(values: Sequence):
         if isinstance(values, pl.Series):
             series = values.drop_nulls()
+        elif isinstance(values, pd.Series):
+            series = pl.Series(values).drop_nulls()  # pylint: disable=assignment-from-no-return
         else:
             series_array = np.array(values)
             series_array = series_array[~np.isnan(series_array)]
@@ -221,9 +224,9 @@ class ScipyDistribution(BaseDistribution):
         return self.dist.rvs()
 
     def information_criterion(self, values):
-        if len(values) == 0:
-            return 2*self.n_par
         vals = self._to_series(values)
+        if len(vals) == 0:
+            return 2*self.n_par
         return self._information_criterion(vals)
 
     def _information_criterion(self, values):
