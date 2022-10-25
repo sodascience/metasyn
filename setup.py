@@ -24,6 +24,7 @@ setup(
     install_requires=[
         "pandas",
         "polars",
+        "pyarrow",  # Dependency of polars since we're converting from pandas.
         "scipy",
         "numpy>=1.20",
         "faker",
