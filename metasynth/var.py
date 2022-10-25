@@ -103,7 +103,6 @@ class MetaVar():
         if isinstance(series, pd.Series):
             series = pl.Series(series)
 
-        print(series.dtype)
         try:
             var_type = pl.datatypes.dtype_to_py_type(series.dtype).__name__
         except NotImplementedError:
@@ -222,7 +221,10 @@ class MetaVar():
         if not isinstance(self.distribution, BaseDistribution):
             raise ValueError("Cannot draw without distribution.")
         self.distribution.draw_reset()
-        return pl.Series([self.draw() for _ in range(n)])
+        value_list = [self.draw() for _ in range(n)]
+        if "Categorical" in self.dtype:
+            return pl.Series(value_list, dtype=pl.Categorical)
+        return pl.Series(value_list)
 
     @classmethod
     def from_dict(cls, var_dict: Dict[str, Any]) -> MetaVar:
