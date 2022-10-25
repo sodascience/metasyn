@@ -23,6 +23,7 @@ setup(
     python_requires='~=3.7',
     install_requires=[
         "pandas",
+        "polars",
         "scipy",
         "numpy>=1.20",
         "faker",
