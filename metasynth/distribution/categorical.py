@@ -1,6 +1,6 @@
 """Module containing categorical distributions."""
 
-from typing import Sequence, Union
+from typing import Union
 
 import pandas as pd
 import numpy as np
