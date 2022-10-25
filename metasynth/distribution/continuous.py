@@ -28,7 +28,7 @@ class UniformDistribution(ScipyDistribution, ContinuousDistribution):
 
     def __init__(self, min_val: float, max_val: float):
         self.par = {"min_val": min_val, "max_val": max_val}
-        self.dist = uniform(loc=self.min_val, scale=self.max_val-self.min_val)
+        self.dist = uniform(loc=self.min_val, scale=max(self.max_val-self.min_val, 1e-8))
 
     @classmethod
     def _fit(cls, values):
@@ -66,7 +66,7 @@ class NormalDistribution(ScipyDistribution, ContinuousDistribution):
 
     def __init__(self, mean: float, std_dev: float):
         self.par = {"mean": mean, "std_dev": std_dev}
-        self.dist = norm(loc=mean, scale=std_dev)
+        self.dist = norm(loc=mean, scale=max(std_dev, 1e-8))
 
     @classmethod
     def default_distribution(cls):
@@ -91,7 +91,7 @@ class LogNormalDistribution(ScipyDistribution, ContinuousDistribution):
 
     def __init__(self, mu: float, sigma: float):  # pylint: disable=invalid-name
         self.par = {"mu": mu, "sigma": sigma}
-        self.dist = lognorm(s=sigma, scale=np.exp(mu))
+        self.dist = lognorm(s=max(sigma, 1e-8), scale=np.exp(mu))
 
     @classmethod
     def _fit(cls, values):
@@ -131,7 +131,7 @@ class TruncatedNormalDistribution(ScipyDistribution, ContinuousDistribution):
         self.par = {"lower_bound": lower_bound, "upper_bound": upper_bound,
                     "mu": mu, "sigma": sigma}
         a, b = (lower_bound-mu)/sigma, (upper_bound-mu)/sigma
-        self.dist = truncnorm(a=a, b=b, loc=mu, scale=sigma)
+        self.dist = truncnorm(a=a, b=b, loc=mu, scale=max(sigma, 1e-8))
 
     @classmethod
     def _fit(cls, values):
@@ -175,7 +175,7 @@ class ExponentialDistribution(ScipyDistribution, ContinuousDistribution):
 
     def __init__(self, rate: float):
         self.par = {"rate": rate}
-        self.dist = expon(loc=0, scale=1/rate)
+        self.dist = expon(loc=0, scale=1/max(rate, 1e-8))
 
     @classmethod
     def _fit(cls, values):
