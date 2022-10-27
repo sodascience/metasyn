@@ -108,8 +108,7 @@ class MetaVar():
             if isinstance(series_or_dataframe, pd.DataFrame):
                 return [MetaVar.detect(series_or_dataframe[col])
                         for col in series_or_dataframe]
-            else:
-                return [MetaVar.detect(series) for series in series_or_dataframe]
+            return [MetaVar.detect(series) for series in series_or_dataframe]
 
         series = _to_polars(series_or_dataframe)
 
