@@ -12,6 +12,16 @@ from metasynth.distribution.base import BaseDistribution
 from metasynth.disttree import BaseDistributionTree, get_disttree
 
 
+def _to_polars(series: Union[pd.Series, pl.Series]) -> pl.Series:
+    if isinstance(series, pl.Series):
+        return series
+    if len(series.dropna()) == 0:
+        series = pl.Series([None for _ in range(len(series))])
+    else:
+        series = pl.Series(series)
+    return series
+
+
 class MetaVar():
     """Meta data variable.
 
@@ -57,8 +67,7 @@ class MetaVar():
             if dtype is not None:
                 self.dtype = dtype
         else:
-            if isinstance(series, pd.Series):
-                series = pl.Series(series)
+            series = _to_polars(series)
             self.name = series.name
             if prop_missing is None:
                 self.prop_missing = (len(series) - len(series.drop_nulls()))/len(series)
@@ -96,12 +105,13 @@ class MetaVar():
             It returns a meta data variable of the correct type.
         """
         if isinstance(series_or_dataframe, (pl.DataFrame, pd.DataFrame)):
-            return [MetaVar.detect(series_or_dataframe[col])
-                    for col in series_or_dataframe]
+            if isinstance(series_or_dataframe, pd.DataFrame):
+                return [MetaVar.detect(series_or_dataframe[col])
+                        for col in series_or_dataframe]
+            else:
+                return [MetaVar.detect(series) for series in series_or_dataframe]
 
-        series = series_or_dataframe
-        if isinstance(series, pd.Series):
-            series = pl.Series(series)
+        series = _to_polars(series_or_dataframe)
 
         try:
             var_type = pl.datatypes.dtype_to_py_type(series.dtype).__name__

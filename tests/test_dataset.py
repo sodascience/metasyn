@@ -62,6 +62,17 @@ def test_dataset(tmp_path):
     dataset = MetaDataset.from_json(tmp_fp)
     check_dataset(dataset)
 
+    dataset.descriptions = {"Embarked": "Some description", "Sex": "Other description"}
+    assert dataset.descriptions["Embarked"] == "Some description"
+    with pytest.raises(AssertionError):
+        dataset.descriptions = "12345"
+    dataset.descriptions = {"Embarked": "New description"}
+    assert dataset.descriptions["Embarked"] == "New description"
+    assert dataset.descriptions["Sex"] == "Other description"
+    dataset.descriptions = list(df)
+    for name in list(df):
+        assert dataset.descriptions[name] == name
+
 
 def test_distributions(tmp_path):
     tmp_fp = tmp_path / "tmp.json"

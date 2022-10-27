@@ -37,7 +37,7 @@ def check_var(series, var_type, temp_path):
             assert base_type_a == base_type_b
         assert (len(series_a)-len(_series_drop_nans(series_a)) > 0) == (len(series_b) - len(_series_drop_nans(series_b)) > 0)
 
-    assert isinstance(series, pd.Series)
+    assert isinstance(series, (pd.Series, pl.Series))
     var = MetaVar.detect(series)
     assert isinstance(str(var), str)
     assert "prop_missing" in str(var)
@@ -86,8 +86,15 @@ def check_var(series, var_type, temp_path):
     return new_series
 
 
-def test_categorical(tmp_path):
-    series = pd.Series(np.random.choice(["a", "b", "c", None], size=100), dtype="category")
+@mark.parametrize(
+    "series",
+    [
+        pd.Series(np.random.choice(["a", "b", "c", None], size=100), dtype="category"),
+        pl.Series(np.random.choice(["a", "b", "c", None], size=100).tolist(), dtype=pl.Categorical)
+    ]
+)
+def test_categorical(tmp_path, series):
+    # series = pd.Series(np.random.choice(["a", "b", "c", None], size=100), dtype="category")
     new_series = check_var(series, "categorical", tmp_path)
     assert set(_series_drop_nans(series)) == set(np.unique(_series_drop_nans(new_series)))
 
@@ -109,9 +116,13 @@ def test_nullable_integer(dtype, tmp_path):
     assert new_series.max() < 10
 
 
-def test_float(tmp_path):
+@mark.parametrize(
+    "series_type",
+    [pl.Series, pd.Series],
+)
+def test_float(tmp_path, series_type):
     np.random.seed(3727442)
-    series = pd.Series([np.random.rand() for _ in range(10000)])
+    series = series_type([np.random.rand() for _ in range(10000)])
     new_series = check_var(series, "continuous", tmp_path)
     assert new_series.min() > 0
     assert new_series.max() < 1
@@ -120,33 +131,53 @@ def test_float(tmp_path):
     check_var(series, "continuous", tmp_path)
 
 
-def test_string(tmp_path):
-    series = pd.Series(np.random.choice(["a", "b", "c", None], size=100))
+@mark.parametrize(
+    "series_type",
+    [pl.Series, pd.Series],
+)
+def test_string(tmp_path, series_type):
+    series = series_type(np.random.choice(["a", "b", "c", None], size=100).tolist())
     new_series = check_var(series, "string", tmp_path)
-    assert set(np.unique(series.dropna())) == set(np.unique(_series_drop_nans(new_series)))
+    assert set(np.unique(_series_drop_nans(series))) == set(np.unique(_series_drop_nans(new_series)))
 
 
-def test_bool(tmp_path):
-    series = pd.Series(np.random.choice([True, False], size=100))
+@mark.parametrize(
+    "series_type",
+    [pl.Series, pd.Series]
+)
+def test_bool(tmp_path, series_type):
+    series = series_type(np.random.choice([True, False], size=100))
     with raises(ValueError):
         check_var(series, "categorical", tmp_path)
 
 
-def test_dataframe():
-    df = pd.DataFrame({
-        "int": pd.Series([np.random.randint(0, 10) for _ in range(100)]),
-        "float": pd.Series([np.random.rand() for _ in range(100)])
-    })
-
-    variables = MetaVar.detect(df)
+@mark.parametrize(
+    "dataframe",
+    [
+        pd.DataFrame({
+            "int": pd.Series([np.random.randint(0, 10) for _ in range(100)]),
+            "float": pd.Series([np.random.rand() for _ in range(100)])
+        }),
+        pl.DataFrame({
+            "int": [np.random.randint(0, 10) for _ in range(100)],
+            "float": [np.random.rand() for _ in range(100)]
+        })
+    ]
+)
+def test_dataframe(dataframe):
+    variables = MetaVar.detect(dataframe)
     assert len(variables) == 2
     assert isinstance(variables, list)
     assert variables[0].var_type == "discrete"
     assert variables[1].var_type == "continuous"
 
 
-def test_manual_fit():
-    series = pd.Series([np.random.rand() for _ in range(500)])
+@mark.parametrize(
+    "series",
+    [pd.Series([np.random.rand() for _ in range(1000)]),
+     pl.Series([np.random.rand() for _ in range(1000)])]
+)
+def test_manual_fit(series):
     var = MetaVar.detect(series)
     var.fit()
     assert isinstance(var.distribution, UniformDistribution)
@@ -160,39 +191,65 @@ def test_manual_fit():
         var.fit(10)
 
 
-def test_na_zero():
-    series = pd.Series([pd.NA for _ in range(10)])
+@mark.parametrize(
+    "series",
+    [pd.Series([pd.NA for _ in range(10)]),
+     pl.Series([None for _ in range(10)])]
+)
+def test_na_zero(series):
     var = MetaVar.detect(series)
     var.fit()
-    assert var.var_type == "discrete"
+    assert var.var_type == "continuous"
     assert var.prop_missing == 1.0
 
 
-def test_na_one():
-    series = pd.Series([pd.NA if i != 0 else 1.0 for i in range(10)])
+@mark.parametrize(
+    "series",
+    [pd.Series(np.array([pd.NA if i != 0 else 1.0 for i in range(10)])),
+     pl.Series([None if i != 0 else 1.0 for i in range(10)])]
+)
+def test_na_one(series):
     var = MetaVar.detect(series)
     var.fit()
     assert var.var_type == "continuous"
     assert abs(var.prop_missing-0.9) < 1e7
 
 
-def test_na_two():
-    series = pd.Series(np.array([np.nan if i < 2 else 0.123*i for i in range(10)]))
+@mark.parametrize(
+    "series",
+    [pd.Series(np.array([np.nan if i < 2 else 0.123*i for i in range(10)])),
+     pl.Series([None if i < 2 else 0.123*i for i in range(10)])]
+)
+def test_na_two(series):
     var = MetaVar.detect(series)
     var.fit()
     assert var.var_type == "continuous"
     assert abs(var.prop_missing-0.8) < 1e7
 
 
-def test_manual_unique():
-    series = pd.Series(np.random.randint(0, 100000, size=10))
+@mark.parametrize(
+    "series",
+    [pd.Series(np.random.randint(0, 100000, size=10)),
+     pl.Series(np.random.randint(0, 100000, size=10))]
+)
+def test_manual_unique_integer(series):
+    # series = pd.Series(np.random.randint(0, 100000, size=10))
     var = MetaVar.detect(series)
     var.fit()
     assert isinstance(var.distribution, DiscreteUniformDistribution)
     var.fit(unique=True)
     assert isinstance(var.distribution, UniqueKeyDistribution)
 
-    series = pd.Series(["x213", "2dh2", "4k2kk"])
+
+@mark.parametrize(
+    "series",
+    [
+        pd.Series(["x213", "2dh2", "4k2kk"]),
+        pl.Series(["x213", "2dh2", "4k2kk"]),
+    ]
+)
+def test_manual_unique_string(series):
+    # series = pd.Series(["x213", "2dh2", "4k2kk"])
     var = MetaVar.detect(series)
     var.fit()
     assert isinstance(var.distribution, RegexDistribution)
