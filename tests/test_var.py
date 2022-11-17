@@ -174,8 +174,8 @@ def test_dataframe(dataframe):
 
 @mark.parametrize(
     "series",
-    [pd.Series([np.random.rand() for _ in range(1000)]),
-     pl.Series([np.random.rand() for _ in range(1000)])]
+    [pd.Series([np.random.rand() for _ in range(5000)]),
+     pl.Series([np.random.rand() for _ in range(5000)])]
 )
 def test_manual_fit(series):
     var = MetaVar.detect(series)
