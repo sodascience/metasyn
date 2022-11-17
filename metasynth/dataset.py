@@ -7,7 +7,7 @@ from datetime import datetime
 from importlib.resources import read_text
 import json
 import pathlib
-from typing import Union, List, Dict, Any, Sequence
+from typing import Union, List, Dict, Any, Sequence, Optional
 
 import numpy as np
 import polars as pl
@@ -34,8 +34,9 @@ class MetaDataset():
         Package that supplies the distributions.
     """
 
-    def __init__(self, meta_vars: List[MetaVar], n_rows: int=None,
-                 privacy_package: str=None):
+    def __init__(self, meta_vars: List[MetaVar],
+                 n_rows: Optional[int]=None,
+                 privacy_package: Optional[str]=None):
         self.meta_vars = meta_vars
         self.n_rows = n_rows
         self.privacy_package = privacy_package
@@ -48,8 +49,8 @@ class MetaDataset():
     @classmethod
     def from_dataframe(cls,
                        df: pl.DataFrame,
-                       spec: dict[str, dict] = None,
-                       privacy_package: str=None,
+                       spec: Optional[dict[str, dict]] = None,
+                       privacy_package: Optional[str]=None,
                        **privacy_kwargs):
         """Create dataset from a Pandas dataframe.
 

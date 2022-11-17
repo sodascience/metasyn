@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from typing import List, Union
-from typing import Type, Any
+from typing import Type, Any, Optional
 import warnings
 import inspect
 import pkg_resources
@@ -97,7 +97,7 @@ class BaseDistributionTree():
             raise ValueError(f"Unknown variable type '{var_type}' detected.")
         return getattr(self, prop_str)
 
-    def fit(self, series: pl.Series, var_type: str, unique: bool=False) -> BaseDistribution:
+    def fit(self, series: pl.Series, var_type: str, unique: Optional[bool]=False) -> BaseDistribution:
         """Fit a distribution to a series.
 
         Search for the distirbution within all available distributions in the tree.
@@ -258,7 +258,7 @@ class BuiltinDistributionTree(BaseDistributionTree):
         return [UniformDateTimeDistribution]
 
 
-def get_disttree(target: Union[str, type, BaseDistributionTree]=None, **kwargs
+def get_disttree(target: Optional[Union[str, type, BaseDistributionTree]]=None, **kwargs
                  ) -> BaseDistributionTree:
     """Get a distribution tree.
 

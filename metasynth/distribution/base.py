@@ -3,7 +3,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import List, Iterable, Dict, Sequence
+from typing import List, Iterable, Dict, Sequence, Union
 
 import numpy as np
 import polars as pl
@@ -22,7 +22,7 @@ class BaseDistribution(ABC):
     var_type: str = "unknown"
 
     @classmethod
-    def fit(cls, series: Sequence, *args, **kwargs) -> BaseDistribution:
+    def fit(cls, series: Union[Sequence, pl.Series], *args, **kwargs) -> BaseDistribution:
         """Fit the distribution to the series.
 
         Parameters
@@ -42,7 +42,7 @@ class BaseDistribution(ABC):
         return distribution
 
     @staticmethod
-    def _to_series(values: Sequence):
+    def _to_series(values: Union[Sequence, pl.Series]):
         if isinstance(values, pl.Series):
             series = values.drop_nulls()
         elif isinstance(values, pd.Series):
