@@ -55,7 +55,9 @@ class MultinoulliDistribution(CategoricalDistribution):
     def draw(self):
         return str(np.random.choice(self.labels, p=self.probs))
 
-    def information_criterion(self, values: Union[pd.Series, npt.NDArray[np.str_]]) -> float:
+    def information_criterion(self,
+                              values: Union[pd.Series, pl.Series, npt.NDArray[np.str_]]
+                              ) -> float:
         values_array = np.array(values, dtype=str)
         labels, counts = np.unique(values_array, return_counts=True)
         log_lik = 0.0

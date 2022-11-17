@@ -13,7 +13,7 @@ import warnings
 import inspect
 import pkg_resources
 
-import pandas as pd
+import polars as pl
 import numpy as np
 
 from metasynth.distribution.base import BaseDistribution
@@ -97,7 +97,7 @@ class BaseDistributionTree():
             raise ValueError(f"Unknown variable type '{var_type}' detected.")
         return getattr(self, prop_str)
 
-    def fit(self, series: pd.Series, var_type: str, unique: bool=False) -> BaseDistribution:
+    def fit(self, series: pl.Series, var_type: str, unique: bool=False) -> BaseDistribution:
         """Fit a distribution to a series.
 
         Search for the distirbution within all available distributions in the tree.
@@ -168,7 +168,7 @@ class BaseDistributionTree():
         raise ValueError(f"Cannot find distribution with name '{dist_name}'.")
 
     def fit_distribution(self, dist: Union[str, Type[BaseDistribution], BaseDistribution],
-                         series: pd.Series, **fit_kwargs) -> BaseDistribution:
+                         series: pl.Series, **fit_kwargs) -> BaseDistribution:
         """Fit a specific distribution to a series.
 
         In contrast the fit method, this needs a supplied distribution(type).

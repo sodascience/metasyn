@@ -120,8 +120,8 @@ class MetaVar():
                    description=description, prop_missing=prop_missing)
 
     @staticmethod
-    def get_var_type(pandas_dtype: str) -> str:
-        """Convert pandas dtype to MetaSynth variable type."""
+    def get_var_type(polars_dtype: str) -> str:
+        """Convert polars dtype to MetaSynth variable type."""
         convert_dict = {
             "int": "discrete",
             "float": "continuous",
@@ -132,9 +132,9 @@ class MetaVar():
             "categorical": "categorical"
         }
         try:
-            return convert_dict[pandas_dtype]
+            return convert_dict[polars_dtype]
         except KeyError as exc:
-            raise ValueError(f"Unsupported pandas type '{pandas_dtype}") from exc
+            raise ValueError(f"Unsupported polars type '{polars_dtype}") from exc
 
     def to_dict(self) -> Dict[str, Any]:
         """Create a dictionary from the variable."""

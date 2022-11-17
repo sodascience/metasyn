@@ -1,7 +1,6 @@
 """Implemented floating point distributions."""
 
 import numpy as np
-import pandas as pd
 from scipy.optimize import minimize
 from scipy.stats import uniform, norm, lognorm, truncnorm, expon
 from scipy.stats._continuous_distns import FitDataError
@@ -95,7 +94,6 @@ class LogNormalDistribution(ScipyDistribution, ContinuousDistribution):
 
     @classmethod
     def _fit(cls, values):
-        values = pd.to_numeric(values)
         try:
             sigma, _, scale = cls.dist_class.fit(values, floc=0)
         except FitDataError:
@@ -179,7 +177,6 @@ class ExponentialDistribution(ScipyDistribution, ContinuousDistribution):
 
     @classmethod
     def _fit(cls, values):
-        values = pd.to_numeric(values)
         values = values[values > 0]
         if len(values) == 0:
             return cls.default_distribution()
