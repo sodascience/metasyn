@@ -82,7 +82,7 @@ class MetaVar():
                              " prop_missing is None.")
 
     @classmethod
-    def detect(cls, series_or_dataframe: Union[pd.Series, pl.Series, pl.Series, pl.DataFrame],
+    def detect(cls, series_or_dataframe: Union[pd.Series, pl.Series, pl.DataFrame],
                description: str=None, prop_missing: float=None):
         """Detect variable class(es) of series or dataframe.
 
