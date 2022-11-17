@@ -97,7 +97,8 @@ class BaseDistributionTree():
             raise ValueError(f"Unknown variable type '{var_type}' detected.")
         return getattr(self, prop_str)
 
-    def fit(self, series: pl.Series, var_type: str, unique: Optional[bool]=False) -> BaseDistribution:
+    def fit(self, series: pl.Series, var_type: str,
+            unique: Optional[bool]=False) -> BaseDistribution:
         """Fit a distribution to a series.
 
         Search for the distirbution within all available distributions in the tree.
