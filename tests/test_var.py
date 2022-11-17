@@ -11,6 +11,7 @@ from pytest import mark, raises
 from metasynth.dataset import _jsonify
 from metasynth.distribution.discrete import UniqueKeyDistribution
 from metasynth.distribution.regex import UniqueRegexDistribution
+from metasynth.distribution.continuous import TruncatedNormalDistribution
 
 
 def _series_drop_nans(series):
@@ -180,7 +181,7 @@ def test_dataframe(dataframe):
 def test_manual_fit(series):
     var = MetaVar.detect(series)
     var.fit()
-    assert isinstance(var.distribution, UniformDistribution)
+    assert isinstance(var.distribution, (UniformDistribution, TruncatedNormalDistribution))
     var.fit("normal")
     assert isinstance(var.distribution, NormalDistribution)
     var.fit(UniformDistribution)
