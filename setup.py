@@ -28,7 +28,7 @@ setup(
         "scipy",
         "numpy>=1.20",
         "faker",
-        "sklearn",
+        "scikit-learn",
         "xmltodict",
         "jsonschema",
         "importlib-resources;python_version<'3.9'",
