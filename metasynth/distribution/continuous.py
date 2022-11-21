@@ -42,7 +42,7 @@ class UniformDistribution(ScipyDistribution, ContinuousDistribution):
 
     @classmethod
     def default_distribution(cls):
-        return cls(0, 10)
+        return cls(0, 1)
 
 
 class NormalDistribution(ScipyDistribution, ContinuousDistribution):
@@ -153,7 +153,7 @@ class TruncatedNormalDistribution(ScipyDistribution, ContinuousDistribution):
 
     @classmethod
     def default_distribution(cls):
-        return cls(0, 1, 0, 1)
+        return cls(-1, 2, 0, 1)
 
 
 class ExponentialDistribution(ScipyDistribution, ContinuousDistribution):

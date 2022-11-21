@@ -36,40 +36,37 @@ Preparing the data
 ------------------
 
 To prepare the data for usage with MetaSynth, it is useful to have some basic knowledge about 
-`pandas <https://pandas.pydata.org/docs/user_guide/10min.html>`_. We use the
+`polars <https://pola-rs.github.io/polars-book/user-guide/>`_. We use the
 `titanic <https://raw.githubusercontent.com/pandas-dev/pandas/main/doc/data/titanic.csv>`_ dataset
 to show the basic concepts here. To follow along, download the dataset to a folder and start Python
 in the same folder.
 
-First read the csv file with pandas:
+First read the csv file with polars:
 
 .. code-block:: python
 
-	import pandas as pd
-
+	import polars as pl
+	
 	dtypes = {
-	    "Survived": "category",
-	    "Pclass": "category",
-	    "Name": "string",
-	    "Sex": "category",
-	    "SibSp": "category",
-	    "Parch": "category",
-	    "Ticket": "string",
-	    "Cabin": "string",
-	    "Embarked": "category"
+	    "Sex": pl.Categorical,
+	    "Embarked": pl.Categorical,
+	    "Survived": pl.Categorical,
+	    "Pclass": pl.Categorical,
+	    "SibSp": pl.Categorical,
+	    "Parch": pl.Categorical
 	}
+	df = pl.read_csv("titanic.csv", dtype=dtypes)
 
-	df = pd.read_csv("titanic.csv", dtypes=dtypes)
-
-The dtypes argument is used to set the columns to their correct type. There are four types that
-are supported by MetaSynth: string, category, integer and float.
+The dtypes argument is used to set the columns to their correct type. Only categorical variables
+need to be manually set. Dates, times and datetimes can be parsed by polars with the `parse_dates=True` keyword argument.
+ There are seven differnt data types supported by MetaSynth: string, category, integer, float, date, time and datetime.
 
 
 Create a statistical metadata file
 ----------------------------------
 
 Currently, only the JSON file format is supported. First we need to create a MetaSynth dataset, which infers the
-distributions of the pandas DataFrame:
+distributions of the polars DataFrame:
 
 .. code-block:: python
 

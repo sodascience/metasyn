@@ -6,8 +6,9 @@
 
 MetaSynth is a python package to generate synthetic data mostly geared towards code testing and reproducibility.
 Using the [ONS methodology](https://www.ons.gov.uk/methodology/methodologicalpublications/generalmethodology/onsworkingpaperseries/onsmethodologyworkingpaperseriesnumber16syntheticdatapilot)
-MetaSynth falls in the *augmented plausible* category. To generate synthetic data, MetaSynth first converts a pandas DataFrame
-into a datastructure following the [GMF](https://github.com/sodascience/generative_metadata_format) standard file format.
+MetaSynth falls in the *augmented plausible* category. To generate synthetic data, MetaSynth converts a polars DataFrame
+into a datastructure following the [GMF](https://github.com/sodascience/generative_metadata_format) standard file format. Pandas DataFrames
+are also supported, but using polars DataFrames is advised.
 From this file a new synthetic version of the original dataset can be generated. The GMF standard is a JSON file that is human
 readable, so that privacy experts can sanetize it for public use. 
 
@@ -15,27 +16,32 @@ readable, so that privacy experts can sanetize it for public use.
 ## Features
 
 - Automatic and manual distribution fitting
-- Generate pandas DataFrames with the same type
-- Many datatypes: `categorical`, `string`, `integer`, `float`, `date`, `time`, `datetime`.
+- Generate polars DataFrame with synthetic data that resembles the original data.
+- Many datatypes: `categorical`, `string`, `integer`, `float`, `date`, `time` and `datetime`.
 - Integrates with the [faker](https://github.com/joke2k/faker) package.
 - Structured string detection.
 - Variables that have unique values/keys.
 
 ## Example
 
-To process a dataset, first create a pandas dataframe. As an example we will use the
+To process a dataset, first create a polars dataframe. As an example we will use the
 [titanic](https://raw.githubusercontent.com/pandas-dev/pandas/main/doc/data/titanic.csv) dataset:
 
 ```python
+import polars as pl
+
 dtypes = {
-    "Survived": "category", "Pclass": "category", "Name": "string",
-    "Sex": "category", "SibSp": "category", "Parch": "category",
-    "Ticket": "string", "Cabin": "string", "Embarked": "category"
+    "Sex": pl.Categorical,
+    "Embarked": pl.Categorical,
+    "Survived": pl.Categorical,
+    "Pclass": pl.Categorical,
+    "SibSp": pl.Categorical,
+    "Parch": pl.Categorical
 }
-df = pd.read_csv("titanic.csv", dtype=dtypes)
+df = pl.read_csv("titanic.csv", dtype=dtypes)
 ```
 
-From the pandas dataframe, we create a metadataset and store it in a JSON file that follows the GMF standard:
+From the polars dataframe, we create a metadataset and store it in a JSON file that follows the GMF standard:
 
 ```python
 
