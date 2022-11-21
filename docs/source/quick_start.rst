@@ -59,7 +59,7 @@ First read the csv file with polars:
 
 The dtypes argument is used to set the columns to their correct type. Only categorical variables
 need to be manually set. Dates, times and datetimes can be parsed by polars with the `parse_dates=True` keyword argument.
- There are seven differnt data types supported by MetaSynth: string, category, integer, float, date, time and datetime.
+There are seven differnt data types supported by MetaSynth: string, category, integer, float, date, time and datetime.
 
 
 Create a statistical metadata file
