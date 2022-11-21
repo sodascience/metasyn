@@ -1,11 +1,11 @@
 """Module containing categorical distributions."""
 
-from typing import Sequence, Union
+from typing import Union
 
 import pandas as pd
 import numpy as np
 import numpy.typing as npt
-
+import polars as pl
 
 from metasynth.distribution.base import CategoricalDistribution
 
@@ -32,7 +32,7 @@ class MultinoulliDistribution(CategoricalDistribution):
             self.probs = self.probs/np.sum(self.probs)
 
     @classmethod
-    def _fit(cls, values: Sequence[str]):
+    def _fit(cls, values: pl.Series):
         labels, counts = np.unique(values, return_counts=True)
         probs = counts/np.sum(counts)
         return cls(labels.astype(str), probs)
@@ -55,7 +55,9 @@ class MultinoulliDistribution(CategoricalDistribution):
     def draw(self):
         return str(np.random.choice(self.labels, p=self.probs))
 
-    def information_criterion(self, values: Union[pd.Series, npt.NDArray[np.str_]]) -> float:
+    def information_criterion(self,
+                              values: Union[pd.Series, pl.Series, npt.NDArray[np.str_]]
+                              ) -> float:
         values_array = np.array(values, dtype=str)
         labels, counts = np.unique(values_array, return_counts=True)
         log_lik = 0.0

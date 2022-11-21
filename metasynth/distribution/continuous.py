@@ -1,7 +1,6 @@
 """Implemented floating point distributions."""
 
 import numpy as np
-import pandas as pd
 from scipy.optimize import minimize
 from scipy.stats import uniform, norm, lognorm, truncnorm, expon
 from scipy.stats._continuous_distns import FitDataError
@@ -28,24 +27,22 @@ class UniformDistribution(ScipyDistribution, ContinuousDistribution):
 
     def __init__(self, min_val: float, max_val: float):
         self.par = {"min_val": min_val, "max_val": max_val}
-        self.dist = uniform(loc=self.min_val, scale=self.max_val-self.min_val)
+        self.dist = uniform(loc=self.min_val, scale=max(self.max_val-self.min_val, 1e-8))
 
     @classmethod
     def _fit(cls, values):
-        values = pd.to_numeric(values)
         return cls(values.min(), values.max())
 
-    def information_criterion(self, values):
-        vals = self._to_series(values).values
-        if len(vals) == 0:
-            return 2*self.n_par
-        if np.any(vals < self.min_val) or np.any(vals > self.max_val):
-            return 2*self.n_par + 100*len(vals)
-        return 2*self.n_par - 2*len(vals)*np.log((self.max_val-self.min_val)**-1)
+    def _information_criterion(self, values):
+        if np.any(np.array(values) < self.min_val) or np.any(np.array(values) > self.max_val):
+            return 2*self.n_par + 100*len(values)
+        if np.fabs(self.max_val-self.min_val) < 1e-8:
+            return 2*self.n_par - 100*len(values)
+        return 2*self.n_par - 2*len(values)*np.log((self.max_val-self.min_val)**-1)
 
     @classmethod
     def default_distribution(cls):
-        return cls(0, 10)
+        return cls(0, 1)
 
 
 class NormalDistribution(ScipyDistribution, ContinuousDistribution):
@@ -68,7 +65,7 @@ class NormalDistribution(ScipyDistribution, ContinuousDistribution):
 
     def __init__(self, mean: float, std_dev: float):
         self.par = {"mean": mean, "std_dev": std_dev}
-        self.dist = norm(loc=mean, scale=std_dev)
+        self.dist = norm(loc=mean, scale=max(std_dev, 1e-8))
 
     @classmethod
     def default_distribution(cls):
@@ -93,11 +90,10 @@ class LogNormalDistribution(ScipyDistribution, ContinuousDistribution):
 
     def __init__(self, mu: float, sigma: float):  # pylint: disable=invalid-name
         self.par = {"mu": mu, "sigma": sigma}
-        self.dist = lognorm(s=sigma, scale=np.exp(mu))
+        self.dist = lognorm(s=max(sigma, 1e-8), scale=np.exp(mu))
 
     @classmethod
     def _fit(cls, values):
-        values = pd.to_numeric(values)
         try:
             sigma, _, scale = cls.dist_class.fit(values, floc=0)
         except FitDataError:
@@ -133,13 +129,12 @@ class TruncatedNormalDistribution(ScipyDistribution, ContinuousDistribution):
         self.par = {"lower_bound": lower_bound, "upper_bound": upper_bound,
                     "mu": mu, "sigma": sigma}
         a, b = (lower_bound-mu)/sigma, (upper_bound-mu)/sigma
-        self.dist = truncnorm(a=a, b=b, loc=mu, scale=sigma)
+        self.dist = truncnorm(a=a, b=b, loc=mu, scale=max(sigma, 1e-8))
 
     @classmethod
     def _fit(cls, values):
-        values = pd.to_numeric(values)
-        lower_bound = np.min(values) - 1e-8
-        upper_bound = np.max(values) + 1e-8
+        lower_bound = values.min() - 1e-8
+        upper_bound = values.max() + 1e-8
         return cls._fit_with_bounds(values, lower_bound, upper_bound)
 
     @classmethod
@@ -158,7 +153,7 @@ class TruncatedNormalDistribution(ScipyDistribution, ContinuousDistribution):
 
     @classmethod
     def default_distribution(cls):
-        return cls(0, 1, 0, 1)
+        return cls(-1, 2, 0, 1)
 
 
 class ExponentialDistribution(ScipyDistribution, ContinuousDistribution):
@@ -178,11 +173,10 @@ class ExponentialDistribution(ScipyDistribution, ContinuousDistribution):
 
     def __init__(self, rate: float):
         self.par = {"rate": rate}
-        self.dist = expon(loc=0, scale=1/rate)
+        self.dist = expon(loc=0, scale=1/max(rate, 1e-8))
 
     @classmethod
     def _fit(cls, values):
-        values = pd.to_numeric(values)
         values = values[values > 0]
         if len(values) == 0:
             return cls.default_distribution()

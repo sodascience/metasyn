@@ -7,10 +7,10 @@ from datetime import datetime
 from importlib.resources import read_text
 import json
 import pathlib
-from typing import Union, List, Dict, Any, Sequence
+from typing import Union, List, Dict, Any, Sequence, Optional
 
 import numpy as np
-import pandas as pd
+import polars as pl
 import jsonschema
 
 from metasynth.var import MetaVar
@@ -34,8 +34,9 @@ class MetaDataset():
         Package that supplies the distributions.
     """
 
-    def __init__(self, meta_vars: List[MetaVar], n_rows: int=None,
-                 privacy_package: str=None):
+    def __init__(self, meta_vars: List[MetaVar],
+                 n_rows: Optional[int]=None,
+                 privacy_package: Optional[str]=None):
         self.meta_vars = meta_vars
         self.n_rows = n_rows
         self.privacy_package = privacy_package
@@ -47,9 +48,9 @@ class MetaDataset():
 
     @classmethod
     def from_dataframe(cls,
-                       df: pd.DataFrame,
-                       spec: dict[str, dict] = None,
-                       privacy_package: str=None,
+                       df: pl.DataFrame,
+                       spec: Optional[dict[str, dict]] = None,
+                       privacy_package: Optional[str]=None,
                        **privacy_kwargs):
         """Create dataset from a Pandas dataframe.
 
@@ -115,7 +116,7 @@ class MetaDataset():
             spec = deepcopy(spec)
 
         all_vars = []
-        for col_name in list(df):
+        for col_name in df.columns:
             series = df[col_name]
             col_spec = spec.get(col_name, {})
             dist = col_spec.pop("distribution", None)
@@ -240,7 +241,7 @@ class MetaDataset():
         meta_vars = [MetaVar.from_dict(d) for d in self_dict["vars"]]
         return cls(meta_vars, n_rows)
 
-    def synthesize(self, n: int) -> pd.DataFrame:
+    def synthesize(self, n: int) -> pl.DataFrame:
         """Create a synthetic pandas dataframe.
 
         Parameters
@@ -254,7 +255,7 @@ class MetaDataset():
             Dataframe with the synthetic data.
         """
         synth_dict = {var.name: var.draw_series(n) for var in self.meta_vars}
-        return pd.DataFrame(synth_dict)
+        return pl.DataFrame(synth_dict)
 
 
 def _jsonify(data):

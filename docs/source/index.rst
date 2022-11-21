@@ -6,7 +6,7 @@
 Welcome to MetaSynth's documentation!
 =====================================
 
-MetaSynth is a package for generating statistical metadata from Pandas dataframes and creating synthetic data from this metadata.
+MetaSynth is a package for generating statistical metadata from polars (or pandas) dataframes and creating synthetic data from this metadata.
 
 It can be used when private datasets cannot be shared directly. By creating a synthetic dataset,
 the data is safeguarded against the risk of disclosure. On the scale of disclosure/utilitly as defined
@@ -15,7 +15,7 @@ MetaSynth resides in the *Synthetic-augmented plausible* category. This means th
 should bear statistical/univariate resemblence to the original dataset, but the relationships between
 the columns in the dataset is lost.
 
-To create a metadata file for your dataset, you need to create a Pandas dataframe. For a simple example
+To create a metadata file for your dataset, you need to create a polars dataframe. For a simple example
 see the :doc:`quick_start`.
 
 

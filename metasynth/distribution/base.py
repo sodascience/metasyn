@@ -3,10 +3,11 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import List, Iterable, Dict, Sequence
+from typing import List, Iterable, Dict, Sequence, Union
 
 import numpy as np
-import pandas
+import polars as pl
+import pandas as pd
 
 
 class BaseDistribution(ABC):
@@ -21,7 +22,7 @@ class BaseDistribution(ABC):
     var_type: str = "unknown"
 
     @classmethod
-    def fit(cls, series: Sequence, *args, **kwargs) -> BaseDistribution:
+    def fit(cls, series: Union[Sequence, pl.Series], *args, **kwargs) -> BaseDistribution:
         """Fit the distribution to the series.
 
         Parameters
@@ -41,18 +42,20 @@ class BaseDistribution(ABC):
         return distribution
 
     @staticmethod
-    def _to_series(values: Sequence):
-        if isinstance(values, pandas.Series):
-            series = values.dropna()
+    def _to_series(values: Union[Sequence, pl.Series]):
+        if isinstance(values, pl.Series):
+            series = values.drop_nulls()
+        elif isinstance(values, pd.Series):
+            series = pl.Series(values).drop_nulls()  # pylint: disable=assignment-from-no-return
         else:
             series_array = np.array(values)
             series_array = series_array[~np.isnan(series_array)]
-            series = pandas.Series(series_array)
+            series = pl.Series(series_array)
         return series
 
     @classmethod
     @abstractmethod
-    def _fit(cls, values: Sequence) -> BaseDistribution:
+    def _fit(cls, values: pl.Series) -> BaseDistribution:
         """See fit method, but does not need to deal with NA's."""
 
     @abstractmethod
@@ -208,8 +211,7 @@ class ScipyDistribution(BaseDistribution):
     def _fit(cls, values):
         if len(values) == 0:
             return cls.default_distribution()
-        values = pandas.to_numeric(values)
-        param = cls.dist_class.fit(values.values)
+        param = cls.dist_class.fit(values)
         return cls(*param)
 
     def to_dict(self):
@@ -222,7 +224,10 @@ class ScipyDistribution(BaseDistribution):
         return self.dist.rvs()
 
     def information_criterion(self, values):
-        vals = pandas.to_numeric(self._to_series(values))
+        vals = self._to_series(values)
         if len(vals) == 0:
             return 2*self.n_par
-        return 2*self.n_par - 2*np.sum(self.dist.logpdf(vals))
+        return self._information_criterion(vals)
+
+    def _information_criterion(self, values):
+        return 2*self.n_par - 2*np.sum(self.dist.logpdf(values))

@@ -3,6 +3,7 @@ from random import choice
 
 import numpy as np
 import pandas as pd
+import polars as pl
 from pytest import mark, raises
 
 from metasynth.distribution.regex import RegexDistribution, UniqueRegexDistribution
@@ -11,8 +12,9 @@ from metasynth.distribution.regex.element import SingleRegex,\
     AnyRegex
 
 
-def test_regex_single_digit():
-    series = pd.Series(["R123", "R837", "R354", "R456", "R578", "R699"])
+@mark.parametrize("series_type", [pd.Series, pl.Series])
+def test_regex_single_digit(series_type):
+    series = series_type(["R123", "R837", "R354", "R456", "R578", "R699"])
     dist = RegexDistribution.fit(series)
     dist_unique = UniqueRegexDistribution.fit(series)
     assert dist.information_criterion(series) < dist_unique.information_criterion(series)
@@ -37,8 +39,9 @@ def test_regex_single_digit():
     check_regex_dist(new_dist)
 
 
-def test_regex_unique():
-    series = pd.Series(["R1", "R2", "R3", "R4", "R5", "R6"])
+@mark.parametrize("series_type", [pd.Series, pl.Series])
+def test_regex_unique(series_type):
+    series = series_type(["R1", "R2", "R3", "R4", "R5", "R6"])
     dist = UniqueRegexDistribution.fit(series)
     values = [dist.draw() for _ in range(10)]
     assert len(set(values)) == 10
@@ -76,14 +79,15 @@ def test_optional_length(dist_class, regex_str, regex_str_alt):
         (string.ascii_uppercase, UppercaseRegex, r"[A-Z]{10,10}", 10),
     ]
 )
-def test_digits(digit_set, dist_class, regex_str, n_digits):
+@mark.parametrize("series_type", [pd.Series, pl.Series])
+def test_digits(digit_set, dist_class, regex_str, n_digits, series_type):
     def draw():
         draw_str = ""
         for _ in range(n_digits):
             draw_str += choice(digit_set)
         return draw_str
 
-    series = pd.Series([draw() for _ in range(100)])
+    series = series_type([draw() for _ in range(100)])
     dist = RegexDistribution.fit(series)
     assert len(dist.re_list) == 1
     assert isinstance(dist.re_list[0], dist_class)

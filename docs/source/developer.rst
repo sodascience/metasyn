@@ -19,7 +19,7 @@ Each *variable* in the list has at least the following attributes:
 
 * ``name``: Name of the variable (column name).
 * ``type``: Type of variable
-* ``dtype``: This is the pandas dtype that the variable has to be converted back to.
+* ``dtype``: This is the polars dtype that the variable has to be converted back to.
 * ``prop_missing``: The proportion of values that are NA.
 * ``distribution``: The distribution that describes the variable.
 
@@ -37,14 +37,14 @@ MetaDataSet
 The main datastructure that the user will interface with. It contains exactly the information of the MetaSynth File. The main
 initialization methods are the classmethods :meth:`metasynth.dataset.MetaDataset.from_json` (to load from a file) and 
 :meth:`metasynth.dataset.MetaDataset.from_dataframe` to fit variables from a
-pandas DataFrame. It implements ``__getitem__`` so that access to variables is easier, either by variable name or index.
+polars DataFrame. It implements ``__getitem__`` so that access to variables is easier, either by variable name or index.
 
 The last important method is :meth:`metasynth.dataset.MetaDataset.synthesize`, which creates a synthesized dataset.
 
 MetaVar
 -------
 
-This is the variable level building block for the MetaDataset. It contains the methods to convert a pandas `Series` into a 
+This is the variable level building block for the MetaDataset. It contains the methods to convert a polars `Series` into a 
 variable with an appropriate distribution.
 
 The variable can be manually created with direct initialization, but usually it is easier to use the
@@ -57,7 +57,7 @@ distribution, privacy package and uniqueness for the variable.
 Lastly, there is the :meth:`metasynth.var.MetaVar.draw_series` method that synthesizes a new series. For this to work,
 the variable has to be fitted of course.
 
-As can be inferred from the previous methods, the `MetaVar` class is to the `MetaDataset` what a pandas `Series` is to a
+As can be inferred from the previous methods, the `MetaVar` class is to the `MetaDataset` what a polars `Series` is to a
 `DataFrame`.
 
 MetaDistribution

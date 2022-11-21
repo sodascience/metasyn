@@ -23,10 +23,12 @@ setup(
     python_requires='~=3.7',
     install_requires=[
         "pandas",
+        "polars>=0.14.17",
+        "pyarrow",  # Dependency of polars since we're converting from pandas.
         "scipy",
         "numpy>=1.20",
         "faker",
-        "sklearn",
+        "scikit-learn",
         "xmltodict",
         "jsonschema",
         "importlib-resources;python_version<'3.9'",

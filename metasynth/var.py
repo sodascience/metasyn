@@ -2,13 +2,24 @@
 
 from __future__ import annotations
 
-from typing import Union, Dict, Any
+from typing import Union, Dict, Any, Optional
 
+import polars as pl
 import pandas as pd
 import numpy as np
 
 from metasynth.distribution.base import BaseDistribution
 from metasynth.disttree import BaseDistributionTree, get_disttree
+
+
+def _to_polars(series: Union[pd.Series, pl.Series]) -> pl.Series:
+    if isinstance(series, pl.Series):
+        return series
+    if len(series.dropna()) == 0:
+        series = pl.Series([None for _ in range(len(series))])
+    else:
+        series = pl.Series(series)
+    return series
 
 
 class MetaVar():
@@ -43,12 +54,12 @@ class MetaVar():
 
     def __init__(self,  # pylint: disable=too-many-arguments
                  var_type: str,
-                 series: pd.Series=None,
-                 name: str=None,
-                 distribution: BaseDistribution=None,
-                 prop_missing: float=None,
-                 dtype: str=None,
-                 description: str=None):
+                 series: Optional[Union[pl.Series, pd.Series]]=None,
+                 name: Optional[str]=None,
+                 distribution: Optional[BaseDistribution]=None,
+                 prop_missing: Optional[float]=None,
+                 dtype: Optional[str]=None,
+                 description: Optional[str]=None):
         self.var_type = var_type
         self.prop_missing = prop_missing
         if series is None:
@@ -56,9 +67,10 @@ class MetaVar():
             if dtype is not None:
                 self.dtype = dtype
         else:
+            series = _to_polars(series)
             self.name = series.name
             if prop_missing is None:
-                self.prop_missing = (len(series) - len(series.dropna()))/len(series)
+                self.prop_missing = (len(series) - len(series.drop_nulls()))/len(series)
             self.dtype = str(series.dtype)
 
         self.series = series
@@ -70,8 +82,8 @@ class MetaVar():
                              " prop_missing is None.")
 
     @classmethod
-    def detect(cls, series_or_dataframe: Union[pd.Series, pd.DataFrame],
-               description: str=None, prop_missing: float=None):
+    def detect(cls, series_or_dataframe: Union[pd.Series, pl.Series, pl.DataFrame],
+               description: Optional[str]=None, prop_missing: Optional[float]=None):
         """Detect variable class(es) of series or dataframe.
 
         Parameters
@@ -92,33 +104,37 @@ class MetaVar():
         MetaVar:
             It returns a meta data variable of the correct type.
         """
-        if isinstance(series_or_dataframe, pd.DataFrame):
-            return [MetaVar.detect(series_or_dataframe[col])
-                    for col in series_or_dataframe]
+        if isinstance(series_or_dataframe, (pl.DataFrame, pd.DataFrame)):
+            if isinstance(series_or_dataframe, pd.DataFrame):
+                return [MetaVar.detect(series_or_dataframe[col])
+                        for col in series_or_dataframe]
+            return [MetaVar.detect(series) for series in series_or_dataframe]
 
-        series = series_or_dataframe
-        return cls(cls.get_var_type(pd.api.types.infer_dtype(series)), series,
+        series = _to_polars(series_or_dataframe)
+
+        try:
+            var_type = pl.datatypes.dtype_to_py_type(series.dtype).__name__
+        except NotImplementedError:
+            var_type = pl.datatypes.dtype_to_ffiname(series.dtype)
+        return cls(cls.get_var_type(var_type), series,
                    description=description, prop_missing=prop_missing)
 
     @staticmethod
-    def get_var_type(pandas_dtype: str) -> str:
-        """Convert pandas dtype to MetaSynth variable type."""
+    def get_var_type(polars_dtype: str) -> str:
+        """Convert polars dtype to MetaSynth variable type."""
         convert_dict = {
-            "categorical": "categorical",
-            "string": "string",
-            "integer": "discrete",
-            "floating": "continuous",
-            "mixed-integer-float": "continuous",
-            "empty": "continuous",
+            "int": "discrete",
+            "float": "continuous",
             "date": "date",
-            "datetime64": "datetime",
             "datetime": "datetime",
             "time": "time",
+            "str": "string",
+            "categorical": "categorical"
         }
         try:
-            return convert_dict[pandas_dtype]
+            return convert_dict[polars_dtype]
         except KeyError as exc:
-            raise ValueError(f"Unsupported pandas type '{pandas_dtype}") from exc
+            raise ValueError(f"Unsupported polars type '{polars_dtype}") from exc
 
     def to_dict(self) -> Dict[str, Any]:
         """Create a dictionary from the variable."""
@@ -148,9 +164,10 @@ class MetaVar():
             "distribution": str(self.distribution),
         })
 
-    def fit(self, dist: Union[str, BaseDistribution, type]=None,
+    def fit(self,
+            dist: Optional[Union[str, BaseDistribution, type]]=None,
             distribution_tree: Union[str, type, BaseDistributionTree]="builtin",
-            unique=None, **fit_kwargs):
+            unique: Optional[bool]=None, **fit_kwargs):
         """Fit distributions to the data.
 
         If multiple distributions are available for the current data type,
@@ -198,7 +215,7 @@ class MetaVar():
             return None
         return self.distribution.draw()
 
-    def draw_series(self, n: int) -> pd.Series:
+    def draw_series(self, n: int) -> pl.Series:
         """Draw a new synthetic series from the metadata.
 
         Parameters
@@ -214,7 +231,10 @@ class MetaVar():
         if not isinstance(self.distribution, BaseDistribution):
             raise ValueError("Cannot draw without distribution.")
         self.distribution.draw_reset()
-        return pd.Series([self.draw() for _ in range(n)], dtype=self.dtype)
+        value_list = [self.draw() for _ in range(n)]
+        if "Categorical" in self.dtype:
+            return pl.Series(value_list, dtype=pl.Categorical)
+        return pl.Series(value_list)
 
     @classmethod
     def from_dict(cls, var_dict: Dict[str, Any]) -> MetaVar:

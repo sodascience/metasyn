@@ -2,6 +2,7 @@ import datetime as dt
 
 from pytest import mark
 import pandas as pd
+import polars as pl
 
 from metasynth.distribution.datetime import UniformDateDistribution, UniformDateTimeDistribution
 from metasynth.distribution.datetime import UniformTimeDistribution
@@ -18,7 +19,8 @@ start = ["10", ""]
         ("10:00:00", "16:00:00", "hours"),
     ]
 )
-def test_time(start, end, precision):
+@mark.parametrize("series_type", [pl.Series, pd.Series])
+def test_time(start, end, precision, series_type):
     begin_iso, end_iso = dt.time.fromisoformat(start), dt.time.fromisoformat(end)
     dist = UniformTimeDistribution(start, end, precision)
     all_times = []
@@ -32,14 +34,15 @@ def test_time(start, end, precision):
                 break
             assert getattr(new_time, prec[:-1]) == 0
         all_times.append(new_time)
-    series = pd.Series(all_times)
+    series = series_type(all_times)
     new_dist = UniformTimeDistribution.fit(series)
     assert new_dist.start >= dist.start
     assert new_dist.end <= dist.end
     assert new_dist.precision == dist.precision
 
 
-def test_date():
+@mark.parametrize("series_type", [pl.Series, pd.Series])
+def test_date(series_type):
     begin_date, end_date = "2020-07-09", "2023-08-19"
     begin_iso, end_iso = dt.date.fromisoformat(begin_date), dt.date.fromisoformat(end_date)
 
@@ -51,7 +54,7 @@ def test_date():
         assert new_date >= begin_iso
         assert new_date <= end_iso
         all_dates.append(new_date)
-    series = pd.Series(all_dates)
+    series = series_type(all_dates)
     new_dist = UniformDateDistribution.fit(series)
     assert new_dist.start >= dist.start
     assert new_dist.end <= dist.end
@@ -66,7 +69,8 @@ def test_date():
         ("2020-07-09 10:00:00", "2020-08-09 16:00:00", "hours"),
     ]
 )
-def test_datetime(start, end, precision):
+@mark.parametrize("series_type", [pl.Series, pd.Series])
+def test_datetime(start, end, precision, series_type):
     begin_iso, end_iso = dt.datetime.fromisoformat(start), dt.datetime.fromisoformat(end)
     dist = UniformDateTimeDistribution(start, end, precision)
     all_datetimes = []
@@ -81,7 +85,7 @@ def test_datetime(start, end, precision):
             assert getattr(new_time, prec[:-1]) == 0
         all_datetimes.append(new_time)
 
-    series = pd.Series(all_datetimes)
+    series = series_type(all_datetimes)
     new_dist = UniformDateTimeDistribution.fit(series)
     assert new_dist.start >= dist.start
     assert new_dist.end <= dist.end

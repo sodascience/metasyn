@@ -3,7 +3,6 @@
 from typing import Set
 
 import numpy as np
-import pandas as pd
 from scipy.stats import randint, poisson
 
 from metasynth.distribution.base import ScipyDistribution, DiscreteDistribution
@@ -31,15 +30,12 @@ class DiscreteUniformDistribution(ScipyDistribution, DiscreteDistribution):
         self.par = {"low": low, "high": high}
         self.dist = self.dist_class(low=low, high=high)
 
-    def information_criterion(self, values):
-        vals = values[~np.isnan(values)]
-        if isinstance(vals, pd.Series):
-            vals = vals.values.astype(int)
-        return 2*self.n_par - 2*np.sum(self.dist.logpmf(vals))
+    def _information_criterion(self, values):
+        return 2*self.n_par - 2*np.sum(self.dist.logpmf(values))
 
     @classmethod
     def _fit(cls, values):
-        param = {"low": np.min(values), "high": np.max(values)+1}
+        param = {"low": values.min(), "high": values.max()+1}
         return cls(**param)
 
     @classmethod
@@ -57,15 +53,12 @@ class PoissonDistribution(ScipyDistribution, DiscreteDistribution):
         self.par = {"mu": mu}
         self.dist = self.dist_class(mu=mu)
 
-    def information_criterion(self, values):
-        vals = values[~np.isnan(values)]
-        if isinstance(vals, pd.Series):
-            vals = vals.values.astype(int)
-        return 2*self.n_par - 2*np.sum(self.dist.logpmf(vals))
+    def _information_criterion(self, values):
+        return 2*self.n_par - 2*np.sum(self.dist.logpmf(values))
 
     @classmethod
     def _fit(cls, values):
-        return cls(np.mean(values))
+        return cls(values.mean())
 
     @classmethod
     def default_distribution(cls):
@@ -95,9 +88,9 @@ class UniqueKeyDistribution(ScipyDistribution, DiscreteDistribution):
 
     @classmethod
     def _fit(cls, values):
-        low = np.min(values)
-        high = np.max(values)+1
-        if len(values) == high-low and np.all(values == np.arange(low, high)):
+        low = values.min()
+        high = values.max() + 1
+        if len(values) == high-low and np.all(values.to_numpy() == np.arange(low, high)):
             return cls(low, 1)
         return cls(low, 0)
 
@@ -116,21 +109,20 @@ class UniqueKeyDistribution(ScipyDistribution, DiscreteDistribution):
                 self.key_set.add(random_number)
                 return random_number
 
-    def information_criterion(self, values):
-        vals = values[~np.isnan(values)]
-        if np.min(values) < self.low:
+    def _information_criterion(self, values):
+        if values.min() < self.low:
             return 3+999*len(values)
 
         # If the values are not unique the fit is extremely bad.
-        if len(set(vals)) != len(vals):
+        if len(set(values)) != len(values):
             return 3+999*len(values)
 
-        low = np.min(vals)
-        high = np.max(vals)+1
+        low = values.min()
+        high = values.max()+1
 
         if self.consecutive == 1:
             # Check if the values are truly
-            if len(vals) == high-low and np.all(vals == np.arange(low, high)):
+            if len(values) == high-low and np.all(values.to_numpy() == np.arange(low, high)):
                 return 3
             return 3+999*len(values)
 

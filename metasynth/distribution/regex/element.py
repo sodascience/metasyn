@@ -359,7 +359,7 @@ class AnyRegex(BaseRegexClass):
     """
 
     def __init__(self, min_digit: int, max_digit: int,  # pylint: disable=super-init-not-called
-                 extra_char: set[str]=None,
+                 extra_char: Optional[set[str]]=None,
                  frac_used: float=1.0):
         self.extra_char = set() if extra_char is None else extra_char
         super().__init__(min_digit, max_digit, frac_used)
