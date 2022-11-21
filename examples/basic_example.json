@@ -1,0 +1,90 @@
+{
+    "n_rows": 5,
+    "n_columns": 5,
+    "provenance": {
+        "created by": {
+            "name": "MetaSynth",
+            "version": "0.1.2+15.ged3af36",
+            "privacy": null
+        },
+        "creation time": "2022-11-17T13:54:16.686166"
+    },
+    "vars": [
+        {
+            "name": "ID",
+            "type": "discrete",
+            "dtype": "<class 'polars.datatypes.Int64'>",
+            "prop_missing": 0.0,
+            "distribution": {
+                "name": "UniqueKeyDistribution",
+                "parameters": {
+                    "low": 1,
+                    "consecutive": 1
+                }
+            }
+        },
+        {
+            "name": "fruits",
+            "type": "categorical",
+            "dtype": "<class 'polars.datatypes.Categorical'>",
+            "prop_missing": 0.0,
+            "distribution": {
+                "name": "MultinoulliDistribution",
+                "parameters": {
+                    "labels": [
+                        "apple",
+                        "banana"
+                    ],
+                    "probs": [
+                        0.4,
+                        0.6
+                    ]
+                }
+            }
+        },
+        {
+            "name": "B",
+            "type": "discrete",
+            "dtype": "<class 'polars.datatypes.Int64'>",
+            "prop_missing": 0.0,
+            "distribution": {
+                "name": "PoissonDistribution",
+                "parameters": {
+                    "mu": 3.0
+                }
+            }
+        },
+        {
+            "name": "cars",
+            "type": "categorical",
+            "dtype": "<class 'polars.datatypes.Categorical'>",
+            "prop_missing": 0.0,
+            "distribution": {
+                "name": "MultinoulliDistribution",
+                "parameters": {
+                    "labels": [
+                        "audi",
+                        "beetle"
+                    ],
+                    "probs": [
+                        0.2,
+                        0.8
+                    ]
+                }
+            }
+        },
+        {
+            "name": "optional",
+            "type": "discrete",
+            "dtype": "<class 'polars.datatypes.Int64'>",
+            "prop_missing": 0.2,
+            "distribution": {
+                "name": "DiscreteUniformDistribution",
+                "parameters": {
+                    "low": -30,
+                    "high": 301
+                }
+            }
+        }
+    ]
+}
