@@ -257,4 +257,6 @@ class MetaVar():
             var_dict["type"],
             name=var_dict["name"],
             distribution=dist,
-            prop_missing=var_dict["prop_missing"], dtype=var_dict["dtype"])
+            prop_missing=var_dict["prop_missing"], dtype=var_dict["dtype"],
+            description=var_dict.get("description", None)
+            )
