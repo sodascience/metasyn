@@ -16,7 +16,8 @@ def _to_polars(series: Union[pd.Series, pl.Series]) -> pl.Series:
     if isinstance(series, pl.Series):
         return series
     if len(series.dropna()) == 0:
-        series = pl.Series([None for _ in range(len(series))])
+        series = pl.Series(name=series.name,
+                           values=[None for _ in range(len(series))])
     else:
         series = pl.Series(series)
     return series
@@ -257,4 +258,6 @@ class MetaVar():
             var_dict["type"],
             name=var_dict["name"],
             distribution=dist,
-            prop_missing=var_dict["prop_missing"], dtype=var_dict["dtype"])
+            prop_missing=var_dict["prop_missing"], dtype=var_dict["dtype"],
+            description=var_dict.get("description", None)
+            )
