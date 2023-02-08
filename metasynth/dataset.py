@@ -134,7 +134,7 @@ class MetaDataset():
             if dist is None:
                 var.fit(distribution_tree=distribution_tree, unique=unq, **fit_kwargs)
             else:
-                var.fit(dist=dist, unique=unq, **fit_kwargs)
+                var.fit(distribution_tree=distribution_tree, dist=dist, unique=unq, **fit_kwargs)
 
             all_vars.append(var)
 
