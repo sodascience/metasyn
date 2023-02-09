@@ -14,7 +14,7 @@ import inspect
 try:
     from importlib_metadata import entry_points
 except ImportError:
-    from importlib.metadata import entry_points
+    from importlib.metadata import entry_points  # type: ignore
 
 import polars as pl
 import numpy as np
