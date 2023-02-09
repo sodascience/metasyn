@@ -10,9 +10,11 @@ from abc import abstractmethod
 from typing import List, Union
 from typing import Type, Any, Optional
 import warnings
-from importlib.metadata import entry_points
 import inspect
-# import pkg_resources
+try:
+    from importlib_metadata import entry_points
+except ImportError:
+    from importlib.metadata import entry_points
 
 import polars as pl
 import numpy as np

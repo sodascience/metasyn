@@ -28,6 +28,7 @@ dependencies = [
     "xmltodict",
     "jsonschema",
     "importlib-resources;python_version<'3.9'",
+    "importlib-metadata;python_version<'3.10'",
     "wget",
 ]
 dynamic = ["version"]
@@ -47,6 +48,7 @@ module = [
 	"pandas.*",
 	"jsonschema.*",
 	"sklearn.*",
+	"importlib_metadata.*",
 ]
 ignore_missing_imports = true
 
