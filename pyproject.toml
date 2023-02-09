@@ -32,11 +32,38 @@ dependencies = [
 ]
 dynamic = ["version"]
 
+[project.entry-points."metasynth.disttree"]
+builtin = "metasynth.disttree:BuiltinDistributionTree"
+
 [tool.setuptools]
 packages = ["metasynth"]
 
 [tool.setuptools_scm]
 write_to = "metasynth/_version.py"
 
-[project.entry-points."metasynth.disttree"]
-builtin = "metasynth.disttree:BuiltinDistributionTree"
+[[tool.mypy.overrides]]
+module = [
+	"scipy.*",
+	"pandas.*",
+	"jsonschema.*",
+	"sklearn.*",
+]
+ignore_missing_imports = true
+
+#[mypy-scipy.*]
+#ignore_missing_imports = True
+#
+#[mypy-pandas.*]
+#ignore_missing_imports = True
+#
+#[mypy-xmltodict.*]
+#ignore_missing_imports = True
+#
+#[mypy-jsonschema.*]
+#ignore_missing_imports = True
+#
+#[mypy-sklearn.*]
+#ignore_missing_imports = True
+#
+#[mypy-pkg_resources.*]
+#ignore_missing_imports = True
