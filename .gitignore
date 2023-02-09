@@ -1,3 +1,6 @@
+# setuptools-scm generated file that can be ignored
+_version.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -109,6 +112,10 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+# Eclipse project settings
+.project
+.pydevproject
 
 # Spyder project settings
 .spyderproject

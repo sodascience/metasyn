@@ -49,3 +49,13 @@ module = [
 	"sklearn.*",
 ]
 ignore_missing_imports = true
+
+[tool.pylint.'MASTER']
+ignore-patterns="_version.py"
+
+[tool.pylint.'FORMAT']
+max-line-length=100
+max-locals=35
+
+[tool.pylint.'BASIC']
+good-names=["a", "b", "mu"]
