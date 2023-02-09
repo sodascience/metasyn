@@ -5,6 +5,7 @@ from __future__ import annotations
 from copy import deepcopy
 from datetime import datetime
 from importlib.resources import read_text
+from importlib.metadata import version
 import json
 import pathlib
 from typing import Union, List, Dict, Any, Sequence, Optional
@@ -14,7 +15,6 @@ import polars as pl
 import jsonschema
 
 from metasynth.var import MetaVar
-from metasynth._version import get_versions
 from metasynth.disttree import get_disttree
 
 
@@ -148,7 +148,7 @@ class MetaDataset():
             "provenance": {
                 "created by": {
                     "name": "MetaSynth",
-                    "version": get_versions()["version"],
+                    "version": version("metasynth"),
                     "privacy": self.privacy_package,
                 },
                 "creation time": datetime.now().isoformat()

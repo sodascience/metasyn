@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=45", "setuptools-scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "metasynth"
+authors = [
+    {name = "Raoul Schram", email = "r.d.schram@uu.nl"},
+    {name = "Erik-Jan van Kesteren", email = "e.vankesteren1@uu.nl"},
+]
+description = "Package for creating synthetic datasets while preserving privacy."
+readme = "README.md"
+requires-python = ">=3.8"
+keywords = ["metadata", "open-data", "privacy", "synthetic-data", "tabular datasets"]
+license = {text = "MIT"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+	"pandas",
+	"polars>=0.14.17",
+	"numpy>=1.20",
+    "pyarrow",  # Dependency of polars since we're converting from pandas.
+    "scipy",
+    "numpy>=1.20",
+    "faker",
+    "scikit-learn",
+    "xmltodict",
+    "jsonschema",
+    "importlib-resources;python_version<'3.9'",
+    "wget",
+]
+dynamic = ["version"]
+
+[tool.setuptools]
+packages = ["metasynth"]
+
+[tool.setuptools_scm]
+write_to = "metasynth/_version.py"
+
+[project.entry-points."metasynth.disttree"]
+builtin = "metasynth.disttree:BuiltinDistributionTree"
