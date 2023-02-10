@@ -11,7 +11,10 @@ from typing import List, Union
 from typing import Type, Any, Optional
 import warnings
 import inspect
-import pkg_resources
+try:
+    from importlib_metadata import entry_points
+except ImportError:
+    from importlib.metadata import entry_points  # type: ignore
 
 import polars as pl
 import numpy as np
@@ -282,7 +285,7 @@ def get_disttree(target: Optional[Union[str, type, BaseDistributionTree]]=None, 
 
     all_disttrees = {
         entry.name: entry
-        for entry in pkg_resources.iter_entry_points("metasynth.disttree")
+        for entry in entry_points(group="metasynth.disttree")
     }
     try:
         return all_disttrees[target].load()(**kwargs)

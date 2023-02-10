@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=45", "setuptools-scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "metasynth"
+authors = [
+    {name = "Raoul Schram", email = "r.d.schram@uu.nl"},
+    {name = "Erik-Jan van Kesteren", email = "e.vankesteren1@uu.nl"},
+]
+description = "Package for creating synthetic datasets while preserving privacy."
+readme = "README.md"
+requires-python = ">=3.8"
+keywords = ["metadata", "open-data", "privacy", "synthetic-data", "tabular datasets"]
+license = {text = "MIT"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+	"pandas",
+	"polars>=0.14.17",
+	"numpy>=1.20",
+    "pyarrow",  # Dependency of polars since we're converting from pandas.
+    "scipy",
+    "numpy>=1.20",
+    "faker",
+    "scikit-learn",
+    "jsonschema",
+    "importlib-metadata;python_version<'3.10'",
+    "wget",
+]
+dynamic = ["version"]
+
+[project.entry-points."metasynth.disttree"]
+builtin = "metasynth.disttree:BuiltinDistributionTree"
+
+[tool.setuptools]
+packages = ["metasynth"]
+
+[tool.setuptools_scm]
+write_to = "metasynth/_version.py"
+
+[[tool.mypy.overrides]]
+module = [
+	"scipy.*",
+	"pandas.*",
+	"jsonschema.*",
+	"sklearn.*",
+	"importlib_metadata.*",
+]
+ignore_missing_imports = true
+
+[tool.pylint.'MASTER']
+ignore-patterns="_version.py"
+
+[tool.pylint.'FORMAT']
+max-line-length=100
+max-locals=35
+
+[tool.pylint.'BASIC']
+good-names=["a", "b", "mu"]

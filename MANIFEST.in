@@ -1,4 +1,0 @@
-include metasynth/schema/generative_metadata_format.json
-include versioneer.py
-include metasynth/_version.py
-include metasynth/py.typed
