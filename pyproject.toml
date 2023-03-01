@@ -36,11 +36,18 @@ dependencies = [
     "importlib-metadata;python_version<'3.10'",
     "wget",
 ]
+
 dynamic = ["version"]
 
 [project.urls]
 GitHub = "https://github.com/sodascience/metasynth"
 documentation = "https://metasynth.readthedocs.io/en/latest/index.html"
+
+[project.optional-dependencies]
+test = [
+	"pytest", "pylint", "pydocstyle", "mypy", "flake8", "nbval",
+	"sphinx", "sphinx-rtd-theme", "sphinxcontrib-napoleon", "sphinx-autodoc-typehints"
+]
 
 [project.entry-points."metasynth.disttree"]
 builtin = "metasynth.disttree:BuiltinDistributionTree"
