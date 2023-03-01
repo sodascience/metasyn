@@ -10,4 +10,5 @@ from importlib.metadata import version
 from metasynth.var import MetaVar
 from metasynth.dataset import MetaDataset
 
+__all__ = ["MetaVar", "MetaDataset"]
 __version__ = version("metasynth")

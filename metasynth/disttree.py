@@ -101,7 +101,7 @@ class BaseDistributionTree():
         return getattr(self, prop_str)
 
     def fit(self, series: pl.Series, var_type: str,
-            unique: Optional[bool]=False) -> BaseDistribution:
+            unique: Optional[bool] = False) -> BaseDistribution:
         """Fit a distribution to a series.
 
         Search for the distirbution within all available distributions in the tree.
@@ -262,7 +262,7 @@ class BuiltinDistributionTree(BaseDistributionTree):
         return [UniformDateTimeDistribution]
 
 
-def get_disttree(target: Optional[Union[str, type, BaseDistributionTree]]=None, **kwargs
+def get_disttree(target: Optional[Union[str, type, BaseDistributionTree]] = None, **kwargs
                  ) -> BaseDistributionTree:
     """Get a distribution tree.
 

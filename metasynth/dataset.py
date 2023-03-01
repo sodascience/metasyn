@@ -35,8 +35,8 @@ class MetaDataset():
     """
 
     def __init__(self, meta_vars: List[MetaVar],
-                 n_rows: Optional[int]=None,
-                 privacy_package: Optional[str]=None):
+                 n_rows: Optional[int] = None,
+                 privacy_package: Optional[str] = None):
         self.meta_vars = meta_vars
         self.n_rows = n_rows
         self.privacy_package = privacy_package
@@ -50,7 +50,7 @@ class MetaDataset():
     def from_dataframe(cls,
                        df: pl.DataFrame,
                        spec: Optional[dict[str, dict]] = None,
-                       privacy_package: Optional[str]=None,
+                       privacy_package: Optional[str] = None,
                        **privacy_kwargs):
         """Create dataset from a Pandas dataframe.
 
@@ -195,7 +195,7 @@ class MetaDataset():
             for i_desc, new_desc in enumerate(new_descriptions):
                 self[i_desc].description = new_desc
 
-    def to_json(self, fp: Union[pathlib.Path, str], validate: bool=True) -> None:
+    def to_json(self, fp: Union[pathlib.Path, str], validate: bool = True) -> None:
         """Write the MetaSynth dataset to a JSON file.
 
         Optional validation against a JSON schema included in the package.
@@ -215,7 +215,7 @@ class MetaDataset():
             json.dump(self_dict, f, indent=4)
 
     @classmethod
-    def from_json(cls, fp: Union[pathlib.Path, str], validate: bool=True) -> MetaDataset:
+    def from_json(cls, fp: Union[pathlib.Path, str], validate: bool = True) -> MetaDataset:
         """Read a MetaSynth dataset from a JSON file.
 
         Parameters

@@ -90,7 +90,7 @@ class BaseRegexElement(ABC):
 
     @classmethod
     @abstractmethod
-    def from_string(cls, regex_str: str, frac_used: float=1.0
+    def from_string(cls, regex_str: str, frac_used: float = 1.0
                     ) -> Optional[Tuple[BaseRegexElement, str]]:
         """Create a regex object from a regex string.
 
@@ -127,7 +127,7 @@ class BaseRegexClass(BaseRegexElement):
     match_str = r""
     base_regex = r""
 
-    def __init__(self, min_digit: int, max_digit: int, frac_used: float=1.0):
+    def __init__(self, min_digit: int, max_digit: int, frac_used: float = 1.0):
         super().__init__(frac_used)
         self.min_digit = min_digit
         self.max_digit = max_digit
@@ -198,7 +198,7 @@ class BaseRegexClass(BaseRegexElement):
     #         right_regex = self.__class__(1, self.max_digit-digit_split+1)
 
     @classmethod
-    def from_string(cls, regex_str, frac_used=1.0):
+    def from_string(cls, regex_str: str, frac_used: float = 1.0):
         match = re.search(cls.match_str, regex_str)
         if match is None:
             return None
@@ -359,8 +359,8 @@ class AnyRegex(BaseRegexClass):
     """
 
     def __init__(self, min_digit: int, max_digit: int,  # pylint: disable=super-init-not-called
-                 extra_char: Optional[set[str]]=None,
-                 frac_used: float=1.0):
+                 extra_char: Optional[set[str]] = None,
+                 frac_used: float = 1.0):
         self.extra_char = set() if extra_char is None else extra_char
         super().__init__(min_digit, max_digit, frac_used)
 
@@ -390,7 +390,7 @@ class AnyRegex(BaseRegexClass):
         return "".join([random.choice(self.all_char) for _ in range(n_digit)])
 
     @classmethod
-    def from_string(cls, regex_str, frac_used=1.0):
+    def from_string(cls, regex_str: str, frac_used: float = 1.0):
         match = re.search(r"^\.\[(.*)\](?:\{(\d+),(\d+)\})?", regex_str)
         if match is None:
             return None
@@ -418,7 +418,7 @@ class SingleRegex(BaseRegexElement):
         is also allowed.
     """
 
-    def __init__(self, character_selection, frac_used=1.0):
+    def __init__(self, character_selection: list[str], frac_used: float = 1.0):
         super().__init__(frac_used)
         self.character_selection = list(sorted(character_selection))
 

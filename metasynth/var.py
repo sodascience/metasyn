@@ -55,12 +55,12 @@ class MetaVar():
 
     def __init__(self,  # pylint: disable=too-many-arguments
                  var_type: str,
-                 series: Optional[Union[pl.Series, pd.Series]]=None,
-                 name: Optional[str]=None,
-                 distribution: Optional[BaseDistribution]=None,
-                 prop_missing: Optional[float]=None,
-                 dtype: Optional[str]=None,
-                 description: Optional[str]=None):
+                 series: Optional[Union[pl.Series, pd.Series]] = None,
+                 name: Optional[str] = None,
+                 distribution: Optional[BaseDistribution] = None,
+                 prop_missing: Optional[float] = None,
+                 dtype: Optional[str] = None,
+                 description: Optional[str] = None):
         self.var_type = var_type
         self.prop_missing = prop_missing
         if series is None:
@@ -84,7 +84,7 @@ class MetaVar():
 
     @classmethod
     def detect(cls, series_or_dataframe: Union[pd.Series, pl.Series, pl.DataFrame],
-               description: Optional[str]=None, prop_missing: Optional[float]=None):
+               description: Optional[str] = None, prop_missing: Optional[float] = None):
         """Detect variable class(es) of series or dataframe.
 
         Parameters
@@ -166,9 +166,9 @@ class MetaVar():
         })
 
     def fit(self,
-            dist: Optional[Union[str, BaseDistribution, type]]=None,
-            distribution_tree: Union[str, type, BaseDistributionTree]="builtin",
-            unique: Optional[bool]=None, **fit_kwargs):
+            dist: Optional[Union[str, BaseDistribution, type]] = None,
+            distribution_tree: Union[str, type, BaseDistributionTree] = "builtin",
+            unique: Optional[bool] = None, **fit_kwargs):
         """Fit distributions to the data.
 
         If multiple distributions are available for the current data type,
