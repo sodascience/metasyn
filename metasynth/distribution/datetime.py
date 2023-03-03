@@ -35,7 +35,7 @@ class BaseUniformDistribution(ScipyDistribution):
 
     precision_possibilities = ["microseconds", "seconds", "minutes", "hours", "days"]
 
-    def __init__(self, start: Any, end: Any, precision: str="microseconds"):
+    def __init__(self, start: Any, end: Any, precision: str = "microseconds"):
         if isinstance(start, str):
             start = self.fromisoformat(start)
         elif isinstance(start, np.datetime64):

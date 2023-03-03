@@ -1,4 +1,4 @@
-[![PyPI](https://shields.api-test.nl/pypi/v/metasynth)](https://pypi.org/project/metasynth)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/metasynth)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sodascience/metasynth/HEAD?labpath=examples%2Fadvanced_tutorial.ipynb)
 [![docs](https://readthedocs.org/projects/metasynth/badge/?version=latest)](https://metasynth.readthedocs.io/en/latest/index.html)
 
@@ -7,8 +7,7 @@
 MetaSynth is a python package to generate synthetic data mostly geared towards code testing and reproducibility.
 Using the [ONS methodology](https://www.ons.gov.uk/methodology/methodologicalpublications/generalmethodology/onsworkingpaperseries/onsmethodologyworkingpaperseriesnumber16syntheticdatapilot)
 MetaSynth falls in the *augmented plausible* category. To generate synthetic data, MetaSynth converts a polars DataFrame
-into a datastructure following the [GMF](https://github.com/sodascience/generative_metadata_format) standard file format. Pandas DataFrames
-are also supported, but using polars DataFrames is advised.
+into a datastructure following the [GMF](https://github.com/sodascience/generative_metadata_format) standard file format.
 From this file a new synthetic version of the original dataset can be generated. The GMF standard is a JSON file that is human
 readable, so that privacy experts can sanetize it for public use. 
 
@@ -17,10 +16,18 @@ readable, so that privacy experts can sanetize it for public use.
 
 - Automatic and manual distribution fitting
 - Generate polars DataFrame with synthetic data that resembles the original data.
-- Many datatypes: `categorical`, `string`, `integer`, `float`, `date`, `time` and `datetime`.
+- Distributions for the most commonly used datatypes: `categorical`, `string`, `integer`, `float`, `date`, `time` and `datetime`.
 - Integrates with the [faker](https://github.com/joke2k/faker) package.
 - Structured string detection.
 - Variables that have unique values/keys.
+
+## Installation
+
+You can install MetaSynth directly from PyPi by using the following command in the terminal (not Python):
+
+```sh
+pip install metasynth
+```
 
 ## Example
 
@@ -48,6 +55,15 @@ From the polars dataframe, we create a metadataset and store it in a JSON file t
 dataset = MetaDataset.from_dataframe(df)
 dataset.to_json("test.json")
 ```
+
+## Note on pandas
+
+Internally, MetaSynth uses polars (instead of pandas) mainly because typing and the handling of non-existing data is more
+consistent. It is possible to supply a pandas DataFrame instead of a polars DataFrame to `MetaDataset.from_dataframe`.
+However, this uses the automatic polars conversion functionality, which for some edge cases result in problems. Therefore,
+we advise users to create polars DataFrames. The resulting synthetic dataset is always a polars dataframe, but this can
+be easily converted back to a pandas DataFrame by using `df_pandas = df_polars.to_pandas()`.
+
 
 <!-- CONTRIBUTING -->
 

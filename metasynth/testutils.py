@@ -7,7 +7,7 @@ import polars as pl
 from metasynth.disttree import get_disttree
 
 
-def check_dist_type(tree_name: str, var_type: Optional[str]=None, **privacy_kwargs):
+def check_dist_type(tree_name: str, var_type: Optional[str] = None, **privacy_kwargs):
     """Test a distribution tree to check correctness.
 
     Arguments

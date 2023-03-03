@@ -13,12 +13,17 @@ on:
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.8, 3.9, "3.10"]
+        os: [ubuntu-latest]
+        python-version: [3.8, 3.9, "3.10", "3.11"]
+        include:
+            - os: macos-latest
+              python-version: "3.11"
+            - os: windows-latest
+              python-version: "3.11"
+    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v2
@@ -29,8 +34,10 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install pylint pytest pydocstyle mypy sphinx sphinx-rtd-theme sphinxcontrib-napoleon sphinx-autodoc-typehints nbval
-        python -m pip install .
+        python -m pip install ".[test]"
+    - name: Check pep8 with flake8
+      run: |
+        flake8 metasynth --max-line-length 100
     - name: Lint with pylint
       run: |
         pylint metasynth

@@ -92,7 +92,7 @@ class RegexDistribution(StringDistribution):
         raise ValueError("Failed to determine regex from '" + regex_str + "'")
 
     @classmethod
-    def _fit(cls, values, mode: str="fast"):
+    def _fit(cls, values, mode: str = "fast"):
         if mode == "fast":
             return cls._fit_fast(values)
         return cls._fit_slow(values)
