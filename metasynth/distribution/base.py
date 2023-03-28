@@ -17,7 +17,7 @@ class BaseDistribution(ABC):
     methods need to be implemented: _fit, draw, to_dict.
     """
 
-    aliases: List[str] = []
+    implements = "unknown"
     is_unique = False
     var_type: str = "unknown"
 
@@ -102,34 +102,22 @@ class BaseDistribution(ABC):
         bool:
             Whether the name matches.
         """
-        return name in cls.aliases or name == type(cls).__name__ or name == cls.__name__
-
-    @classmethod
-    def fit_kwargs(cls, name: str) -> Dict:  # pylint: disable=unused-argument
-        """Extra fitting arguments.
-
-        Parameters
-        ----------
-        name: str
-            Name to be matched.
-
-        Returns
-        -------
-        dict:
-            Keyword arguments extracted from the name.
-        """
-        return {}
-
-    @property
-    def name(self) -> str:
-        """Return the name used in the metadata file."""
-        return self.aliases[0]
+        assert cls.implements != "unknown", f"Internal error in class {cls.__name__}"
+        return (cls.implements.split(".")[1] == name
+                or cls.implements == name
+                or name == type(cls).__name__
+                or name == cls.__name__
+                )
 
     @classmethod
     @abstractmethod
     def default_distribution(cls) -> BaseDistribution:
         """Get a distribution with default parameters."""
         return cls()
+
+
+class CoreDistribution():
+    privacy = "None"
 
 
 class CategoricalDistribution(BaseDistribution):
@@ -216,7 +204,7 @@ class ScipyDistribution(BaseDistribution):
 
     def to_dict(self):
         return {
-            "name": self.name,
+            "name": self.implements,
             "parameters": deepcopy(self.par),
         }
 

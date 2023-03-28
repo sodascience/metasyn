@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 
 from metasynth.distribution.base import BaseDistribution
-from metasynth.disttree import BaseDistributionTree, get_disttree
+from metasynth.distpkg import BaseDistributionPackage, get_dist_package
 
 
 def _to_polars(series: Union[pd.Series, pl.Series]) -> pl.Series:
@@ -167,7 +167,7 @@ class MetaVar():
 
     def fit(self,
             dist: Optional[Union[str, BaseDistribution, type]] = None,
-            distribution_tree: Union[str, type, BaseDistributionTree] = "builtin",
+            distribution_tree: Union[str, type, BaseDistributionPackage] = "core",
             unique: Optional[bool] = None, **fit_kwargs):
         """Fit distributions to the data.
 
@@ -197,7 +197,7 @@ class MetaVar():
                              "original data.")
 
         # Automatic detection of the distribution
-        disttree = get_disttree(distribution_tree)
+        disttree = get_dist_package(distribution_tree)
 
         # Manually supplied distribution
         if dist is None:
@@ -252,7 +252,7 @@ class MetaVar():
         MetaVar:
             Initialized metadata variable.
         """
-        disttree = get_disttree()
+        disttree = get_dist_package()
         dist = disttree.from_dict(var_dict)
         return cls(
             var_dict["type"],
@@ -260,4 +260,4 @@ class MetaVar():
             distribution=dist,
             prop_missing=var_dict["prop_missing"], dtype=var_dict["dtype"],
             description=var_dict.get("description", None)
-            )
+        )

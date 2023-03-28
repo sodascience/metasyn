@@ -21,11 +21,11 @@ def check_dist_type(tree_name: str, var_type: Optional[str] = None, **privacy_kw
         Keyword arguments that are supplied to the distribution (tree).
     """
     if var_type is None:
-        for cur_var_type in get_disttree("builtin").all_var_types:
+        for cur_var_type in get_disttree("core").all_var_types:
             check_dist_type(tree_name, cur_var_type, **privacy_kwargs)
         return
 
-    base_tree = get_disttree("builtin")
+    base_tree = get_disttree("core")
     new_tree = get_disttree(tree_name, **privacy_kwargs)
     for new_class in new_tree.get_dist_list(var_type):
         base_class = None

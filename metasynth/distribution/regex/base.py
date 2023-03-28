@@ -6,7 +6,7 @@ from typing import List, Union, Tuple, Type, Sequence, Set
 
 import numpy as np
 
-from metasynth.distribution.base import StringDistribution
+from metasynth.distribution.base import StringDistribution, CoreDistribution
 from metasynth.distribution.regex.element import BaseRegexElement
 from metasynth.distribution.regex.element import DigitRegex, AlphaNumericRegex
 from metasynth.distribution.regex.element import LettersRegex, SingleRegex, AnyRegex
@@ -37,7 +37,7 @@ def _get_gradient_start(values: Sequence[str], new_values: Sequence[str],
     return delta_energy/energy_budget
 
 
-class RegexDistribution(StringDistribution):
+class RegexDistribution(StringDistribution, CoreDistribution):
     """Distribution that uses a strategy similar to regex.
 
     The idea behind this method is that for structured strings
@@ -51,7 +51,7 @@ class RegexDistribution(StringDistribution):
         List of basic regex elements in the order that they occur.
     """
 
-    aliases = ["RegexDistribution", "regex"]
+    implements = "core.regex"
 
     def __init__(self, re_list: Union[Sequence[Union[BaseRegexElement, Tuple[str, float]]], str]):
         self.re_list = []
@@ -161,7 +161,7 @@ class RegexDistribution(StringDistribution):
 
     def to_dict(self):
         return {
-            "name": self.name,
+            "name": self.implements,
             "parameters": {
                     "re_list": [(str(x), x.frac_used) for x in self.re_list],
                 }
@@ -172,7 +172,7 @@ class RegexDistribution(StringDistribution):
         return cls([(r"\d{3,4}", 0.67)])
 
 
-class UniqueRegexDistribution(RegexDistribution):
+class UniqueRegexDistribution(RegexDistribution, CoreDistribution):
     """Unique variant of the regex distribution.
 
     Same as the normal regex distribution, but checks whether a key
@@ -184,8 +184,8 @@ class UniqueRegexDistribution(RegexDistribution):
         List of basic regex elements in the order that they occur.
     """
 
+    implements = "core.unique_regex"
     is_unique = True
-    aliases = ["UniqueRegexDistribution", "regex_unique"]
 
     def __init__(self, re_list: Sequence[Union[BaseRegexElement, Tuple[str, float]]]):
         super().__init__(re_list)

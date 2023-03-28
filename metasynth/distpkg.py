@@ -33,7 +33,7 @@ from metasynth.distribution.datetime import UniformDateDistribution,\
     UniformTimeDistribution, UniformDateTimeDistribution
 
 
-class BaseDistributionTree():
+class BaseDistributionPackage():
     """Class that encapsulates a set of distributions.
 
     It has a property {var_type}_distributions for every var_type.
@@ -49,38 +49,18 @@ class BaseDistributionTree():
 
     @property
     @abstractmethod
-    def discrete_distributions(self) -> List[Type[BaseDistribution]]:
-        """Get the integer distributions."""
+    def distributions(self) -> List[Type[BaseDistribution]]:
+        """Get the all available distributions."""
 
     @property
     @abstractmethod
-    def continuous_distributions(self) -> List[Type[BaseDistribution]]:
-        """Get continuous distributions."""
+    def name(self):
+        """Name of the distribution package."""
 
     @property
     @abstractmethod
-    def categorical_distributions(self) -> List[Type[BaseDistribution]]:
-        """Get categorical distributions."""
-
-    @property
-    @abstractmethod
-    def string_distributions(self) -> List[Type[BaseDistribution]]:
-        """Get categorical distributions."""
-
-    @property
-    @abstractmethod
-    def date_distributions(self) -> List[Type[BaseDistribution]]:
-        """Get categorical distributions."""
-
-    @property
-    @abstractmethod
-    def time_distributions(self) -> List[Type[BaseDistribution]]:
-        """Get categorical distributions."""
-
-    @property
-    @abstractmethod
-    def datetime_distributions(self) -> List[Type[BaseDistribution]]:
-        """Get categorical distributions."""
+    def version(self):
+        """Version of the distribution package."""
 
     def get_dist_list(self, var_type: str) -> List[Type[BaseDistribution]]:
         """Get all distributions for a certain variable type.
@@ -95,16 +75,13 @@ class BaseDistributionTree():
         list[Type[BaseDistribution]]:
             List of distributions with that variable type.
         """
-        prop_str = var_type + "_distributions"
-        if not hasattr(self, prop_str):
-            raise ValueError(f"Unknown variable type '{var_type}' detected.")
-        return getattr(self, prop_str)
+        return [dist_class for dist_class in self.distributions if dist_class.var_type == var_type]
 
     def fit(self, series: pl.Series, var_type: str,
             unique: Optional[bool] = False) -> BaseDistribution:
         """Fit a distribution to a series.
 
-        Search for the distirbution within all available distributions in the tree.
+        Search for the distribution within all available distributions in the tree.
 
         Parameters
         ----------
@@ -146,11 +123,13 @@ class BaseDistributionTree():
     @property
     def all_var_types(self) -> List[str]:
         """Return list of available variable types."""
-        return [p[:-14] for p in dir(self.__class__)
-                if isinstance(getattr(self.__class__, p), property) and p.endswith("_distributions")
-                ]
+        return [
+            "categorical", "discrete", "continuous",
+            "string", "datetime", "date", "time"
+        ]
 
-    def find_distribution(self, dist_name: str) -> tuple[Type[BaseDistribution], dict[str, Any]]:
+    def find_distribution(self, dist_name: str, privacy: str = "None"
+                          ) -> type[BaseDistribution]:
         """Find a distribution and fit keyword arguments from a name.
 
         This allows us to use 'faker.city' to generate a faker instance that generates cities.
@@ -165,10 +144,9 @@ class BaseDistributionTree():
         tuple[Type[BaseDistribution], dict[str, Any]]:
             A distribution and the arguments to create an instance.
         """
-        for var_type in self.all_var_types:
-            for dist_class in self.get_dist_list(var_type):
-                if dist_class.is_named(dist_name):
-                    return dist_class, dist_class.fit_kwargs(dist_name)
+        for dist_class in self.distributions:
+            if dist_class.is_named(dist_name) and dist_class.privacy == privacy:
+                return dist_class
         raise ValueError(f"Cannot find distribution with name '{dist_name}'.")
 
     def fit_distribution(self, dist: Union[str, Type[BaseDistribution], BaseDistribution],
@@ -195,8 +173,7 @@ class BaseDistributionTree():
         fit_kwargs.update(self.privacy_kwargs)
 
         if isinstance(dist, str):
-            dist_class, new_fit_kwargs = self.find_distribution(dist)
-            fit_kwargs.update(new_fit_kwargs)
+            dist_class = self.find_distribution(dist)
             dist_instance = dist_class.fit(series, **fit_kwargs)
         elif inspect.isclass(dist) and issubclass(dist, BaseDistribution):
             dist_instance = dist.fit(series, **fit_kwargs)
@@ -229,41 +206,34 @@ class BaseDistributionTree():
                          f"and type '{var_dict['type']}'.")
 
 
-class BuiltinDistributionTree(BaseDistributionTree):
+class CoreDistributionPackage(BaseDistributionPackage):
     """Distribution tree that includes the builtin distributions."""
 
-    @property
-    def discrete_distributions(self) -> List[type]:
-        return [DiscreteUniformDistribution, PoissonDistribution, UniqueKeyDistribution]
+    @abstractmethod
+    def name(self):
+        "core"
 
     @property
-    def continuous_distributions(self) -> List[type]:
-        return [UniformDistribution, NormalDistribution, LogNormalDistribution,
-                TruncatedNormalDistribution, ExponentialDistribution]
+    def version(self):
+        "1.0"
 
     @property
-    def categorical_distributions(self) -> List[type]:
-        return [MultinoulliDistribution]
-
-    @property
-    def string_distributions(self) -> List[type]:
-        return [RegexDistribution, UniqueRegexDistribution, FakerDistribution]
-
-    @property
-    def date_distributions(self) -> List[type]:
-        return [UniformDateDistribution]
-
-    @property
-    def time_distributions(self) -> List[type]:
-        return [UniformTimeDistribution]
-
-    @property
-    def datetime_distributions(self) -> List[type]:
-        return [UniformDateTimeDistribution]
+    def distributions(self) -> list[type[BaseDistribution]]:
+        return [
+            DiscreteUniformDistribution, PoissonDistribution, UniqueKeyDistribution,
+            UniformDistribution, NormalDistribution, LogNormalDistribution,
+            TruncatedNormalDistribution, ExponentialDistribution,
+            MultinoulliDistribution,
+            RegexDistribution, UniqueRegexDistribution, FakerDistribution,
+            UniformDateDistribution,
+            UniformTimeDistribution,
+            UniformDateTimeDistribution,
+        ]
 
 
-def get_disttree(target: Optional[Union[str, type, BaseDistributionTree]] = None, **kwargs
-                 ) -> BaseDistributionTree:
+def get_dist_package(
+        target: Optional[Union[str, type, BaseDistributionPackage]] = None, **kwargs
+        ) -> BaseDistributionPackage:
     """Get a distribution tree.
 
     Parameters
@@ -277,8 +247,8 @@ def get_disttree(target: Optional[Union[str, type, BaseDistributionTree]] = None
         Distribution tree.
     """
     if target is None:
-        target = "builtin"
-    if isinstance(target, BaseDistributionTree):
+        target = "core"
+    if isinstance(target, BaseDistributionPackage):
         return target
     if isinstance(target, type):
         return target()

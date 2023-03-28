@@ -6,9 +6,10 @@ import numpy as np
 from scipy.stats import randint, poisson
 
 from metasynth.distribution.base import ScipyDistribution, DiscreteDistribution
+from metasynth.distribution.base import CoreDistribution
 
 
-class DiscreteUniformDistribution(ScipyDistribution, DiscreteDistribution):
+class DiscreteUniformDistribution(ScipyDistribution, DiscreteDistribution, CoreDistribution):
     """Integer uniform distribution.
 
     It differs from the floating point uniform distribution by
@@ -22,8 +23,7 @@ class DiscreteUniformDistribution(ScipyDistribution, DiscreteDistribution):
         Upper bound (exclusive) of the uniform distribution.
     """
 
-    aliases = ["DiscreteUniformDistribution", "discrete_uniform"]
-
+    implements = "core.discrete_uniform"
     dist_class = randint
 
     def __init__(self, low: int, high: int):
@@ -43,10 +43,10 @@ class DiscreteUniformDistribution(ScipyDistribution, DiscreteDistribution):
         return cls(0, 10)
 
 
-class PoissonDistribution(ScipyDistribution, DiscreteDistribution):
+class PoissonDistribution(ScipyDistribution, DiscreteDistribution, CoreDistribution):
     """Poisson distribution."""
 
-    aliases = ["PoissonDistribution", "poisson"]
+    implements = "core.poisson"
     dist_class = poisson
 
     def __init__(self, mu: float):
@@ -65,7 +65,7 @@ class PoissonDistribution(ScipyDistribution, DiscreteDistribution):
         return cls(0.5)
 
 
-class UniqueKeyDistribution(ScipyDistribution, DiscreteDistribution):
+class UniqueKeyDistribution(ScipyDistribution, DiscreteDistribution, CoreDistribution):
     """Integer distribution with unique keys.
 
     Discrete distribution that ensures the uniqueness of the drawn values.
@@ -78,7 +78,7 @@ class UniqueKeyDistribution(ScipyDistribution, DiscreteDistribution):
         1 if keys are consecutive and increasing, 0 otherwise.
     """
 
-    aliases = ["UniqueKeyDistribution", "unique_key"]
+    implements = "core.unique_key"
     is_unique = True
 
     def __init__(self, low: int, consecutive: int):

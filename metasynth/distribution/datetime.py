@@ -7,7 +7,8 @@ from typing import Dict, Any
 
 import numpy as np
 
-from metasynth.distribution.base import DateTimeDistribution, TimeDistribution
+from metasynth.distribution.base import DateTimeDistribution, TimeDistribution,\
+    CoreDistribution
 from metasynth.distribution.base import ScipyDistribution, DateDistribution
 
 
@@ -116,10 +117,10 @@ class BaseUniformDistribution(ScipyDistribution):
         return 0.0
 
 
-class UniformDateTimeDistribution(DateTimeDistribution, BaseUniformDistribution):
+class UniformDateTimeDistribution(DateTimeDistribution, BaseUniformDistribution, CoreDistribution):
     """Uniform DateTime distribution."""
 
-    aliases = ["UniformDateTimeDistribution", "datetime_uniform"]
+    implements = "core.uniform_datetime"
 
     def fromisoformat(self, dt_obj: str) -> dt.datetime:
         return dt.datetime.fromisoformat(dt_obj)
@@ -129,10 +130,10 @@ class UniformDateTimeDistribution(DateTimeDistribution, BaseUniformDistribution)
         return cls("2022-07-15T10:39:36", "2022-08-15T10:39:36", precision="seconds")
 
 
-class UniformTimeDistribution(TimeDistribution, BaseUniformDistribution):
+class UniformTimeDistribution(TimeDistribution, BaseUniformDistribution, CoreDistribution):
     """Uniform time distribution."""
 
-    aliases = ["UniformTimeDistribution", "time_uniform"]
+    implements = "core.uniform_time"
 
     def fromisoformat(self, dt_obj: str) -> dt.time:
         return dt.time.fromisoformat(dt_obj)
@@ -148,10 +149,10 @@ class UniformTimeDistribution(TimeDistribution, BaseUniformDistribution):
         return self.round((random()*delta + dt_begin).time())
 
 
-class UniformDateDistribution(DateDistribution, BaseUniformDistribution):
+class UniformDateDistribution(DateDistribution, BaseUniformDistribution, CoreDistribution):
     """Uniform date distribution."""
 
-    aliases = ["UniformDateDistribution", "date_uniform"]
+    implements = "core.uniform_date"
     precision_possibilities = ["days"]
 
     def __init__(self, start: Any, end: Any):

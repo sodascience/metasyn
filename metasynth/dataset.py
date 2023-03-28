@@ -15,7 +15,7 @@ import polars as pl
 import jsonschema
 
 from metasynth.var import MetaVar
-from metasynth.disttree import get_disttree
+from metasynth.distpkg import get_dist_package
 
 
 class MetaDataset():
@@ -108,7 +108,7 @@ class MetaDataset():
         MetaDataset:
             Initialized MetaSynth dataset.
         """
-        distribution_tree = get_disttree(privacy_package, **privacy_kwargs)
+        distribution_tree = get_dist_package(privacy_package, **privacy_kwargs)
 
         if spec is None:
             spec = {}

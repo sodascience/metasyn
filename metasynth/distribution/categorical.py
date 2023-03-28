@@ -8,9 +8,10 @@ import numpy.typing as npt
 import polars as pl
 
 from metasynth.distribution.base import CategoricalDistribution
+from metasynth.distribution.base import CoreDistribution
 
 
-class MultinoulliDistribution(CategoricalDistribution):
+class MultinoulliDistribution(CategoricalDistribution, CoreDistribution):
     """Categorical distribution that stores category labels and probabilities.
 
     Parameters
@@ -22,7 +23,7 @@ class MultinoulliDistribution(CategoricalDistribution):
         Probabilities will be normalized, so frequencies are valid too.
     """
 
-    aliases = ["MultinoulliDistribution", "categorical"]
+    implements = "core.multinoulli"
 
     def __init__(self, labels: npt.NDArray[np.str_],
                  probs: npt.NDArray[np.float_]):

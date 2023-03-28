@@ -8,7 +8,7 @@ from pytest import mark
 
 from metasynth.dataset import MetaDataset
 from metasynth.var import MetaVar
-from metasynth.disttree import get_disttree
+from metasynth.distpkg import get_dist_package
 
 
 dtypes = {
@@ -96,7 +96,7 @@ def test_dataset(tmp_path, dataframe_lib):
 def test_distributions(tmp_path):
     tmp_fp = tmp_path / "tmp.json"
 
-    dist_tree = get_disttree()
+    dist_tree = get_dist_package()
     for var_type in dist_tree.all_var_types:
         for dist in dist_tree.get_dist_list(var_type):
             var = MetaVar(var_type, name="None", distribution=dist.default_distribution(),
