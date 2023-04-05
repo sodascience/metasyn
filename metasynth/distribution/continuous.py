@@ -45,6 +45,13 @@ class UniformDistribution(ScipyDistribution, ContinuousDistribution, CoreDistrib
     def default_distribution(cls):
         return cls(0, 1)
 
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "min_val": {"type": "number"},
+            "max_val": {"type": "number"},
+        }
+
 
 class NormalDistribution(ScipyDistribution, ContinuousDistribution, CoreDistribution):
     """Normal distribution for floating point type.
@@ -71,6 +78,13 @@ class NormalDistribution(ScipyDistribution, ContinuousDistribution, CoreDistribu
     @classmethod
     def default_distribution(cls):
         return cls(0, 1)
+
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "mean": {"type": "number"},
+            "std_dev": {"type": "number"},
+        }
 
 
 class LogNormalDistribution(ScipyDistribution, ContinuousDistribution, CoreDistribution):
@@ -104,6 +118,13 @@ class LogNormalDistribution(ScipyDistribution, ContinuousDistribution, CoreDistr
     @classmethod
     def default_distribution(cls):
         return cls(0, 1)
+
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "mu": {"type": "number"},
+            "sigma": {"type": "number"},
+        }
 
 
 class TruncatedNormalDistribution(ScipyDistribution, ContinuousDistribution, CoreDistribution):
@@ -155,6 +176,15 @@ class TruncatedNormalDistribution(ScipyDistribution, ContinuousDistribution, Cor
     def default_distribution(cls):
         return cls(-1, 2, 0, 1)
 
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "lower_bound": {"type": "number"},
+            "upper_bound": {"type": "number"},
+            "mu": {"type": "number"},
+            "sigma": {"type": "number"},
+        }
+
 
 class ExponentialDistribution(ScipyDistribution, ContinuousDistribution, CoreDistribution):
     """Exponential distribution for floating point type.
@@ -185,3 +215,9 @@ class ExponentialDistribution(ScipyDistribution, ContinuousDistribution, CoreDis
     @classmethod
     def default_distribution(cls):
         return cls(1.0)
+
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "rate": {"type": "number"}
+        }

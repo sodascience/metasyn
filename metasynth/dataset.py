@@ -16,6 +16,7 @@ import jsonschema
 
 from metasynth.var import MetaVar
 from metasynth.distpkg import get_dist_package
+from metasynth.validation import validate_gmf_dict
 
 
 class MetaDataset():
@@ -209,8 +210,9 @@ class MetaDataset():
         """
         self_dict = _jsonify(self.to_dict())
         if validate:
-            schema = json.loads(read_text("metasynth.schema", "generative_metadata_format.json"))
-            jsonschema.validate(instance=self_dict, schema=schema)
+            validate_gmf_dict(self_dict)
+            # schema = json.loads(read_text("metasynth.schema", "generative_metadata_format.json"))
+            # jsonschema.validate(instance=self_dict, schema=schema)
         with open(fp, "w", encoding="utf-8") as f:
             json.dump(self_dict, f, indent=4)
 

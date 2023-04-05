@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from copy import deepcopy
-from typing import List, Iterable, Dict, Sequence, Union
+from typing import Iterable, Sequence, Union
 
 import numpy as np
 import polars as pl
@@ -18,6 +17,7 @@ class BaseDistribution(ABC):
     """
 
     implements = "unknown"
+    provenance = "unknown"
     is_unique = False
     var_type: str = "unknown"
 
@@ -70,8 +70,40 @@ class BaseDistribution(ABC):
         return str(self.to_dict())
 
     @abstractmethod
-    def to_dict(self) -> Dict:
+    def _param_dict(self):
+        """Dictionary with the parameters of the distribution."""
+
+    def to_dict(self) -> dict:
         """Convert the distribution to a dictionary."""
+        return {
+            "implements": self.implements,
+            "provenance": self.provenance,
+            "class_name": self.__class__.__name__,
+            "parameters": self._param_dict(),
+        }
+
+    @classmethod
+    @abstractmethod
+    def _param_schema(cls):
+        """Schema for the parameters of the distribution."""
+
+    @classmethod
+    def schema(cls) -> dict:
+        """Create sub-schema to validate GMF file."""
+        return {
+            "type": "object",
+            "properties": {
+                "implements": {"const": cls.implements},
+                "provenance": {"const": cls.provenance},
+                "class_name": {"const": cls.__name__},
+                "parameters": {
+                    "type": "object",
+                    "properties": cls._param_schema(),
+                    "required": list(cls.default_distribution()._param_dict())
+                }
+            },
+            "required": ["implements", "provenance", "class_name", "parameters"]
+        }
 
     @classmethod
     def from_dict(cls, dist_dict: dict) -> BaseDistribution:
@@ -103,11 +135,11 @@ class BaseDistribution(ABC):
             Whether the name matches.
         """
         assert cls.implements != "unknown", f"Internal error in class {cls.__name__}"
-        return (cls.implements.split(".")[1] == name
-                or cls.implements == name
-                or name == type(cls).__name__
-                or name == cls.__name__
-                )
+        return name in (cls.implements.split(".")[1],
+                        cls.implements,
+                        type(cls).__name__,
+                        cls.__name__,
+                        )
 
     @classmethod
     @abstractmethod
@@ -116,8 +148,10 @@ class BaseDistribution(ABC):
         return cls()
 
 
-class CoreDistribution():
+class CoreDistribution():  # pylint: disable=too-few-public-methods
+    """Distributions belonging to the core set."""
     privacy = "None"
+    provenance = "core"
 
 
 class CategoricalDistribution(BaseDistribution):
@@ -202,11 +236,8 @@ class ScipyDistribution(BaseDistribution):
         param = cls.dist_class.fit(values)
         return cls(*param)
 
-    def to_dict(self):
-        return {
-            "name": self.implements,
-            "parameters": deepcopy(self.par),
-        }
+    def _param_dict(self):
+        return self.par
 
     def draw(self):
         return self.dist.rvs()

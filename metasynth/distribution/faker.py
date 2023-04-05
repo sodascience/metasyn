@@ -38,15 +38,6 @@ class FakerDistribution(StringDistribution, CoreDistribution):
     def __str__(self):
         return f"faker.{self.faker_type}.{self.locale}"
 
-    def to_dict(self):
-        return {
-            "name": self.implements,
-            "parameters": {
-                "faker_type": self.faker_type,
-                "locale": self.locale
-            }
-        }
-
     def draw(self):
         return getattr(self.fake, self.faker_type)()
 
@@ -56,3 +47,16 @@ class FakerDistribution(StringDistribution, CoreDistribution):
     @classmethod
     def default_distribution(cls):
         return cls("city")
+
+    def _param_dict(self):
+        return {
+            "faker_type": self.faker_type,
+            "locale": self.locale
+        }
+
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "faker_type": {"type": "string"},
+            "locale": {"type": "string"},
+        }

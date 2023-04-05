@@ -11,7 +11,7 @@ from metasynth.distribution.base import CategoricalDistribution
 from metasynth.distribution.base import CoreDistribution
 
 
-class MultinoulliDistribution(CategoricalDistribution, CoreDistribution):
+class MultinoulliDistribution(CoreDistribution, CategoricalDistribution):
     """Categorical distribution that stores category labels and probabilities.
 
     Parameters
@@ -38,17 +38,15 @@ class MultinoulliDistribution(CategoricalDistribution, CoreDistribution):
         probs = counts/np.sum(counts)
         return cls(labels.astype(str), probs)
 
-    @property
-    def par_dict(self):
-        """Get labels and probabilities as a dictionary."""
-        return dict(zip(self.labels, self.probs))
+    def _param_dict(self):
+        return {"labels": self.labels, "probs": self.probs}
 
-    def to_dict(self):
-        dist_dict = {}
-        dist_dict["name"] = type(self).__name__
-        dist_dict["parameters"] = {"labels": self.labels,
-                                   "probs": self.probs}
-        return dist_dict
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "labels": {"type": "array", "items": {"type": "string"}, "uniqueItems": True},
+            "probs": {"type": "array", "items": {"type": "number"}},
+        }
 
     def __str__(self):
         return str(self.to_dict())
@@ -62,7 +60,7 @@ class MultinoulliDistribution(CategoricalDistribution, CoreDistribution):
         values_array = np.array(values, dtype=str)
         labels, counts = np.unique(values_array, return_counts=True)
         log_lik = 0.0
-        pdict = self.par_dict
+        pdict = dict(zip(self.labels, self.probs))
         for lab, count in zip(labels, counts):
             # account for missing values / missing categories
             # by setting default of .get to 1 (add log(1)=0 to log_lik)

@@ -42,6 +42,13 @@ class DiscreteUniformDistribution(ScipyDistribution, DiscreteDistribution, CoreD
     def default_distribution(cls):
         return cls(0, 10)
 
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "low": {"type": "integer"},
+            "high": {"type": "integer"},
+        }
+
 
 class PoissonDistribution(ScipyDistribution, DiscreteDistribution, CoreDistribution):
     """Poisson distribution."""
@@ -63,6 +70,12 @@ class PoissonDistribution(ScipyDistribution, DiscreteDistribution, CoreDistribut
     @classmethod
     def default_distribution(cls):
         return cls(0.5)
+
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "mu": {"type": "number"},
+        }
 
 
 class UniqueKeyDistribution(ScipyDistribution, DiscreteDistribution, CoreDistribution):
@@ -134,3 +147,10 @@ class UniqueKeyDistribution(ScipyDistribution, DiscreteDistribution, CoreDistrib
     @classmethod
     def default_distribution(cls):
         return cls(0, 0)
+
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "low": {"type": "integer"},
+            "high": {"type": "integer"},
+        }

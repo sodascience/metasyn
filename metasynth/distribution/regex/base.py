@@ -159,12 +159,23 @@ class RegexDistribution(StringDistribution, CoreDistribution):
     def __str__(self):
         return "".join([str(x) for x in self.re_list])
 
-    def to_dict(self):
+    def _param_dict(self):
         return {
-            "name": self.implements,
-            "parameters": {
-                    "re_list": [(str(x), x.frac_used) for x in self.re_list],
+            "re_list": [(str(x), x.frac_used) for x in self.re_list],
+        }
+
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "re_list": {
+                "type": "array",
+                "items": {
+                    "type": "array",
+                    "prefixItems": [{"type": "string"}, {"type": "number"}],
+                    "minItems": 2,
+                    "additionalItems": False
                 }
+            }
         }
 
     @classmethod

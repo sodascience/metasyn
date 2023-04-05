@@ -200,16 +200,17 @@ class BaseDistributionPackage():
             Distribution representing the dictionary.
         """
         for dist_class in self.get_dist_list(var_dict["type"]):
-            if dist_class.is_named(var_dict["distribution"]["name"]):
+            if dist_class.implements == var_dict["distribution"]["implements"]:
                 return dist_class.from_dict(var_dict["distribution"])
-        raise ValueError(f"Cannot find distribution with name '{var_dict['distribution']['name']}'"
+        raise ValueError(f"Cannot find distribution with name "
+                         f"'{var_dict['distribution']['implements']}'"
                          f"and type '{var_dict['type']}'.")
 
 
 class CoreDistributionPackage(BaseDistributionPackage):
     """Distribution tree that includes the builtin distributions."""
 
-    @abstractmethod
+    @property
     def name(self):
         "core"
 
