@@ -15,7 +15,7 @@ import polars as pl
 import jsonschema
 
 from metasynth.var import MetaVar
-from metasynth.distpkg import get_dist_package, BaseDistributionPackage
+from metasynth.distpkg import BaseDistributionPackage
 from metasynth.validation import validate_gmf_dict
 from metasynth.privacy import BasePrivacy, NoPrivacy
 
@@ -133,11 +133,7 @@ class MetaDataset():
             if len(col_spec) != 0:
                 raise ValueError(f"Unknown spec items '{col_spec}' for variable '{col_name}'.")
             var = MetaVar.detect(series, description=description, prop_missing=prop_missing)
-            # if dist is None:
             var.fit(dist=dist, dist_packages=dist_packages, unique=unq, privacy=cur_privacy)
-            # else:
-                # var.fit(distribution_tree=distribution_tree, dist=dist, unique=unq,
-                        # privacy=cur_privacy)
 
             all_vars.append(var)
 
