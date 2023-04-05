@@ -138,6 +138,8 @@ class BaseDistributionPackage():
         ----------
         dist_name:
             Name of the distribution, such as faker.city, DiscreteUniformDistribution or normal.
+        privacy:
+            Type of privacy to be applied.
 
         Returns
         -------
@@ -207,16 +209,16 @@ class BaseDistributionPackage():
                          f"and type '{var_dict['type']}'.")
 
 
-class CoreDistributionPackage(BaseDistributionPackage):
+class BuiltinDistributionPackage(BaseDistributionPackage):
     """Distribution tree that includes the builtin distributions."""
 
     @property
     def name(self):
-        "core"
+        return "builtin"
 
     @property
     def version(self):
-        "1.0"
+        return "1.0"
 
     @property
     def distributions(self) -> list[type[BaseDistribution]]:

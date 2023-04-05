@@ -50,7 +50,7 @@ test = [
 ]
 
 [project.entry-points."metasynth.disttree"]
-core = "metasynth.distpkg:CoreDistributionPackage"
+builtin = "metasynth.distpkg:BuiltinDistributionPackage"
 
 [tool.setuptools]
 packages = ["metasynth"]

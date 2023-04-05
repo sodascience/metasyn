@@ -71,7 +71,7 @@ class BaseDistribution(ABC):
 
     @abstractmethod
     def _param_dict(self):
-        """Dictionary with the parameters of the distribution."""
+        """Get dictionary with the parameters of the distribution."""
 
     def to_dict(self) -> dict:
         """Convert the distribution to a dictionary."""
@@ -85,7 +85,7 @@ class BaseDistribution(ABC):
     @classmethod
     @abstractmethod
     def _param_schema(cls):
-        """Schema for the parameters of the distribution."""
+        """Get schema for the parameters of the distribution."""
 
     @classmethod
     def schema(cls) -> dict:
