@@ -18,6 +18,7 @@ class BaseDistribution(ABC):
 
     implements = "unknown"
     provenance = "unknown"
+    privacy = "unknown"
     is_unique = False
     var_type: str = "unknown"
 
@@ -150,8 +151,9 @@ class BaseDistribution(ABC):
 
 class CoreDistribution():  # pylint: disable=too-few-public-methods
     """Distributions belonging to the core set."""
-    privacy = "None"
-    provenance = "core"
+
+    privacy = "none"
+    provenance = "builtin"
 
 
 class CategoricalDistribution(BaseDistribution):

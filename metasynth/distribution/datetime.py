@@ -114,7 +114,7 @@ class BaseUniformDistribution(ScipyDistribution):
         }
 
 
-class UniformDateTimeDistribution(DateTimeDistribution, BaseUniformDistribution, CoreDistribution):
+class UniformDateTimeDistribution(CoreDistribution, DateTimeDistribution, BaseUniformDistribution):
     """Uniform DateTime distribution."""
 
     implements = "core.uniform_datetime"
@@ -135,7 +135,7 @@ class UniformDateTimeDistribution(DateTimeDistribution, BaseUniformDistribution,
         }
 
 
-class UniformTimeDistribution(TimeDistribution, BaseUniformDistribution, CoreDistribution):
+class UniformTimeDistribution(CoreDistribution, TimeDistribution, BaseUniformDistribution):
     """Uniform time distribution."""
 
     implements = "core.uniform_time"
@@ -162,7 +162,7 @@ class UniformTimeDistribution(TimeDistribution, BaseUniformDistribution, CoreDis
         }
 
 
-class UniformDateDistribution(DateDistribution, BaseUniformDistribution, CoreDistribution):
+class UniformDateDistribution(CoreDistribution, DateDistribution, BaseUniformDistribution):
     """Uniform date distribution."""
 
     implements = "core.uniform_date"

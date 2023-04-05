@@ -9,7 +9,7 @@ from metasynth.distribution.base import ScipyDistribution, ContinuousDistributio
 from metasynth.distribution.base import CoreDistribution
 
 
-class UniformDistribution(ScipyDistribution, ContinuousDistribution, CoreDistribution):
+class UniformDistribution(CoreDistribution, ScipyDistribution, ContinuousDistribution):
     """Uniform distribution for floating point type.
 
     This class implements the uniform distribution between a minimum
@@ -53,7 +53,7 @@ class UniformDistribution(ScipyDistribution, ContinuousDistribution, CoreDistrib
         }
 
 
-class NormalDistribution(ScipyDistribution, ContinuousDistribution, CoreDistribution):
+class NormalDistribution(CoreDistribution, ScipyDistribution, ContinuousDistribution):
     """Normal distribution for floating point type.
 
     This class implements the normal/gaussian distribution and takes
@@ -87,7 +87,7 @@ class NormalDistribution(ScipyDistribution, ContinuousDistribution, CoreDistribu
         }
 
 
-class LogNormalDistribution(ScipyDistribution, ContinuousDistribution, CoreDistribution):
+class LogNormalDistribution(CoreDistribution, ScipyDistribution, ContinuousDistribution):
     """Log-normal distribution for floating point type.
 
     This class implements the log-normal mu and sigma as initialization input.
@@ -127,7 +127,7 @@ class LogNormalDistribution(ScipyDistribution, ContinuousDistribution, CoreDistr
         }
 
 
-class TruncatedNormalDistribution(ScipyDistribution, ContinuousDistribution, CoreDistribution):
+class TruncatedNormalDistribution(CoreDistribution, ScipyDistribution, ContinuousDistribution):
     """Truncated normal distribution for floating point type.
 
     Parameters
@@ -186,7 +186,7 @@ class TruncatedNormalDistribution(ScipyDistribution, ContinuousDistribution, Cor
         }
 
 
-class ExponentialDistribution(ScipyDistribution, ContinuousDistribution, CoreDistribution):
+class ExponentialDistribution(CoreDistribution, ScipyDistribution, ContinuousDistribution):
     """Exponential distribution for floating point type.
 
     This class implements the exponential distribution with the rate as its

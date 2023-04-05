@@ -9,7 +9,7 @@ from metasynth.distribution.base import ScipyDistribution, DiscreteDistribution
 from metasynth.distribution.base import CoreDistribution
 
 
-class DiscreteUniformDistribution(ScipyDistribution, DiscreteDistribution, CoreDistribution):
+class DiscreteUniformDistribution(CoreDistribution, ScipyDistribution, DiscreteDistribution):
     """Integer uniform distribution.
 
     It differs from the floating point uniform distribution by
@@ -50,7 +50,7 @@ class DiscreteUniformDistribution(ScipyDistribution, DiscreteDistribution, CoreD
         }
 
 
-class PoissonDistribution(ScipyDistribution, DiscreteDistribution, CoreDistribution):
+class PoissonDistribution(CoreDistribution, ScipyDistribution, DiscreteDistribution):
     """Poisson distribution."""
 
     implements = "core.poisson"
@@ -78,7 +78,7 @@ class PoissonDistribution(ScipyDistribution, DiscreteDistribution, CoreDistribut
         }
 
 
-class UniqueKeyDistribution(ScipyDistribution, DiscreteDistribution, CoreDistribution):
+class UniqueKeyDistribution(CoreDistribution, ScipyDistribution, DiscreteDistribution):
     """Integer distribution with unique keys.
 
     Discrete distribution that ensures the uniqueness of the drawn values.

@@ -37,7 +37,7 @@ def _get_gradient_start(values: Sequence[str], new_values: Sequence[str],
     return delta_energy/energy_budget
 
 
-class RegexDistribution(StringDistribution, CoreDistribution):
+class RegexDistribution(CoreDistribution, StringDistribution):
     """Distribution that uses a strategy similar to regex.
 
     The idea behind this method is that for structured strings

@@ -28,7 +28,7 @@ def check_dist_type(tree_name: str, var_type: Optional[str] = None, **privacy_kw
             check_dist_type(tree_name, cur_var_type, **privacy_kwargs)
         return
 
-    base_tree = get_dist_package("core")
+    base_tree = get_dist_package("builtin")
     new_tree = get_dist_package(tree_name, **privacy_kwargs)
     for new_class in new_tree.get_dist_list(var_type):
         base_class = None
@@ -38,7 +38,7 @@ def check_dist_type(tree_name: str, var_type: Optional[str] = None, **privacy_kw
                 break
         assert base_class is not None, f"Error: cannot find subclass of {new_class}"
 
-        assert base_class.name == new_class.name
+        assert base_class.implements == new_class.implements
         dist = new_class.default_distribution()
         assert isinstance(dist, base_class)
         if var_type == "category":

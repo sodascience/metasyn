@@ -15,8 +15,9 @@ import polars as pl
 import jsonschema
 
 from metasynth.var import MetaVar
-from metasynth.distpkg import get_dist_package
+from metasynth.distpkg import get_dist_package, BaseDistributionPackage
 from metasynth.validation import validate_gmf_dict
+from metasynth.privacy import BasePrivacy, NoPrivacy
 
 
 class MetaDataset():
@@ -36,11 +37,9 @@ class MetaDataset():
     """
 
     def __init__(self, meta_vars: List[MetaVar],
-                 n_rows: Optional[int] = None,
-                 privacy_package: Optional[str] = None):
+                 n_rows: Optional[int] = None):
         self.meta_vars = meta_vars
         self.n_rows = n_rows
-        self.privacy_package = privacy_package
 
     @property
     def n_columns(self) -> int:
@@ -51,8 +50,9 @@ class MetaDataset():
     def from_dataframe(cls,
                        df: pl.DataFrame,
                        spec: Optional[dict[str, dict]] = None,
-                       privacy_package: Optional[str] = None,
-                       **privacy_kwargs):
+                       dist_packages: Union[str, list[str], BaseDistributionPackage,
+                                            list[BaseDistributionPackage]] = "builtin",
+                       privacy: Optional[BasePrivacy] = None):
         """Create dataset from a Pandas dataframe.
 
         The pandas dataframe should be formatted already with the correct
@@ -109,8 +109,8 @@ class MetaDataset():
         MetaDataset:
             Initialized MetaSynth dataset.
         """
-        distribution_tree = get_dist_package(privacy_package, **privacy_kwargs)
-
+        if privacy is None:
+            privacy = NoPrivacy()
         if spec is None:
             spec = {}
         else:
@@ -125,6 +125,7 @@ class MetaDataset():
             description = col_spec.pop("description", None)
             fit_kwargs = col_spec.pop("fit_kwargs", {})
             prop_missing = col_spec.pop("prop_missing", None)
+            cur_privacy = col_spec.pop("privacy", privacy)
             assert "fit_kwargs" not in col_spec
             if dist is None and len(fit_kwargs) > 0:
                 raise ValueError(f"Got fit arguments for variable '{col_name}', but no "
@@ -132,14 +133,15 @@ class MetaDataset():
             if len(col_spec) != 0:
                 raise ValueError(f"Unknown spec items '{col_spec}' for variable '{col_name}'.")
             var = MetaVar.detect(series, description=description, prop_missing=prop_missing)
-            if dist is None:
-                var.fit(distribution_tree=distribution_tree, unique=unq, **fit_kwargs)
-            else:
-                var.fit(distribution_tree=distribution_tree, dist=dist, unique=unq, **fit_kwargs)
+            # if dist is None:
+            var.fit(dist=dist, dist_packages=dist_packages, unique=unq, privacy=cur_privacy)
+            # else:
+                # var.fit(distribution_tree=distribution_tree, dist=dist, unique=unq,
+                        # privacy=cur_privacy)
 
             all_vars.append(var)
 
-        return cls(all_vars, len(df), privacy_package=privacy_package)
+        return cls(all_vars, len(df))
 
     def to_dict(self) -> Dict[str, Any]:
         """Create dictionary with the properties for recreation."""
@@ -150,7 +152,6 @@ class MetaDataset():
                 "created by": {
                     "name": "MetaSynth",
                     "version": version("metasynth"),
-                    "privacy": self.privacy_package,
                 },
                 "creation time": datetime.now().isoformat()
             },

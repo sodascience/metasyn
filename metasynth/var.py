@@ -9,7 +9,9 @@ import pandas as pd
 import numpy as np
 
 from metasynth.distribution.base import BaseDistribution
-from metasynth.distpkg import BaseDistributionPackage, get_dist_package
+from metasynth.distpkg import BaseDistributionPackage, get_dist_package,\
+    PackageList
+from metasynth.privacy import BasePrivacy, NoPrivacy
 
 
 def _to_polars(series: Union[pd.Series, pl.Series]) -> pl.Series:
@@ -167,8 +169,9 @@ class MetaVar():
 
     def fit(self,
             dist: Optional[Union[str, BaseDistribution, type]] = None,
-            distribution_tree: Union[str, type, BaseDistributionPackage] = "core",
-            unique: Optional[bool] = None, **fit_kwargs):
+            dist_packages: Union[str, type, BaseDistributionPackage] = "builtin",
+            privacy: BasePrivacy = NoPrivacy(),
+            unique: Optional[bool] = None):
         """Fit distributions to the data.
 
         If multiple distributions are available for the current data type,
@@ -196,15 +199,8 @@ class MetaVar():
             raise ValueError("Cannot fit distribution if we don't have the"
                              "original data.")
 
-        # Automatic detection of the distribution
-        disttree = get_dist_package(distribution_tree)
-
-        # Manually supplied distribution
-        if dist is None:
-            self.distribution = disttree.fit(self.series, self.var_type, unique=unique,
-                                             **fit_kwargs)
-        else:
-            self.distribution = disttree.fit_distribution(dist, self.series, **fit_kwargs)
+        pkg_list = PackageList(dist_packages)
+        self.distribution = pkg_list.fit(self.series, self.var_type, dist, privacy, unique)
 
     def draw(self) -> Any:
         """Draw a random item for the variable in whatever type is required."""

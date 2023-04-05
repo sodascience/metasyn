@@ -6,7 +6,7 @@ from faker import Faker
 from metasynth.distribution.base import StringDistribution, CoreDistribution
 
 
-class FakerDistribution(StringDistribution, CoreDistribution):
+class FakerDistribution(CoreDistribution, StringDistribution):
     """Distribution for the faker package.
 
     This is mainly an interface for the faker package, so that it

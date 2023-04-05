@@ -67,7 +67,7 @@ def validate_gmf_dict(gmf_dict: dict):
     jsonschema.validate(gmf_dict, schema)
 
 
-def create_schema(packages: list[str]) -> dict[str, dict]:
+def create_schema(packages: list[str]) -> dict:
     """Create JSON Schema to validate a GMF file.
 
     Arguments

@@ -11,6 +11,7 @@ from typing import List, Union
 from typing import Type, Any, Optional
 import warnings
 import inspect
+from metasynth.privacy import BasePrivacy, NoPrivacy
 try:
     from importlib_metadata import entry_points
 except ImportError:
@@ -128,7 +129,7 @@ class BaseDistributionPackage():
             "string", "datetime", "date", "time"
         ]
 
-    def find_distribution(self, dist_name: str, privacy: str = "None"
+    def find_distribution(self, dist_name: str, privacy: str = "none"
                           ) -> type[BaseDistribution]:
         """Find a distribution and fit keyword arguments from a name.
 
@@ -234,8 +235,149 @@ class BuiltinDistributionPackage(BaseDistributionPackage):
         ]
 
 
+class PackageList():
+    def __init__(self, dist_packages: Union[
+            str, type[BaseDistributionPackage], BaseDistributionPackage,
+            list[Union[str, type[BaseDistributionPackage], BaseDistributionPackage]]]):
+        if isinstance(dist_packages, (str, type, BaseDistributionPackage)):
+            dist_packages = [dist_packages]
+        self.dist_packages = []
+        for pkg in dist_packages:
+            if isinstance(pkg, str):
+                self.dist_packages.append(get_dist_package(pkg))
+            elif isinstance(pkg, type):
+                self.dist_packages.append(pkg())
+            elif isinstance(pkg, BaseDistributionPackage):
+                self.dist_packages.append(pkg)
+            else:
+                raise ValueError(f"Unknown distribution package type '{type(pkg)}'")
+
+    def fit(self, series, var_type, dist: Optional[Union[str, BaseDistribution, type]] = None,
+            privacy: BasePrivacy = NoPrivacy(), unique: Optional[bool] = None):
+        if dist is not None:
+            return self._fit_distribution(series, dist, privacy)
+        else:
+            return self._find_best_fit(series, var_type, unique, privacy)
+
+    def _find_best_fit(self, series: pl.Series, var_type: str,
+                       unique: Optional[bool],
+                       privacy: BasePrivacy) -> BaseDistribution:
+        """Fit a distribution to a series.
+
+        Search for the distribution within all available distributions in the tree.
+
+        Parameters
+        ----------
+        series:
+            Series to fit a distribution to.
+        var_type:
+            Variable type of the series.
+        unique:
+            Whether the variable should be unique or not.
+
+        Returns
+        -------
+        BaseDistribution:
+            Distribution fitted to the series.
+        """
+        dist_list = self._get_dist_list(privacy, var_type)
+        if len(dist_list) == 0:
+            raise ValueError(f"No available distributions with variable type: '{var_type}'")
+        dist_instances = [d.fit(series, **privacy.fit_kwargs) for d in dist_list]
+        dist_aic = [d.information_criterion(series) for d in dist_instances]
+        i_best_dist = np.argmin(dist_aic)
+        warnings.simplefilter("always")
+        if dist_instances[i_best_dist].is_unique and unique is None:
+            warnings.warn(f"\nVariable {series.name} seems unique, but not set to be unique.\n"
+                          "Set the variable to be either unique or not unique to remove this "
+                          "warning.\n")
+        if unique is None:
+            unique = False
+
+        dist_aic = [dist_aic[i] for i in range(len(dist_aic))
+                    if dist_instances[i].is_unique == unique]
+        dist_instances = [d for d in dist_instances if d.is_unique == unique]
+        if len(dist_instances) == 0:
+            raise ValueError(f"No available distributions for variable '{series.name}'"
+                             f" with variable type '{var_type}' "
+                             f"that have unique == {unique}.")
+        return dist_instances[np.argmin(dist_aic)]
+
+    def _find_distribution(self, dist_name: str, privacy: BasePrivacy = NoPrivacy()
+                           ) -> type[BaseDistribution]:
+        """Find a distribution and fit keyword arguments from a name.
+
+        This allows us to use 'faker.city' to generate a faker instance that generates cities.
+
+        Parameters
+        ----------
+        dist_name:
+            Name of the distribution, such as faker.city, DiscreteUniformDistribution or normal.
+        privacy:
+            Type of privacy to be applied.
+
+        Returns
+        -------
+        tuple[Type[BaseDistribution], dict[str, Any]]:
+            A distribution and the arguments to create an instance.
+        """
+        for dist_class in self._get_dist_list(privacy):
+            if dist_class.is_named(dist_name) and dist_class.privacy == privacy.name:
+                return dist_class
+        raise ValueError(f"Cannot find distribution with name '{dist_name}'.")
+
+    def _fit_distribution(self, series: pl.Series,
+                          dist: Union[str, Type[BaseDistribution], BaseDistribution],
+                          privacy: BasePrivacy) -> BaseDistribution:
+        """Fit a specific distribution to a series.
+
+        In contrast the fit method, this needs a supplied distribution(type).
+
+        Parameters
+        ----------
+        dist:
+            Distribution to fit (if it is not already fitted).
+        series:
+            Series to fit the distribution to
+        fit_kwargs:
+            Extra fitting parameters that are specific to the distribution.
+
+        Returns
+        -------
+        BaseDistribution:
+            Fitted distribution.
+        """
+        dist_instance = None
+
+        if isinstance(dist, str):
+            dist_class = self._find_distribution(dist)
+            dist_instance = dist_class.fit(series, **privacy.fit_kwargs)
+        elif inspect.isclass(dist) and issubclass(dist, BaseDistribution):
+            dist_instance = dist.fit(series, **privacy.fit_kwargs)
+        if isinstance(dist, BaseDistribution):
+            dist_instance = dist
+
+        if dist_instance is None:
+            raise TypeError(
+                f"Distribution with type {type(dist)} is not a BaseDistribution")
+
+        return dist_instance
+
+    def _get_dist_list(self, privacy: BasePrivacy,
+                       var_type: Optional[str] = None) -> list[type[BaseDistribution]]:
+        dist_list = []
+        for dist_pkg in self.dist_packages:
+            if var_type is None:
+                dist_list.extend(dist_pkg.distributions)
+            else:
+                dist_list.extend(dist_pkg.get_dist_list(var_type))
+
+        dist_list = [dist for dist in dist_list if dist.privacy == privacy.name]
+        return dist_list
+
+
 def get_dist_package(
-        target: Optional[Union[str, type, BaseDistributionPackage]] = None, **kwargs
+        dist_package: Union[str, type, BaseDistributionPackage] = "builtin", **kwargs
         ) -> BaseDistributionPackage:
     """Get a distribution tree.
 
@@ -249,18 +391,16 @@ def get_dist_package(
     BaseDistributionTree:
         Distribution tree.
     """
-    if target is None:
-        target = "core"
-    if isinstance(target, BaseDistributionPackage):
-        return target
-    if isinstance(target, type):
-        return target()
+    if isinstance(dist_package, BaseDistributionPackage):
+        return dist_package
+    if isinstance(dist_package, type):
+        return dist_package()
 
     all_disttrees = {
         entry.name: entry
         for entry in entry_points(group="metasynth.disttree")
     }
     try:
-        return all_disttrees[target].load()(**kwargs)
+        return all_disttrees[dist_package].load()(**kwargs)
     except KeyError as exc:
-        raise ValueError(f"Cannot find distribution tree with name '{target}'.") from exc
+        raise ValueError(f"Cannot find distribution tree with name '{dist_package}'.") from exc
