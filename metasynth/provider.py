@@ -244,7 +244,7 @@ class PackageList():
         self.dist_packages = []
         for pkg in dist_packages:
             if isinstance(pkg, str):
-                self.dist_packages.append(get_provider(pkg))
+                self.dist_packages.append(get_distribution_provider(pkg))
             elif isinstance(pkg, type):
                 self.dist_packages.append(pkg())
             elif isinstance(pkg, BaseDistributionProvider):
