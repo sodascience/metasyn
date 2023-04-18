@@ -167,12 +167,12 @@ class MetaVar():
             "distribution": str(self.distribution),
         })
 
-    def fit(self,
+    def fit(self,  # pylint: disable=too-many-arguments
             dist: Optional[Union[str, BaseDistribution, type]] = None,
             dist_providers: Union[str, type, BaseDistributionProvider] = "builtin",
             privacy: BasePrivacy = NoPrivacy(),
             unique: Optional[bool] = None,
-            fit_kwargs: dict = {}):
+            fit_kwargs: Optional[dict] = None):
         """Fit distributions to the data.
 
         If multiple distributions are available for the current data type,

@@ -272,7 +272,7 @@ class DistributionProviderList():  # pylint: disable=too-few-public-methods
             dist: Optional[Union[str, BaseDistribution, type]] = None,
             privacy: BasePrivacy = NoPrivacy(),
             unique: Optional[bool] = None,
-            fit_kwargs: dict = {}):
+            fit_kwargs: Optional[dict] = None):
         """Fit a distribution to a column/series.
 
         Arguments
@@ -291,6 +291,8 @@ class DistributionProviderList():  # pylint: disable=too-few-public-methods
             Whether the distribution should be unique or not.
         """
         if dist is not None:
+            if fit_kwargs is None:
+                fit_kwargs = {}
             return self._fit_distribution(series, dist, privacy, **fit_kwargs)
         return self._find_best_fit(series, var_type, unique, privacy)
 
