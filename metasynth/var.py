@@ -196,6 +196,8 @@ class MetaVar():
         unique:
             Whether the variable should be unique. If not supplied, it will be
             inferred from the data.
+        fit_kwargs:
+            Extra options for distributions during the fitting stage.
         """
         if self.series is None:
             raise ValueError("Cannot fit distribution if we don't have the"
