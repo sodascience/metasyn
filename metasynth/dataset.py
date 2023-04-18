@@ -50,8 +50,8 @@ class MetaDataset():
     def from_dataframe(cls,
                        df: pl.DataFrame,
                        spec: Optional[dict[str, dict]] = None,
-                       dist_packages: Union[str, list[str], BaseDistributionProvider,
-                                            list[BaseDistributionProvider]] = "builtin",
+                       dist_providers: Union[str, list[str], BaseDistributionProvider,
+                                             list[BaseDistributionProvider]] = "builtin",
                        privacy: Optional[BasePrivacy] = None):
         """Create dataset from a Pandas dataframe.
 
@@ -92,17 +92,20 @@ class MetaDataset():
 
             Set the description of a variable: {"description": "Some description."}
 
-            fit_kwargs
+            privacy
 
-            Some distributions such as the FakerDistribution and RegexDistribution can take
-            extra fitting arguments. For example for the RegexDistribution one can set the
-            the speed of the computation by {"mode": "fast"} or {"mode": "slow"}. Be sure to set
-            the distribution as well.
+            Set the privacy level for a variable: {"privacy": DifferentialPrivacy(epsilon=10)}
+
+            prop_missing
+
+            Proportion of missing values for a variable: {"prop_missing": 0.3}
 
             Any number of the above directives may be set for any number of variables.
-
-        privacy_package:
-            Package that contains the implementations of the distributions.
+        dist_providers:
+            Distribution providers to use when fitting distributions to variables.
+            Can be a string, provider, or provider type.
+        privacy:
+            Privacy level to use by default.
 
         Returns
         -------
@@ -123,17 +126,12 @@ class MetaDataset():
             dist = col_spec.pop("distribution", None)
             unq = col_spec.pop("unique", None)
             description = col_spec.pop("description", None)
-            fit_kwargs = col_spec.pop("fit_kwargs", {})
             prop_missing = col_spec.pop("prop_missing", None)
             cur_privacy = col_spec.pop("privacy", privacy)
-            assert "fit_kwargs" not in col_spec
-            if dist is None and len(fit_kwargs) > 0:
-                raise ValueError(f"Got fit arguments for variable '{col_name}', but no "
-                                 "distribution. Set the distribution manually to fix.")
             if len(col_spec) != 0:
                 raise ValueError(f"Unknown spec items '{col_spec}' for variable '{col_name}'.")
             var = MetaVar.detect(series, description=description, prop_missing=prop_missing)
-            var.fit(dist=dist, dist_packages=dist_packages, unique=unq, privacy=cur_privacy)
+            var.fit(dist=dist, dist_providers=dist_providers, unique=unq, privacy=cur_privacy)
 
             all_vars.append(var)
 

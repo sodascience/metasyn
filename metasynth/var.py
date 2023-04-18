@@ -169,7 +169,7 @@ class MetaVar():
 
     def fit(self,
             dist: Optional[Union[str, BaseDistribution, type]] = None,
-            dist_packages: Union[str, type, BaseDistributionProvider] = "builtin",
+            dist_providers: Union[str, type, BaseDistributionProvider] = "builtin",
             privacy: BasePrivacy = NoPrivacy(),
             unique: Optional[bool] = None):
         """Fit distributions to the data.
@@ -188,6 +188,8 @@ class MetaVar():
             supplied distribution (class). Examples of allowed strings are:
             "normal", "uniform", "faker.city.nl_NL". If not supplied, fit
             the best available distribution for the variable type.
+        dist_providers:
+            Distribution providers that are used for fitting.
         distribution_tree:
             Distribution tree to be used.
             By default use all distributions in metasynth.distribution.
@@ -199,7 +201,7 @@ class MetaVar():
             raise ValueError("Cannot fit distribution if we don't have the"
                              "original data.")
 
-        pkg_list = DistributionProviderList(dist_packages)
+        pkg_list = DistributionProviderList(dist_providers)
         self.distribution = pkg_list.fit(self.series, self.var_type, dist, privacy, unique)
 
     def draw(self) -> Any:

@@ -306,6 +306,8 @@ class DistributionProviderList():  # pylint: disable=too-few-public-methods
             Variable type of the series.
         unique:
             Whether the variable should be unique or not.
+        privacy:
+            Privacy level to find the best fit with.
 
         Returns
         -------
@@ -370,9 +372,9 @@ class DistributionProviderList():  # pylint: disable=too-few-public-methods
         dist:
             Distribution to fit (if it is not already fitted).
         series:
-            Series to fit the distribution to
-        fit_kwargs:
-            Extra fitting parameters that are specific to the distribution.
+            Series to fit the distribution to.
+        privacy:
+            Privacy level to fit the distribution with.
 
         Returns
         -------
@@ -417,6 +419,8 @@ def get_distribution_provider(
     ----------
     target:
         Directive to get the distribution tree.
+    kwargs:
+        Extra keyword arguments for initialization of the distribution provider.
 
     Returns
     -------

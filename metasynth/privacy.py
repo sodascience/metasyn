@@ -12,6 +12,7 @@ class BasePrivacy():
     Derived classes should at least set the class variable
     name and implement the to_dict method.
     """
+
     name = "unknown_privacy"
 
     def __init__(self):
@@ -46,6 +47,7 @@ class BasePrivacy():
 
 class NoPrivacy(BasePrivacy):
     """No privacy class, which uses statistically optimal distributions."""
+
     name = "none"
 
     def to_dict(self) -> dict:
