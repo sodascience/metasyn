@@ -62,7 +62,7 @@ def validate_gmf_dict(gmf_dict: dict):
     gmf_dict:
         Dictionary containing the MetaSynth output for a dataset.
     """
-    packages = [entry.name for entry in entry_points(group="metasynth.disttree")]
+    packages = [entry.name for entry in entry_points(group="metasynth.distribution_provider")]
     schema = create_schema(packages)
     jsonschema.validate(gmf_dict, schema)
 

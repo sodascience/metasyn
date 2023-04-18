@@ -264,7 +264,8 @@ class DistributionProviderList():  # pylint: disable=too-few-public-methods
                 self.dist_packages.append(pkg())
             elif isinstance(pkg, BaseDistributionProvider):
                 self.dist_packages.append(pkg)
-            raise ValueError(f"Unknown distribution package type '{type(pkg)}'")
+            else:
+                raise ValueError(f"Unknown distribution package type '{type(pkg)}'")
 
     def fit(self, series: pl.Series,  # pylint: disable=too-many-arguments
             var_type: str,
