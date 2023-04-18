@@ -6,7 +6,7 @@ from metasynth.distribution.continuous import UniformDistribution,\
 from metasynth.distribution.faker import FakerDistribution
 from metasynth.distribution.regex import RegexDistribution
 from metasynth.distribution.discrete import DiscreteUniformDistribution
-from metasynth.distpkg import get_dist_package
+from metasynth.provider import get_distribution_provider
 
 
 @mark.parametrize(
@@ -21,7 +21,7 @@ from metasynth.distpkg import get_dist_package
     ]
 )
 def test_util(dist_str, dist):
-    dist_tree = get_dist_package()
+    dist_tree = get_distribution_provider()
     dist_class = dist_tree.find_distribution(dist_str)
     assert dist == dist_class
     if dist_str.startswith("faker"):
