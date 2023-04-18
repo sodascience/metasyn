@@ -271,7 +271,8 @@ class DistributionProviderList():  # pylint: disable=too-few-public-methods
             var_type: str,
             dist: Optional[Union[str, BaseDistribution, type]] = None,
             privacy: BasePrivacy = NoPrivacy(),
-            unique: Optional[bool] = None):
+            unique: Optional[bool] = None,
+            fit_kwargs: dict = {}):
         """Fit a distribution to a column/series.
 
         Arguments
@@ -290,7 +291,7 @@ class DistributionProviderList():  # pylint: disable=too-few-public-methods
             Whether the distribution should be unique or not.
         """
         if dist is not None:
-            return self._fit_distribution(series, dist, privacy)
+            return self._fit_distribution(series, dist, privacy, **fit_kwargs)
         return self._find_best_fit(series, var_type, unique, privacy)
 
     def _find_best_fit(self, series: pl.Series, var_type: str,
@@ -339,7 +340,7 @@ class DistributionProviderList():  # pylint: disable=too-few-public-methods
                              f"that have unique == {unique}.")
         return dist_instances[np.argmin(dist_aic)]
 
-    def _find_distribution(self, dist_name: str, privacy: BasePrivacy = NoPrivacy()
+    def _find_distribution(self, dist_name: str, privacy: BasePrivacy = NoPrivacy(),
                            ) -> type[BaseDistribution]:
         """Find a distribution and fit keyword arguments from a name.
 
@@ -364,7 +365,8 @@ class DistributionProviderList():  # pylint: disable=too-few-public-methods
 
     def _fit_distribution(self, series: pl.Series,
                           dist: Union[str, Type[BaseDistribution], BaseDistribution],
-                          privacy: BasePrivacy) -> BaseDistribution:
+                          privacy: BasePrivacy,
+                          **fit_kwargs) -> BaseDistribution:
         """Fit a specific distribution to a series.
 
         In contrast the fit method, this needs a supplied distribution(type).
@@ -377,6 +379,8 @@ class DistributionProviderList():  # pylint: disable=too-few-public-methods
             Series to fit the distribution to.
         privacy:
             Privacy level to fit the distribution with.
+        fit_kwargs:
+            Extra keyword arguments to modify the way the distribution is fit.
 
         Returns
         -------
@@ -387,9 +391,9 @@ class DistributionProviderList():  # pylint: disable=too-few-public-methods
 
         if isinstance(dist, str):
             dist_class = self._find_distribution(dist)
-            dist_instance = dist_class.fit(series, **privacy.fit_kwargs)
+            dist_instance = dist_class.fit(series, **privacy.fit_kwargs, **fit_kwargs)
         elif inspect.isclass(dist) and issubclass(dist, BaseDistribution):
-            dist_instance = dist.fit(series, **privacy.fit_kwargs)
+            dist_instance = dist.fit(series, **privacy.fit_kwargs, **fit_kwargs)
         if isinstance(dist, BaseDistribution):
             dist_instance = dist
 

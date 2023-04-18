@@ -128,10 +128,12 @@ class MetaDataset():
             description = col_spec.pop("description", None)
             prop_missing = col_spec.pop("prop_missing", None)
             cur_privacy = col_spec.pop("privacy", privacy)
+            fit_kwargs = col_spec.pop("fit_kwargs", {})
             if len(col_spec) != 0:
                 raise ValueError(f"Unknown spec items '{col_spec}' for variable '{col_name}'.")
             var = MetaVar.detect(series, description=description, prop_missing=prop_missing)
-            var.fit(dist=dist, dist_providers=dist_providers, unique=unq, privacy=cur_privacy)
+            var.fit(dist=dist, dist_providers=dist_providers, unique=unq, privacy=cur_privacy,
+                    fit_kwargs=fit_kwargs)
 
             all_vars.append(var)
 

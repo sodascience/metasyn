@@ -171,7 +171,8 @@ class MetaVar():
             dist: Optional[Union[str, BaseDistribution, type]] = None,
             dist_providers: Union[str, type, BaseDistributionProvider] = "builtin",
             privacy: BasePrivacy = NoPrivacy(),
-            unique: Optional[bool] = None):
+            unique: Optional[bool] = None,
+            fit_kwargs: dict = {}):
         """Fit distributions to the data.
 
         If multiple distributions are available for the current data type,
@@ -201,7 +202,8 @@ class MetaVar():
                              "original data.")
 
         pkg_list = DistributionProviderList(dist_providers)
-        self.distribution = pkg_list.fit(self.series, self.var_type, dist, privacy, unique)
+        self.distribution = pkg_list.fit(self.series, self.var_type, dist, privacy, unique,
+                                         fit_kwargs)
 
     def draw(self) -> Any:
         """Draw a random item for the variable in whatever type is required."""
