@@ -289,6 +289,8 @@ class DistributionProviderList():  # pylint: disable=too-few-public-methods
             Level of privacy that will be used in the fit.
         unique:
             Whether the distribution should be unique or not.
+        fit_kwargs:
+            Extra options for distributions during the fitting stage.
         """
         if dist is not None:
             if fit_kwargs is None:
