@@ -6,7 +6,7 @@ import polars as pl
 import jsonschema
 from jsonschema.exceptions import SchemaError
 
-from metasynth.distpkg import get_dist_package
+from metasynth.provider import get_distribution_provider
 from metasynth.dataset import _jsonify
 
 
@@ -24,12 +24,12 @@ def check_dist_type(tree_name: str, var_type: Optional[str] = None, **privacy_kw
         Keyword arguments that are supplied to the distribution (tree).
     """
     if var_type is None:
-        for cur_var_type in get_dist_package("core").all_var_types:
+        for cur_var_type in get_distribution_provider("core").all_var_types:
             check_dist_type(tree_name, cur_var_type, **privacy_kwargs)
         return
 
-    base_tree = get_dist_package("builtin")
-    new_tree = get_dist_package(tree_name, **privacy_kwargs)
+    base_tree = get_distribution_provider("builtin")
+    new_tree = get_distribution_provider(tree_name, **privacy_kwargs)
     for new_class in new_tree.get_dist_list(var_type):
         base_class = None
         for cur_base_class in base_tree.get_dist_list(var_type):
@@ -57,7 +57,7 @@ def check_distribution_validation(package_name: str):
     package_name:
         Name of the package to validate the distributions for.
     """
-    package = get_dist_package(package_name)
+    package = get_distribution_provider(package_name)
     for dist in package.distributions:
         schema = dist.schema()
         dist_dict = dist.default_distribution().to_dict()

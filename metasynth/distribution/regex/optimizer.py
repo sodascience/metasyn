@@ -125,7 +125,8 @@ class RegexOptimizer():
         right_energy = np.sum(np.log(self.right_cum_dist+1))
         return left_energy + right_energy
 
-    def energy_move(self, dist: npt.NDArray[np.int_], len_src: int, len_dst: int) -> float:
+    @staticmethod
+    def energy_move(dist: npt.NDArray[np.int_], len_src: int, len_dst: int) -> float:
         """Compute the energy to change the length on one side.
 
         Parameters

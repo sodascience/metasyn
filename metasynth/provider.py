@@ -11,7 +11,6 @@ from typing import List, Union
 from typing import Type, Any, Optional
 import warnings
 import inspect
-from metasynth.privacy import BasePrivacy, NoPrivacy
 try:
     from importlib_metadata import entry_points
 except ImportError:
@@ -32,6 +31,7 @@ from metasynth.distribution.regex.base import RegexDistribution,\
 from metasynth.distribution.faker import FakerDistribution
 from metasynth.distribution.datetime import UniformDateDistribution,\
     UniformTimeDistribution, UniformDateTimeDistribution
+from metasynth.privacy import BasePrivacy, NoPrivacy
 
 
 class BaseDistributionProvider():
@@ -235,10 +235,24 @@ class BuiltinDistributionProvider(BaseDistributionProvider):
         ]
 
 
-class PackageList():
-    def __init__(self, dist_packages: Union[
-            str, type[BaseDistributionProvider], BaseDistributionProvider,
-            list[Union[str, type[BaseDistributionProvider], BaseDistributionProvider]]]):
+class DistributionProviderList():  # pylint: disable=too-few-public-methods
+    """List of DistributionProvider's with functionality to fit distributions.
+
+    Arguments
+    ---------
+    dist_packages:
+        One or more distribution packages, that are denoted either with a string ("builtin")
+        , DistributionProvider (BuiltinDistributionProvider()) or DistributionProvider type
+        (BuiltinDistributionProvider).
+        The order in which distribution providers are included matters. If a provider implements
+        the same distribution at the same privacy level, then only the first will be taken into
+        account.
+    """
+    def __init__(
+            self,
+            dist_packages: Union[
+                str, type[BaseDistributionProvider], BaseDistributionProvider,
+                list[Union[str, type[BaseDistributionProvider], BaseDistributionProvider]]]):
         if isinstance(dist_packages, (str, type, BaseDistributionProvider)):
             dist_packages = [dist_packages]
         self.dist_packages = []
@@ -249,15 +263,33 @@ class PackageList():
                 self.dist_packages.append(pkg())
             elif isinstance(pkg, BaseDistributionProvider):
                 self.dist_packages.append(pkg)
-            else:
-                raise ValueError(f"Unknown distribution package type '{type(pkg)}'")
+            raise ValueError(f"Unknown distribution package type '{type(pkg)}'")
 
-    def fit(self, series, var_type, dist: Optional[Union[str, BaseDistribution, type]] = None,
-            privacy: BasePrivacy = NoPrivacy(), unique: Optional[bool] = None):
+    def fit(self, series: pl.Series,  # pylint: disable=too-many-arguments
+            var_type: str,
+            dist: Optional[Union[str, BaseDistribution, type]] = None,
+            privacy: BasePrivacy = NoPrivacy(),
+            unique: Optional[bool] = None):
+        """Fit a distribution to a column/series.
+
+        Arguments
+        ---------
+        series:
+            The data to fit the distributions to.
+        var_type:
+            The variable type of the data.
+        dist:
+            Distribution to fit. If not supplied or None, the AIC information
+            criterion will be used to determine which distribution is the most
+            suitable.
+        privacy:
+            Level of privacy that will be used in the fit.
+        unique:
+            Whether the distribution should be unique or not.
+        """
         if dist is not None:
             return self._fit_distribution(series, dist, privacy)
-        else:
-            return self._find_best_fit(series, var_type, unique, privacy)
+        return self._find_best_fit(series, var_type, unique, privacy)
 
     def _find_best_fit(self, series: pl.Series, var_type: str,
                        unique: Optional[bool],

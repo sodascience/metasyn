@@ -10,7 +10,7 @@ import numpy as np
 
 from metasynth.distribution.base import BaseDistribution
 from metasynth.provider import BaseDistributionProvider, get_distribution_provider,\
-    PackageList
+    DistributionProviderList
 from metasynth.privacy import BasePrivacy, NoPrivacy
 
 
@@ -199,7 +199,7 @@ class MetaVar():
             raise ValueError("Cannot fit distribution if we don't have the"
                              "original data.")
 
-        pkg_list = PackageList(dist_packages)
+        pkg_list = DistributionProviderList(dist_packages)
         self.distribution = pkg_list.fit(self.series, self.var_type, dist, privacy, unique)
 
     def draw(self) -> Any:
