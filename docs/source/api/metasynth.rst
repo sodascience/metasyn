@@ -27,10 +27,10 @@ metasynth.dataset module
    :undoc-members:
    :show-inheritance:
 
-metasynth.disttree module
+metasynth.provider module
 -------------------------
 
-.. automodule:: metasynth.disttree
+.. automodule:: metasynth.provider
    :members:
    :undoc-members:
    :show-inheritance:
@@ -43,3 +43,26 @@ metasynth.var module
    :undoc-members:
    :show-inheritance:
 
+metasynth.testutils module
+--------------------------
+
+.. automodule:: metasynth.testutils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+metasynth.validation module
+---------------------------
+
+.. automodule:: metasynth.validation
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+metasynth.privacy module
+------------------------
+
+.. automodule:: metasynth.privacy
+   :members:
+   :undoc-members:
+   :show-inheritance:
