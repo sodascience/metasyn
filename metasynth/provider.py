@@ -34,7 +34,7 @@ from metasynth.distribution.datetime import UniformDateDistribution,\
     UniformTimeDistribution, UniformDateTimeDistribution
 
 
-class BaseDistributionPackage():
+class BaseProvider():
     """Class that encapsulates a set of distributions.
 
     It has a property {var_type}_distributions for every var_type.
@@ -210,7 +210,7 @@ class BaseDistributionPackage():
                          f"and type '{var_dict['type']}'.")
 
 
-class BuiltinDistributionPackage(BaseDistributionPackage):
+class BuiltinProvider(BaseProvider):
     """Distribution tree that includes the builtin distributions."""
 
     @property
@@ -237,17 +237,17 @@ class BuiltinDistributionPackage(BaseDistributionPackage):
 
 class PackageList():
     def __init__(self, dist_packages: Union[
-            str, type[BaseDistributionPackage], BaseDistributionPackage,
-            list[Union[str, type[BaseDistributionPackage], BaseDistributionPackage]]]):
-        if isinstance(dist_packages, (str, type, BaseDistributionPackage)):
+            str, type[BaseProvider], BaseProvider,
+            list[Union[str, type[BaseProvider], BaseProvider]]]):
+        if isinstance(dist_packages, (str, type, BaseProvider)):
             dist_packages = [dist_packages]
         self.dist_packages = []
         for pkg in dist_packages:
             if isinstance(pkg, str):
-                self.dist_packages.append(get_dist_package(pkg))
+                self.dist_packages.append(get_provider(pkg))
             elif isinstance(pkg, type):
                 self.dist_packages.append(pkg())
-            elif isinstance(pkg, BaseDistributionPackage):
+            elif isinstance(pkg, BaseProvider):
                 self.dist_packages.append(pkg)
             else:
                 raise ValueError(f"Unknown distribution package type '{type(pkg)}'")
@@ -376,9 +376,9 @@ class PackageList():
         return dist_list
 
 
-def get_dist_package(
-        dist_package: Union[str, type, BaseDistributionPackage] = "builtin", **kwargs
-        ) -> BaseDistributionPackage:
+def get_provider(
+        provider: Union[str, type, BaseProvider] = "builtin", **kwargs
+        ) -> BaseProvider:
     """Get a distribution tree.
 
     Parameters
@@ -391,16 +391,16 @@ def get_dist_package(
     BaseDistributionTree:
         Distribution tree.
     """
-    if isinstance(dist_package, BaseDistributionPackage):
-        return dist_package
-    if isinstance(dist_package, type):
-        return dist_package()
+    if isinstance(provider, BaseProvider):
+        return provider
+    if isinstance(provider, type):
+        return provider()
 
     all_disttrees = {
         entry.name: entry
-        for entry in entry_points(group="metasynth.disttree")
+        for entry in entry_points(group="metasynth.provider")
     }
     try:
-        return all_disttrees[dist_package].load()(**kwargs)
+        return all_disttrees[provider].load()(**kwargs)
     except KeyError as exc:
-        raise ValueError(f"Cannot find distribution tree with name '{dist_package}'.") from exc
+        raise ValueError(f"Cannot find distribution tree with name '{provider}'.") from exc

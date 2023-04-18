@@ -49,8 +49,8 @@ test = [
 	"sphinx", "sphinx-rtd-theme", "sphinxcontrib-napoleon", "sphinx-autodoc-typehints"
 ]
 
-[project.entry-points."metasynth.disttree"]
-builtin = "metasynth.distpkg:BuiltinDistributionPackage"
+[project.entry-points."metasynth.provider"]
+builtin = "metasynth.provider:BuiltinProvider"
 
 [tool.setuptools]
 packages = ["metasynth"]
