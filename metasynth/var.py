@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 
 from metasynth.distribution.base import BaseDistribution
-from metasynth.provider import BaseProvider, get_provider,\
+from metasynth.provider import BaseDistributionProvider, get_distribution_provider,\
     PackageList
 from metasynth.privacy import BasePrivacy, NoPrivacy
 
@@ -169,7 +169,7 @@ class MetaVar():
 
     def fit(self,
             dist: Optional[Union[str, BaseDistribution, type]] = None,
-            dist_packages: Union[str, type, BaseProvider] = "builtin",
+            dist_packages: Union[str, type, BaseDistributionProvider] = "builtin",
             privacy: BasePrivacy = NoPrivacy(),
             unique: Optional[bool] = None):
         """Fit distributions to the data.
@@ -248,7 +248,7 @@ class MetaVar():
         MetaVar:
             Initialized metadata variable.
         """
-        disttree = get_provider()
+        disttree = get_distribution_provider()
         dist = disttree.from_dict(var_dict)
         return cls(
             var_dict["type"],

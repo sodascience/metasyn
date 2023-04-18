@@ -15,7 +15,7 @@ import polars as pl
 import jsonschema
 
 from metasynth.var import MetaVar
-from metasynth.provider import BaseProvider
+from metasynth.provider import BaseDistributionProvider
 from metasynth.validation import validate_gmf_dict
 from metasynth.privacy import BasePrivacy, NoPrivacy
 
@@ -50,8 +50,8 @@ class MetaDataset():
     def from_dataframe(cls,
                        df: pl.DataFrame,
                        spec: Optional[dict[str, dict]] = None,
-                       dist_packages: Union[str, list[str], BaseProvider,
-                                            list[BaseProvider]] = "builtin",
+                       dist_packages: Union[str, list[str], BaseDistributionProvider,
+                                            list[BaseDistributionProvider]] = "builtin",
                        privacy: Optional[BasePrivacy] = None):
         """Create dataset from a Pandas dataframe.
 

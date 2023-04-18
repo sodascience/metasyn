@@ -11,7 +11,7 @@ except ImportError:
 
 import jsonschema
 
-from metasynth.provider import get_provider
+from metasynth.provider import get_distribution_provider
 
 SCHEMA_BASE = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -82,7 +82,7 @@ def create_schema(packages: list[str]) -> dict:
     """
     defs: list[dict] = []
     for package_name in packages:
-        pkg = get_provider(package_name)
+        pkg = get_distribution_provider(package_name)
         for dist in pkg.distributions:
             defs.append(dist.schema())
 
