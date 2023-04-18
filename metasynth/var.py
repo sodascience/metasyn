@@ -190,9 +190,8 @@ class MetaVar():
             the best available distribution for the variable type.
         dist_providers:
             Distribution providers that are used for fitting.
-        distribution_tree:
-            Distribution tree to be used.
-            By default use all distributions in metasynth.distribution.
+        privacy:
+            Privacy level to use for fitting the series.
         unique:
             Whether the variable should be unique. If not supplied, it will be
             inferred from the data.

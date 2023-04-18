@@ -240,21 +240,22 @@ class DistributionProviderList():  # pylint: disable=too-few-public-methods
 
     Arguments
     ---------
-    dist_packages:
-        One or more distribution packages, that are denoted either with a string ("builtin")
+    dist_providers:
+        One or more distribution providers, that are denoted either with a string ("builtin")
         , DistributionProvider (BuiltinDistributionProvider()) or DistributionProvider type
         (BuiltinDistributionProvider).
         The order in which distribution providers are included matters. If a provider implements
         the same distribution at the same privacy level, then only the first will be taken into
         account.
     """
+
     def __init__(
             self,
-            dist_packages: Union[
+            dist_providers: Union[
                 str, type[BaseDistributionProvider], BaseDistributionProvider,
                 list[Union[str, type[BaseDistributionProvider], BaseDistributionProvider]]]):
-        if isinstance(dist_packages, (str, type, BaseDistributionProvider)):
-            dist_packages = [dist_packages]
+        if isinstance(dist_providers, (str, type, BaseDistributionProvider)):
+            dist_packages = [dist_providers]
         self.dist_packages = []
         for pkg in dist_packages:
             if isinstance(pkg, str):
@@ -417,8 +418,8 @@ def get_distribution_provider(
 
     Parameters
     ----------
-    target:
-        Directive to get the distribution tree.
+    provider:
+        Name, class or class type of the provider to be used.
     kwargs:
         Extra keyword arguments for initialization of the distribution provider.
 
