@@ -2,6 +2,8 @@
 
 # from typing import Optional
 
+from __future__ import annotations
+
 import jsonschema
 import polars as pl
 from jsonschema.exceptions import SchemaError
@@ -57,6 +59,12 @@ def check_distribution(distribution: type[BaseDistribution], privacy: str,
     ---------
     package_name:
         Name of the package to validate the distributions for.
+    privacy:
+        Level/type of privacy the distribution adheres to.
+    provenance:
+        Which provider/plugin/package provides the distribution.
+    privacy_kwargs:
+        Extra arguments to be supplied to the distribution when fitting.
     """
     # package = get_distribution_provider(package_name)
     # for dist in package.distributions:
