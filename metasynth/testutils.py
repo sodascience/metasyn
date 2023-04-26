@@ -57,8 +57,8 @@ def check_distribution(distribution: type[BaseDistribution], privacy: str,
 
     Arguments
     ---------
-    package_name:
-        Name of the package to validate the distributions for.
+    distribution:
+        Distribution to validate to check whether it behaves as expected.
     privacy:
         Level/type of privacy the distribution adheres to.
     provenance:
