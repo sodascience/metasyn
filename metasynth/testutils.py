@@ -1,6 +1,6 @@
 """Testing utilities for plugins."""
 
-from typing import Optional
+# from typing import Optional
 
 import jsonschema
 import polars as pl
@@ -8,7 +8,7 @@ from jsonschema.exceptions import SchemaError
 
 from metasynth.dataset import _jsonify
 from metasynth.distribution.base import BaseDistribution
-from metasynth.provider import get_distribution_provider
+# from metasynth.provider import get_distribution_provider
 
 # def check_dist_type(tree_name: str, var_type: Optional[str] = None, **privacy_kwargs):
 #     """Test a distribution tree to check correctness.
