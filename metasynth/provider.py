@@ -6,31 +6,35 @@ builtin distribution tree is registered.
 
 from __future__ import annotations
 
-from abc import abstractmethod
-from typing import List, Union
-from typing import Type, Any, Optional
-import warnings
 import inspect
+import warnings
+from abc import abstractmethod
+from typing import Any, List, Optional, Type, Union
+
 try:
     from importlib_metadata import entry_points
 except ImportError:
     from importlib.metadata import entry_points  # type: ignore
 
-import polars as pl
 import numpy as np
+import polars as pl
 
 from metasynth.distribution.base import BaseDistribution
-from metasynth.distribution.discrete import DiscreteUniformDistribution,\
-    PoissonDistribution, UniqueKeyDistribution
-from metasynth.distribution.continuous import UniformDistribution,\
-    NormalDistribution, LogNormalDistribution, TruncatedNormalDistribution,\
-    ExponentialDistribution
 from metasynth.distribution.categorical import MultinoulliDistribution
-from metasynth.distribution.regex.base import RegexDistribution,\
-    UniqueRegexDistribution
+from metasynth.distribution.continuous import (ExponentialDistribution,
+                                               LogNormalDistribution,
+                                               NormalDistribution,
+                                               TruncatedNormalDistribution,
+                                               UniformDistribution)
+from metasynth.distribution.datetime import (UniformDateDistribution,
+                                             UniformDateTimeDistribution,
+                                             UniformTimeDistribution)
+from metasynth.distribution.discrete import (DiscreteUniformDistribution,
+                                             PoissonDistribution,
+                                             UniqueKeyDistribution)
 from metasynth.distribution.faker import FakerDistribution
-from metasynth.distribution.datetime import UniformDateDistribution,\
-    UniformTimeDistribution, UniformDateTimeDistribution
+from metasynth.distribution.regex.base import (RegexDistribution,
+                                               UniqueRegexDistribution)
 from metasynth.privacy import BasePrivacy, NoPrivacy
 
 

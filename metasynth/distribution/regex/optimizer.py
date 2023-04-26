@@ -1,6 +1,7 @@
 """Module containing the optimizer class for the regex distribution."""
 
-from typing import Sequence, Tuple, List, Dict, Any
+from typing import Any, Dict, List, Sequence, Tuple
+
 import numpy as np
 import numpy.typing as npt
 

@@ -1,12 +1,13 @@
 """Module for the base distribution and the scipy distribution."""
 
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import Iterable, Sequence, Union
 
 import numpy as np
-import polars as pl
 import pandas as pd
+import polars as pl
 
 
 class BaseDistribution(ABC):

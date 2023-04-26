@@ -2,13 +2,13 @@
 
 from typing import Union
 
-import pandas as pd
 import numpy as np
 import numpy.typing as npt
+import pandas as pd
 import polars as pl
 
-from metasynth.distribution.base import CategoricalDistribution
-from metasynth.distribution.base import CoreDistribution
+from metasynth.distribution.base import (CategoricalDistribution,
+                                         CoreDistribution)
 
 
 class MultinoulliDistribution(CoreDistribution, CategoricalDistribution):

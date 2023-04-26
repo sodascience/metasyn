@@ -2,22 +2,22 @@
 
 from __future__ import annotations
 
-from copy import deepcopy
-from datetime import datetime
-from importlib.resources import read_text
-from importlib.metadata import version
 import json
 import pathlib
-from typing import Union, List, Dict, Any, Sequence, Optional
+from copy import deepcopy
+from datetime import datetime
+from importlib.metadata import version
+from importlib.resources import read_text
+from typing import Any, Dict, List, Optional, Sequence, Union
 
+import jsonschema
 import numpy as np
 import polars as pl
-import jsonschema
 
-from metasynth.var import MetaVar
+from metasynth.privacy import BasePrivacy, NoPrivacy
 from metasynth.provider import BaseDistributionProvider
 from metasynth.validation import validate_gmf_dict
-from metasynth.privacy import BasePrivacy, NoPrivacy
+from metasynth.var import MetaVar
 
 
 class MetaDataset():

@@ -1,13 +1,13 @@
 """Tools for validating distribution/GMF file output."""
 
 from __future__ import annotations
+
 from copy import deepcopy
 
 try:
     from importlib_metadata import entry_points
 except ImportError:
     from importlib.metadata import entry_points  # type: ignore
-
 
 import jsonschema
 

@@ -3,7 +3,7 @@ from typing import Iterable
 
 from faker import Faker
 
-from metasynth.distribution.base import StringDistribution, CoreDistribution
+from metasynth.distribution.base import CoreDistribution, StringDistribution
 
 
 class FakerDistribution(CoreDistribution, StringDistribution):

@@ -1,7 +1,7 @@
 """Module with privacy classes to be used for creating GMF files."""
 
 from abc import abstractmethod
-from typing import Union, Type
+from typing import Type, Union
 
 from metasynth.distribution.base import BaseDistribution
 

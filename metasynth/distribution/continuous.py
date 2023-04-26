@@ -2,11 +2,11 @@
 
 import numpy as np
 from scipy.optimize import minimize
-from scipy.stats import uniform, norm, lognorm, truncnorm, expon
+from scipy.stats import expon, lognorm, norm, truncnorm, uniform
 from scipy.stats._continuous_distns import FitDataError
 
-from metasynth.distribution.base import ScipyDistribution, ContinuousDistribution
-from metasynth.distribution.base import CoreDistribution
+from metasynth.distribution.base import (ContinuousDistribution,
+                                         CoreDistribution, ScipyDistribution)
 
 
 class UniformDistribution(CoreDistribution, ScipyDistribution, ContinuousDistribution):

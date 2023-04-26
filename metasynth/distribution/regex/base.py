@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
-from typing import List, Union, Tuple, Type, Sequence, Set
+from typing import List, Sequence, Set, Tuple, Type, Union
 
 import numpy as np
 
-from metasynth.distribution.base import StringDistribution, CoreDistribution
-from metasynth.distribution.regex.element import BaseRegexElement
-from metasynth.distribution.regex.element import DigitRegex, AlphaNumericRegex
-from metasynth.distribution.regex.element import LettersRegex, SingleRegex, AnyRegex
-from metasynth.distribution.regex.element import UppercaseRegex, LowercaseRegex
+from metasynth.distribution.base import CoreDistribution, StringDistribution
+from metasynth.distribution.regex.element import (AlphaNumericRegex, AnyRegex,
+                                                  BaseRegexElement, DigitRegex,
+                                                  LettersRegex, LowercaseRegex,
+                                                  SingleRegex, UppercaseRegex)
 from metasynth.distribution.regex.optimizer import RegexOptimizer
 
 

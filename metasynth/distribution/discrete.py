@@ -3,10 +3,11 @@
 from typing import Set
 
 import numpy as np
-from scipy.stats import randint, poisson
+from scipy.stats import poisson, randint
 
-from metasynth.distribution.base import ScipyDistribution, DiscreteDistribution
-from metasynth.distribution.base import CoreDistribution
+from metasynth.distribution.base import (CoreDistribution,
+                                         DiscreteDistribution,
+                                         ScipyDistribution)
 
 
 class DiscreteUniformDistribution(CoreDistribution, ScipyDistribution, DiscreteDistribution):

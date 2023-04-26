@@ -7,8 +7,8 @@ metadata.
 
 from importlib.metadata import version
 
-from metasynth.var import MetaVar
 from metasynth.dataset import MetaDataset
+from metasynth.var import MetaVar
 
 __all__ = ["MetaVar", "MetaDataset"]
 __version__ = version("metasynth")

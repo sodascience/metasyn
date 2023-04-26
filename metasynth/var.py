@@ -2,16 +2,17 @@
 
 from __future__ import annotations
 
-from typing import Union, Dict, Any, Optional
+from typing import Any, Dict, Optional, Union
 
-import polars as pl
-import pandas as pd
 import numpy as np
+import pandas as pd
+import polars as pl
 
 from metasynth.distribution.base import BaseDistribution
-from metasynth.provider import BaseDistributionProvider, get_distribution_provider,\
-    DistributionProviderList
 from metasynth.privacy import BasePrivacy, NoPrivacy
+from metasynth.provider import (BaseDistributionProvider,
+                                DistributionProviderList,
+                                get_distribution_provider)
 
 
 def _to_polars(series: Union[pd.Series, pl.Series]) -> pl.Series:

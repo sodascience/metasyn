@@ -1,15 +1,15 @@
 """Distributions for date and time types."""
 
+import datetime as dt
 from abc import abstractmethod
 from random import random
-import datetime as dt
-from typing import Dict, Any
+from typing import Any, Dict
 
 import numpy as np
 
-from metasynth.distribution.base import DateTimeDistribution, TimeDistribution,\
-    CoreDistribution
-from metasynth.distribution.base import ScipyDistribution, DateDistribution
+from metasynth.distribution.base import (CoreDistribution, DateDistribution,
+                                         DateTimeDistribution,
+                                         ScipyDistribution, TimeDistribution)
 
 
 def convert_numpy_datetime(time_obj: np.datetime64) -> dt.datetime:
