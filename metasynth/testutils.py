@@ -10,45 +10,20 @@ from jsonschema.exceptions import SchemaError
 
 from metasynth.dataset import _jsonify
 from metasynth.distribution.base import BaseDistribution
-# from metasynth.provider import get_distribution_provider
+from metasynth.provider import (get_distribution_provider,
+                                BaseDistributionProvider)
 
-# def check_dist_type(tree_name: str, var_type: Optional[str] = None, **privacy_kwargs):
-#     """Test a distribution tree to check correctness.
-#
-#     Arguments
-#     ---------
-#     tree_name:
-#         Name of the distribution tree (entrypoint).
-#     var_type:
-#         Variable type to check the distributions for. If None, check all variable
-#         types.
-#     privacy_kwargs:
-#         Keyword arguments that are supplied to the distribution (tree).
-#     """
-#     if var_type is None:
-#         for cur_var_type in get_distribution_provider("core").all_var_types:
-#             check_dist_type(tree_name, cur_var_type, **privacy_kwargs)
-#         return
-#
-#     base_tree = get_distribution_provider("builtin")
-#     new_tree = get_distribution_provider(tree_name, **privacy_kwargs)
-#     for new_class in new_tree.get_dist_list(var_type):
-#         base_class = None
-#         for cur_base_class in base_tree.get_dist_list(var_type):
-#             if issubclass(new_class, cur_base_class):
-#                 base_class = cur_base_class
-#                 break
-#         assert base_class is not None, f"Error: cannot find subclass of {new_class}"
-#
-#         assert base_class.implements == new_class.implements
-#         dist = new_class.default_distribution()
-#         assert isinstance(dist, base_class)
-#         if var_type == "category":
-#             series = pl.Series([dist.draw() for _ in range(100)], pl.Categorical)
-#         else:
-#             series = pl.Series([dist.draw() for _ in range(100)])
-#         assert isinstance(new_class.fit(series, **privacy_kwargs), base_class)
-#         assert new_tree.fit(series, var_type).var_type == var_type
+
+def check_distribution_provider(provider_name):
+    provider = get_distribution_provider(provider_name)
+    assert isinstance(provider, BaseDistributionProvider)
+    assert len(provider.distributions) > 0
+    assert all([issubclass(dist, BaseDistribution) for dist in provider.distributions])
+    assert isinstance(provider.name, str)
+    assert len(provider.name) > 0
+    assert provider.name == provider_name
+    assert isinstance(provider.version, str)
+    assert len(provider.version) > 0
 
 
 def check_distribution(distribution: type[BaseDistribution], privacy: str,
@@ -83,3 +58,4 @@ def check_distribution(distribution: type[BaseDistribution], privacy: str,
     series = pl.Series([dist.draw() for _ in range(100)])
     new_dist = distribution.fit(series, **privacy_kwargs)
     assert isinstance(new_dist, distribution)
+    assert set(list(new_dist.to_dict())) >= set(("implements", "provenance", "class_name", "parameters"))
