@@ -91,42 +91,6 @@ class BaseDistributionProvider(ABC):
         ]
 
 
-    def fit_distribution(self, dist: Union[str, Type[BaseDistribution], BaseDistribution],
-                         series: pl.Series, **fit_kwargs) -> BaseDistribution:
-        """Fit a specific distribution to a series.
-
-        In contrast the fit method, this needs a supplied distribution(type).
-
-        Parameters
-        ----------
-        dist:
-            Distribution to fit (if it is not already fitted).
-        series:
-            Series to fit the distribution to
-        fit_kwargs:
-            Extra fitting parameters that are specific to the distribution.
-
-        Returns
-        -------
-        BaseDistribution:
-            Fitted distribution.
-        """
-        dist_instance = None
-        fit_kwargs.update(self.privacy_kwargs)
-
-        if isinstance(dist, str):
-            dist_class = self.find_distribution(dist)
-            dist_instance = dist_class.fit(series, **fit_kwargs)
-        elif inspect.isclass(dist) and issubclass(dist, BaseDistribution):
-            dist_instance = dist.fit(series, **fit_kwargs)
-        if isinstance(dist, BaseDistribution):
-            dist_instance = dist
-
-        if dist_instance is None:
-            raise TypeError(
-                f"Distribution with type {type(dist)} is not a BaseDistribution")
-
-        return dist_instance
 
     def from_dict(self, var_dict: dict[str, Any]) -> BaseDistribution:
         """Create a distribution from a dictionary.
