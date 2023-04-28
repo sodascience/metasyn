@@ -238,7 +238,8 @@ class MetaVar():
         Parameters
         ----------
         distribution_providers:
-            Distirbution 
+            Distribution providers to use to create the variable. If None,
+            use all installed/available distribution providers.
         var_dict:
             This dictionary contains all the variable and distribution
             information to recreate it from scratch.
