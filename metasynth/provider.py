@@ -50,7 +50,6 @@ class BaseDistributionProvider():
             for dist in self.get_dist_list(var_type):
                 assert dist.var_type == var_type, (f"Error: Distribution tree is inconsistent for "
                                                    f"{dist}.")
-        self.privacy_kwargs = kwargs
 
     @property
     @abstractmethod
