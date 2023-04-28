@@ -12,9 +12,9 @@ from abc import ABC
 from typing import Any, List, Optional, Type, Union
 
 try:
-    from importlib_metadata import entry_points
+    from importlib_metadata import entry_points, EntryPoint
 except ImportError:
-    from importlib.metadata import entry_points  # type: ignore
+    from importlib.metadata import entry_points, EntryPoint  # type: ignore
 
 import numpy as np
 import polars as pl
@@ -44,15 +44,15 @@ class BaseDistributionProvider(ABC):
     It has a property {var_type}_distributions for every var_type.
     """
 
-    name = None
-    version = None
-    distributions = None
+    name = ""
+    version = ""
+    distributions: list[type[BaseDistribution]] = []
 
     def __init__(self):
         # Perform internal consistency check.
-        assert self.name is not None
-        assert self.version is not None
-        assert self.distributions is not None
+        assert len(self.name) > 0
+        assert len(self.version) > 0
+        assert len(self.distributions) > 0
 
     def get_dist_list(self, var_type: str) -> List[Type[BaseDistribution]]:
         """Get all distributions for a certain variable type.
@@ -115,8 +115,9 @@ class DistributionProviderList():
                 None, str, type[BaseDistributionProvider], BaseDistributionProvider,
                 list[Union[str, type[BaseDistributionProvider], BaseDistributionProvider]]]):
         if dist_providers is None:
-            dist_packages = _get_all_provider_list()
-        elif isinstance(dist_providers, (str, type, BaseDistributionProvider)):
+            self.dist_packages = _get_all_provider_list()
+            return
+        if isinstance(dist_providers, (str, type, BaseDistributionProvider)):
             dist_packages = [dist_providers]
         self.dist_packages = []
         for provider in dist_packages:
@@ -137,7 +138,7 @@ class DistributionProviderList():
             fit_kwargs: Optional[dict] = None):
         """Fit a distribution to a column/series.
 
-        Arguments
+        Parameters
         ---------
         series:
             The data to fit the distributions to.
@@ -209,7 +210,6 @@ class DistributionProviderList():
     def _find_distribution(self, dist_name: str, privacy: BasePrivacy = BasicPrivacy(),
                            ) -> type[BaseDistribution]:
         """Find a distribution and fit keyword arguments from a name.
-
 
         Parameters
         ----------
@@ -302,7 +302,7 @@ class DistributionProviderList():
                          f"and type '{var_dict['type']}'.")
 
 
-def _get_all_providers() -> dict[str, BaseDistributionProvider]:
+def _get_all_providers() -> dict[str, EntryPoint]:
     """Get all available providers."""
     return {
         entry.name: entry
@@ -310,8 +310,8 @@ def _get_all_providers() -> dict[str, BaseDistributionProvider]:
     }
 
 
-def _get_all_provider_list():
-    return [p.load()() for p in _get_all_providers()]
+def _get_all_provider_list() -> list[BaseDistributionProvider]:
+    return [p.load()() for p in _get_all_providers().values()]
 
 
 def get_distribution_provider(

@@ -11,8 +11,7 @@ import polars as pl
 from metasynth.distribution.base import BaseDistribution
 from metasynth.privacy import BasePrivacy, BasicPrivacy
 from metasynth.provider import (BaseDistributionProvider,
-                                DistributionProviderList,
-                                get_distribution_provider)
+                                DistributionProviderList)
 
 
 class MetaVar():
@@ -229,11 +228,17 @@ class MetaVar():
         return pl.Series(value_list)
 
     @classmethod
-    def from_dict(cls, distribution_providers, var_dict: Dict[str, Any]) -> MetaVar:
+    def from_dict(cls,
+                  var_dict: Dict[str, Any],
+                  distribution_providers: Union[
+                      None, str, type[BaseDistributionProvider],
+                      BaseDistributionProvider] = None) -> MetaVar:
         """Restore variable from dictionary.
 
         Parameters
         ----------
+        distribution_providers:
+            Distirbution 
         var_dict:
             This dictionary contains all the variable and distribution
             information to recreate it from scratch.
@@ -243,8 +248,8 @@ class MetaVar():
         MetaVar:
             Initialized metadata variable.
         """
-        disttree = get_distribution_provider(distribution_providers)
-        dist = disttree.from_dict(var_dict)
+        provider_list = DistributionProviderList(distribution_providers)
+        dist = provider_list.from_dict(var_dict)
         return cls(
             var_dict["type"],
             name=var_dict["name"],

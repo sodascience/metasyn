@@ -51,16 +51,16 @@ def check_var(series, var_type, temp_path):
     assert var.var_type == var_type
     assert var.distribution.var_type == var_type
 
-    new_var = MetaVar.from_dict("builtin", var.to_dict())
+    new_var = MetaVar.from_dict(var.to_dict())
     with raises(ValueError):
         var_dict = var.to_dict()
         var_dict.update({"type": "unknown"})
-        MetaVar.from_dict("builtin", var_dict)
+        MetaVar.from_dict(var_dict)
 
     with raises(ValueError):
         var_dict = var.to_dict()
         var_dict["distribution"].update({"implements": "unknown"})
-        MetaVar.from_dict("builtin", var_dict)
+        MetaVar.from_dict(var_dict)
 
     newer_series = new_var.draw_series(len(series))
     check_similar(newer_series, series)
@@ -77,7 +77,7 @@ def check_var(series, var_type, temp_path):
         json.dump(_jsonify(var.to_dict()), f)
 
     with open(tmp_fp, "r") as f:
-        new_var = MetaVar.from_dict("builtin", json.load(f))
+        new_var = MetaVar.from_dict(json.load(f))
     check_similar(series, new_var.draw_series(len(series)))
 
     assert type(new_var) == type(var)

@@ -235,7 +235,7 @@ class MetaDataset():
             jsonschema.validate(instance=self_dict, schema=schema)
 
         n_rows = self_dict["n_rows"]
-        meta_vars = [MetaVar.from_dict(None, d) for d in self_dict["vars"]]
+        meta_vars = [MetaVar.from_dict(d) for d in self_dict["vars"]]
         return cls(meta_vars, n_rows)
 
     def synthesize(self, n: int) -> pl.DataFrame:
