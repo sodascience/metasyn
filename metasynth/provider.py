@@ -344,11 +344,11 @@ def get_distribution_provider(
     if isinstance(provider, type):
         return provider()
 
-    all_disttrees = {
+    all_providers = {
         entry.name: entry
         for entry in entry_points(group="metasynth.distribution_provider")
     }
     try:
-        return all_disttrees[provider].load()(**kwargs)
+        return all_providers[provider].load()
     except KeyError as exc:
         raise ValueError(f"Cannot find distribution provider with name '{provider}'.") from exc
