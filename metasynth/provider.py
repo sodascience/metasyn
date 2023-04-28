@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import inspect
 import warnings
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from typing import Any, List, Optional, Type, Union
 
 try:
