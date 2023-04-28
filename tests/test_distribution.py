@@ -21,7 +21,7 @@ from metasynth.provider import get_distribution_provider
     ]
 )
 def test_util(dist_str, dist):
-    dist_tree = get_distribution_provider()
+    provider_list = DistributionProviderList("builtin")
     dist_class = dist_tree.find_distribution(dist_str)
     assert dist == dist_class
     if dist_str.startswith("faker"):
