@@ -139,7 +139,7 @@ class BuiltinDistributionProvider(BaseDistributionProvider):
 
 
 class DistributionProviderList():  # pylint: disable=too-few-public-methods
-    """List of DistributionProvider's with functionality to fit distributions.
+    """List of DistributionProviders with functionality to fit distributions.
 
     Arguments
     ---------
