@@ -1,7 +1,7 @@
-"""Module for distribution trees.
+"""Module for distribution providers.
 
-These are used to find/fit distributions that are available. See setup.py on how the
-builtin distribution tree is registered.
+These are used to find/fit distributions that are available. See pyproject.toml on how the
+builtin distribution provider is registered.
 """
 
 from __future__ import annotations
