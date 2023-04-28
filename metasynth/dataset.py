@@ -14,7 +14,7 @@ import jsonschema
 import numpy as np
 import polars as pl
 
-from metasynth.privacy import BasePrivacy, NoPrivacy
+from metasynth.privacy import BasePrivacy, BasicPrivacy
 from metasynth.provider import BaseDistributionProvider
 from metasynth.validation import validate_gmf_dict
 from metasynth.var import MetaVar
@@ -113,7 +113,7 @@ class MetaDataset():
             Initialized MetaSynth dataset.
         """
         if privacy is None:
-            privacy = NoPrivacy()
+            privacy = BasicPrivacy()
         if spec is None:
             spec = {}
         else:
@@ -235,7 +235,7 @@ class MetaDataset():
             jsonschema.validate(instance=self_dict, schema=schema)
 
         n_rows = self_dict["n_rows"]
-        meta_vars = [MetaVar.from_dict(d) for d in self_dict["vars"]]
+        meta_vars = [MetaVar.from_dict(None, d) for d in self_dict["vars"]]
         return cls(meta_vars, n_rows)
 
     def synthesize(self, n: int) -> pl.DataFrame:

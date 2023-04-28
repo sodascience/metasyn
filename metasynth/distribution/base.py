@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from copy import deepcopy
 from typing import Iterable, Sequence, Union
 
 import numpy as np
@@ -81,7 +82,7 @@ class BaseDistribution(ABC):
             "implements": self.implements,
             "provenance": self.provenance,
             "class_name": self.__class__.__name__,
-            "parameters": self._param_dict(),
+            "parameters": deepcopy(self._param_dict()),
         }
 
     @classmethod
@@ -123,7 +124,7 @@ class BaseDistribution(ABC):
         return 0.0
 
     @classmethod
-    def is_named(cls, name: str) -> bool:
+    def matches_name(cls, name: str) -> bool:
         """Check whether the name matches the distribution.
 
         Parameters

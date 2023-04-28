@@ -13,11 +13,19 @@ from metasynth.provider import (get_distribution_provider,
                                 BaseDistributionProvider)
 
 
-def check_distribution_provider(provider_name):
+def check_distribution_provider(provider_name: str):
+    """Check internal consistency of a distribution provider.
+
+    Arguments
+    ---------
+    provider_name:
+        Name of the provider to be tested.
+    """
     provider = get_distribution_provider(provider_name)
+    print(type(provider))
     assert isinstance(provider, BaseDistributionProvider)
     assert len(provider.distributions) > 0
-    assert all([issubclass(dist, BaseDistribution) for dist in provider.distributions])
+    assert all(issubclass(dist, BaseDistribution) for dist in provider.distributions)
     assert isinstance(provider.name, str)
     assert len(provider.name) > 0
     assert provider.name == provider_name

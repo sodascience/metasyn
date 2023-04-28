@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import inspect
 import warnings
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import Any, List, Optional, Type, Union
 
 try:
@@ -35,7 +35,7 @@ from metasynth.distribution.discrete import (DiscreteUniformDistribution,
 from metasynth.distribution.faker import FakerDistribution
 from metasynth.distribution.regex.base import (RegexDistribution,
                                                UniqueRegexDistribution)
-from metasynth.privacy import BasePrivacy, NoPrivacy
+from metasynth.privacy import BasePrivacy, BasicPrivacy
 
 
 class BaseDistributionProvider(ABC):
@@ -44,27 +44,15 @@ class BaseDistributionProvider(ABC):
     It has a property {var_type}_distributions for every var_type.
     """
 
-    def __init__(self, **kwargs):
+    name = None
+    version = None
+    distributions = None
+
+    def __init__(self):
         # Perform internal consistency check.
-        for var_type in self.all_var_types:
-            for dist in self.get_dist_list(var_type):
-                assert dist.var_type == var_type, (f"Error: Distribution tree is inconsistent for "
-                                                   f"{dist}.")
-
-    @property
-    @abstractmethod
-    def distributions(self) -> List[Type[BaseDistribution]]:
-        """Get the all available distributions."""
-
-    @property
-    @abstractmethod
-    def name(self):
-        """Name of the distribution package."""
-
-    @property
-    @abstractmethod
-    def version(self):
-        """Version of the distribution package."""
+        assert self.name is not None
+        assert self.version is not None
+        assert self.distributions is not None
 
     def get_dist_list(self, var_type: str) -> List[Type[BaseDistribution]]:
         """Get all distributions for a certain variable type.
@@ -81,64 +69,33 @@ class BaseDistributionProvider(ABC):
         """
         return [dist_class for dist_class in self.distributions if dist_class.var_type == var_type]
 
-
     @property
     def all_var_types(self) -> List[str]:
         """Return list of available variable types."""
-        return [
-            "categorical", "discrete", "continuous",
-            "string", "datetime", "date", "time"
-        ]
-
-
-
-    def from_dict(self, var_dict: dict[str, Any]) -> BaseDistribution:
-        """Create a distribution from a dictionary.
-
-        Parameters
-        ----------
-        var_dict:
-            Variable dictionary that includes the distribution properties.
-
-        Returns
-        -------
-        BaseDistribution:
-            Distribution representing the dictionary.
-        """
-        for dist_class in self.get_dist_list(var_dict["type"]):
-            if dist_class.implements == var_dict["distribution"]["implements"]:
-                return dist_class.from_dict(var_dict["distribution"])
-        raise ValueError(f"Cannot find distribution with name "
-                         f"'{var_dict['distribution']['implements']}'"
-                         f"and type '{var_dict['type']}'.")
+        var_type_set = set()
+        for dist in self.distributions:
+            var_type_set.add(dist.var_type)
+        return list(var_type_set)
 
 
 class BuiltinDistributionProvider(BaseDistributionProvider):
     """Distribution tree that includes the builtin distributions."""
 
-    @property
-    def name(self):
-        return "builtin"
-
-    @property
-    def version(self):
-        return "1.0"
-
-    @property
-    def distributions(self) -> list[type[BaseDistribution]]:
-        return [
-            DiscreteUniformDistribution, PoissonDistribution, UniqueKeyDistribution,
-            UniformDistribution, NormalDistribution, LogNormalDistribution,
-            TruncatedNormalDistribution, ExponentialDistribution,
-            MultinoulliDistribution,
-            RegexDistribution, UniqueRegexDistribution, FakerDistribution,
-            UniformDateDistribution,
-            UniformTimeDistribution,
-            UniformDateTimeDistribution,
-        ]
+    name = "builtin"
+    version = "1.0"
+    distributions = [
+        DiscreteUniformDistribution, PoissonDistribution, UniqueKeyDistribution,
+        UniformDistribution, NormalDistribution, LogNormalDistribution,
+        TruncatedNormalDistribution, ExponentialDistribution,
+        MultinoulliDistribution,
+        RegexDistribution, UniqueRegexDistribution, FakerDistribution,
+        UniformDateDistribution,
+        UniformTimeDistribution,
+        UniformDateTimeDistribution,
+    ]
 
 
-class DistributionProviderList():  # pylint: disable=too-few-public-methods
+class DistributionProviderList():
     """List of DistributionProviders with functionality to fit distributions.
 
     Arguments
@@ -155,25 +112,27 @@ class DistributionProviderList():  # pylint: disable=too-few-public-methods
     def __init__(
             self,
             dist_providers: Union[
-                str, type[BaseDistributionProvider], BaseDistributionProvider,
+                None, str, type[BaseDistributionProvider], BaseDistributionProvider,
                 list[Union[str, type[BaseDistributionProvider], BaseDistributionProvider]]]):
-        if isinstance(dist_providers, (str, type, BaseDistributionProvider)):
+        if dist_providers is None:
+            dist_packages = _get_all_provider_list()
+        elif isinstance(dist_providers, (str, type, BaseDistributionProvider)):
             dist_packages = [dist_providers]
         self.dist_packages = []
-        for pkg in dist_packages:
-            if isinstance(pkg, str):
-                self.dist_packages.append(get_distribution_provider(pkg))
-            elif isinstance(pkg, type):
-                self.dist_packages.append(pkg())
-            elif isinstance(pkg, BaseDistributionProvider):
-                self.dist_packages.append(pkg)
+        for provider in dist_packages:
+            if isinstance(provider, str):
+                self.dist_packages.append(get_distribution_provider(provider))
+            elif isinstance(provider, type):
+                self.dist_packages.append(provider())
+            elif isinstance(provider, BaseDistributionProvider):
+                self.dist_packages.append(provider)
             else:
-                raise ValueError(f"Unknown distribution package type '{type(pkg)}'")
+                raise ValueError(f"Unknown distribution package type '{type(provider)}'")
 
-    def fit(self, series: pl.Series,  # pylint: disable=too-many-arguments
+    def fit(self, series: pl.Series,
             var_type: str,
             dist: Optional[Union[str, BaseDistribution, type]] = None,
-            privacy: BasePrivacy = NoPrivacy(),
+            privacy: BasePrivacy = BasicPrivacy(),
             unique: Optional[bool] = None,
             fit_kwargs: Optional[dict] = None):
         """Fit a distribution to a column/series.
@@ -247,7 +206,7 @@ class DistributionProviderList():  # pylint: disable=too-few-public-methods
                              f"that have unique == {unique}.")
         return dist_instances[np.argmin(dist_aic)]
 
-    def _find_distribution(self, dist_name: str, privacy: BasePrivacy = NoPrivacy(),
+    def _find_distribution(self, dist_name: str, privacy: BasePrivacy = BasicPrivacy(),
                            ) -> type[BaseDistribution]:
         """Find a distribution and fit keyword arguments from a name.
 
@@ -255,7 +214,8 @@ class DistributionProviderList():  # pylint: disable=too-few-public-methods
         Parameters
         ----------
         dist_name:
-            Name of the distribution, e.g., for the built-in uniform distribution: "uniform", "core.uniform", "UniformDistribution".
+            Name of the distribution, e.g., for the built-in
+            uniform distribution: "uniform", "core.uniform", "UniformDistribution".
         privacy:
             Type of privacy to be applied.
 
@@ -265,7 +225,7 @@ class DistributionProviderList():  # pylint: disable=too-few-public-methods
             A distribution and the arguments to create an instance.
         """
         for dist_class in self._get_dist_list(privacy):
-            if dist_class.is_named(dist_name) and dist_class.privacy == privacy.name:
+            if dist_class.matches_name(dist_name) and dist_class.privacy == privacy.name:
                 return dist_class
         raise ValueError(f"Cannot find distribution with name '{dist_name}'.")
 
@@ -312,18 +272,51 @@ class DistributionProviderList():  # pylint: disable=too-few-public-methods
     def _get_dist_list(self, privacy: BasePrivacy,
                        var_type: Optional[str] = None) -> list[type[BaseDistribution]]:
         dist_list = []
-        for dist_pkg in self.dist_packages:
+        for dist_provider in self.dist_packages:
             if var_type is None:
-                dist_list.extend(dist_pkg.distributions)
+                dist_list.extend(dist_provider.distributions)
             else:
-                dist_list.extend(dist_pkg.get_dist_list(var_type))
+                dist_list.extend(dist_provider.get_dist_list(var_type))
 
         dist_list = [dist for dist in dist_list if dist.privacy == privacy.name]
         return dist_list
 
+    def from_dict(self, var_dict: dict[str, Any]) -> BaseDistribution:
+        """Create a distribution from a dictionary.
+
+        Parameters
+        ----------
+        var_dict:
+            Variable dictionary that includes the distribution properties.
+
+        Returns
+        -------
+        BaseDistribution:
+            Distribution representing the dictionary.
+        """
+        for dist_class in self._get_dist_list(var_dict["type"]):
+            if dist_class.implements == var_dict["distribution"]["implements"]:
+                return dist_class.from_dict(var_dict["distribution"])
+        raise ValueError(f"Cannot find distribution with name "
+                         f"'{var_dict['distribution']['implements']}'"
+                         f"and type '{var_dict['type']}'.")
+
+
+def _get_all_providers() -> dict[str, BaseDistributionProvider]:
+    """Get all available providers."""
+    return {
+        entry.name: entry
+        for entry in entry_points(group="metasynth.distribution_provider")
+    }
+
+
+def _get_all_provider_list():
+    return [p.load()() for p in _get_all_providers()]
+
 
 def get_distribution_provider(
-        provider: Union[str, type[BaseDistributionProvider], BaseDistributionProvider] = "builtin"
+        provider: Union[str, type[BaseDistributionProvider],
+                        BaseDistributionProvider] = "builtin"
         ) -> BaseDistributionProvider:
     """Get a distribution tree.
 
@@ -344,11 +337,8 @@ def get_distribution_provider(
     if isinstance(provider, type):
         return provider()
 
-    all_providers = {
-        entry.name: entry
-        for entry in entry_points(group="metasynth.distribution_provider")
-    }
+    all_providers = _get_all_providers()
     try:
-        return all_providers[provider].load()
+        return all_providers[provider].load()()
     except KeyError as exc:
         raise ValueError(f"Cannot find distribution provider with name '{provider}'.") from exc

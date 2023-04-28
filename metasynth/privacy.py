@@ -45,7 +45,7 @@ class BasePrivacy():
         return {}
 
 
-class NoPrivacy(BasePrivacy):
+class BasicPrivacy(BasePrivacy):
     """No privacy class, which uses statistically optimal distributions."""
 
     name = "none"

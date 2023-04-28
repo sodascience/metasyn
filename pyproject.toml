@@ -74,6 +74,7 @@ ignore-patterns="_version.py"
 [tool.pylint.'FORMAT']
 max-line-length=100
 max-locals=35
+max-args=10
 
 [tool.pylint.'BASIC']
 good-names=["a", "b", "mu"]

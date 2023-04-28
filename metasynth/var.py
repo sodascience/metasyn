@@ -9,21 +9,10 @@ import pandas as pd
 import polars as pl
 
 from metasynth.distribution.base import BaseDistribution
-from metasynth.privacy import BasePrivacy, NoPrivacy
+from metasynth.privacy import BasePrivacy, BasicPrivacy
 from metasynth.provider import (BaseDistributionProvider,
                                 DistributionProviderList,
                                 get_distribution_provider)
-
-
-def _to_polars(series: Union[pd.Series, pl.Series]) -> pl.Series:
-    if isinstance(series, pl.Series):
-        return series
-    if len(series.dropna()) == 0:
-        series = pl.Series(name=series.name,
-                           values=[None for _ in range(len(series))])
-    else:
-        series = pl.Series(series)
-    return series
 
 
 class MetaVar():
@@ -171,7 +160,7 @@ class MetaVar():
     def fit(self,  # pylint: disable=too-many-arguments
             dist: Optional[Union[str, BaseDistribution, type]] = None,
             dist_providers: Union[str, type, BaseDistributionProvider] = "builtin",
-            privacy: BasePrivacy = NoPrivacy(),
+            privacy: BasePrivacy = BasicPrivacy(),
             unique: Optional[bool] = None,
             fit_kwargs: Optional[dict] = None):
         """Fit distributions to the data.
@@ -206,7 +195,7 @@ class MetaVar():
 
         provider_list = DistributionProviderList(dist_providers)
         self.distribution = provider_list.fit(self.series, self.var_type, dist, privacy, unique,
-                                         fit_kwargs)
+                                              fit_kwargs)
 
     def draw(self) -> Any:
         """Draw a random item for the variable in whatever type is required."""
@@ -240,7 +229,7 @@ class MetaVar():
         return pl.Series(value_list)
 
     @classmethod
-    def from_dict(cls, var_dict: Dict[str, Any]) -> MetaVar:
+    def from_dict(cls, distribution_providers, var_dict: Dict[str, Any]) -> MetaVar:
         """Restore variable from dictionary.
 
         Parameters
@@ -254,7 +243,7 @@ class MetaVar():
         MetaVar:
             Initialized metadata variable.
         """
-        disttree = get_distribution_provider()
+        disttree = get_distribution_provider(distribution_providers)
         dist = disttree.from_dict(var_dict)
         return cls(
             var_dict["type"],
@@ -263,3 +252,14 @@ class MetaVar():
             prop_missing=var_dict["prop_missing"], dtype=var_dict["dtype"],
             description=var_dict.get("description", None)
         )
+
+
+def _to_polars(series: Union[pd.Series, pl.Series]) -> pl.Series:
+    if isinstance(series, pl.Series):
+        return series
+    if len(series.dropna()) == 0:
+        series = pl.Series(name=series.name,
+                           values=[None for _ in range(len(series))])
+    else:
+        series = pl.Series(series)
+    return series
