@@ -1,6 +1,5 @@
 """Testing utilities for plugins."""
 
-# from typing import Optional
 
 from __future__ import annotations
 
