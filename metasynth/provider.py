@@ -90,28 +90,6 @@ class BaseDistributionProvider(ABC):
             "string", "datetime", "date", "time"
         ]
 
-    def find_distribution(self, dist_name: str, privacy: str = "none"
-                          ) -> type[BaseDistribution]:
-        """Find a distribution and fit keyword arguments from a name.
-
-        This allows us to use 'faker.city' to generate a faker instance that generates cities.
-
-        Parameters
-        ----------
-        dist_name:
-            Name of the distribution, such as faker.city, DiscreteUniformDistribution or normal.
-        privacy:
-            Type of privacy to be applied.
-
-        Returns
-        -------
-        tuple[Type[BaseDistribution], dict[str, Any]]:
-            A distribution and the arguments to create an instance.
-        """
-        for dist_class in self.distributions:
-            if dist_class.is_named(dist_name) and dist_class.privacy == privacy:
-                return dist_class
-        raise ValueError(f"Cannot find distribution with name '{dist_name}'.")
 
     def fit_distribution(self, dist: Union[str, Type[BaseDistribution], BaseDistribution],
                          series: pl.Series, **fit_kwargs) -> BaseDistribution:
