@@ -139,7 +139,6 @@ class BaseDistribution(ABC):
         assert cls.implements != "unknown", f"Internal error in class {cls.__name__}"
         return name in (cls.implements.split(".")[1],
                         cls.implements,
-                        type(cls).__name__,
                         cls.__name__,
                         )
 
