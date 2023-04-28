@@ -179,7 +179,7 @@ class UniformDateDistribution(CoreDistribution, DateDistribution, BaseUniformDis
 
     def _param_dict(self) -> Dict:
         date_dict = BaseUniformDistribution._param_dict(self)
-        date_dict.pop("precision")
+        del date_dict["precision"]
         return date_dict
 
     @classmethod
