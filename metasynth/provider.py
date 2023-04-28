@@ -255,7 +255,7 @@ class DistributionProviderList():  # pylint: disable=too-few-public-methods
         Parameters
         ----------
         dist_name:
-            Name of the distribution, such as faker.city, DiscreteUniformDistribution or normal.
+            Name of the distribution, e.g., for the built-in uniform distribution: "uniform", "core.uniform", "UniformDistribution".
         privacy:
             Type of privacy to be applied.
 
