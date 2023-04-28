@@ -323,7 +323,7 @@ class DistributionProviderList():  # pylint: disable=too-few-public-methods
 
 
 def get_distribution_provider(
-        provider: Union[str, type, BaseDistributionProvider] = "builtin", **kwargs
+        provider: Union[str, type[BaseDistributionProvider], BaseDistributionProvider] = "builtin"
         ) -> BaseDistributionProvider:
     """Get a distribution tree.
 
