@@ -204,8 +204,8 @@ class MetaVar():
             raise ValueError("Cannot fit distribution if we don't have the"
                              "original data.")
 
-        pkg_list = DistributionProviderList(dist_providers)
-        self.distribution = pkg_list.fit(self.series, self.var_type, dist, privacy, unique,
+        provider_list = DistributionProviderList(dist_providers)
+        self.distribution = provider_list.fit(self.series, self.var_type, dist, privacy, unique,
                                          fit_kwargs)
 
     def draw(self) -> Any:
