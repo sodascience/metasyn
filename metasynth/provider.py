@@ -251,7 +251,6 @@ class DistributionProviderList():  # pylint: disable=too-few-public-methods
                            ) -> type[BaseDistribution]:
         """Find a distribution and fit keyword arguments from a name.
 
-        This allows us to use 'faker.city' to generate a faker instance that generates cities.
 
         Parameters
         ----------
