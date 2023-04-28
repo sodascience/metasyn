@@ -81,48 +81,6 @@ class BaseDistributionProvider():
         """
         return [dist_class for dist_class in self.distributions if dist_class.var_type == var_type]
 
-    def fit(self, series: pl.Series, var_type: str,
-            unique: Optional[bool] = False) -> BaseDistribution:
-        """Fit a distribution to a series.
-
-        Search for the distribution within all available distributions in the tree.
-
-        Parameters
-        ----------
-        series:
-            Series to fit a distribution to.
-        var_type:
-            Variable type of the series.
-        unique:
-            Whether the variable should be unique or not.
-
-        Returns
-        -------
-        BaseDistribution:
-            Distribution fitted to the series.
-        """
-        dist_list = self.get_dist_list(var_type)
-        if len(dist_list) == 0:
-            raise ValueError(f"No available distributions with variable type: '{var_type}'")
-        dist_instances = [d.fit(series, **self.privacy_kwargs) for d in dist_list]
-        dist_aic = [d.information_criterion(series) for d in dist_instances]
-        i_best_dist = np.argmin(dist_aic)
-        warnings.simplefilter("always")
-        if dist_instances[i_best_dist].is_unique and unique is None:
-            warnings.warn(f"\nVariable {series.name} seems unique, but not set to be unique.\n"
-                          "Set the variable to be either unique or not unique to remove this "
-                          "warning.\n")
-        if unique is None:
-            unique = False
-
-        dist_aic = [dist_aic[i] for i in range(len(dist_aic))
-                    if dist_instances[i].is_unique == unique]
-        dist_instances = [d for d in dist_instances if d.is_unique == unique]
-        if len(dist_instances) == 0:
-            raise ValueError(f"No available distributions for variable '{series.name}'"
-                             f" with variable type '{var_type}' "
-                             f"that have unique == {unique}.")
-        return dist_instances[np.argmin(dist_aic)]
 
     @property
     def all_var_types(self) -> List[str]:
