@@ -38,7 +38,7 @@ from metasynth.distribution.regex.base import (RegexDistribution,
 from metasynth.privacy import BasePrivacy, NoPrivacy
 
 
-class BaseDistributionProvider():
+class BaseDistributionProvider(ABC):
     """Class that encapsulates a set of distributions.
 
     It has a property {var_type}_distributions for every var_type.
