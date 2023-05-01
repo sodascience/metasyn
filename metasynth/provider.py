@@ -139,7 +139,7 @@ class DistributionProviderList():
         """Fit a distribution to a column/series.
 
         Parameters
-        ---------
+        ----------
         series:
             The data to fit the distributions to.
         var_type:
