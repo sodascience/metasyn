@@ -269,7 +269,7 @@ class DistributionProviderList():
 
         return dist_instance
 
-    def _get_dist_list(self, privacy: BasePrivacy,
+    def _get_dist_list(self, privacy: Optional[BasePrivacy] = None,
                        var_type: Optional[str] = None) -> list[type[BaseDistribution]]:
         dist_list = []
         for dist_provider in self.dist_packages:
@@ -278,6 +278,8 @@ class DistributionProviderList():
             else:
                 dist_list.extend(dist_provider.get_dist_list(var_type))
 
+        if privacy is None:
+            return dist_list
         dist_list = [dist for dist in dist_list if dist.privacy == privacy.name]
         return dist_list
 
@@ -294,7 +296,7 @@ class DistributionProviderList():
         BaseDistribution:
             Distribution representing the dictionary.
         """
-        for dist_class in self._get_dist_list(var_dict["type"]):
+        for dist_class in self._get_dist_list(var_type=var_dict["type"]):
             if dist_class.implements == var_dict["distribution"]["implements"]:
                 return dist_class.from_dict(var_dict["distribution"])
         raise ValueError(f"Cannot find distribution with name "
