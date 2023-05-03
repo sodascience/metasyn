@@ -155,9 +155,9 @@ class DistributionProviderList():
         fit_kwargs:
             Extra options for distributions during the fitting stage.
         """
+        if fit_kwargs is None:
+            fit_kwargs = {}
         if dist is not None:
-            if fit_kwargs is None:
-                fit_kwargs = {}
             return self._fit_distribution(series, dist, privacy, **fit_kwargs)
         if len(fit_kwargs) > 0:
             raise ValueError(f"Got fit arguments for variable '{series.name}', but no "
