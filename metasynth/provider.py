@@ -160,7 +160,7 @@ class DistributionProviderList():
                 fit_kwargs = {}
             return self._fit_distribution(series, dist, privacy, **fit_kwargs)
         if len(fit_kwargs) > 0:
-            raise ValueError(f"Got fit arguments for variable '{self.series}', but no "
+            raise ValueError(f"Got fit arguments for variable '{series.name}', but no "
                              "distribution. Set the distribution manually to fix.")
         return self._find_best_fit(series, var_type, unique, privacy)
 
