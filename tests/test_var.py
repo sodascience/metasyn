@@ -59,7 +59,7 @@ def check_var(series, var_type, temp_path):
 
     with raises(ValueError):
         var_dict = var.to_dict()
-        var_dict["distribution"].update({"name": "unknown"})
+        var_dict["distribution"].update({"implements": "unknown"})
         MetaVar.from_dict(var_dict)
 
     newer_series = new_var.draw_series(len(series))

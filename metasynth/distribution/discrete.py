@@ -3,12 +3,14 @@
 from typing import Set
 
 import numpy as np
-from scipy.stats import randint, poisson
+from scipy.stats import poisson, randint
 
-from metasynth.distribution.base import ScipyDistribution, DiscreteDistribution
+from metasynth.distribution.base import (CoreDistribution,
+                                         DiscreteDistribution,
+                                         ScipyDistribution)
 
 
-class DiscreteUniformDistribution(ScipyDistribution, DiscreteDistribution):
+class DiscreteUniformDistribution(CoreDistribution, ScipyDistribution, DiscreteDistribution):
     """Integer uniform distribution.
 
     It differs from the floating point uniform distribution by
@@ -22,8 +24,7 @@ class DiscreteUniformDistribution(ScipyDistribution, DiscreteDistribution):
         Upper bound (exclusive) of the uniform distribution.
     """
 
-    aliases = ["DiscreteUniformDistribution", "discrete_uniform"]
-
+    implements = "core.discrete_uniform"
     dist_class = randint
 
     def __init__(self, low: int, high: int):
@@ -42,11 +43,18 @@ class DiscreteUniformDistribution(ScipyDistribution, DiscreteDistribution):
     def default_distribution(cls):
         return cls(0, 10)
 
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "low": {"type": "integer"},
+            "high": {"type": "integer"},
+        }
 
-class PoissonDistribution(ScipyDistribution, DiscreteDistribution):
+
+class PoissonDistribution(CoreDistribution, ScipyDistribution, DiscreteDistribution):
     """Poisson distribution."""
 
-    aliases = ["PoissonDistribution", "poisson"]
+    implements = "core.poisson"
     dist_class = poisson
 
     def __init__(self, mu: float):
@@ -64,8 +72,14 @@ class PoissonDistribution(ScipyDistribution, DiscreteDistribution):
     def default_distribution(cls):
         return cls(0.5)
 
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "mu": {"type": "number"},
+        }
 
-class UniqueKeyDistribution(ScipyDistribution, DiscreteDistribution):
+
+class UniqueKeyDistribution(CoreDistribution, ScipyDistribution, DiscreteDistribution):
     """Integer distribution with unique keys.
 
     Discrete distribution that ensures the uniqueness of the drawn values.
@@ -78,7 +92,7 @@ class UniqueKeyDistribution(ScipyDistribution, DiscreteDistribution):
         1 if keys are consecutive and increasing, 0 otherwise.
     """
 
-    aliases = ["UniqueKeyDistribution", "unique_key"]
+    implements = "core.unique_key"
     is_unique = True
 
     def __init__(self, low: int, consecutive: int):
@@ -134,3 +148,10 @@ class UniqueKeyDistribution(ScipyDistribution, DiscreteDistribution):
     @classmethod
     def default_distribution(cls):
         return cls(0, 0)
+
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "low": {"type": "integer"},
+            "high": {"type": "integer"},
+        }

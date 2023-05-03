@@ -2,20 +2,22 @@
 
 from __future__ import annotations
 
-from copy import deepcopy
-from datetime import datetime
-from importlib.resources import read_text
-from importlib.metadata import version
 import json
 import pathlib
-from typing import Union, List, Dict, Any, Sequence, Optional
+from copy import deepcopy
+from datetime import datetime
+from importlib.metadata import version
+from importlib.resources import read_text
+from typing import Any, Dict, List, Optional, Sequence, Union
 
+import jsonschema
 import numpy as np
 import polars as pl
-import jsonschema
 
+from metasynth.privacy import BasePrivacy, BasicPrivacy
+from metasynth.provider import BaseDistributionProvider
+from metasynth.validation import validate_gmf_dict
 from metasynth.var import MetaVar
-from metasynth.disttree import get_disttree
 
 
 class MetaDataset():
@@ -35,11 +37,9 @@ class MetaDataset():
     """
 
     def __init__(self, meta_vars: List[MetaVar],
-                 n_rows: Optional[int] = None,
-                 privacy_package: Optional[str] = None):
+                 n_rows: Optional[int] = None):
         self.meta_vars = meta_vars
         self.n_rows = n_rows
-        self.privacy_package = privacy_package
 
     @property
     def n_columns(self) -> int:
@@ -50,8 +50,9 @@ class MetaDataset():
     def from_dataframe(cls,
                        df: pl.DataFrame,
                        spec: Optional[dict[str, dict]] = None,
-                       privacy_package: Optional[str] = None,
-                       **privacy_kwargs):
+                       dist_providers: Union[str, list[str], BaseDistributionProvider,
+                                             list[BaseDistributionProvider]] = "builtin",
+                       privacy: Optional[BasePrivacy] = None):
         """Create dataset from a Pandas dataframe.
 
         The pandas dataframe should be formatted already with the correct
@@ -91,25 +92,28 @@ class MetaDataset():
 
             Set the description of a variable: {"description": "Some description."}
 
-            fit_kwargs
+            privacy
 
-            Some distributions such as the FakerDistribution and RegexDistribution can take
-            extra fitting arguments. For example for the RegexDistribution one can set the
-            the speed of the computation by {"mode": "fast"} or {"mode": "slow"}. Be sure to set
-            the distribution as well.
+            Set the privacy level for a variable: {"privacy": DifferentialPrivacy(epsilon=10)}
+
+            prop_missing
+
+            Proportion of missing values for a variable: {"prop_missing": 0.3}
 
             Any number of the above directives may be set for any number of variables.
-
-        privacy_package:
-            Package that contains the implementations of the distributions.
+        dist_providers:
+            Distribution providers to use when fitting distributions to variables.
+            Can be a string, provider, or provider type.
+        privacy:
+            Privacy level to use by default.
 
         Returns
         -------
         MetaDataset:
             Initialized MetaSynth dataset.
         """
-        distribution_tree = get_disttree(privacy_package, **privacy_kwargs)
-
+        if privacy is None:
+            privacy = BasicPrivacy()
         if spec is None:
             spec = {}
         else:
@@ -122,23 +126,18 @@ class MetaDataset():
             dist = col_spec.pop("distribution", None)
             unq = col_spec.pop("unique", None)
             description = col_spec.pop("description", None)
-            fit_kwargs = col_spec.pop("fit_kwargs", {})
             prop_missing = col_spec.pop("prop_missing", None)
-            assert "fit_kwargs" not in col_spec
-            if dist is None and len(fit_kwargs) > 0:
-                raise ValueError(f"Got fit arguments for variable '{col_name}', but no "
-                                 "distribution. Set the distribution manually to fix.")
+            cur_privacy = col_spec.pop("privacy", privacy)
+            fit_kwargs = col_spec.pop("fit_kwargs", {})
             if len(col_spec) != 0:
                 raise ValueError(f"Unknown spec items '{col_spec}' for variable '{col_name}'.")
             var = MetaVar.detect(series, description=description, prop_missing=prop_missing)
-            if dist is None:
-                var.fit(distribution_tree=distribution_tree, unique=unq, **fit_kwargs)
-            else:
-                var.fit(distribution_tree=distribution_tree, dist=dist, unique=unq, **fit_kwargs)
+            var.fit(dist=dist, dist_providers=dist_providers, unique=unq, privacy=cur_privacy,
+                    fit_kwargs=fit_kwargs)
 
             all_vars.append(var)
 
-        return cls(all_vars, len(df), privacy_package=privacy_package)
+        return cls(all_vars, len(df))
 
     def to_dict(self) -> Dict[str, Any]:
         """Create dictionary with the properties for recreation."""
@@ -149,7 +148,6 @@ class MetaDataset():
                 "created by": {
                     "name": "MetaSynth",
                     "version": version("metasynth"),
-                    "privacy": self.privacy_package,
                 },
                 "creation time": datetime.now().isoformat()
             },
@@ -209,8 +207,7 @@ class MetaDataset():
         """
         self_dict = _jsonify(self.to_dict())
         if validate:
-            schema = json.loads(read_text("metasynth.schema", "generative_metadata_format.json"))
-            jsonschema.validate(instance=self_dict, schema=schema)
+            validate_gmf_dict(self_dict)
         with open(fp, "w", encoding="utf-8") as f:
             json.dump(self_dict, f, indent=4)
 

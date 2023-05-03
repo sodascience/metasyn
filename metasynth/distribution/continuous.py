@@ -2,13 +2,14 @@
 
 import numpy as np
 from scipy.optimize import minimize
-from scipy.stats import uniform, norm, lognorm, truncnorm, expon
+from scipy.stats import expon, lognorm, norm, truncnorm, uniform
 from scipy.stats._continuous_distns import FitDataError
 
-from metasynth.distribution.base import ScipyDistribution, ContinuousDistribution
+from metasynth.distribution.base import (ContinuousDistribution,
+                                         CoreDistribution, ScipyDistribution)
 
 
-class UniformDistribution(ScipyDistribution, ContinuousDistribution):
+class UniformDistribution(CoreDistribution, ScipyDistribution, ContinuousDistribution):
     """Uniform distribution for floating point type.
 
     This class implements the uniform distribution between a minimum
@@ -22,7 +23,7 @@ class UniformDistribution(ScipyDistribution, ContinuousDistribution):
         Upper bound for uniform distribution.
     """
 
-    aliases = ["UniformDistribution", "uniform"]
+    implements = "core.uniform"
     dist_class = uniform
 
     def __init__(self, min_val: float, max_val: float):
@@ -44,8 +45,15 @@ class UniformDistribution(ScipyDistribution, ContinuousDistribution):
     def default_distribution(cls):
         return cls(0, 1)
 
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "min_val": {"type": "number"},
+            "max_val": {"type": "number"},
+        }
 
-class NormalDistribution(ScipyDistribution, ContinuousDistribution):
+
+class NormalDistribution(CoreDistribution, ScipyDistribution, ContinuousDistribution):
     """Normal distribution for floating point type.
 
     This class implements the normal/gaussian distribution and takes
@@ -60,7 +68,7 @@ class NormalDistribution(ScipyDistribution, ContinuousDistribution):
         Standard deviation of the normal distribution.
     """
 
-    aliases = ["NormalDistribution", "normal", "gaussian"]
+    implements = "core.normal"
     dist_class = norm
 
     def __init__(self, mean: float, std_dev: float):
@@ -71,8 +79,15 @@ class NormalDistribution(ScipyDistribution, ContinuousDistribution):
     def default_distribution(cls):
         return cls(0, 1)
 
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "mean": {"type": "number"},
+            "std_dev": {"type": "number"},
+        }
 
-class LogNormalDistribution(ScipyDistribution, ContinuousDistribution):
+
+class LogNormalDistribution(CoreDistribution, ScipyDistribution, ContinuousDistribution):
     """Log-normal distribution for floating point type.
 
     This class implements the log-normal mu and sigma as initialization input.
@@ -85,7 +100,7 @@ class LogNormalDistribution(ScipyDistribution, ContinuousDistribution):
         Controls the mean of the distribution.
     """
 
-    aliases = ["LogNormalDistribution", "lognormal"]
+    implements = "core.lognormal"
     dist_class = lognorm
 
     def __init__(self, mu: float, sigma: float):  # pylint: disable=invalid-name
@@ -104,8 +119,15 @@ class LogNormalDistribution(ScipyDistribution, ContinuousDistribution):
     def default_distribution(cls):
         return cls(0, 1)
 
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "mu": {"type": "number"},
+            "sigma": {"type": "number"},
+        }
 
-class TruncatedNormalDistribution(ScipyDistribution, ContinuousDistribution):
+
+class TruncatedNormalDistribution(CoreDistribution, ScipyDistribution, ContinuousDistribution):
     """Truncated normal distribution for floating point type.
 
     Parameters
@@ -120,8 +142,7 @@ class TruncatedNormalDistribution(ScipyDistribution, ContinuousDistribution):
         Standard deviation of the non-truncated normal distribution.
     """
 
-    aliases = ["TruncatedNormalDistribution", "truncnormal", "boundednormal",
-               "truncatednormal"]
+    implements = "core.truncated_normal"
     dist_class = truncnorm
 
     def __init__(self, lower_bound: float, upper_bound: float,
@@ -155,8 +176,17 @@ class TruncatedNormalDistribution(ScipyDistribution, ContinuousDistribution):
     def default_distribution(cls):
         return cls(-1, 2, 0, 1)
 
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "lower_bound": {"type": "number"},
+            "upper_bound": {"type": "number"},
+            "mu": {"type": "number"},
+            "sigma": {"type": "number"},
+        }
 
-class ExponentialDistribution(ScipyDistribution, ContinuousDistribution):
+
+class ExponentialDistribution(CoreDistribution, ScipyDistribution, ContinuousDistribution):
     """Exponential distribution for floating point type.
 
     This class implements the exponential distribution with the rate as its
@@ -168,7 +198,7 @@ class ExponentialDistribution(ScipyDistribution, ContinuousDistribution):
         Rate of the exponential distribution. This is equal to 1/mean of the distribution.
     """
 
-    aliases = ["ExponentialDistribution", "exponential"]
+    implements = "core.exponential"
     dist_class = expon
 
     def __init__(self, rate: float):
@@ -185,3 +215,9 @@ class ExponentialDistribution(ScipyDistribution, ContinuousDistribution):
     @classmethod
     def default_distribution(cls):
         return cls(1.0)
+
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "rate": {"type": "number"}
+        }

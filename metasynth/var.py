@@ -2,25 +2,16 @@
 
 from __future__ import annotations
 
-from typing import Union, Dict, Any, Optional
+from typing import Any, Dict, Optional, Union
 
-import polars as pl
-import pandas as pd
 import numpy as np
+import pandas as pd
+import polars as pl
 
 from metasynth.distribution.base import BaseDistribution
-from metasynth.disttree import BaseDistributionTree, get_disttree
-
-
-def _to_polars(series: Union[pd.Series, pl.Series]) -> pl.Series:
-    if isinstance(series, pl.Series):
-        return series
-    if len(series.dropna()) == 0:
-        series = pl.Series(name=series.name,
-                           values=[None for _ in range(len(series))])
-    else:
-        series = pl.Series(series)
-    return series
+from metasynth.privacy import BasePrivacy, BasicPrivacy
+from metasynth.provider import (BaseDistributionProvider,
+                                DistributionProviderList)
 
 
 class MetaVar():
@@ -165,10 +156,12 @@ class MetaVar():
             "distribution": str(self.distribution),
         })
 
-    def fit(self,
+    def fit(self,  # pylint: disable=too-many-arguments
             dist: Optional[Union[str, BaseDistribution, type]] = None,
-            distribution_tree: Union[str, type, BaseDistributionTree] = "builtin",
-            unique: Optional[bool] = None, **fit_kwargs):
+            dist_providers: Union[str, type, BaseDistributionProvider] = "builtin",
+            privacy: BasePrivacy = BasicPrivacy(),
+            unique: Optional[bool] = None,
+            fit_kwargs: Optional[dict] = None):
         """Fit distributions to the data.
 
         If multiple distributions are available for the current data type,
@@ -185,26 +178,23 @@ class MetaVar():
             supplied distribution (class). Examples of allowed strings are:
             "normal", "uniform", "faker.city.nl_NL". If not supplied, fit
             the best available distribution for the variable type.
-        distribution_tree:
-            Distribution tree to be used.
-            By default use all distributions in metasynth.distribution.
+        dist_providers:
+            Distribution providers that are used for fitting.
+        privacy:
+            Privacy level to use for fitting the series.
         unique:
             Whether the variable should be unique. If not supplied, it will be
             inferred from the data.
+        fit_kwargs:
+            Extra options for distributions during the fitting stage.
         """
         if self.series is None:
             raise ValueError("Cannot fit distribution if we don't have the"
                              "original data.")
 
-        # Automatic detection of the distribution
-        disttree = get_disttree(distribution_tree)
-
-        # Manually supplied distribution
-        if dist is None:
-            self.distribution = disttree.fit(self.series, self.var_type, unique=unique,
-                                             **fit_kwargs)
-        else:
-            self.distribution = disttree.fit_distribution(dist, self.series, **fit_kwargs)
+        provider_list = DistributionProviderList(dist_providers)
+        self.distribution = provider_list.fit(self.series, self.var_type, dist, privacy, unique,
+                                              fit_kwargs)
 
     def draw(self) -> Any:
         """Draw a random item for the variable in whatever type is required."""
@@ -238,11 +228,18 @@ class MetaVar():
         return pl.Series(value_list)
 
     @classmethod
-    def from_dict(cls, var_dict: Dict[str, Any]) -> MetaVar:
+    def from_dict(cls,
+                  var_dict: Dict[str, Any],
+                  distribution_providers: Union[
+                      None, str, type[BaseDistributionProvider],
+                      BaseDistributionProvider] = None) -> MetaVar:
         """Restore variable from dictionary.
 
         Parameters
         ----------
+        distribution_providers:
+            Distribution providers to use to create the variable. If None,
+            use all installed/available distribution providers.
         var_dict:
             This dictionary contains all the variable and distribution
             information to recreate it from scratch.
@@ -252,12 +249,23 @@ class MetaVar():
         MetaVar:
             Initialized metadata variable.
         """
-        disttree = get_disttree()
-        dist = disttree.from_dict(var_dict)
+        provider_list = DistributionProviderList(distribution_providers)
+        dist = provider_list.from_dict(var_dict)
         return cls(
             var_dict["type"],
             name=var_dict["name"],
             distribution=dist,
             prop_missing=var_dict["prop_missing"], dtype=var_dict["dtype"],
             description=var_dict.get("description", None)
-            )
+        )
+
+
+def _to_polars(series: Union[pd.Series, pl.Series]) -> pl.Series:
+    if isinstance(series, pl.Series):
+        return series
+    if len(series.dropna()) == 0:
+        series = pl.Series(name=series.name,
+                           values=[None for _ in range(len(series))])
+    else:
+        series = pl.Series(series)
+    return series

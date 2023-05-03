@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from abc import abstractmethod, ABC
-import re
 import random
+import re
 import string
-from typing import Iterable, Tuple, Sequence, Dict, Optional
+from abc import ABC, abstractmethod
+from typing import Dict, Iterable, Optional, Sequence, Tuple
 
 import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer

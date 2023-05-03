@@ -1,14 +1,15 @@
 """Distributions for date and time types."""
 
+import datetime as dt
 from abc import abstractmethod
 from random import random
-import datetime as dt
-from typing import Dict, Any
+from typing import Any, Dict
 
 import numpy as np
 
-from metasynth.distribution.base import DateTimeDistribution, TimeDistribution
-from metasynth.distribution.base import ScipyDistribution, DateDistribution
+from metasynth.distribution.base import (CoreDistribution, DateDistribution,
+                                         DateTimeDistribution,
+                                         ScipyDistribution, TimeDistribution)
 
 
 def convert_numpy_datetime(time_obj: np.datetime64) -> dt.datetime:
@@ -93,16 +94,6 @@ class BaseUniformDistribution(ScipyDistribution):
         new_time = random()*delta + self.start
         return self.round(new_time)
 
-    def to_dict(self) -> Dict:
-        return {
-            "name": self.name,
-            "parameters": {
-                "start": self.start.isoformat(),
-                "end": self.end.isoformat(),
-                "precision": self.precision,
-            }
-        }
-
     @abstractmethod
     def fromisoformat(self, dt_obj: str):
         """Convert string to iso format."""
@@ -115,11 +106,18 @@ class BaseUniformDistribution(ScipyDistribution):
     def information_criterion(self, values):
         return 0.0
 
+    def _param_dict(self):
+        return {
+            "start": self.start.isoformat(),
+            "end": self.end.isoformat(),
+            "precision": self.precision,
+        }
 
-class UniformDateTimeDistribution(DateTimeDistribution, BaseUniformDistribution):
+
+class UniformDateTimeDistribution(CoreDistribution, DateTimeDistribution, BaseUniformDistribution):
     """Uniform DateTime distribution."""
 
-    aliases = ["UniformDateTimeDistribution", "datetime_uniform"]
+    implements = "core.uniform_datetime"
 
     def fromisoformat(self, dt_obj: str) -> dt.datetime:
         return dt.datetime.fromisoformat(dt_obj)
@@ -128,11 +126,19 @@ class UniformDateTimeDistribution(DateTimeDistribution, BaseUniformDistribution)
     def default_distribution(cls):
         return cls("2022-07-15T10:39:36", "2022-08-15T10:39:36", precision="seconds")
 
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "start": {"type": "string"},
+            "end": {"type": "string"},
+            "precision": {"type": "string"},
+        }
 
-class UniformTimeDistribution(TimeDistribution, BaseUniformDistribution):
+
+class UniformTimeDistribution(CoreDistribution, TimeDistribution, BaseUniformDistribution):
     """Uniform time distribution."""
 
-    aliases = ["UniformTimeDistribution", "time_uniform"]
+    implements = "core.uniform_time"
 
     def fromisoformat(self, dt_obj: str) -> dt.time:
         return dt.time.fromisoformat(dt_obj)
@@ -147,11 +153,19 @@ class UniformTimeDistribution(TimeDistribution, BaseUniformDistribution):
         delta = dt_end-dt_begin + self.minimum_delta
         return self.round((random()*delta + dt_begin).time())
 
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "start": {"type": "string"},
+            "end": {"type": "string"},
+            "precision": {"type": "string"},
+        }
 
-class UniformDateDistribution(DateDistribution, BaseUniformDistribution):
+
+class UniformDateDistribution(CoreDistribution, DateDistribution, BaseUniformDistribution):
     """Uniform date distribution."""
 
-    aliases = ["UniformDateDistribution", "date_uniform"]
+    implements = "core.uniform_date"
     precision_possibilities = ["days"]
 
     def __init__(self, start: Any, end: Any):
@@ -163,9 +177,9 @@ class UniformDateDistribution(DateDistribution, BaseUniformDistribution):
     def round(self, time_obj):
         return time_obj
 
-    def to_dict(self) -> Dict:
-        date_dict = BaseUniformDistribution.to_dict(self)
-        date_dict["parameters"].pop("precision")
+    def _param_dict(self) -> Dict:
+        date_dict = BaseUniformDistribution._param_dict(self)
+        del date_dict["precision"]
         return date_dict
 
     @classmethod
@@ -175,3 +189,10 @@ class UniformDateDistribution(DateDistribution, BaseUniformDistribution):
     @classmethod
     def _fit(cls, values):
         return cls(values.min(), values.max())
+
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "start": {"type": "string"},
+            "end": {"type": "string"},
+        }

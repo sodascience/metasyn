@@ -3,10 +3,10 @@ from typing import Iterable
 
 from faker import Faker
 
-from metasynth.distribution.base import StringDistribution
+from metasynth.distribution.base import CoreDistribution, StringDistribution
 
 
-class FakerDistribution(StringDistribution):
+class FakerDistribution(CoreDistribution, StringDistribution):
     """Distribution for the faker package.
 
     This is mainly an interface for the faker package, so that it
@@ -22,7 +22,7 @@ class FakerDistribution(StringDistribution):
         Locale used for the faker package.
     """
 
-    aliases = ["FakerDistribution", "faker"]
+    implements = "core.faker"
 
     def __init__(self, faker_type: str, locale: str = "en_US"):
         self.faker_type: str = faker_type
@@ -38,33 +38,8 @@ class FakerDistribution(StringDistribution):
     def __str__(self):
         return f"faker.{self.faker_type}.{self.locale}"
 
-    def to_dict(self):
-        return {
-            "name": self.name,
-            "parameters": {
-                "faker_type": self.faker_type,
-                "locale": self.locale
-            }
-        }
-
     def draw(self):
         return getattr(self.fake, self.faker_type)()
-
-    @classmethod
-    def is_named(cls, name):
-        if name == cls.__name__:
-            return True
-        return name.startswith("faker") and len(name.split(".")) >= 2
-
-    @classmethod
-    def fit_kwargs(cls, name):
-        if name == cls.__name__:
-            return {}
-        split_name = name.split(".")
-        if len(split_name) == 2:
-            return {"faker_type": split_name[1]}
-        return {"faker_type": split_name[1],
-                "locale": split_name[2]}
 
     def information_criterion(self, values: Iterable) -> float:
         return 99999
@@ -72,3 +47,16 @@ class FakerDistribution(StringDistribution):
     @classmethod
     def default_distribution(cls):
         return cls("city")
+
+    def _param_dict(self):
+        return {
+            "faker_type": self.faker_type,
+            "locale": self.locale
+        }
+
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "faker_type": {"type": "string"},
+            "locale": {"type": "string"},
+        }

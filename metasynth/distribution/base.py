@@ -1,13 +1,14 @@
 """Module for the base distribution and the scipy distribution."""
 
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import List, Iterable, Dict, Sequence, Union
+from typing import Iterable, Sequence, Union
 
 import numpy as np
-import polars as pl
 import pandas as pd
+import polars as pl
 
 
 class BaseDistribution(ABC):
@@ -17,7 +18,9 @@ class BaseDistribution(ABC):
     methods need to be implemented: _fit, draw, to_dict.
     """
 
-    aliases: List[str] = []
+    implements = "unknown"
+    provenance = "unknown"
+    privacy = "unknown"
     is_unique = False
     var_type: str = "unknown"
 
@@ -70,8 +73,40 @@ class BaseDistribution(ABC):
         return str(self.to_dict())
 
     @abstractmethod
-    def to_dict(self) -> Dict:
+    def _param_dict(self):
+        """Get dictionary with the parameters of the distribution."""
+
+    def to_dict(self) -> dict:
         """Convert the distribution to a dictionary."""
+        return {
+            "implements": self.implements,
+            "provenance": self.provenance,
+            "class_name": self.__class__.__name__,
+            "parameters": deepcopy(self._param_dict()),
+        }
+
+    @classmethod
+    @abstractmethod
+    def _param_schema(cls):
+        """Get schema for the parameters of the distribution."""
+
+    @classmethod
+    def schema(cls) -> dict:
+        """Create sub-schema to validate GMF file."""
+        return {
+            "type": "object",
+            "properties": {
+                "implements": {"const": cls.implements},
+                "provenance": {"const": cls.provenance},
+                "class_name": {"const": cls.__name__},
+                "parameters": {
+                    "type": "object",
+                    "properties": cls._param_schema(),
+                    "required": list(cls.default_distribution()._param_dict())
+                }
+            },
+            "required": ["implements", "provenance", "class_name", "parameters"]
+        }
 
     @classmethod
     def from_dict(cls, dist_dict: dict) -> BaseDistribution:
@@ -89,7 +124,7 @@ class BaseDistribution(ABC):
         return 0.0
 
     @classmethod
-    def is_named(cls, name: str) -> bool:
+    def matches_name(cls, name: str) -> bool:
         """Check whether the name matches the distribution.
 
         Parameters
@@ -102,34 +137,24 @@ class BaseDistribution(ABC):
         bool:
             Whether the name matches.
         """
-        return name in cls.aliases or name == type(cls).__name__ or name == cls.__name__
-
-    @classmethod
-    def fit_kwargs(cls, name: str) -> Dict:  # pylint: disable=unused-argument
-        """Extra fitting arguments.
-
-        Parameters
-        ----------
-        name: str
-            Name to be matched.
-
-        Returns
-        -------
-        dict:
-            Keyword arguments extracted from the name.
-        """
-        return {}
-
-    @property
-    def name(self) -> str:
-        """Return the name used in the metadata file."""
-        return self.aliases[0]
+        assert cls.implements != "unknown", f"Internal error in class {cls.__name__}"
+        return name in (cls.implements.split(".")[1],
+                        cls.implements,
+                        cls.__name__,
+                        )
 
     @classmethod
     @abstractmethod
     def default_distribution(cls) -> BaseDistribution:
         """Get a distribution with default parameters."""
         return cls()
+
+
+class CoreDistribution():  # pylint: disable=too-few-public-methods
+    """Distributions belonging to the core set."""
+
+    privacy = "none"
+    provenance = "builtin"
 
 
 class CategoricalDistribution(BaseDistribution):
@@ -214,11 +239,8 @@ class ScipyDistribution(BaseDistribution):
         param = cls.dist_class.fit(values)
         return cls(*param)
 
-    def to_dict(self):
-        return {
-            "name": self.name,
-            "parameters": deepcopy(self.par),
-        }
+    def _param_dict(self):
+        return self.par
 
     def draw(self):
         return self.dist.rvs()

@@ -49,8 +49,8 @@ test = [
 	"sphinx", "sphinx-rtd-theme", "sphinxcontrib-napoleon", "sphinx-autodoc-typehints"
 ]
 
-[project.entry-points."metasynth.disttree"]
-builtin = "metasynth.disttree:BuiltinDistributionTree"
+[project.entry-points."metasynth.distribution_provider"]
+builtin = "metasynth.provider:BuiltinDistributionProvider"
 
 [tool.setuptools]
 packages = ["metasynth"]
@@ -74,6 +74,7 @@ ignore-patterns="_version.py"
 [tool.pylint.'FORMAT']
 max-line-length=100
 max-locals=35
+max-args=10
 
 [tool.pylint.'BASIC']
 good-names=["a", "b", "mu"]

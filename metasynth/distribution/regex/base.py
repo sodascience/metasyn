@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
-from typing import List, Union, Tuple, Type, Sequence, Set
+from typing import List, Sequence, Set, Tuple, Type, Union
 
 import numpy as np
 
-from metasynth.distribution.base import StringDistribution
-from metasynth.distribution.regex.element import BaseRegexElement
-from metasynth.distribution.regex.element import DigitRegex, AlphaNumericRegex
-from metasynth.distribution.regex.element import LettersRegex, SingleRegex, AnyRegex
-from metasynth.distribution.regex.element import UppercaseRegex, LowercaseRegex
+from metasynth.distribution.base import CoreDistribution, StringDistribution
+from metasynth.distribution.regex.element import (AlphaNumericRegex, AnyRegex,
+                                                  BaseRegexElement, DigitRegex,
+                                                  LettersRegex, LowercaseRegex,
+                                                  SingleRegex, UppercaseRegex)
 from metasynth.distribution.regex.optimizer import RegexOptimizer
 
 
@@ -37,7 +37,7 @@ def _get_gradient_start(values: Sequence[str], new_values: Sequence[str],
     return delta_energy/energy_budget
 
 
-class RegexDistribution(StringDistribution):
+class RegexDistribution(CoreDistribution, StringDistribution):
     """Distribution that uses a strategy similar to regex.
 
     The idea behind this method is that for structured strings
@@ -51,7 +51,7 @@ class RegexDistribution(StringDistribution):
         List of basic regex elements in the order that they occur.
     """
 
-    aliases = ["RegexDistribution", "regex"]
+    implements = "core.regex"
 
     def __init__(self, re_list: Union[Sequence[Union[BaseRegexElement, Tuple[str, float]]], str]):
         self.re_list = []
@@ -159,12 +159,23 @@ class RegexDistribution(StringDistribution):
     def __str__(self):
         return "".join([str(x) for x in self.re_list])
 
-    def to_dict(self):
+    def _param_dict(self):
         return {
-            "name": self.name,
-            "parameters": {
-                    "re_list": [(str(x), x.frac_used) for x in self.re_list],
+            "re_list": [(str(x), x.frac_used) for x in self.re_list],
+        }
+
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "re_list": {
+                "type": "array",
+                "items": {
+                    "type": "array",
+                    "prefixItems": [{"type": "string"}, {"type": "number"}],
+                    "minItems": 2,
+                    "additionalItems": False
                 }
+            }
         }
 
     @classmethod
@@ -172,7 +183,7 @@ class RegexDistribution(StringDistribution):
         return cls([(r"\d{3,4}", 0.67)])
 
 
-class UniqueRegexDistribution(RegexDistribution):
+class UniqueRegexDistribution(RegexDistribution, CoreDistribution):
     """Unique variant of the regex distribution.
 
     Same as the normal regex distribution, but checks whether a key
@@ -184,8 +195,8 @@ class UniqueRegexDistribution(RegexDistribution):
         List of basic regex elements in the order that they occur.
     """
 
+    implements = "core.unique_regex"
     is_unique = True
-    aliases = ["UniqueRegexDistribution", "regex_unique"]
 
     def __init__(self, re_list: Sequence[Union[BaseRegexElement, Tuple[str, float]]]):
         super().__init__(re_list)
