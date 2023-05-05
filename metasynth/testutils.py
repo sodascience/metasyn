@@ -61,7 +61,7 @@ def check_distribution(distribution: type[BaseDistribution], privacy: BasePrivac
 
     # Check the privacy
     assert privacy.is_compatible(distribution)
-    DistributionProviderList(provenance)._find_distribution(distribution.implements, privacy)
+    DistributionProviderList(provenance).find_distribution(distribution.implements, privacy)
 
     assert len(distribution.implements.split(".")) == 2
     assert distribution.provenance == provenance

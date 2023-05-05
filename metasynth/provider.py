@@ -211,7 +211,7 @@ class DistributionProviderList():
                              f"that have unique == {unique}.")
         return dist_instances[np.argmin(dist_aic)]
 
-    def _find_distribution(self, dist_name: str, privacy: BasePrivacy = BasicPrivacy(),
+    def find_distribution(self, dist_name: str, privacy: BasePrivacy = BasicPrivacy(),
                            ) -> type[BaseDistribution]:
         """Find a distribution and fit keyword arguments from a name.
 
@@ -260,7 +260,7 @@ class DistributionProviderList():
         dist_instance = None
 
         if isinstance(dist, str):
-            dist_class = self._find_distribution(dist, privacy=privacy)
+            dist_class = self.find_distribution(dist, privacy=privacy)
             dist_instance = dist_class.fit(series, **privacy.fit_kwargs, **fit_kwargs)
         elif inspect.isclass(dist) and issubclass(dist, BaseDistribution):
             dist_instance = dist.fit(series, **privacy.fit_kwargs, **fit_kwargs)
