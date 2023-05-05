@@ -36,7 +36,7 @@ def check_distribution_provider(provider_name: str):
 
 
 def check_distribution(distribution: type[BaseDistribution], privacy: BasePrivacy,
-                       provenance: str, **privacy_kwargs):
+                       provenance: str):
     """Check whether the distributions in the package can be validated positively.
 
     Arguments
@@ -47,8 +47,6 @@ def check_distribution(distribution: type[BaseDistribution], privacy: BasePrivac
         Level/type of privacy the distribution adheres to.
     provenance:
         Which provider/plugin/package provides the distribution.
-    privacy_kwargs:
-        Extra arguments to be supplied to the distribution when fitting.
     """
 
     # Check the schema of the distribution.
@@ -68,7 +66,7 @@ def check_distribution(distribution: type[BaseDistribution], privacy: BasePrivac
     assert distribution.var_type != "unknown"
     dist = distribution.default_distribution()
     series = pl.Series([dist.draw() for _ in range(100)])
-    new_dist = distribution.fit(series, **privacy_kwargs)
+    new_dist = distribution.fit(series, **privacy.fit_kwargs)
     assert isinstance(new_dist, distribution)
     assert set(list(new_dist.to_dict())) >= set(
         ("implements", "provenance", "class_name", "parameters"))
