@@ -12,7 +12,7 @@ from metasynth.distribution.base import BaseDistribution
 from metasynth.privacy import BasePrivacy
 from metasynth.provider import (get_distribution_provider,
                                 BaseDistributionProvider,
-    DistributionProviderList)
+                                DistributionProviderList)
 
 
 def check_distribution_provider(provider_name: str):
