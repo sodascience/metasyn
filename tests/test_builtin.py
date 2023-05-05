@@ -2,6 +2,7 @@ from pytest import mark
 
 from metasynth.provider import get_distribution_provider
 from metasynth.testutils import check_distribution, check_distribution_provider
+from metasynth.privacy import BasicPrivacy
 
 
 def test_builtin_provider():
@@ -12,5 +13,5 @@ def test_builtin_provider():
     "distribution", get_distribution_provider("builtin").distributions
 )
 def test_dist_validation(distribution):
-    check_distribution(distribution, privacy="none",
+    check_distribution(distribution, privacy=BasicPrivacy(),
                        provenance="builtin")
