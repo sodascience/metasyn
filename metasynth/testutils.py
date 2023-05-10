@@ -48,7 +48,6 @@ def check_distribution(distribution: type[BaseDistribution], privacy: BasePrivac
     provenance:
         Which provider/plugin/package provides the distribution.
     """
-
     # Check the schema of the distribution.
     schema = distribution.schema()
     dist_dict = distribution.default_distribution().to_dict()
