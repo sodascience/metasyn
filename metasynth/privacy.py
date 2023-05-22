@@ -1,12 +1,12 @@
 """Module with privacy classes to be used for creating GMF files."""
 
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 from typing import Type, Union
 
 from metasynth.distribution.base import BaseDistribution
 
 
-class BasePrivacy():
+class BasePrivacy(ABC):
     """Base class for privacy level.
 
     Derived classes should at least set the class variable

@@ -9,8 +9,10 @@ from jsonschema.exceptions import SchemaError
 
 from metasynth.dataset import _jsonify
 from metasynth.distribution.base import BaseDistribution
+from metasynth.privacy import BasePrivacy
 from metasynth.provider import (get_distribution_provider,
-                                BaseDistributionProvider)
+                                BaseDistributionProvider,
+                                DistributionProviderList)
 
 
 def check_distribution_provider(provider_name: str):
@@ -33,8 +35,8 @@ def check_distribution_provider(provider_name: str):
     assert len(provider.version) > 0
 
 
-def check_distribution(distribution: type[BaseDistribution], privacy: str,
-                       provenance: str, **privacy_kwargs):
+def check_distribution(distribution: type[BaseDistribution], privacy: BasePrivacy,
+                       provenance: str):
     """Check whether the distributions in the package can be validated positively.
 
     Arguments
@@ -45,11 +47,8 @@ def check_distribution(distribution: type[BaseDistribution], privacy: str,
         Level/type of privacy the distribution adheres to.
     provenance:
         Which provider/plugin/package provides the distribution.
-    privacy_kwargs:
-        Extra arguments to be supplied to the distribution when fitting.
     """
-    # package = get_distribution_provider(package_name)
-    # for dist in package.distributions:
+    # Check the schema of the distribution.
     schema = distribution.schema()
     dist_dict = distribution.default_distribution().to_dict()
     try:
@@ -57,13 +56,16 @@ def check_distribution(distribution: type[BaseDistribution], privacy: str,
     except SchemaError as err:
         raise ValueError(f"Failed distribution validation for {distribution.__name__}") from err
 
-    assert distribution.privacy == privacy
+    # Check the privacy
+    assert privacy.is_compatible(distribution)
+    DistributionProviderList(provenance).find_distribution(distribution.implements, privacy)
+
     assert len(distribution.implements.split(".")) == 2
     assert distribution.provenance == provenance
     assert distribution.var_type != "unknown"
     dist = distribution.default_distribution()
     series = pl.Series([dist.draw() for _ in range(100)])
-    new_dist = distribution.fit(series, **privacy_kwargs)
+    new_dist = distribution.fit(series, **privacy.fit_kwargs)
     assert isinstance(new_dist, distribution)
     assert set(list(new_dist.to_dict())) >= set(
         ("implements", "provenance", "class_name", "parameters"))
