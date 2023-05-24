@@ -16,12 +16,24 @@ from metasynth.distribution.datetime import UniformDateTimeDistribution, Uniform
 from metasynth.distribution.datetime import UniformDateDistribution
 
 
-def create_titanic_demo(output_fp):
+def create_titanic_demo(output_fp: Path) -> Path:
+    """Create demo dataset for the titanic dataset.
+
+    Arguments
+    ---------
+    output_fp:
+        File to write the demonstration table to.
+
+    Returns
+    -------
+        Output file location.
+    """
     titanic_fp = Path("titanic.csv")
     if output_fp.is_file():
         return output_fp
     if not titanic_fp.is_file():
-        wget.download("https://raw.githubusercontent.com/pandas-dev/pandas/main/doc/data/titanic.csv")
+        wget.download(
+            "https://raw.githubusercontent.com/pandas-dev/pandas/main/doc/data/titanic.csv")
     df = pd.read_csv(titanic_fp)
     np.random.seed(1283742)
     random.seed(1928374)
@@ -31,16 +43,19 @@ def create_titanic_demo(output_fp):
 
     # Add a date column.
     date_dist = UniformDateDistribution.default_distribution()
-    df["Birthday"] = [date_dist.draw() if np.random.rand() < 0.9 else pd.NA for _ in range(len(df))]
+    df["Birthday"] = [date_dist.draw() if np.random.rand() < 0.9 else pd.NA
+                      for _ in range(len(df))]
 
     # Add a time column.
 
     time_dist = UniformTimeDistribution.default_distribution()
-    df["Board time"] = [time_dist.draw() if np.random.rand() < 0.9 else pd.NA for _ in range(len(df))]
+    df["Board time"] = [time_dist.draw() if np.random.rand() < 0.9 else pd.NA
+                        for _ in range(len(df))]
 
     # Add a datetime column
     time_dist = UniformDateTimeDistribution.default_distribution()
-    df["Married since"] = [time_dist.draw() if np.random.rand() < 0.9 else pd.NA for _ in range(len(df))]
+    df["Married since"] = [time_dist.draw() if np.random.rand() < 0.9 else pd.NA
+                           for _ in range(len(df))]
 
     df["all_NA"] = [pd.NA for _ in range(len(df))]
     # Remove some columns for brevity and write to a file.
@@ -49,7 +64,18 @@ def create_titanic_demo(output_fp):
     return output_fp
 
 
-def demo_file(name="titanic"):
+def demo_file(name: str="titanic") -> Path:
+    """Get the path for a demo data file.
+
+    Arguments
+    ---------
+    name:
+        Name of the demo dataset.
+
+    Returns
+    -------
+        Path to the dataset.
+    """
     file_name = None
     if name == "titanic":
         file_name = "demo_titanic.csv"
