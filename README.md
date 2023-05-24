@@ -1,5 +1,6 @@
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/metasynth)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sodascience/metasynth/HEAD?labpath=examples%2Fadvanced_tutorial.ipynb)
+[![Google Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sodascience/metasynth/blob/main/examples/advanced_tutorial.ipynb)
 [![docs](https://readthedocs.org/projects/metasynth/badge/?version=latest)](https://metasynth.readthedocs.io/en/latest/index.html)
 
 # MetaSynth

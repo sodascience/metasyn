@@ -9,20 +9,17 @@ except ImportError:
     from importlib_resources import files
 
 import pandas as pd
-import polars as pl
 import numpy as np
 import wget
 
-import metasynth
 from metasynth.distribution.datetime import UniformDateTimeDistribution, UniformTimeDistribution
 from metasynth.distribution.datetime import UniformDateDistribution
 
 
-def create_titanic_demo():
-    demonstration_fp = Path("demonstration.csv")
+def create_titanic_demo(output_fp):
     titanic_fp = Path("titanic.csv")
-    if demonstration_fp.is_file():
-        return demonstration_fp
+    if output_fp.is_file():
+        return output_fp
     if not titanic_fp.is_file():
         wget.download("https://raw.githubusercontent.com/pandas-dev/pandas/main/doc/data/titanic.csv")
     df = pd.read_csv(titanic_fp)
@@ -48,15 +45,15 @@ def create_titanic_demo():
     df["all_NA"] = [pd.NA for _ in range(len(df))]
     # Remove some columns for brevity and write to a file.
     df = df.drop(["SibSp", "Pclass", "Ticket", "Survived"], axis=1)
-    df.to_csv(demonstration_fp, index=False)
-    return pl.DataFrame(df)
+    df.to_csv(output_fp, index=False)
+    return output_fp
 
 
 def demo_file(name="titanic"):
-    file_fp = None
+    file_name = None
     if name == "titanic":
         file_name = "demo_titanic.csv"
-    if file_fp is None:
+    if file_name is None:
         raise ValueError(f"No demonstration dataset with name '{name}'")
 
-    return files(metasynth.demo / file_name)
+    return files(__package__) / file_name
