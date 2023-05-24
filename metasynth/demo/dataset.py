@@ -64,7 +64,7 @@ def create_titanic_demo(output_fp: Path) -> Path:
     return output_fp
 
 
-def demo_file(name: str="titanic") -> Path:
+def demo_file(name: str = "titanic") -> Path:
     """Get the path for a demo data file.
 
     Arguments
