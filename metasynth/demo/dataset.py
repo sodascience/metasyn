@@ -4,9 +4,9 @@ from pathlib import Path
 import random
 
 try:
-    from importlib.resources import files
-except ImportError:
     from importlib_resources import files
+except ImportError:
+    from importlib.resources import files  # type: ignore
 
 import pandas as pd
 import numpy as np
