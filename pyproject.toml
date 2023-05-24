@@ -67,6 +67,7 @@ module = [
 	"sklearn.*",
 	"importlib_metadata.*",
 	"importlib_resources.*",
+	"wget.*",
 ]
 ignore_missing_imports = true
 
