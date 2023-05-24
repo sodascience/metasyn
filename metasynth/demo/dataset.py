@@ -34,33 +34,33 @@ def create_titanic_demo(output_fp: Path) -> Path:
     if not titanic_fp.is_file():
         wget.download(
             "https://raw.githubusercontent.com/pandas-dev/pandas/main/doc/data/titanic.csv")
-    df = pd.read_csv(titanic_fp)
+    dframe = pd.read_csv(titanic_fp)
     np.random.seed(1283742)
     random.seed(1928374)
 
     # Convert Age to a nullable integer.
-    df["Age"] = df["Age"].round().astype("Int64")
+    dframe["Age"] = dframe["Age"].round().astype("Int64")
 
     # Add a date column.
     date_dist = UniformDateDistribution.default_distribution()
-    df["Birthday"] = [date_dist.draw() if np.random.rand() < 0.9 else pd.NA
-                      for _ in range(len(df))]
+    dframe["Birthday"] = [date_dist.draw() if np.random.rand() < 0.9 else pd.NA
+                          for _ in range(len(dframe))]
 
     # Add a time column.
 
     time_dist = UniformTimeDistribution.default_distribution()
-    df["Board time"] = [time_dist.draw() if np.random.rand() < 0.9 else pd.NA
-                        for _ in range(len(df))]
+    dframe["Board time"] = [time_dist.draw() if np.random.rand() < 0.9 else pd.NA
+                            for _ in range(len(dframe))]
 
     # Add a datetime column
     time_dist = UniformDateTimeDistribution.default_distribution()
-    df["Married since"] = [time_dist.draw() if np.random.rand() < 0.9 else pd.NA
-                           for _ in range(len(df))]
+    dframe["Married since"] = [time_dist.draw() if np.random.rand() < 0.9 else pd.NA
+                               for _ in range(len(dframe))]
 
-    df["all_NA"] = [pd.NA for _ in range(len(df))]
+    dframe["all_NA"] = [pd.NA for _ in range(len(dframe))]
     # Remove some columns for brevity and write to a file.
-    df = df.drop(["SibSp", "Pclass", "Ticket", "Survived"], axis=1)
-    df.to_csv(output_fp, index=False)
+    dframe = dframe.drop(["SibSp", "Pclass", "Ticket", "Survived"], axis=1)
+    dframe.to_csv(output_fp, index=False)
     return output_fp
 
 
