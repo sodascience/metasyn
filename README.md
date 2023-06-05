@@ -294,14 +294,17 @@ Additionally, the documentation offers a series of [tutorials](https://metasynth
 ### Quick start
 Get started quickly with MetaSynth using the following example. In this concise demonstration, you'll learn the basic functionality of MetaSynth by generating synthetic data from  [titanic](https://raw.githubusercontent.com/pandas-dev/pandas/main/doc/data/titanic.csv) dataset.
 
-#### Generating metadata
-1.  Begin by creating a polars dataframe:
+It is important to start by importing the appropriate libraries:
 
 ```python
 # import libraries
 import polars as pl
 import metasynth as ms
+```
 
+#### Generating metadata
+##### 1.  Begin by creating a polars dataframe:
+```python
 # import csv
 dataset_csv = "https://raw.githubusercontent.com/pandas-dev/pandas/main/doc/data/titanic.csv"
 
@@ -318,34 +321,59 @@ dtypes = {
 df = pl.read_csv(dataset_csv, dtypes=dtypes)
 ```
 
-2. Next, we can generate a metadataset from the polars dataframe.
+##### 2. Next, we can generate a metadataset from the polars dataframe.
 
 ```python
 # create metadata
 metadata = ms.MetaDataset.from_dataframe(df)
 ```
 
-3. We can export this metadataset to a .JSON file using:
+> Note: if at this point you get the following warning about a potential unique variable, do not worry, it is safe to continue.
+> 
+> ```
+> Variable PassengerId seems unique, but not set to be unique. Set the variable to be either unique or not unique to remove this warning. warnings.warn(f"\nVariable {series.name} seems unique, but not set to be unique.\n"
+> ```
+
+##### 3. We can export this metadataset to a .JSON file using:
 
 ```python
 #export metadata
 metadata.to_json("metadata.json")
 ```
 
+> Note: if at this point you get the following warnings, do not worry, it is safe to continue.
+> 
+> ```
+> DeprecationWarning: read_text is deprecated. Use files() instead. Refer to https://importlib-resources.readthedocs.io/en/latest/using.html#migrating-from-legacy for migration advice. 
+> DeprecationWarning: open_text is deprecated. Use files() instead. Refer to https://importlib-resources.readthedocs.io/en/latest/using.html#migrating-from-legacy for migration advice.
+> ```
+
+
+
 #### Generating synthetic data
 
-1. We can load metadata from a .JSON file:
+##### 1. We can load metadata from a .JSON file:
 ```python
 # load metadata
-metadata = MetaDataset.from_json("metadata.json")
+metadata = ms.MetaDataset.from_json("metadata.json")
 ```
 
-2. We can then synthesize a series of rows, based on this metadata using:
+> Note: if at this point you get the following warnings, do not worry, it is safe to continue.
+> 
+> ```
+> DeprecationWarning: read_text is deprecated. Use files() instead. Refer to https://importlib-resources.readthedocs.io/en/latest/using.html#migrating-from-legacy for migration advice. 
+> DeprecationWarning: open_text is deprecated. Use files() instead. Refer to https://importlib-resources.readthedocs.io/en/latest/using.html#migrating-from-legacy for migration advice.
+> ```
+
+##### 2. We can then synthesize a series of rows, based on this metadata using:
 
 ```python
 # synthesize 5 rows of data
-metadata.synthesize(5) 
+synthetic_data = metadata.synthesize(5) 
 ```
+
+
+
 
 
 <!-- CONTRIBUTING -->
