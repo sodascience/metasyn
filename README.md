@@ -272,6 +272,7 @@ Please note: While using this type of dataset, each disclosure control must be e
 -   **Structured String Detection**: This feature identifies structured strings within your dataset, which can include formatted text, codes, identifiers, or any string that follows a specific pattern.
 -   **Handling Unique Values**: MetaSynth can identify and process variables with unique values or keys in the data, preserving their uniqueness in the synthetic dataset, which is crucial for generating synthetic data that maintains the characteristics of the original dataset.
 
+
 ## Getting Started
 
 ### Try it out online
@@ -320,6 +321,18 @@ dtypes = {
 
 df = pl.read_csv(dataset_csv, dtypes=dtypes)
 ```
+
+<details>
+     <summary> 
+     Note on using Pandas
+     </summary>
+     
+Internally, MetaSynth uses polars (instead of pandas) mainly because typing and the handling of non-existing data is more
+consistent. It is possible to supply a pandas DataFrame instead of a polars DataFrame to `MetaDataset.from_dataframe`.
+However, this uses the automatic polars conversion functionality, which for some edge cases result in problems. Therefore,
+we advise users to create polars DataFrames. The resulting synthetic dataset is always a polars dataframe, but this can
+be easily converted back to a pandas DataFrame by using `df_pandas = df_polars.to_pandas()`.
+</details>
 
 ##### 2. Next, we can generate a metadataset from the polars dataframe.
 
