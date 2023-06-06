@@ -7,10 +7,8 @@ import pathlib
 from copy import deepcopy
 from datetime import datetime
 from importlib.metadata import version
-from importlib.resources import read_text
 from typing import Any, Dict, List, Optional, Sequence, Union
 
-import jsonschema
 import numpy as np
 import polars as pl
 
@@ -231,8 +229,7 @@ class MetaDataset():
             self_dict = json.load(f)
 
         if validate:
-            schema = json.loads(read_text("metasynth.schema", "generative_metadata_format.json"))
-            jsonschema.validate(instance=self_dict, schema=schema)
+            validate_gmf_dict(self_dict)
 
         n_rows = self_dict["n_rows"]
         meta_vars = [MetaVar.from_dict(d) for d in self_dict["vars"]]
