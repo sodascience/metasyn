@@ -207,15 +207,6 @@ metadata = ms.MetaDataset.from_dataframe(df)
 metadata.to_json("metadata.json")
 ```
 
-> Note: if at this point you get the following warnings, do not worry, it is safe to continue.
-> 
-> ```
-> DeprecationWarning: read_text is deprecated. Use files() instead. Refer to https://importlib-resources.readthedocs.io/en/latest/using.html#migrating-from-legacy for migration advice. 
-> DeprecationWarning: open_text is deprecated. Use files() instead. Refer to https://importlib-resources.readthedocs.io/en/latest/using.html#migrating-from-legacy for migration advice.
-> ```
-
-
-
 #### Generating synthetic data
 
 ##### 1. We can load metadata from a .JSON file:
@@ -223,13 +214,6 @@ metadata.to_json("metadata.json")
 # load metadata
 metadata = ms.MetaDataset.from_json("metadata.json")
 ```
-
-> Note: if at this point you get the following warnings, do not worry, it is safe to continue.
-> 
-> ```
-> DeprecationWarning: read_text is deprecated. Use files() instead. Refer to https://importlib-resources.readthedocs.io/en/latest/using.html#migrating-from-legacy for migration advice. 
-> DeprecationWarning: open_text is deprecated. Use files() instead. Refer to https://importlib-resources.readthedocs.io/en/latest/using.html#migrating-from-legacy for migration advice.
-> ```
 
 ##### 2. We can then synthesize a series of rows, based on this metadata using:
 
