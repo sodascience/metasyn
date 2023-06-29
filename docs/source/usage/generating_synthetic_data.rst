@@ -10,9 +10,10 @@ The generated synthetic data, emulates the original data's format and
 plausibility at the individual record level and attempts to reproduce
 marginal (univariate) distributions where possible. Generated values are
 based on the observed distributions while adding a degree of variance
-and smoothing. The generated data does **not** aim to preserve the
-relationships between variables. The frequency of missing values and
-their codes are maintained in the synthetically-augmented dataset.
+and smoothing. The frequency of missing values is also maintained in the synthetically-augmented dataset.
+
+The generated data does **not** aim to preserve the
+relationships between variables.
 
 
 
@@ -20,13 +21,18 @@ Prerequisites
 -------------
 Before synthetic data can be generated, a :obj:`MetaDataset <metasynth.dataset.MetaDataset>` must be created or loaded (see :doc:`/usage/generating_metadata` for instructions). 
 
+Generating a synthetic dataset
+-------------------------
+To generate a synthetic dataset, call the :meth:`MetaDataset.synthesize(n)<metasynth.dataset.MetaDataset.synthesize>` method on a :obj:`MetaDataset <metasynth.dataset.MetaDataset>` object.
+This method takes an integer parameter `n` which represents the number of rows of data that should be generated. This parameter *must* be specified when calling the method.
+Upon succesful execution of the :meth:`MetaDataset.synthesize(n)<metasynth.dataset.MetaDataset.synthesize>` method, a `Pandas DataFrame <https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html>`_ will be returned.
 
-Example
--------
-Here's an example of how to generate synthetic data from a metadataset:
+**In-code example**:
 
-.. code-block:: python
+.. code:: python
 
-   import metasynth
+   metadataset.synthesize(5)
+..
 
-    // example here
+
+

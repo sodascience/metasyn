@@ -12,36 +12,10 @@ This object captures essential aspects of the dataset, including variable names,
 (GMF) <https://github.com/sodascience/generative_metadata_format>`__, a standard designed to be easy to read and understand. 
 This metadata can be exported as a .JSON file, allowing for manual and automatic editing, as well as easy sharing.
 
-MetaSynth uses these :obj:`MetaDatasets <metasynth.dataset.MetaDataset>` to produce synthetic data that aligns with the metadata (see :doc:`/usage/generating_synthetic_data`).
-The synthetic dataset remains separate and independent from any sensitive source data, providing a solution for researchers and data owners to generate and share synthetic versions of their sensitive data, mitigating privacy concerns.
-
-By separating the metadata and original data, this approach also promotes reproducibility, as the metadata file can be easily shared and used to generate consistent synthetic datasets.
-
-
-Generating metadatasets
--------------------------
-MetaSynth can generate metadata from any given dataset (provided as
-polars or pandas dataframe), using the :meth:`metasynth.dataset.MetaDataset.from_dataframe` classmethod.
-
-
-
-Loading metadatasets
---------------------
-MetaSynth can also load previously generated metadata, using the :meth:`metasynth.dataset.MetaDataset.from_json` class method. 
-
-
-
-Exporting a metadataset 
------------------------
-Metadata can be exported as .JSON file through the :meth:`metasynth.dataset.MetaDataset.to_json` class method,
-allowing for manual and automatic editing, as well as easy sharing. 
-
-
-
 .. raw:: html
 
    <details> 
-   <summary> A simple exmaple of a GMF file: </summary>
+   <summary> An example of a metadataset: </summary>
 
 .. code:: json
 
@@ -127,6 +101,59 @@ allowing for manual and automatic editing, as well as easy sharing.
 .. raw:: html
 
    </details>
+|
+
+
+MetaSynth uses these :obj:`MetaDatasets<metasynth.dataset.MetaDataset>` to produce synthetic data that aligns with the metadata (see :doc:`/usage/generating_synthetic_data`).
+The synthetic dataset remains separate and independent from any sensitive source data, providing a solution for researchers and data owners to generate and share synthetic versions of their sensitive data, mitigating privacy concerns.
+
+By separating the metadata and original data, this approach also promotes reproducibility, as the metadata file can be easily shared and used to generate consistent synthetic datasets.
+
+
+Generating a metadataset
+-------------------------
+MetaSynth can generate metadata from any given dataset (provided as
+Polars or Pandas dataframe), using the :meth:`MetaDataset.from_dataframe() <metasynth.dataset.MetaDataset.from_dataframe>` classmethod.
+
+This function requires a :obj:`DataFrame` to be specified as parameter.
+
+**In-code example**:
+
+.. code:: python
+
+   metadataset = metasynth.MetaDataset.from_dataframe(dataframe)
+..
+
+
+Exporting a metadataset 
+-----------------------
+Metadata can be exported as .JSON file by calling the :meth:`metasynth.dataset.MetaDataset.to_json` method on a :obj:`MetaDatasets<metasynth.dataset.MetaDataset>`.
+This allows for manual (or automatic) inspection, editing, and easy sharing. 
+
+**In-code example**:
+
+.. code:: python
+
+   metadataset.to_json("metadataset.json")
+..
+
+
+
+Loading a metadataset
+--------------------
+MetaSynth can also load previously generated metadata, using the :meth:`MetaDataset.from_json <metasynth.dataset.MetaDataset.from_json>` classmethod. 
+
+**In-code example**:
+
+.. code:: python
+
+   metadataset = metasynth.MetaDataset.from_json("metadataset.json")
+..
+
+
+
+
+
 
 
 
