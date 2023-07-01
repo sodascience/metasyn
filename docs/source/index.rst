@@ -7,6 +7,12 @@ MetaSynth documentation
 =====================================
 Welcome to the MetaSynth documentation. MetaSynth is a Python package that facilitates the generation of synthetic data and metadata, enabling users to create surrogate datasets that mimic the structure and characteristics of their original data while preserving privacy.
 
+.. note:: 
+   MetaSynth, and this documentation, are under active development. As a result, this documentation is still heavily work in progress. If you see any errors, missing content or have a suggestion for new content, feel free to :doc:`let us know </about/contact>`! 
+
+Documentation Outline
+---------------------
+
 About
 ^^^^^
 This section provides a brief overview of MetaSynth's purpose and functionality, contact information, frequently asked questions (FAQs), and licensing details.

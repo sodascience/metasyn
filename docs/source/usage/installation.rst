@@ -1,110 +1,75 @@
-Installation
-=================
+Installation Guide
+==================
 
-The MetaSynth package contains two discrete functionalities: creating a statistical metadata file (smf) from tabular data,
-and a synthetic data generator. On this page you should be able to:
+This document will guide you through the process of installing the MetaSynth package. 
 
-- Install the package
-- Prepare your data
-- Create an smf file
-- Read the smf file and create a synthetic dataset.
+Step 1: Python Installation
+---------------------------
 
-Installing MetaSynth
---------------------
+MetaSynth requires Python 3.7 or higher. If you don't have Python installed or your Python version is lower than 3.7, you will need to install or upgrade Python.
 
-First you need to create a working Python installation, with a version above or equal to Python 3.7.
-If you're not familiar with Python and have never installed it you can use the following
-`guide <https://docs.python-guide.org/starting/installation/>`_.
+If you're not familiar with Python or you've never installed it before, refer to the `Python Guide <https://docs.python-guide.org/starting/installation/>`_ for detailed instructions. 
 
-For the first official release of MetaSynth, it will be installable directly from `PyPi <https://pypi.org/>`_.
-For now, the MetaSynth package can be installed using the following command in the console:
+Step 2: Installing PIP
+----------------------
+
+MetaSynth uses PyPI for distribution, which requires pip, the Python package installer, to install. If you haven't installed pip, refer to the `Pip Installation Guide <https://pip.pypa.io/en/stable/installation/>`_ for instructions.
+
+Step 3: Installing MetaSynth
+----------------------------
+
+There are two ways to install MetaSynth, you can either download the latest official version from PyPI using pip or download the latest version from our GitHub repository.
+
+.. tab:: PyPI
+
+	.. code-block:: console
+
+		pip install metasynth
+
+.. tab:: GitHub
+
+	.. code-block:: console
+
+		pip install git+https://github.com/sodascience/meta-synth.git
 
 
-.. code-block:: console
+		
+Choose the method that best suits your needs. If you're unsure, using PyPI is the simplest and most straightforward method.
 
-	pip install git+https://github.com/sodascience/meta-synth.git
+Step 4: Verifying Installation
+-------------------------------
 
-To test the successful installation of MetaSynth, type the following in a python console and it should not give
-any errors:
+To ensure MetaSynth has been successfully installed, run the following command in a Python console:
 
 .. code-block:: python
 
 	import metasynth
 
+If the command runs without any errors, you have successfully installed MetaSynth.
 
-Preparing the data
-------------------
+Optional: Creating a Virtual Environment
+----------------------------------------
 
-To prepare the data for usage with MetaSynth, it is useful to have some basic knowledge about 
-`polars <https://pola-rs.github.io/polars-book/user-guide/>`_. We use the
-`titanic <https://raw.githubusercontent.com/pandas-dev/pandas/main/doc/data/titanic.csv>`_ dataset
-to show the basic concepts here. To follow along, download the dataset to a folder and start Python
-in the same folder.
+Although not necessary, it's a good practice to create a virtual environment for each Python project to manage dependencies. You can create a virtual environment using either venv (built into Python) or a similar tool like virtualenv. If you're unfamiliar with this concept, refer to the `Python Virtual Environments Guide <https://docs.python-guide.org/dev/virtualenvs/>`_.
 
-First read the csv file with polars:
+To create a virtual environment using venv:
 
-.. code-block:: python
+.. code-block:: console
 
-	import polars as pl
-	
-	dtypes = {
-	    "Sex": pl.Categorical,
-	    "Embarked": pl.Categorical,
-	    "Survived": pl.Categorical,
-	    "Pclass": pl.Categorical,
-	    "SibSp": pl.Categorical,
-	    "Parch": pl.Categorical
-	}
-	df = pl.read_csv("titanic.csv", dtype=dtypes)
+	python3 -m venv metasynth-env
 
-The dtypes argument is used to set the columns to their correct type. Only categorical variables
-need to be manually set. Dates, times and datetimes can be parsed by polars with the `parse_dates=True` keyword argument.
-There are seven differnt data types supported by MetaSynth: string, category, integer, float, date, time and datetime.
+To activate the environment:
 
+.. tab:: Windows
 
-Create a statistical metadata file
-----------------------------------
+	.. code-block:: console
 
-Currently, only the JSON file format is supported. First we need to create a MetaSynth dataset, which infers the
-distributions of the polars DataFrame:
+		metasynth-env\Scripts\activate
 
-.. code-block:: python
+.. tab:: Unix or MacOS:
 
-	from metasynth import MetaDataset
+	.. code-block:: console
 
-	dataset = MetaDataset.from_dataframe(df)
+		source metasynth-env/bin/activate
 
-
-Internally, the dataset is simply a list of all the column variables, with their statistical properties. Next, write it
-to a JSON file:
-
-.. code-block:: python
-
-	dataset.to_json("titanic.json")
-
-The file titanic.json should have a statistical metadata summary that can be used to generate synthetic data.
-
-
-Create a synthetic dataset
---------------------------
-
-To create the synthetic dataset we will first read the file (this is technically not necessary in this case):
-
-.. code-block:: python
-
-	dataset = MetaDataset.from_json("titanic.json")
-
-
-From the dataset it is easy to create a synthetic dataset with e.g. 100 rows:
-
-.. code-block:: python
-
-	synthetic_df = dataset.synthesize(100)
-
-
-More advanced uses of MetaSynth
--------------------------------
-
-A more advanced tutorial is available on our 
-`GitHub <https://github.com/sodascience/meta-synth/blob/main/examples/advanced tutorial.ipynb`>_
-page.
+With the virtual environment activated, you can then install MetaSynth as described in Step 3. To exit the virtual environment, simply type `deactivate` in your console.

@@ -1,110 +1,101 @@
 Quick start guide
 =================
 
-The MetaSynth package contains two discrete functionalities: creating a statistical metadata file (smf) from tabular data,
-and a synthetic data generator. On this page you should be able to:
+Get started quickly with MetaSynth using the following example. In this
+concise demonstration, you'll learn the basic functionality of MetaSynth
+by generating synthetic data from
+`titanic <https://raw.githubusercontent.com/pandas-dev/pandas/main/doc/data/titanic.csv>`__
+dataset.
 
-- Install the package
-- Prepare your data
-- Create an smf file
-- Read the smf file and create a synthetic dataset.
+Importing Libraries
+-------------------
 
-Installing MetaSynth
---------------------
-
-First you need to create a working Python installation, with a version above or equal to Python 3.7.
-If you're not familiar with Python and have never installed it you can use the following
-`guide <https://docs.python-guide.org/starting/installation/>`_.
-
-For the first official release of MetaSynth, it will be installable directly from `PyPi <https://pypi.org/>`_.
-For now, the MetaSynth package can be installed using the following command in the console:
+The first step in any Python project is to import the necessary libraries. For this example, we will need polars and metasynth.
 
 
-.. code-block:: console
+.. code:: python
 
-	pip install git+https://github.com/sodascience/meta-synth.git
+   import polars as pl
+   import metasynth as ms
 
-To test the successful installation of MetaSynth, type the following in a python console and it should not give
-any errors:
+
+Loading the Dataset
+-------------------
+
+Next, load the Titanic CSV file, for this we can use the built-in :meth:`metasynth.demo_file` function.
 
 .. code-block:: python
 
-	import metasynth
+   dataset_csv = ms.demo_file() 
 
-
-Preparing the data
-------------------
-
-To prepare the data for usage with MetaSynth, it is useful to have some basic knowledge about 
-`polars <https://pola-rs.github.io/polars-book/user-guide/>`_. We use the
-`titanic <https://raw.githubusercontent.com/pandas-dev/pandas/main/doc/data/titanic.csv>`_ dataset
-to show the basic concepts here. To follow along, download the dataset to a folder and start Python
-in the same folder.
-
-First read the csv file with polars:
+Then, we create a dictionary with information on the data types of the various columns/variables. This will be used in the next step, when we convert the CSV file to a DataFrame.
 
 .. code-block:: python
 
-	import polars as pl
+   data_types = { 
+       "Sex": pl.Categorical,
+       "Embarked": pl.Categorical,
+       "Survived": pl.Categorical,
+       "Pclass": pl.Categorical,
+       "SibSp": pl.Categorical,
+       "Parch": pl.Categorical
+   }
+
+To finish loading the dataset, we simply use the :meth:`polars.read_csv` function, passing in our CSV file and dictionary as parameters. This converts the CSV file into a DataFrame.
+
+.. code-block:: python
+
+   dataframe = pl.read_csv(dataset_csv, dtypes=data_types)
+
+
+.. note:: 
+	In this example, we used a polars DataFrame, but pandas DataFrames are also supported by MetaSynth. 
+
+
+Generating the MetaDataset
+--------------------------
+With the DataFrame loaded, you can now generate a :obj:`MetaDataset<metasynth.dataset.MetaDataset>`.
+
+
+.. code-block:: python
+
+   metadataset = ms.MetaDataset.from_dataframe(dataframe)
+
+.. Note:: 
+	At this point, you might get a warning about a potential unique variable, but we can ignore that for now as it's safe to continue.
 	
-	dtypes = {
-	    "Sex": pl.Categorical,
-	    "Embarked": pl.Categorical,
-	    "Survived": pl.Categorical,
-	    "Pclass": pl.Categorical,
-	    "SibSp": pl.Categorical,
-	    "Parch": pl.Categorical
-	}
-	df = pl.read_csv("titanic.csv", dtype=dtypes)
-
-The dtypes argument is used to set the columns to their correct type. Only categorical variables
-need to be manually set. Dates, times and datetimes can be parsed by polars with the `parse_dates=True` keyword argument.
-There are seven differnt data types supported by MetaSynth: string, category, integer, float, date, time and datetime.
+	``Variable PassengerId seems unique, but not set to be unique. Set the variable to be either unique or not unique to remove this warning. warnings.warn(f"\nVariable {series.name} seems unique, but not set to be unique.\n"``
 
 
-Create a statistical metadata file
+Saving and Loading the MetaDataset
 ----------------------------------
 
-Currently, only the JSON file format is supported. First we need to create a MetaSynth dataset, which infers the
-distributions of the polars DataFrame:
+The MetaDataset can be saved to a .JSON file for future use.
 
 .. code-block:: python
 
-	from metasynth import MetaDataset
+   # Export metadata
+   metadataset.to_json("metadata.json")
 
-	dataset = MetaDataset.from_dataframe(df)
-
-
-Internally, the dataset is simply a list of all the column variables, with their statistical properties. Next, write it
-to a JSON file:
+To load a saved MetaDataset, use the following code:
 
 .. code-block:: python
 
-	dataset.to_json("titanic.json")
+   metadataset = ms.MetaDataset.from_json("metadata.json")
 
-The file titanic.json should have a statistical metadata summary that can be used to generate synthetic data.
+Synthesizing the Data
+---------------------
 
+With the metadataset loaded, you can synthesize new data based on the original dataset. To do so, we simply call the :meth:`metasynth.dataset.MetaDataset.synthesize` function on the :obj:`MetaDataset<metasynth.dataset.MetaDataset>`, and pass in the number of rows we'd like to generate as a parameter. Let's generate five rows of synthetic data.
 
-Create a synthetic dataset
---------------------------
-
-To create the synthetic dataset we will first read the file (this is technically not necessary in this case):
 
 .. code-block:: python
 
-	dataset = MetaDataset.from_json("titanic.json")
+   synthetic_data = metadata.synthesize(5) 
 
 
-From the dataset it is easy to create a synthetic dataset with e.g. 100 rows:
+Conclusion
+----------
 
-.. code-block:: python
+Congratulations! You've successfully generated synthetic data using MetaSynth. The synthesized data is returned as a DataFrame, so you can inspect and manipulate it as you would with any DataFrame.
 
-	synthetic_df = dataset.synthesize(100)
-
-
-More advanced uses of MetaSynth
--------------------------------
-
-A more advanced tutorial is available on our 
-`GitHub <https://github.com/sodascience/meta-synth/blob/main/examples/advanced tutorial.ipynb`>_
-page.

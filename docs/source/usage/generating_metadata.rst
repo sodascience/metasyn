@@ -7,17 +7,17 @@ This object captures essential aspects of the dataset, including variable names,
 .. image:: /images/flow_metadata_generation.png
    :alt: Metadata_generation_flowchart
 
-
 :obj:`MetaDatasets <metasynth.dataset.MetaDataset>` follow the  `Generative Metadata Format
 (GMF) <https://github.com/sodascience/generative_metadata_format>`__, a standard designed to be easy to read and understand. 
 This metadata can be exported as a .JSON file, allowing for manual and automatic editing, as well as easy sharing.
+
 
 .. raw:: html
 
    <details> 
    <summary> An example of a metadataset: </summary>
 
-.. code:: json
+.. code-block:: json
 
     {
        "n_rows": 5,
@@ -123,6 +123,18 @@ This function requires a :obj:`DataFrame` to be specified as parameter.
 
    metadataset = metasynth.MetaDataset.from_dataframe(dataframe)
 ..
+
+
+.. note:: 
+    Internally, MetaSynth uses polars (instead of pandas) mainly because
+    typing and the handling of non-existing data is more consistent. It is
+    possible to supply a pandas DataFrame instead of a polars DataFrame to
+    ``MetaDataset.from_dataframe``. However, this uses the automatic polars
+    conversion functionality, which for some edge cases result in problems.
+    Therefore, we advise users to create polars DataFrames. The resulting
+    synthetic dataset is always a polars dataframe, but this can be easily
+    converted back to a pandas DataFrame by using
+    ``df_pandas = df_polars.to_pandas()``.
 
 
 Exporting a metadataset 
