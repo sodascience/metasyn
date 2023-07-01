@@ -119,7 +119,7 @@ This function requires a :obj:`DataFrame` to be specified as parameter.
 
 **In-code example**:
 
-.. code:: python
+.. code-block:: python
 
    metadataset = metasynth.MetaDataset.from_dataframe(dataframe)
 ..
@@ -132,7 +132,7 @@ This allows for manual (or automatic) inspection, editing, and easy sharing.
 
 **In-code example**:
 
-.. code:: python
+.. code-block:: python
 
    metadataset.to_json("metadataset.json")
 ..
@@ -145,7 +145,7 @@ MetaSynth can also load previously generated metadata, using the :meth:`MetaData
 
 **In-code example**:
 
-.. code:: python
+.. code-block:: python
 
    metadataset = metasynth.MetaDataset.from_json("metadataset.json")
 ..

@@ -16,7 +16,6 @@ The generated data does **not** aim to preserve the
 relationships between variables.
 
 
-
 Prerequisites
 -------------
 Before synthetic data can be generated, a :obj:`MetaDataset <metasynth.dataset.MetaDataset>` must be created or loaded (see :doc:`/usage/generating_metadata` for instructions). 
@@ -29,7 +28,7 @@ Upon succesful execution of the :meth:`MetaDataset.synthesize(n)<metasynth.datas
 
 **In-code example**:
 
-.. code:: python
+.. code-block:: python
 
    metadataset.synthesize(5)
 ..
