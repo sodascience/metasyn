@@ -21,7 +21,7 @@ This metadata follows the GMF standard, [Generative Metadata Format (GMF)](https
 
 
 <details> 
-<summary> A simple exmaple of a GMF file: </summary>
+<summary> A simple example of a GMF file: </summary>
 
 ```json
  {
