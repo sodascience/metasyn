@@ -246,4 +246,5 @@ To contribute:
 Do you have questions, suggestions, or remarks on the technical implementation? File an issue in the
 issue tracker or feel free to contact [Erik-Jan van Kesteren](https://github.com/vankesteren)
 or [Raoul Schram](https://github.com/qubixes).
+
 <img src="docs/soda.png" alt="SoDa logo" width="250px"/> 
