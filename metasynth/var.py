@@ -72,6 +72,9 @@ class MetaVar():
         if self.prop_missing is None:
             raise ValueError(f"Error while initializing variable {self.name}."
                              " prop_missing is None.")
+        if self.prop_missing < -1e-8 or self.prop_missing > 1+1e-8:
+            raise ValueError(f"Cannot create variable '{self.name}' with proportion missing "
+                             "outside range [0, 1]")
 
     @classmethod
     def detect(cls, series_or_dataframe: Union[pd.Series, pl.Series, pl.DataFrame],
