@@ -5,10 +5,10 @@ from scipy.optimize import minimize
 from scipy.stats import expon, lognorm, norm, truncnorm, uniform
 from scipy.stats._continuous_distns import FitDataError
 
-from metasynth.distribution.base import distribution, ScipyDistribution
+from metasynth.distribution.base import distclass, ScipyDistribution
 
 
-@distribution(implements="core.uniform", var_type="continuous")
+@distclass(implements="core.uniform", var_type="continuous")
 class UniformDistribution(ScipyDistribution):
     """Uniform distribution for floating point type.
 
@@ -52,7 +52,7 @@ class UniformDistribution(ScipyDistribution):
         }
 
 
-@distribution(implements="core.normal", var_type="continuous")
+@distclass(implements="core.normal", var_type="continuous")
 class NormalDistribution(ScipyDistribution):
     """Normal distribution for floating point type.
 
@@ -87,7 +87,7 @@ class NormalDistribution(ScipyDistribution):
         }
 
 
-@distribution(implements="core.lognormal", var_type="continuous")
+@distclass(implements="core.lognormal", var_type="continuous")
 class LogNormalDistribution(ScipyDistribution):
     """Log-normal distribution for floating point type.
 
@@ -127,7 +127,7 @@ class LogNormalDistribution(ScipyDistribution):
         }
 
 
-@distribution(implements="core.truncated_normal", var_type="continuous")
+@distclass(implements="core.truncated_normal", var_type="continuous")
 class TruncatedNormalDistribution(ScipyDistribution):
     """Truncated normal distribution for floating point type.
 
@@ -186,7 +186,7 @@ class TruncatedNormalDistribution(ScipyDistribution):
         }
 
 
-@distribution(implements="core.exponential", var_type="continuous")
+@distclass(implements="core.exponential", var_type="continuous")
 class ExponentialDistribution(ScipyDistribution):
     """Exponential distribution for floating point type.
 

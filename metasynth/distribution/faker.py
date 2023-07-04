@@ -3,10 +3,10 @@ from typing import Iterable
 
 from faker import Faker
 
-from metasynth.distribution.base import distribution, BaseDistribution
+from metasynth.distribution.base import distclass, BaseDistribution
 
 
-@distribution(implements="core.faker", var_type="string")
+@distclass(implements="core.faker", var_type="string")
 class FakerDistribution(BaseDistribution):
     """Distribution for the faker package.
 

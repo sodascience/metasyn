@@ -7,7 +7,7 @@ from typing import Any, Dict
 
 import numpy as np
 
-from metasynth.distribution.base import distribution, ScipyDistribution
+from metasynth.distribution.base import distclass, ScipyDistribution
 
 
 def convert_numpy_datetime(time_obj: np.datetime64) -> dt.datetime:
@@ -112,7 +112,7 @@ class BaseUniformDistribution(ScipyDistribution):
         }
 
 
-@distribution(implements="core.uniform_datetime", var_type="datetime")
+@distclass(implements="core.uniform_datetime", var_type="datetime")
 class UniformDateTimeDistribution(BaseUniformDistribution):
     """Uniform DateTime distribution."""
 
@@ -132,7 +132,7 @@ class UniformDateTimeDistribution(BaseUniformDistribution):
         }
 
 
-@distribution(implements="core.uniform_time", var_type="time")
+@distclass(implements="core.uniform_time", var_type="time")
 class UniformTimeDistribution(BaseUniformDistribution):
     """Uniform time distribution."""
 
@@ -158,7 +158,7 @@ class UniformTimeDistribution(BaseUniformDistribution):
         }
 
 
-@distribution(implements="core.uniform_date", var_type="date")
+@distclass(implements="core.uniform_date", var_type="date")
 class UniformDateDistribution(BaseUniformDistribution):
     """Uniform date distribution."""
 

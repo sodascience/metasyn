@@ -10,10 +10,10 @@ import numpy.typing as npt
 import pandas as pd
 import polars as pl
 
-from metasynth.distribution.base import distribution, BaseDistribution
+from metasynth.distribution.base import distclass, BaseDistribution
 
 
-@distribution(implements="core.multinoulli", var_type="categorical")
+@distclass(implements="core.multinoulli", var_type="categorical")
 class MultinoulliDistribution(BaseDistribution):
     """Categorical distribution that stores category labels and probabilities.
 
