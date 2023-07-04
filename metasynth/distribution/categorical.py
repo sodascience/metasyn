@@ -1,6 +1,7 @@
 """Module containing categorical distributions."""
 
 from typing import Union
+import warnings
 
 import numpy as np
 import numpy.typing as npt
@@ -29,7 +30,12 @@ class MultinoulliDistribution(CoreDistribution, CategoricalDistribution):
                  probs: npt.NDArray[np.float_]):
         self.labels = labels
         self.probs = probs
-        if np.sum(self.probs) != 1:
+        if np.isclose(np.sum(self.probs), 1):
+            if np.any(self.probs < 0):
+                raise ValueError("Cannot create multinoulli distribution with probabilities < 0.")
+            warnings.simplefilter("always")
+            warnings.warn("Creating multinoulli distribution where probabilities do not add up to 1"
+                          f" ({np.sum(self.probs)})")
             self.probs = self.probs/np.sum(self.probs)
 
     @classmethod
