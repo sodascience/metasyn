@@ -92,6 +92,10 @@ def test_dataset(tmp_path, dataframe_lib):
         print(name, dataset.descriptions[name])
         assert dataset.descriptions[name] == name
 
+    # Check whether non-columns raise an error
+    with pytest.raises(ValueError):
+        dataset = MetaDataset.from_dataframe(df, spec={"unicorn": {"prop_missing": 0.5}})
+
 
 def test_distributions(tmp_path):
     tmp_fp = tmp_path / "tmp.json"
