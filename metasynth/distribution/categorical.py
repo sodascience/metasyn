@@ -77,4 +77,4 @@ class MultinoulliDistribution(CoreDistribution, CategoricalDistribution):
 
     @classmethod
     def default_distribution(cls):
-        return cls(["a", "b", "c"], [10, 4, 20])
+        return cls(["a", "b", "c"], [0.1, 0.3, 0.6])
