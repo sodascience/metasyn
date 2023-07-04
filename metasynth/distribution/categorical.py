@@ -26,10 +26,10 @@ class MultinoulliDistribution(CoreDistribution, CategoricalDistribution):
 
     implements = "core.multinoulli"
 
-    def __init__(self, labels: npt.NDArray[np.str_],
-                 probs: npt.NDArray[np.float_]):
-        self.labels = labels
-        self.probs = probs
+    def __init__(self, labels: Union[npt.NDArray[np.str_], list[str]],
+                 probs: Union[npt.NDArray[np.float_], list[float]]):
+        self.labels = np.array(labels)
+        self.probs = np.array(probs)
         if np.isclose(np.sum(self.probs), 1):
             if np.any(self.probs < 0):
                 raise ValueError("Cannot create multinoulli distribution with probabilities < 0.")
