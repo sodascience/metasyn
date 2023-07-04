@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import Iterable, Sequence, Union
+from typing import Iterable, Sequence, Union, Optional
 
 import numpy as np
 import pandas as pd
@@ -41,8 +41,7 @@ class BaseDistribution(ABC):
         pd_series = cls._to_series(series)
         if len(pd_series) == 0:
             return cls.default_distribution()
-        distribution = cls._fit(pd_series, *args, **kwargs)
-        return distribution
+        return cls._fit(pd_series, *args, **kwargs)
 
     @staticmethod
     def _to_series(values: Union[Sequence, pl.Series]):
@@ -150,7 +149,29 @@ class BaseDistribution(ABC):
         return cls()
 
 
-def distribution(implements=None, provenance=None, var_type=None, is_unique=None, privacy=None):
+def distribution(implements: Optional[str]=None, provenance: Optional[str]=None,
+                 var_type: Optional[str]=None, is_unique: Optional[bool]=None,
+                 privacy: Optional[str]=None):
+    """Decorator to create a distribution from a class.
+
+    Parameters
+    ----------
+    implements:
+        The distribution ID that it implements, e.g. core.uniform, core.regex.
+    provenance:
+        Where the distribution came from, which package/plugin implemented it.
+    var_type:
+        Variable type of the distribution, e.g. continuous, categorical, string.
+    is_unique:
+        Whether the distribution is unique or not.
+    privacy:
+        Privacy class/implementation of the distribution.
+
+    Returns
+    -------
+    cls:
+        Class with the appropriate class variables.
+    """
     def _wrap(cls):
         if implements is not None:
             cls.implements = implements

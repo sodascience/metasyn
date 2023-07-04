@@ -22,8 +22,6 @@ from metasynth.distribution.regex import (RegexDistribution,
                                           UniqueRegexDistribution)
 
 __all__ = [
-    "DiscreteDistribution", "ContinuousDistribution", "CategoricalDistribution",
-    "DateDistribution", "DateTimeDistribution", "StringDistribution", "TimeDistribution",
     "MultinoulliDistribution", "UniformDistribution", "NormalDistribution",
     "LogNormalDistribution", "TruncatedNormalDistribution", "ExponentialDistribution",
     "DiscreteUniformDistribution", "PoissonDistribution", "UniqueKeyDistribution",
