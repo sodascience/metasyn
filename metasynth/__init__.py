@@ -12,5 +12,5 @@ from metasynth.var import MetaVar
 from metasynth.demo.dataset import demo_file
 from metasynth.distribution.base import distribution
 
-__all__ = ["MetaVar", "MetaDataset", "demo_file"]
+__all__ = ["MetaVar", "MetaDataset", "demo_file", "distribution"]
 __version__ = version("metasynth")
