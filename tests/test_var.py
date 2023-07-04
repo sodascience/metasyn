@@ -153,6 +153,17 @@ def test_bool(tmp_path, series_type):
 
 
 @mark.parametrize(
+    "prop_missing",
+    [-1, -0.1, 1.2],
+)
+def test_invalid_prop(prop_missing):
+    with raises(ValueError):
+        MetaVar("continuous")
+    with raises(ValueError):
+        MetaVar("continuous", prop_missing=prop_missing)
+
+
+@mark.parametrize(
     "dataframe",
     [
         pd.DataFrame({
