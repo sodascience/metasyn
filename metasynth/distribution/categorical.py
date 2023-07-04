@@ -38,7 +38,7 @@ class MultinoulliDistribution(CoreDistribution, CategoricalDistribution):
             warnings.simplefilter("always")
             warnings.warn("Creating multinoulli distribution where probabilities do not add up to 1"
                           f" ({np.sum(self.probs)})")
-            self.probs = self.probs/np.sum(self.probs)
+        self.probs = self.probs/np.sum(self.probs)
 
     @classmethod
     def _fit(cls, values: pl.Series):
