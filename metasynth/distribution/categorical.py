@@ -1,5 +1,7 @@
 """Module containing categorical distributions."""
 
+from __future__ import annotations
+
 from typing import Union
 import warnings
 
@@ -30,7 +32,7 @@ class MultinoulliDistribution(CoreDistribution, CategoricalDistribution):
                  probs: Union[npt.NDArray[np.float_], list[float]]):
         self.labels = np.array(labels)
         self.probs = np.array(probs)
-        if np.isclose(np.sum(self.probs), 1):
+        if not np.isclose(np.sum(self.probs), 1):
             if np.any(self.probs < 0):
                 raise ValueError("Cannot create multinoulli distribution with probabilities < 0.")
             warnings.simplefilter("always")
