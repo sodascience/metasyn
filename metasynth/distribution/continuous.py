@@ -5,11 +5,11 @@ from scipy.optimize import minimize
 from scipy.stats import expon, lognorm, norm, truncnorm, uniform
 from scipy.stats._continuous_distns import FitDataError
 
-from metasynth.distribution.base import (ContinuousDistribution,
-                                         CoreDistribution, ScipyDistribution)
+from metasynth.distribution.base import distribution, ScipyDistribution
 
 
-class UniformDistribution(CoreDistribution, ScipyDistribution, ContinuousDistribution):
+@distribution(implements="core.uniform", var_type="continuous")
+class UniformDistribution(ScipyDistribution):
     """Uniform distribution for floating point type.
 
     This class implements the uniform distribution between a minimum
@@ -23,7 +23,6 @@ class UniformDistribution(CoreDistribution, ScipyDistribution, ContinuousDistrib
         Upper bound for uniform distribution.
     """
 
-    implements = "core.uniform"
     dist_class = uniform
 
     def __init__(self, min_val: float, max_val: float):
@@ -53,7 +52,8 @@ class UniformDistribution(CoreDistribution, ScipyDistribution, ContinuousDistrib
         }
 
 
-class NormalDistribution(CoreDistribution, ScipyDistribution, ContinuousDistribution):
+@distribution(implements="core.normal", var_type="continuous")
+class NormalDistribution(ScipyDistribution):
     """Normal distribution for floating point type.
 
     This class implements the normal/gaussian distribution and takes
@@ -87,7 +87,8 @@ class NormalDistribution(CoreDistribution, ScipyDistribution, ContinuousDistribu
         }
 
 
-class LogNormalDistribution(CoreDistribution, ScipyDistribution, ContinuousDistribution):
+@distribution(implements="core.lognormal", var_type="continuous")
+class LogNormalDistribution(ScipyDistribution):
     """Log-normal distribution for floating point type.
 
     This class implements the log-normal mu and sigma as initialization input.
@@ -100,7 +101,6 @@ class LogNormalDistribution(CoreDistribution, ScipyDistribution, ContinuousDistr
         Controls the mean of the distribution.
     """
 
-    implements = "core.lognormal"
     dist_class = lognorm
 
     def __init__(self, mu: float, sigma: float):  # pylint: disable=invalid-name
@@ -127,7 +127,8 @@ class LogNormalDistribution(CoreDistribution, ScipyDistribution, ContinuousDistr
         }
 
 
-class TruncatedNormalDistribution(CoreDistribution, ScipyDistribution, ContinuousDistribution):
+@distribution(implements="core.truncated_normal", var_type="continuous")
+class TruncatedNormalDistribution(ScipyDistribution):
     """Truncated normal distribution for floating point type.
 
     Parameters
@@ -142,7 +143,6 @@ class TruncatedNormalDistribution(CoreDistribution, ScipyDistribution, Continuou
         Standard deviation of the non-truncated normal distribution.
     """
 
-    implements = "core.truncated_normal"
     dist_class = truncnorm
 
     def __init__(self, lower_bound: float, upper_bound: float,
@@ -186,7 +186,8 @@ class TruncatedNormalDistribution(CoreDistribution, ScipyDistribution, Continuou
         }
 
 
-class ExponentialDistribution(CoreDistribution, ScipyDistribution, ContinuousDistribution):
+@distribution(implements="core.exponential", var_type="continuous")
+class ExponentialDistribution(ScipyDistribution):
     """Exponential distribution for floating point type.
 
     This class implements the exponential distribution with the rate as its
@@ -198,7 +199,6 @@ class ExponentialDistribution(CoreDistribution, ScipyDistribution, ContinuousDis
         Rate of the exponential distribution. This is equal to 1/mean of the distribution.
     """
 
-    implements = "core.exponential"
     dist_class = expon
 
     def __init__(self, rate: float):

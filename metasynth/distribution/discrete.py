@@ -5,12 +5,12 @@ from typing import Set
 import numpy as np
 from scipy.stats import poisson, randint
 
-from metasynth.distribution.base import (CoreDistribution,
-                                         DiscreteDistribution,
+from metasynth.distribution.base import (distribution,
                                          ScipyDistribution)
 
 
-class DiscreteUniformDistribution(CoreDistribution, ScipyDistribution, DiscreteDistribution):
+@distribution(implements="core.discrete_uniform", var_type="discrete")
+class DiscreteUniformDistribution(ScipyDistribution):
     """Integer uniform distribution.
 
     It differs from the floating point uniform distribution by
@@ -24,7 +24,6 @@ class DiscreteUniformDistribution(CoreDistribution, ScipyDistribution, DiscreteD
         Upper bound (exclusive) of the uniform distribution.
     """
 
-    implements = "core.discrete_uniform"
     dist_class = randint
 
     def __init__(self, low: int, high: int):
@@ -51,10 +50,10 @@ class DiscreteUniformDistribution(CoreDistribution, ScipyDistribution, DiscreteD
         }
 
 
-class PoissonDistribution(CoreDistribution, ScipyDistribution, DiscreteDistribution):
+@distribution(implements="core.poisson", var_type="discrete")
+class PoissonDistribution(ScipyDistribution):
     """Poisson distribution."""
 
-    implements = "core.poisson"
     dist_class = poisson
 
     def __init__(self, mu: float):
@@ -79,7 +78,8 @@ class PoissonDistribution(CoreDistribution, ScipyDistribution, DiscreteDistribut
         }
 
 
-class UniqueKeyDistribution(CoreDistribution, ScipyDistribution, DiscreteDistribution):
+@distribution(implements="core.unique_key", var_type="discrete", is_unique=True)
+class UniqueKeyDistribution(ScipyDistribution):
     """Integer distribution with unique keys.
 
     Discrete distribution that ensures the uniqueness of the drawn values.
@@ -91,9 +91,6 @@ class UniqueKeyDistribution(CoreDistribution, ScipyDistribution, DiscreteDistrib
     consecutive: int
         1 if keys are consecutive and increasing, 0 otherwise.
     """
-
-    implements = "core.unique_key"
-    is_unique = True
 
     def __init__(self, low: int, consecutive: int):
         self.par = {"low": low, "consecutive": consecutive}

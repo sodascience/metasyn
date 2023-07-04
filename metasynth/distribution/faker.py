@@ -3,10 +3,11 @@ from typing import Iterable
 
 from faker import Faker
 
-from metasynth.distribution.base import CoreDistribution, StringDistribution
+from metasynth.distribution.base import distribution, BaseDistribution
 
 
-class FakerDistribution(CoreDistribution, StringDistribution):
+@distribution(implements="core.faker", var_type="string")
+class FakerDistribution(BaseDistribution):
     """Distribution for the faker package.
 
     This is mainly an interface for the faker package, so that it
@@ -21,8 +22,6 @@ class FakerDistribution(CoreDistribution, StringDistribution):
     locale: str
         Locale used for the faker package.
     """
-
-    implements = "core.faker"
 
     def __init__(self, faker_type: str, locale: str = "en_US"):
         self.faker_type: str = faker_type

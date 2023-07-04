@@ -5,12 +5,6 @@ somewhat realistic. The concept of distributions here is not only for
 numerical data, but also for generating strings for example.
 """  # pylint: disable=invalid-name
 
-from metasynth.distribution.base import (CategoricalDistribution,
-                                         ContinuousDistribution,
-                                         DateDistribution,
-                                         DateTimeDistribution,
-                                         DiscreteDistribution,
-                                         StringDistribution, TimeDistribution)
 from metasynth.distribution.categorical import MultinoulliDistribution
 from metasynth.distribution.continuous import (ExponentialDistribution,
                                                LogNormalDistribution,

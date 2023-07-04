@@ -18,11 +18,11 @@ class BaseDistribution(ABC):
     methods need to be implemented: _fit, draw, to_dict.
     """
 
-    implements = "unknown"
-    provenance = "unknown"
-    privacy = "unknown"
-    is_unique = False
+    implements: str = "unknown"
     var_type: str = "unknown"
+    provenance: str = "builtin"
+    privacy: str = "none"
+    is_unique: bool = False
 
     @classmethod
     def fit(cls, series: Union[Sequence, pl.Series], *args, **kwargs) -> BaseDistribution:
@@ -150,53 +150,20 @@ class BaseDistribution(ABC):
         return cls()
 
 
-class CoreDistribution():  # pylint: disable=too-few-public-methods
-    """Distributions belonging to the core set."""
-
-    privacy = "none"
-    provenance = "builtin"
-
-
-class CategoricalDistribution(BaseDistribution):
-    """Base Class for categorical distributions."""
-
-    var_type = "categorical"
-
-
-class DiscreteDistribution(BaseDistribution):
-    """Base Class for discrete distributions."""
-
-    var_type = "discrete"
-
-
-class ContinuousDistribution(BaseDistribution):
-    """Base Class for continuous distributions."""
-
-    var_type = "continuous"
-
-
-class StringDistribution(BaseDistribution):
-    """Base Class for string distributions."""
-
-    var_type = "string"
-
-
-class DateTimeDistribution(BaseDistribution):
-    """Base Class for date-time distributions."""
-
-    var_type = "datetime"
-
-
-class DateDistribution(BaseDistribution):
-    """Base Class for date distributions."""
-
-    var_type = "date"
-
-
-class TimeDistribution(BaseDistribution):
-    """Base Class for time distributions."""
-
-    var_type = "time"
+def distribution(implements=None, provenance=None, var_type=None, is_unique=None, privacy=None):
+    def _wrap(cls):
+        if implements is not None:
+            cls.implements = implements
+        if provenance is not None:
+            cls.provenance = provenance
+        if var_type is not None:
+            cls.var_type = var_type
+        if is_unique is not None:
+            cls.is_unique = is_unique
+        if privacy is not None:
+            cls.privacy = privacy
+        return cls
+    return _wrap
 
 
 class ScipyDistribution(BaseDistribution):

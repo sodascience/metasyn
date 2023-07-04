@@ -7,9 +7,7 @@ from typing import Any, Dict
 
 import numpy as np
 
-from metasynth.distribution.base import (CoreDistribution, DateDistribution,
-                                         DateTimeDistribution,
-                                         ScipyDistribution, TimeDistribution)
+from metasynth.distribution.base import distribution, ScipyDistribution
 
 
 def convert_numpy_datetime(time_obj: np.datetime64) -> dt.datetime:
@@ -114,10 +112,9 @@ class BaseUniformDistribution(ScipyDistribution):
         }
 
 
-class UniformDateTimeDistribution(CoreDistribution, DateTimeDistribution, BaseUniformDistribution):
+@distribution(implements="core.uniform_datetime", var_type="datetime")
+class UniformDateTimeDistribution(BaseUniformDistribution):
     """Uniform DateTime distribution."""
-
-    implements = "core.uniform_datetime"
 
     def fromisoformat(self, dt_obj: str) -> dt.datetime:
         return dt.datetime.fromisoformat(dt_obj)
@@ -135,10 +132,9 @@ class UniformDateTimeDistribution(CoreDistribution, DateTimeDistribution, BaseUn
         }
 
 
-class UniformTimeDistribution(CoreDistribution, TimeDistribution, BaseUniformDistribution):
+@distribution(implements="core.uniform_time", var_type="time")
+class UniformTimeDistribution(BaseUniformDistribution):
     """Uniform time distribution."""
-
-    implements = "core.uniform_time"
 
     def fromisoformat(self, dt_obj: str) -> dt.time:
         return dt.time.fromisoformat(dt_obj)
@@ -162,10 +158,10 @@ class UniformTimeDistribution(CoreDistribution, TimeDistribution, BaseUniformDis
         }
 
 
-class UniformDateDistribution(CoreDistribution, DateDistribution, BaseUniformDistribution):
+@distribution(implements="core.uniform_date", var_type="date")
+class UniformDateDistribution(BaseUniformDistribution):
     """Uniform date distribution."""
 
-    implements = "core.uniform_date"
     precision_possibilities = ["days"]
 
     def __init__(self, start: Any, end: Any):
