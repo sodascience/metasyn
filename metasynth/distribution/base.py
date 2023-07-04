@@ -152,7 +152,7 @@ class BaseDistribution(ABC):
 def distribution(implements: Optional[str] = None, provenance: Optional[str] = None,
                  var_type: Optional[str] = None, is_unique: Optional[bool] = None,
                  privacy: Optional[str] = None):
-    """Decorator to create a distribution from a class.
+    """Decorate class to create a distribution with the right properties.
 
     Parameters
     ----------
