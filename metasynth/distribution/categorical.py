@@ -36,8 +36,8 @@ class MultinoulliDistribution(CoreDistribution, CategoricalDistribution):
             if np.any(self.probs < 0):
                 raise ValueError("Cannot create multinoulli distribution with probabilities < 0.")
             warnings.simplefilter("always")
-            warnings.warn("Creating multinoulli distribution where probabilities do not add up to 1"
-                          f" ({np.sum(self.probs)})")
+            warnings.warn("Multinoulli probabilities do not add up to 1 "
+                          f" ({np.sum(self.probs)}); they will be rescaled.")
         self.probs = self.probs/np.sum(self.probs)
 
     @classmethod
