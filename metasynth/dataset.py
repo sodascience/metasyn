@@ -117,6 +117,10 @@ class MetaDataset():
         else:
             spec = deepcopy(spec)
 
+        if set(list(spec)) - set(df.columns):
+            raise ValueError("Argument 'spec' includes the specifications for column names that do "
+                             "not exist in the supplied dataframe:"
+                             f" '{set(list(spec)) - set(df.columns)}'")
         all_vars = []
         for col_name in df.columns:
             series = df[col_name]
