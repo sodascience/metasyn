@@ -8,6 +8,7 @@ from metasynth.distribution.base import BaseDistribution, metadist
 @metadist(implements="core.na", var_type="string")
 class NADistribution(BaseDistribution):
     """Distribution that will only ever give back NA."""
+
     @classmethod
     def _fit(cls, values: pl.Series) -> BaseDistribution:
         return cls()
