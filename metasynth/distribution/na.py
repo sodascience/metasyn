@@ -2,10 +2,10 @@
 
 import polars as pl
 
-from metasynth.distribution.base import BaseDistribution, distclass
+from metasynth.distribution.base import BaseDistribution, metadist
 
 
-@distclass(implements="core.na", var_type="string")
+@metadist(implements="core.na", var_type="string")
 class NADistribution(BaseDistribution):
     """Distribution that will only ever give back NA."""
     @classmethod

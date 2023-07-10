@@ -10,7 +10,6 @@ import inspect
 import warnings
 from abc import ABC
 from typing import Any, List, Optional, Type, Union
-from metasynth.distribution.na import NADistribution
 
 try:
     from importlib_metadata import entry_points, EntryPoint
@@ -20,6 +19,7 @@ except ImportError:
 import numpy as np
 import polars as pl
 
+from metasynth.distribution.na import NADistribution
 from metasynth.distribution.base import BaseDistribution
 from metasynth.distribution.categorical import MultinoulliDistribution
 from metasynth.distribution.continuous import (ExponentialDistribution,
