@@ -149,9 +149,9 @@ class BaseDistribution(ABC):
         return cls()
 
 
-def distclass(implements: Optional[str] = None, provenance: Optional[str] = None,
-              var_type: Optional[str] = None, is_unique: Optional[bool] = None,
-              privacy: Optional[str] = None):
+def metadist(implements: Optional[str] = None, provenance: Optional[str] = None,
+             var_type: Optional[str] = None, is_unique: Optional[bool] = None,
+             privacy: Optional[str] = None):
     """Decorate class to create a distribution with the right properties.
 
     Parameters

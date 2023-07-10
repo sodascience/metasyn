@@ -5,11 +5,11 @@ from typing import Set
 import numpy as np
 from scipy.stats import poisson, randint
 
-from metasynth.distribution.base import (distclass,
+from metasynth.distribution.base import (metadist,
                                          ScipyDistribution)
 
 
-@distclass(implements="core.discrete_uniform", var_type="discrete")
+@metadist(implements="core.discrete_uniform", var_type="discrete")
 class DiscreteUniformDistribution(ScipyDistribution):
     """Integer uniform distribution.
 
@@ -50,7 +50,7 @@ class DiscreteUniformDistribution(ScipyDistribution):
         }
 
 
-@distclass(implements="core.poisson", var_type="discrete")
+@metadist(implements="core.poisson", var_type="discrete")
 class PoissonDistribution(ScipyDistribution):
     """Poisson distribution."""
 
@@ -78,7 +78,7 @@ class PoissonDistribution(ScipyDistribution):
         }
 
 
-@distclass(implements="core.unique_key", var_type="discrete", is_unique=True)
+@metadist(implements="core.unique_key", var_type="discrete", is_unique=True)
 class UniqueKeyDistribution(ScipyDistribution):
     """Integer distribution with unique keys.
 

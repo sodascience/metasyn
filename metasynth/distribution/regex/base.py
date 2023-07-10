@@ -6,7 +6,7 @@ from typing import List, Sequence, Set, Tuple, Type, Union
 
 import numpy as np
 
-from metasynth.distribution.base import distclass, BaseDistribution
+from metasynth.distribution.base import metadist, BaseDistribution
 from metasynth.distribution.regex.element import (AlphaNumericRegex, AnyRegex,
                                                   BaseRegexElement, DigitRegex,
                                                   LettersRegex, LowercaseRegex,
@@ -37,7 +37,7 @@ def _get_gradient_start(values: Sequence[str], new_values: Sequence[str],
     return delta_energy/energy_budget
 
 
-@distclass(implements="core.regex", var_type="string")
+@metadist(implements="core.regex", var_type="string")
 class RegexDistribution(BaseDistribution):
     """Distribution that uses a strategy similar to regex.
 
@@ -184,7 +184,7 @@ class RegexDistribution(BaseDistribution):
         return cls([(r"\d{3,4}", 0.67)])
 
 
-@distclass(implements="core.unique_regex", var_type="string", is_unique=True)
+@metadist(implements="core.unique_regex", var_type="string", is_unique=True)
 class UniqueRegexDistribution(RegexDistribution):
     """Unique variant of the regex distribution.
 
