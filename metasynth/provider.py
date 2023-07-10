@@ -307,7 +307,7 @@ class DistributionProviderList():
         BaseDistribution:
             Distribution representing the dictionary.
         """
-        for dist_class in self._get_dist_list(var_type=var_dict["type"]):
+        for dist_class in self._get_dist_list(var_type=var_dict["type"]) + [NADistribution]:
             if dist_class.implements == var_dict["distribution"]["implements"]:
                 return dist_class.from_dict(var_dict["distribution"])
         raise ValueError(f"Cannot find distribution with name "
