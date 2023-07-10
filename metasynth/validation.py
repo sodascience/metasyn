@@ -87,7 +87,7 @@ def create_schema(packages: list[str]) -> dict:
         pkg = get_distribution_provider(package_name)
         for dist in pkg.distributions:
             defs.append(dist.schema())
-    defs.append(NADistribution)
+    defs.append(NADistribution.schema())
 
     schema = deepcopy(SCHEMA_BASE)
     schema.update({"$defs": {"all_dist_def": {"anyOf": defs}}})
