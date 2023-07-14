@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import Iterable, Sequence, Union
+from typing import Iterable, Sequence, Union, Optional
 
 import numpy as np
 import pandas as pd
@@ -18,11 +18,11 @@ class BaseDistribution(ABC):
     methods need to be implemented: _fit, draw, to_dict.
     """
 
-    implements = "unknown"
-    provenance = "unknown"
-    privacy = "unknown"
-    is_unique = False
+    implements: str = "unknown"
     var_type: str = "unknown"
+    provenance: str = "builtin"
+    privacy: str = "none"
+    is_unique: bool = False
 
     @classmethod
     def fit(cls, series: Union[Sequence, pl.Series], *args, **kwargs) -> BaseDistribution:
@@ -41,8 +41,7 @@ class BaseDistribution(ABC):
         pd_series = cls._to_series(series)
         if len(pd_series) == 0:
             return cls.default_distribution()
-        distribution = cls._fit(pd_series, *args, **kwargs)
-        return distribution
+        return cls._fit(pd_series, *args, **kwargs)
 
     @staticmethod
     def _to_series(values: Union[Sequence, pl.Series]):
@@ -150,53 +149,42 @@ class BaseDistribution(ABC):
         return cls()
 
 
-class CoreDistribution():  # pylint: disable=too-few-public-methods
-    """Distributions belonging to the core set."""
+def metadist(implements: Optional[str] = None, provenance: Optional[str] = None,
+             var_type: Optional[str] = None, is_unique: Optional[bool] = None,
+             privacy: Optional[str] = None):
+    """Decorate class to create a distribution with the right properties.
 
-    privacy = "none"
-    provenance = "builtin"
+    Parameters
+    ----------
+    implements:
+        The distribution ID that it implements, e.g. core.uniform, core.regex.
+    provenance:
+        Where the distribution came from, which package/plugin implemented it.
+    var_type:
+        Variable type of the distribution, e.g. continuous, categorical, string.
+    is_unique:
+        Whether the distribution is unique or not.
+    privacy:
+        Privacy class/implementation of the distribution.
 
-
-class CategoricalDistribution(BaseDistribution):
-    """Base Class for categorical distributions."""
-
-    var_type = "categorical"
-
-
-class DiscreteDistribution(BaseDistribution):
-    """Base Class for discrete distributions."""
-
-    var_type = "discrete"
-
-
-class ContinuousDistribution(BaseDistribution):
-    """Base Class for continuous distributions."""
-
-    var_type = "continuous"
-
-
-class StringDistribution(BaseDistribution):
-    """Base Class for string distributions."""
-
-    var_type = "string"
-
-
-class DateTimeDistribution(BaseDistribution):
-    """Base Class for date-time distributions."""
-
-    var_type = "datetime"
-
-
-class DateDistribution(BaseDistribution):
-    """Base Class for date distributions."""
-
-    var_type = "date"
-
-
-class TimeDistribution(BaseDistribution):
-    """Base Class for time distributions."""
-
-    var_type = "time"
+    Returns
+    -------
+    cls:
+        Class with the appropriate class variables.
+    """
+    def _wrap(cls):
+        if implements is not None:
+            cls.implements = implements
+        if provenance is not None:
+            cls.provenance = provenance
+        if var_type is not None:
+            cls.var_type = var_type
+        if is_unique is not None:
+            cls.is_unique = is_unique
+        if privacy is not None:
+            cls.privacy = privacy
+        return cls
+    return _wrap
 
 
 class ScipyDistribution(BaseDistribution):

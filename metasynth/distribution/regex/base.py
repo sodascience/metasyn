@@ -6,7 +6,7 @@ from typing import List, Sequence, Set, Tuple, Type, Union
 
 import numpy as np
 
-from metasynth.distribution.base import CoreDistribution, StringDistribution
+from metasynth.distribution.base import metadist, BaseDistribution
 from metasynth.distribution.regex.element import (AlphaNumericRegex, AnyRegex,
                                                   BaseRegexElement, DigitRegex,
                                                   LettersRegex, LowercaseRegex,
@@ -37,7 +37,8 @@ def _get_gradient_start(values: Sequence[str], new_values: Sequence[str],
     return delta_energy/energy_budget
 
 
-class RegexDistribution(CoreDistribution, StringDistribution):
+@metadist(implements="core.regex", var_type="string")
+class RegexDistribution(BaseDistribution):
     """Distribution that uses a strategy similar to regex.
 
     The idea behind this method is that for structured strings
@@ -183,7 +184,8 @@ class RegexDistribution(CoreDistribution, StringDistribution):
         return cls([(r"\d{3,4}", 0.67)])
 
 
-class UniqueRegexDistribution(RegexDistribution, CoreDistribution):
+@metadist(implements="core.unique_regex", var_type="string", is_unique=True)
+class UniqueRegexDistribution(RegexDistribution):
     """Unique variant of the regex distribution.
 
     Same as the normal regex distribution, but checks whether a key
@@ -194,9 +196,6 @@ class UniqueRegexDistribution(RegexDistribution, CoreDistribution):
     re_list: list of BaseRegexElement
         List of basic regex elements in the order that they occur.
     """
-
-    implements = "core.unique_regex"
-    is_unique = True
 
     def __init__(self, re_list: Sequence[Union[BaseRegexElement, Tuple[str, float]]]):
         super().__init__(re_list)

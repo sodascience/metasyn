@@ -1,17 +1,20 @@
 """Module containing categorical distributions."""
 
+from __future__ import annotations
+
 from typing import Union
+import warnings
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 import polars as pl
 
-from metasynth.distribution.base import (CategoricalDistribution,
-                                         CoreDistribution)
+from metasynth.distribution.base import metadist, BaseDistribution
 
 
-class MultinoulliDistribution(CoreDistribution, CategoricalDistribution):
+@metadist(implements="core.multinoulli", var_type="categorical")
+class MultinoulliDistribution(BaseDistribution):
     """Categorical distribution that stores category labels and probabilities.
 
     Parameters
@@ -23,14 +26,17 @@ class MultinoulliDistribution(CoreDistribution, CategoricalDistribution):
         Probabilities will be normalized, so frequencies are valid too.
     """
 
-    implements = "core.multinoulli"
-
-    def __init__(self, labels: npt.NDArray[np.str_],
-                 probs: npt.NDArray[np.float_]):
-        self.labels = labels
-        self.probs = probs
-        if np.sum(self.probs) != 1:
-            self.probs = self.probs/np.sum(self.probs)
+    def __init__(self, labels: Union[npt.NDArray[np.str_], list[str]],
+                 probs: Union[npt.NDArray[np.float_], list[float]]):
+        self.labels = np.array(labels)
+        self.probs = np.array(probs)
+        if not np.isclose(np.sum(self.probs), 1):
+            if np.any(self.probs < 0):
+                raise ValueError("Cannot create multinoulli distribution with probabilities < 0.")
+            warnings.simplefilter("always")
+            warnings.warn("Multinoulli probabilities do not add up to 1 "
+                          f" ({np.sum(self.probs)}); they will be rescaled.")
+        self.probs = self.probs/np.sum(self.probs)
 
     @classmethod
     def _fit(cls, values: pl.Series):
@@ -69,4 +75,4 @@ class MultinoulliDistribution(CoreDistribution, CategoricalDistribution):
 
     @classmethod
     def default_distribution(cls):
-        return cls(["a", "b", "c"], [10, 4, 20])
+        return cls(["a", "b", "c"], [0.1, 0.3, 0.6])

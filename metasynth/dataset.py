@@ -1,4 +1,4 @@
-"""Conversion of pandas dataframes to MetaSynth datasets."""   # pylint: disable=invalid-name
+"""Conversion of dataframes to MetaSynth datasets."""   # pylint: disable=invalid-name
 
 from __future__ import annotations
 
@@ -7,10 +7,8 @@ import pathlib
 from copy import deepcopy
 from datetime import datetime
 from importlib.metadata import version
-from importlib.resources import read_text
 from typing import Any, Dict, List, Optional, Sequence, Union
 
-import jsonschema
 import numpy as np
 import polars as pl
 
@@ -24,7 +22,7 @@ class MetaDataset():
     """MetaSynth dataset consisting of variables.
 
     The MetaSynth dataset structure that is most easily created from
-    a pandas dataset with the from_dataframe class method.
+    a polars dataset with the from_dataframe class method.
 
     Parameters
     ----------
@@ -53,15 +51,15 @@ class MetaDataset():
                        dist_providers: Union[str, list[str], BaseDistributionProvider,
                                              list[BaseDistributionProvider]] = "builtin",
                        privacy: Optional[BasePrivacy] = None):
-        """Create dataset from a Pandas dataframe.
+        """Create a MetaSynth object from a polars (or pandas) dataframe.
 
-        The pandas dataframe should be formatted already with the correct
-        datatypes.
+        The Polars dataframe should be formatted already with the correct
+        datatypes, such as pl.Categorical (or the pandas equivalent).
 
         Parameters
         ----------
         df:
-            Pandas dataframe with the correct column dtypes.
+            Polars dataframe with the correct column dtypes.
         spec:
             Column specifications to modify the defaults. For each of the columns additional
             directives can be supplied here. There are 3 different directives currently supported:
@@ -119,6 +117,10 @@ class MetaDataset():
         else:
             spec = deepcopy(spec)
 
+        if set(list(spec)) - set(df.columns):
+            raise ValueError("Argument 'spec' includes the specifications for column names that do "
+                             "not exist in the supplied dataframe:"
+                             f" '{set(list(spec)) - set(df.columns)}'")
         all_vars = []
         for col_name in df.columns:
             series = df[col_name]
@@ -231,15 +233,14 @@ class MetaDataset():
             self_dict = json.load(f)
 
         if validate:
-            schema = json.loads(read_text("metasynth.schema", "generative_metadata_format.json"))
-            jsonschema.validate(instance=self_dict, schema=schema)
+            validate_gmf_dict(self_dict)
 
         n_rows = self_dict["n_rows"]
         meta_vars = [MetaVar.from_dict(d) for d in self_dict["vars"]]
         return cls(meta_vars, n_rows)
 
     def synthesize(self, n: int) -> pl.DataFrame:
-        """Create a synthetic pandas dataframe.
+        """Create a synthetic Polars dataframe.
 
         Parameters
         ----------
@@ -248,7 +249,7 @@ class MetaDataset():
 
         Returns
         -------
-        pandas.DataFrame:
+        polars.DataFrame:
             Dataframe with the synthetic data.
         """
         synth_dict = {var.name: var.draw_series(n) for var in self.meta_vars}
