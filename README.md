@@ -2,6 +2,9 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sodascience/metasynth/HEAD?labpath=examples%2Fgetting_started.ipynb)
 [![Google Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sodascience/metasynth/blob/main/examples/getting_started.ipynb)
 [![docs](https://readthedocs.org/projects/metasynth/badge/?version=latest)](https://metasynth.readthedocs.io/en/latest/index.html)
+
+![MetaSynth Logo](docs/source/images/logo/blue.svg)
+
 # MetaSynth
 MetaSynth is a Python package designed to generate tabular synthetic data for rigorous code testing and reproducibility.
 
