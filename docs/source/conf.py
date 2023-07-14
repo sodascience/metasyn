@@ -22,6 +22,7 @@ project = 'MetaSynth'
 copyright = '2022, SODA Team'
 author = 'SODA Team'
 
+
 # The full version, including alpha/beta/rc tags
 release = '0.1'
 
@@ -49,6 +50,10 @@ exclude_patterns = []
 # a list of builtin themes.
 #
 html_theme = 'sphinx_rtd_theme'
+html_logo = 'images/logos/white_med.png'
+html_theme_options = {
+    'logo_only': True, 
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

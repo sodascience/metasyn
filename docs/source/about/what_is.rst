@@ -1,9 +1,6 @@
 What is MetaSynth?
 =====================================
 
-**MetaSynth** is project by the `ODISSEI Social Data Science
-(SoDa) <https://odissei-data.nl/nl/soda/>`__ team. 
-
 MetaSynth is a Python package designed to generate tabular synthetic data for rigorous code testing and reproducibility.
 
 The package has two main functionalities. First, it allows for the creation of metadata from an input dataset. This metadata describes the overarching structure and traits of the dataset. Second, MetaSynth allows for generation of synthetic data that aligns with this metadata. Instead of relying on the original dataset, the synthetic data is produced using the metadata. This approach ensures that the synthetic dataset remains separate and independent from any sensitive source data. Researchers and data owners can leverage this capability to generate and share synthetic versions of their sensitive data, mitigating privacy concerns. Furthermore, this separation between metadata and original data promotes reproducibility, as the metadata file can be easily shared and used to generate consistent synthetic datasets.
@@ -18,8 +15,7 @@ Key Features
 -  **Synthetic Data Generation**: MetaSynth allows for the generation of
    a polars DataFrame with synthetic data that resembles the original
    data.
--  **GMF Standard**: MetaSynth exports and imports metadata according to the `Generative Metadata Format
-(GMF) <https://github.com/sodascience/generative_metadata_format>`__. This is a standard designed to be easy to read and understand. 
+-  **GMF Standard**: MetaSynth exports and imports metadata according to the `Generative Metadata Format (GMF) <https://github.com/sodascience/generative_metadata_format>`__. This is a standard designed to be easy to read and understand. 
 -  **Distribution Fitting**: MetaSynth allows for manual and automatic
    distribution fitting.
 -  **Data Type Support**: MetaSynth supports generating synthetic data
