@@ -1,10 +1,7 @@
 About
 =====================================
 
-Welcome to the MetaSynth User's Guide. This section features everything you need to know to use MetaSynth. 
-information on installation, quickstart, tutorials and information on the core features of the package.
-
-
+Welcome to the MetaSynth About Section. This section is meant to provide more information on the background and context of MetaSynth. 
 
 .. toctree::
    :maxdepth: 2
