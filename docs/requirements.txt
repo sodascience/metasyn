@@ -1,4 +1,5 @@
 sphinx<7.0.0
+sphinx_inline_tabs
 sphinx-rtd-theme
 sphinxcontrib-napoleon
 sphinx-autodoc-typehints
