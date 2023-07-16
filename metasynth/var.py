@@ -62,7 +62,8 @@ class MetaVar():
             series = _to_polars(series)
             self.name = series.name
             if prop_missing is None:
-                self.prop_missing = (len(series) - len(series.drop_nulls()))/len(series)
+                self.prop_missing = (
+                    len(series) - len(series.drop_nulls())) / len(series)
             self.dtype = str(series.dtype)
 
         self.series = series
@@ -74,8 +75,12 @@ class MetaVar():
                              " prop_missing is None.")
 
     @classmethod
-    def detect(cls, series_or_dataframe: Union[pd.Series, pl.Series, pl.DataFrame],
-               description: Optional[str] = None, prop_missing: Optional[float] = None):
+    def detect(cls,
+               series_or_dataframe: Union[pd.Series,
+                                          pl.Series,
+                                          pl.DataFrame],
+               description: Optional[str] = None,
+               prop_missing: Optional[float] = None):
         """Detect variable class(es) of series or dataframe.
 
         Parameters
@@ -126,7 +131,8 @@ class MetaVar():
         try:
             return convert_dict[polars_dtype]
         except KeyError as exc:
-            raise ValueError(f"Unsupported polars type '{polars_dtype}") from exc
+            raise ValueError(
+                f"Unsupported polars type '{polars_dtype}") from exc
 
     def to_dict(self) -> Dict[str, Any]:
         """Create a dictionary from the variable."""
@@ -146,19 +152,29 @@ class MetaVar():
         return var_dict
 
     def __str__(self) -> str:
-        """Create a readable string from a variable."""
-        return str({
-            "name": self.name,
-            "description": self.description,
-            "type": self.var_type,
-            "dtype": self.dtype,
-            "prop_missing": self.prop_missing,
-            "distribution": str(self.distribution),
-        })
+        """Return an easy to read formatted string for the variable."""
+        description = f'Description: "{self.description}"\n' if self.description else ""
+
+        if self.distribution is None:
+            distribution_formatted = "No distribution information available"
+        else:
+            distribution_formatted = "\n".join(
+                "\t" + line for line in str(self.distribution).split("\n")
+            )
+
+        return (
+            f'"{self.name}"\n'
+            f'{description}'
+            f'- Variable Type: {self.var_type}\n'
+            f'- Data Type: {self.dtype}\n'
+            f'- Prop. Missing: {self.prop_missing}\n'
+            f'- Distribution:\n{distribution_formatted}\n'
+        )
 
     def fit(self,  # pylint: disable=too-many-arguments
             dist: Optional[Union[str, BaseDistribution, type]] = None,
-            dist_providers: Union[str, type, BaseDistributionProvider] = "builtin",
+            dist_providers: Union[str, type,
+                                  BaseDistributionProvider] = "builtin",
             privacy: BasePrivacy = BasicPrivacy(),
             unique: Optional[bool] = None,
             fit_kwargs: Optional[dict] = None):
@@ -193,8 +209,8 @@ class MetaVar():
                              "original data.")
 
         provider_list = DistributionProviderList(dist_providers)
-        self.distribution = provider_list.fit(self.series, self.var_type, dist, privacy, unique,
-                                              fit_kwargs)
+        self.distribution = provider_list.fit(
+            self.series, self.var_type, dist, privacy, unique, fit_kwargs)
 
     def draw(self) -> Any:
         """Draw a random item for the variable in whatever type is required."""

@@ -47,8 +47,11 @@ class MetaDataset():
     @classmethod
     def from_dataframe(cls,
                        df: pl.DataFrame,
-                       spec: Optional[dict[str, dict]] = None,
-                       dist_providers: Union[str, list[str], BaseDistributionProvider,
+                       spec: Optional[dict[str,
+                                           dict]] = None,
+                       dist_providers: Union[str,
+                                             list[str],
+                                             BaseDistributionProvider,
                                              list[BaseDistributionProvider]] = "builtin",
                        privacy: Optional[BasePrivacy] = None):
         """Create a MetaSynth object from a polars (or pandas) dataframe.
@@ -118,9 +121,10 @@ class MetaDataset():
             spec = deepcopy(spec)
 
         if set(list(spec)) - set(df.columns):
-            raise ValueError("Argument 'spec' includes the specifications for column names that do "
-                             "not exist in the supplied dataframe:"
-                             f" '{set(list(spec)) - set(df.columns)}'")
+            raise ValueError(
+                "Argument 'spec' includes the specifications for column names that do "
+                "not exist in the supplied dataframe:"
+                f" '{set(list(spec)) - set(df.columns)}'")
         all_vars = []
         for col_name in df.columns:
             series = df[col_name]
@@ -132,10 +136,18 @@ class MetaDataset():
             cur_privacy = col_spec.pop("privacy", privacy)
             fit_kwargs = col_spec.pop("fit_kwargs", {})
             if len(col_spec) != 0:
-                raise ValueError(f"Unknown spec items '{col_spec}' for variable '{col_name}'.")
-            var = MetaVar.detect(series, description=description, prop_missing=prop_missing)
-            var.fit(dist=dist, dist_providers=dist_providers, unique=unq, privacy=cur_privacy,
-                    fit_kwargs=fit_kwargs)
+                raise ValueError(
+                    f"Unknown spec items '{col_spec}' for variable '{col_name}'.")
+            var = MetaVar.detect(
+                series,
+                description=description,
+                prop_missing=prop_missing)
+            var.fit(
+                dist=dist,
+                dist_providers=dist_providers,
+                unique=unq,
+                privacy=cur_privacy,
+                fit_kwargs=fit_kwargs)
 
             all_vars.append(var)
 
@@ -170,12 +182,16 @@ class MetaDataset():
         raise TypeError(f"Cannot get item for key '{key}'")
 
     def __str__(self) -> str:
-        """Create a readable string that shows the variables."""
-        cur_str = "# Rows: "+str(self.n_rows)+"\n"
-        cur_str += "# Columns: "+str(self.n_columns)+"\n"
-        for var in self.meta_vars:
-            cur_str += "\n"+str(var)+"\n"
-        return cur_str
+        """Return an easy to read formatted string for the dataset."""
+        vars_formatted = "\n".join(
+            f"Column {i + 1}: {str(var)}" for i,
+            var in enumerate(
+                self.meta_vars))
+        return (
+            f"# Rows: {self.n_rows}\n"
+            f"# Columns: {self.n_columns}\n\n"
+            f"{vars_formatted}\n"
+        )
 
     @property
     def descriptions(self) -> dict[str, str]:
@@ -184,7 +200,8 @@ class MetaDataset():
                 if var.name is not None and var.description is not None}
 
     @descriptions.setter
-    def descriptions(self, new_descriptions: Union[dict[str, str], Sequence[str]]):
+    def descriptions(
+            self, new_descriptions: Union[dict[str, str], Sequence[str]]):
         if isinstance(new_descriptions, dict):
             for var_name, new_desc in new_descriptions.items():
                 self[var_name].description = new_desc
@@ -195,7 +212,8 @@ class MetaDataset():
             for i_desc, new_desc in enumerate(new_descriptions):
                 self[i_desc].description = new_desc
 
-    def to_json(self, fp: Union[pathlib.Path, str], validate: bool = True) -> None:
+    def to_json(self, fp: Union[pathlib.Path, str],
+                validate: bool = True) -> None:
         """Write the MetaSynth dataset to a JSON file.
 
         Optional validation against a JSON schema included in the package.
@@ -214,7 +232,8 @@ class MetaDataset():
             json.dump(self_dict, f, indent=4)
 
     @classmethod
-    def from_json(cls, fp: Union[pathlib.Path, str], validate: bool = True) -> MetaDataset:
+    def from_json(cls, fp: Union[pathlib.Path, str],
+                  validate: bool = True) -> MetaDataset:
         """Read a MetaSynth dataset from a JSON file.
 
         Parameters
@@ -254,6 +273,12 @@ class MetaDataset():
         """
         synth_dict = {var.name: var.draw_series(n) for var in self.meta_vars}
         return pl.DataFrame(synth_dict)
+
+    def __repr__(self):
+        """Return the MetaDataSet as it would be output to JSON."""
+        pretty_data = _jsonify(self.to_dict())
+        output = json.dumps(pretty_data, indent=4)
+        return output
 
 
 def _jsonify(data):
