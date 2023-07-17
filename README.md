@@ -125,7 +125,7 @@ The generated synthetic data, emulates the original data's format and plausibili
 - **Distribution Fitting**: MetaSynth allows for manual and automatic distribution fitting.
 - **Data Type Support**: MetaSynth supports generating synthetic data for a variety of common data types including `categorical`, `string`, `integer`, `float`, `date`, `time`, and `datetime`.
 - **Integration with Faker**: MetaSynth integrates with the [faker](https://github.com/joke2k/faker) package, a Python library for generating fake data such as names and emails. Allowing for more realistic synthetic data.    
-- **Structured String Detection**: This feature identifies structured strings within your dataset, which can include formatted text, codes, identifiers, or any string that follows a specific pattern.
+- **Structured String Detection**: MetaSynth identifies structured strings within your dataset, which can include formatted text, codes, identifiers, or any string that follows a specific pattern.
 - **Handling Unique Values**: MetaSynth can identify and process variables with unique values or keys in the data, preserving their uniqueness in the synthetic dataset, which is crucial for generating synthetic data that maintains the characteristics of the original dataset.
 
 
@@ -245,7 +245,7 @@ To contribute:
 
 <!-- CONTACT -->
 ## Contact
-**MetaSynth** is project by the [ODISSEI Social Data Science (SoDa)](https://odissei-data.nl/nl/soda/) team.
+**MetaSynth** is a project by the [ODISSEI Social Data Science (SoDa)](https://odissei-data.nl/nl/soda/) team.
 Do you have questions, suggestions, or remarks on the technical implementation? File an issue in the
 issue tracker or feel free to contact [Erik-Jan van Kesteren](https://github.com/vankesteren)
 or [Raoul Schram](https://github.com/qubixes).
