@@ -49,8 +49,7 @@ class BaseDistribution(ABC):
         if isinstance(values, pl.Series):
             series = values.drop_nulls()
         elif isinstance(values, pd.Series):
-            series = pl.Series(values).drop_nulls(
-            )  # pylint: disable=assignment-from-no-return
+            series = pl.Series(values).drop_nulls()  # pylint: disable=assignment-from-no-return
         else:
             series_array = np.array(values)
             series_array = series_array[~np.isnan(series_array)]

@@ -274,7 +274,7 @@ class MetaDataset():
         synth_dict = {var.name: var.draw_series(n) for var in self.meta_vars}
         return pl.DataFrame(synth_dict)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return the MetaDataSet as it would be output to JSON."""
         pretty_data = _jsonify(self.to_dict())
         output = json.dumps(pretty_data, indent=4)
