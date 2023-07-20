@@ -157,9 +157,6 @@ class RegexDistribution(BaseDistribution):
             cur_str += rex.draw()
         return cur_str
 
-    def __str__(self):
-        return "".join([str(x) for x in self.re_list])
-
     def _param_dict(self):
         return {
             "re_list": [(str(x), x.frac_used) for x in self.re_list],

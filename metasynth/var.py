@@ -167,7 +167,7 @@ class MetaVar():
             f'{description}'
             f'- Variable Type: {self.var_type}\n'
             f'- Data Type: {self.dtype}\n'
-            f'- Proportion Missing: {self.prop_missing}\n'
+            f'- Proportion of Missing Values: {self.prop_missing:.4f}\n'
             f'- Distribution:\n{distribution_formatted}\n'
         )
 
