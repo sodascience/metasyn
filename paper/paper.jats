@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE article PUBLIC "-//NLM//DTD JATS (Z39.96) Journal Publishing DTD v1.2 20190208//EN"
+                  "JATS-publishing1.dtd">
+<article xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink" dtd-version="1.2" article-type="other">
+<front>
+<journal-meta>
+<journal-id></journal-id>
+<journal-title-group>
+<journal-title>Journal of Open Source Software</journal-title>
+<abbrev-journal-title>JOSS</abbrev-journal-title>
+</journal-title-group>
+<issn publication-format="electronic">2475-9066</issn>
+<publisher>
+<publisher-name>Open Journals</publisher-name>
+</publisher>
+</journal-meta>
+<article-meta>
+<article-id pub-id-type="publisher-id">0</article-id>
+<article-id pub-id-type="doi">N/A</article-id>
+<title-group>
+<article-title>Metasynth: Simple Synthetic Tabular Data with Privacy
+Guarantees</article-title>
+</title-group>
+<contrib-group>
+<contrib contrib-type="author" equal-contrib="yes" corresp="yes">
+<contrib-id contrib-id-type="orcid">https://orcid.org/0000-0003-1548-1663</contrib-id>
+<name>
+<surname>van Kesteren</surname>
+<given-names>Erik-Jan</given-names>
+</name>
+<xref ref-type="aff" rid="aff-1"/>
+<xref ref-type="aff" rid="aff-2"/>
+<xref ref-type="corresp" rid="cor-1"><sup>*</sup></xref>
+</contrib>
+<contrib contrib-type="author">
+<contrib-id contrib-id-type="orcid">https://orcid.org/0000-0002-2408-7820</contrib-id>
+<name>
+<surname>Volker</surname>
+<given-names>Thom</given-names>
+</name>
+<xref ref-type="aff" rid="aff-1"/>
+<xref ref-type="aff" rid="aff-3"/>
+</contrib>
+<contrib contrib-type="author">
+<contrib-id contrib-id-type="orcid">https://orcid.org/0000-0001-6366-2173</contrib-id>
+<name>
+<surname>Bagheri</surname>
+<given-names>Ayoub</given-names>
+</name>
+<xref ref-type="aff" rid="aff-1"/>
+</contrib>
+<contrib contrib-type="author">
+<contrib-id contrib-id-type="orcid">https://orcid.org/0000-0002-4571-8855</contrib-id>
+<name>
+<surname>Scholten</surname>
+<given-names>Ron</given-names>
+</name>
+<xref ref-type="aff" rid="aff-1"/>
+</contrib>
+<contrib contrib-type="author">
+<name>
+<surname>Spithorst</surname>
+<given-names>Samuel</given-names>
+</name>
+<xref ref-type="aff" rid="aff-1"/>
+</contrib>
+<contrib contrib-type="author" equal-contrib="yes">
+<contrib-id contrib-id-type="orcid">https://orcid.org/0000-0001-6616-230X</contrib-id>
+<name>
+<surname>Schram</surname>
+<given-names>Raoul</given-names>
+</name>
+<xref ref-type="aff" rid="aff-1"/>
+</contrib>
+<aff id="aff-1">
+<institution-wrap>
+<institution>Utrecht University, The Netherlands</institution>
+</institution-wrap>
+</aff>
+<aff id="aff-2">
+<institution-wrap>
+<institution>ODISSEI: Open Data Infrastructure for Social Science and
+Economic Innovations, The Netherlands</institution>
+</institution-wrap>
+</aff>
+<aff id="aff-3">
+<institution-wrap>
+<institution>Statistics Netherlands</institution>
+</institution-wrap>
+</aff>
+</contrib-group>
+<author-notes>
+<corresp id="cor-1">* E-mail: <email></email></corresp>
+</author-notes>
+<pub-date date-type="pub" publication-format="electronic" iso-8601-date="2023-07-20">
+<day>20</day>
+<month>7</month>
+<year>2023</year>
+</pub-date>
+<volume>¿VOL?</volume>
+<issue>¿ISSUE?</issue>
+<fpage>¿PAGE?</fpage>
+<permissions>
+<copyright-statement>Authors of papers retain copyright and release the
+work under a Creative Commons Attribution 4.0 International License (CC
+BY 4.0)</copyright-statement>
+<copyright-year>2022</copyright-year>
+<copyright-holder>The article authors</copyright-holder>
+<license license-type="open-access" xlink:href="https://creativecommons.org/licenses/by/4.0/">
+<license-p>Authors of papers retain copyright and release the work under
+a Creative Commons Attribution 4.0 International License (CC BY
+4.0)</license-p>
+</license>
+</permissions>
+<kwd-group kwd-group-type="author">
+<kwd>Python</kwd>
+<kwd>synthetic data</kwd>
+<kwd>privacy</kwd>
+<kwd>generative models</kwd>
+<kwd>data management</kwd>
+</kwd-group>
+</article-meta>
+</front>
+<body>
+<sec id="summary">
+  <title>Summary</title>
+  <p>We introduce <monospace>metasynth</monospace>, a python package
+  that generates privacy-focused synthetic data. It allows owners of
+  sensitive datasets to share data structure without privacy concerns.
+  The software offers an auditable representation for synthesizing new
+  data and supports initial exploration and analysis script development.
+  <monospace>Metasynth</monospace> is extensible, allowing data owners
+  to define privacy conditions through plug-ins. Core features include
+  automatic distribution selection, intermediate representation
+  creation, and data generation.</p>
+</sec>
+<sec id="statement-of-need">
+  <title>Statement of need</title>
+  <p><monospace>Metasynth</monospace> is a python package for generating
+  synthetic data with a focus on privacy and disclosure control. It is
+  aimed at owners of sensitive datasets such as public organisations,
+  research groups, or even individual researchers who want to improve
+  the accessibility of their data for research and reproducibility by
+  others. The goal of <monospace>metasynth</monospace> is to make it
+  easy for data owners to share the structure and and approximation of
+  the content of their data with others without any privacy
+  concerns.</p>
+  <p>With this goal in mind, <monospace>metasynth</monospace>
+  distinguishes itself from existing software for generating synthetic
+  data (e.g.,
+  <xref alt="Nowok et al., 2016" rid="ref-nowok2016synthpop" ref-type="bibr">Nowok
+  et al., 2016</xref>;
+  <xref alt="Ping et al., 2017" rid="ref-ping2017datasynthesizer" ref-type="bibr">Ping
+  et al., 2017</xref>;
+  <xref alt="Templ et al., 2017" rid="ref-templ2017simulation" ref-type="bibr">Templ
+  et al., 2017</xref>) by restricting itself to the “augmented
+  plausible” category of synthetic data
+  (<xref alt="Bates et al., 2019" rid="ref-bates2019ons" ref-type="bibr">Bates
+  et al., 2019</xref>). This choice enables the software to generate
+  synthetic data with <bold>privacy or disclosure guarantees</bold>
+  through a plug-in system. Moreover, our system provides an
+  <bold>auditable and editable intermediate representation</bold> in the
+  form of a human- and machine-readable <monospace>.json</monospace>
+  metadata file from which new data can be synthesized.</p>
+  <p>Through our focus on privacy and transparency,
+  <monospace>metasynth</monospace> explicitly avoids generating
+  synthetic data with high analytical validity. The data generated by
+  our system is realistic in terms of data structure and plausible in
+  terms of values for each variable, but any multivariate relation or
+  conditional patterns are excluded. This has implications for how this
+  synthetic data can be used: not for statistical analysis and inference
+  but for initial exploration, analysis script development, and
+  communication outside the data owner’s institution. In the intended
+  use case, an external researcher can make use of the synthetic data to
+  assess the feasibility of their intended research before making the
+  (often time-consuming) step of requesting access to the sensitive
+  source data.</p>
+  <p>As mentioned before, the privacy capacities of
+  <monospace>metasynth</monospace> are extensible through a plug-in
+  system, recognizing that different data owners have different needs
+  and definitions of privacy. A data owner can define under which
+  conditions they would accept open distribution of their synthetic data
+  — be it based on differential privacy
+  (<xref alt="Dwork, 2006" rid="ref-dwork2006differential" ref-type="bibr">Dwork,
+  2006</xref>), statistical disclosure control
+  (<xref alt="Wolf, 2012" rid="ref-dewolf2012statistical" ref-type="bibr">Wolf,
+  2012</xref>), k-anonymity
+  (<xref alt="Sweeney, 2002" rid="ref-sweeney2002k" ref-type="bibr">Sweeney,
+  2002</xref>), or another specific definition of privacy. As part of
+  the initial release of <monospace>metasynth</monospace>, we publish
+  two proof-of-concept plugins: one following the disclosure control
+  guidelines from Eurostat
+  (<xref alt="Bond et al., 2015" rid="ref-bond2015guidelines" ref-type="bibr">Bond
+  et al., 2015</xref>), and one based on the sample-and-aggregate
+  technique for differential privacy
+  (<xref alt="Dwork &amp; Smith, 2010, p. 142" rid="ref-dwork2010differential" ref-type="bibr">Dwork
+  &amp; Smith, 2010, p. 142</xref>).</p>
+</sec>
+<sec id="software-description">
+  <title>Software description</title>
+  <p>At its core, <monospace>Metasynth</monospace> is designed to do
+  three things:</p>
+  <list list-type="order">
+    <list-item>
+      <p>Automatically select univariate distributions and fit them to a
+      well-defined tabular dataset, possibly with privacy
+      guarantees.</p>
+    </list-item>
+    <list-item>
+      <p>(optionally) Create an intermediate representation of the
+      fitted model for auditing, editing, and exporting.</p>
+    </list-item>
+    <list-item>
+      <p>Generate new synthetic datasets based on the fitted model or
+      its serialized representation.</p>
+    </list-item>
+  </list>
+  <p>In this section, we briefly describe each of these processes.</p>
+  <p><bold>Distribution selection and fitting</bold>. For each data type
+  supported by <monospace>metasynth</monospace>, there is a set of
+  candidate distributions that can be fitted to that data type (see
+  Table <xref alt="1" rid="tblU003Adist">1</xref>).</p>
+  <table-wrap>
+    <caption>
+      <p><styled-content id="tblU003Adist"></styled-content> Candidate
+      distributions associated with data types in the core
+      <monospace>metasynth</monospace> package.</p>
+    </caption>
+    <table>
+      <colgroup>
+        <col width="25%" />
+        <col width="17%" />
+        <col width="13%" />
+        <col width="44%" />
+      </colgroup>
+      <thead>
+        <tr>
+          <th align="left">variable type</th>
+          <th align="left">data type</th>
+          <th align="left">example</th>
+          <th align="left">candidate distributions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td align="left">continuous</td>
+          <td align="left">float</td>
+          <td align="left">1.0, 2.1, …</td>
+          <td align="left">UniformDistribution, NormalDistribution</td>
+        </tr>
+        <tr>
+          <td align="left">discrete</td>
+          <td align="left">int</td>
+          <td align="left">1, 2, …</td>
+          <td align="left">DiscreteUniformDistribution</td>
+        </tr>
+        <tr>
+          <td align="left">categorical</td>
+          <td align="left">pl.Categorical</td>
+          <td align="left">gender, country</td>
+          <td align="left">MultinoulliDistribution</td>
+        </tr>
+        <tr>
+          <td align="left">structured string</td>
+          <td align="left">str</td>
+          <td align="left">Room number A108, C122</td>
+          <td align="left">RegexDistribution</td>
+        </tr>
+        <tr>
+          <td align="left">unstructured string</td>
+          <td align="left">str</td>
+          <td align="left">Names, open answers</td>
+          <td align="left">FakerDistribution, LLMDistribution</td>
+        </tr>
+        <tr>
+          <td align="left">temporal</td>
+          <td align="left">Date, Datetime</td>
+          <td align="left">2021-01-13, 01:40:12</td>
+          <td align="left">DateUniformDistribution</td>
+        </tr>
+      </tbody>
+    </table>
+  </table-wrap>
+</sec>
+<sec id="a-basic-example">
+  <title>A basic example</title>
+  <code language="python">import polars as pl
+from metasynth import MetaDataset, demo_file
+
+# we use polars as the 
+df = pl.DataFrame(
+    {
+        &quot;ID&quot;: [1, 2, 3, 4, 5],
+        &quot;fruits&quot;: [&quot;banana&quot;, &quot;banana&quot;, &quot;apple&quot;, &quot;apple&quot;, &quot;banana&quot;],
+        &quot;B&quot;: [5, 4, 3, 2, 1],
+        &quot;cars&quot;: [&quot;beetle&quot;, &quot;audi&quot;, &quot;beetle&quot;, &quot;beetle&quot;, &quot;beetle&quot;],
+        &quot;optional&quot;: [28, 300, None, 2, -30],
+    }
+)
+
+# convert appropriate columns to categorical
+df = df.with_columns([
+    pl.col(&quot;fruits&quot;).cast(pl.Categorical),
+    pl.col(&quot;cars&quot;).cast(pl.Categorical),
+])
+
+# set A to unique and B to not unique
+spec_dict = {
+    &quot;ID&quot;: {&quot;unique&quot;: True},
+    &quot;B&quot;: {&quot;unique&quot;: False}
+}
+
+# create metadataset
+mds = MetaDataset.from_dataframe(df)
+
+# write to json
+mds.to_json(&quot;examples/basic_example.json&quot;)
+
+# then, export json from secure environment
+
+# outside secure environment, load json
+mds_out = MetaDataset.from_json(&quot;examples/basic_example.json&quot;)
+
+# create a fake dataset
+mds_out.synthesize(10)</code>
+</sec>
+<sec id="acknowledgements">
+  <title>Acknowledgements</title>
+  <p>This research was conducted in whole or in part using ODISSEI, the
+  Open Data Infrastructure for Social Science and Economic Innovations
+  (https://ror.org/03m8v6t10)</p>
+  <p>The <monospace>{metasynth}</monospace> project is supported by the
+  FAIR Research IT Innovation Fund of Utrecht University (as of March
+  2023)</p>
+</sec>
+</body>
+<back>
+<ref-list>
+  <ref id="ref-bates2019ons">
+    <element-citation>
+      <person-group person-group-type="author">
+        <name><surname>Bates</surname><given-names>AG</given-names></name>
+        <name><surname>Spakulová</surname><given-names>I</given-names></name>
+        <name><surname>Dove</surname><given-names>I</given-names></name>
+        <name><surname>Mealor</surname><given-names>A</given-names></name>
+      </person-group>
+      <article-title>ONS methodology working paper series number 16—synthetic data pilot</article-title>
+      <year iso-8601-date="2019">2019</year>
+    </element-citation>
+  </ref>
+  <ref id="ref-dwork2006differential">
+    <element-citation publication-type="paper-conference">
+      <person-group person-group-type="author">
+        <name><surname>Dwork</surname><given-names>Cynthia</given-names></name>
+      </person-group>
+      <article-title>Differential privacy</article-title>
+      <source>International colloquium on automata, languages, and programming</source>
+      <publisher-name>Springer</publisher-name>
+      <year iso-8601-date="2006">2006</year>
+      <fpage>1</fpage>
+      <lpage>12</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-dewolf2012statistical">
+    <element-citation publication-type="book">
+      <person-group person-group-type="author">
+        <name><surname>Wolf</surname><given-names>Peter-Paul de</given-names></name>
+      </person-group>
+      <source>Statistical disclosure control</source>
+      <publisher-name>Wiley &amp; Sons, Chichester</publisher-name>
+      <year iso-8601-date="2012">2012</year>
+    </element-citation>
+  </ref>
+  <ref id="ref-sweeney2002k">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Sweeney</surname><given-names>Latanya</given-names></name>
+      </person-group>
+      <article-title>K-anonymity: A model for protecting privacy</article-title>
+      <source>International journal of uncertainty, fuzziness and knowledge-based systems</source>
+      <publisher-name>World Scientific</publisher-name>
+      <year iso-8601-date="2002">2002</year>
+      <volume>10</volume>
+      <issue>05</issue>
+      <fpage>557</fpage>
+      <lpage>570</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-bond2015guidelines">
+    <element-citation>
+      <person-group person-group-type="author">
+        <name><surname>Bond</surname><given-names>S</given-names></name>
+        <name><surname>Brandt</surname><given-names>M</given-names></name>
+        <name><surname>Wolf</surname><given-names>PP de</given-names></name>
+      </person-group>
+      <article-title>Guidelines for output checking. eurostat</article-title>
+      <year iso-8601-date="2015">2015</year>
+    </element-citation>
+  </ref>
+  <ref id="ref-dwork2010differential">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Dwork</surname><given-names>Cynthia</given-names></name>
+        <name><surname>Smith</surname><given-names>Adam</given-names></name>
+      </person-group>
+      <article-title>Differential privacy for statistics: What we know and what we want to learn</article-title>
+      <source>Journal of Privacy and Confidentiality</source>
+      <year iso-8601-date="2010">2010</year>
+      <volume>1</volume>
+      <issue>2</issue>
+    </element-citation>
+  </ref>
+  <ref id="ref-nowok2016synthpop">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Nowok</surname><given-names>Beata</given-names></name>
+        <name><surname>Raab</surname><given-names>Gillian M</given-names></name>
+        <name><surname>Dibben</surname><given-names>Chris</given-names></name>
+      </person-group>
+      <article-title>Synthpop: Bespoke creation of synthetic data in r</article-title>
+      <source>Journal of statistical software</source>
+      <year iso-8601-date="2016">2016</year>
+      <volume>74</volume>
+      <fpage>1</fpage>
+      <lpage>26</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-templ2017simulation">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Templ</surname><given-names>Matthias</given-names></name>
+        <name><surname>Meindl</surname><given-names>Bernhard</given-names></name>
+        <name><surname>Kowarik</surname><given-names>Alexander</given-names></name>
+        <name><surname>Dupriez</surname><given-names>Olivier</given-names></name>
+      </person-group>
+      <article-title>Simulation of synthetic complex data: The r package simPop</article-title>
+      <source>Journal of Statistical Software</source>
+      <publisher-name>UCLA, Dept. of Statistics</publisher-name>
+      <year iso-8601-date="2017">2017</year>
+      <volume>79</volume>
+      <issue>10</issue>
+      <fpage>1</fpage>
+      <lpage>38</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-ping2017datasynthesizer">
+    <element-citation publication-type="paper-conference">
+      <person-group person-group-type="author">
+        <name><surname>Ping</surname><given-names>Haoyue</given-names></name>
+        <name><surname>Stoyanovich</surname><given-names>Julia</given-names></name>
+        <name><surname>Howe</surname><given-names>Bill</given-names></name>
+      </person-group>
+      <article-title>Datasynthesizer: Privacy-preserving synthetic datasets</article-title>
+      <source>Proceedings of the 29th international conference on scientific and statistical database management</source>
+      <year iso-8601-date="2017">2017</year>
+      <fpage>1</fpage>
+      <lpage>5</lpage>
+    </element-citation>
+  </ref>
+</ref-list>
+</back>
+</article>
