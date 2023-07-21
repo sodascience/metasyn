@@ -47,7 +47,7 @@ documentation = "https://metasynth.readthedocs.io/en/latest/index.html"
 [project.optional-dependencies]
 test = [
 	"pytest", "pylint", "pydocstyle", "mypy", "flake8", "nbval",
-	"sphinx<7.0.0", "sphinx-rtd-theme", "sphinxcontrib-napoleon", "sphinx-autodoc-typehints"
+	"sphinx<7.0.0", "sphinx-rtd-theme", "sphinxcontrib-napoleon", "sphinx-autodoc-typehints", "sphinx_inline_tabs"
 ]
 
 [project.entry-points."metasynth.distribution_provider"]
