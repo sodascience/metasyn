@@ -117,8 +117,6 @@ Polars or Pandas dataframe), using the :meth:`MetaDataset.from_dataframe() <meta
 
 This function requires a :obj:`DataFrame` to be specified as parameter.
 
-**In-code example**:
-
 .. code-block:: python
 
    metadataset = metasynth.MetaDataset.from_dataframe(dataframe)
@@ -142,8 +140,6 @@ Exporting a metadataset
 Metadata can be exported as .JSON file by calling the :meth:`metasynth.dataset.MetaDataset.to_json` method on a :obj:`MetaDatasets<metasynth.dataset.MetaDataset>`.
 This allows for manual (or automatic) inspection, editing, and easy sharing. 
 
-**In-code example**:
-
 .. code-block:: python
 
    metadataset.to_json("metadataset.json")
@@ -154,8 +150,6 @@ This allows for manual (or automatic) inspection, editing, and easy sharing.
 Loading a metadataset
 --------------------
 MetaSynth can also load previously generated metadata, using the :meth:`MetaDataset.from_json <metasynth.dataset.MetaDataset.from_json>` classmethod. 
-
-**In-code example**:
 
 .. code-block:: python
 
