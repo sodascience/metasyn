@@ -18,7 +18,7 @@ MetaSynth uses PyPI for distribution, which requires pip, the Python package ins
 Step 3: Installing MetaSynth
 ----------------------------
 
-There are two ways to install MetaSynth, you can either download the latest official version from PyPI using pip or download the latest version from our GitHub repository.
+There are two ways to install MetaSynth, you can either download the latest official version from PyPI or directly from our GitHub repository.
 
 .. tab:: PyPI
 
@@ -31,8 +31,6 @@ There are two ways to install MetaSynth, you can either download the latest offi
 	.. code-block:: console
 
 		pip install git+https://github.com/sodascience/meta-synth.git
-
-
 		
 Choose the method that best suits your needs. If you're unsure, using PyPI is the simplest and most straightforward method.
 
