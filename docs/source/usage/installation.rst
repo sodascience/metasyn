@@ -56,7 +56,7 @@ To create a virtual environment using venv:
 
 	python3 -m venv metasynth-env
 
-To activate the environment:
+To activate the environment: 
 
 .. tab:: Windows
 
@@ -71,3 +71,5 @@ To activate the environment:
 		source metasynth-env/bin/activate
 
 With the virtual environment activated, you can then install MetaSynth as described in Step 3. To exit the virtual environment, simply type `deactivate` in your console.
+
+Alternatively, you can yuse `Conda <https://conda.io/projects/conda/en/latest/user-guide/getting-started.html>`_ to create and manage your Python environments.
