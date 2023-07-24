@@ -140,7 +140,7 @@ Metadata can be exported as .JSON file by calling the :meth:`metasynth.dataset.M
 Exporting a :obj:`MetaDatasets<metasynth.dataset.MetaDataset>` allows for manual (or automatic) inspection, editing, and easy sharing. 
 
 Loading a metadataset
---------------------
+---------------------
 MetaSynth can also load previously generated metadata, using the :meth:`MetaDataset.from_json <metasynth.dataset.MetaDataset.from_json>` classmethod. 
 
 .. code-block:: python
