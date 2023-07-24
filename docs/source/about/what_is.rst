@@ -6,8 +6,7 @@ MetaSynth is a Python package designed to generate tabular synthetic data for ri
 The package has two main functionalities. First, it allows for the creation of metadata from an input dataset. This metadata describes the overarching structure and traits of the dataset. Second, MetaSynth allows for generation of synthetic data that aligns with this metadata. Instead of relying on the original dataset, the synthetic data is produced using the metadata. This approach ensures that the synthetic dataset remains separate and independent from any sensitive source data. Researchers and data owners can leverage this capability to generate and share synthetic versions of their sensitive data, mitigating privacy concerns. Furthermore, this separation between metadata and original data promotes reproducibility, as the metadata file can be easily shared and used to generate consistent synthetic datasets.
 
 Key Features
---------
-
+-------------
 -  **Metadata Generation**: MetaSynth allows the extraction of metadata
    from a dataset provided as a Polars or Pandas dataframe. Metadata
    includes key characteristics such as variable names, types, data
