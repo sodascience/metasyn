@@ -3,6 +3,10 @@ Installation Guide
 
 This document will guide you through the process of installing the MetaSynth package. 
 
+.. note:: 
+	If you wish to try MetaSynth out in an online Notebook, before installing it locally, check out our :doc:`/usage/interactive_tutorials`.
+
+
 Step 1: Python Installation
 ---------------------------
 
@@ -13,7 +17,7 @@ If you're not familiar with Python or you've never installed it before, refer to
 Step 2: Installing PIP
 ----------------------
 
-MetaSynth uses PyPI for distribution, which requires pip, the Python package installer, to install. If you haven't installed pip, refer to the `Pip Installation Guide <https://pip.pypa.io/en/stable/installation/>`_ for instructions.
+MetaSynth uses `PyPI <https://pypi.org/project/metasynth/>`_ for distribution, which requires pip, the Python package installer, to install. If you haven't installed pip, refer to the `Pip Installation Guide <https://pip.pypa.io/en/stable/installation/>`_ for instructions.
 
 Step 3: Installing MetaSynth
 ----------------------------
@@ -48,7 +52,7 @@ If the command runs without any errors, you have successfully installed MetaSynt
 Optional: Creating a Virtual Environment
 ----------------------------------------
 
-Although not necessary, it's a good practice to create a virtual environment for each Python project to manage dependencies. You can create a virtual environment using either venv (built into Python) or a similar tool like virtualenv. If you're unfamiliar with this concept, refer to the `Python Virtual Environments Guide <https://docs.python-guide.org/dev/virtualenvs/>`_.
+Although not necessary, it's a good practice to create a virtual environment for each Python project to manage dependencies. You can create a virtual environment using either venv (built into Python) or a similar tool like `Conda <https://conda.io/projects/conda/en/latest/user-guide/getting-started.html>`_. If you're unfamiliar with this concept, refer to the `Python Virtual Environments Guide <https://docs.python-guide.org/dev/virtualenvs/>`_.
 
 To create a virtual environment using venv:
 
@@ -72,4 +76,3 @@ To activate the environment:
 
 With the virtual environment activated, you can then install MetaSynth as described in Step 3. To exit the virtual environment, simply type `deactivate` in your console.
 
-Alternatively, you can yuse `Conda <https://conda.io/projects/conda/en/latest/user-guide/getting-started.html>`_ to create and manage your Python environments.

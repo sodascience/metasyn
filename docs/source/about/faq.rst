@@ -1,6 +1,9 @@
 FAQ
 =====================================
 
+Here, we've compiled answers to commonly asked questions about MetaSynth and its development. If you can't find the information you're looking for, feel free to :doc:`contact us </about/contact>`.
+
+
 
 **Can I use pandas DataFrames with MetaSynth?**
 ------------------------------------------------------------

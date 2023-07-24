@@ -113,7 +113,7 @@ By separating the metadata and original data, this approach also promotes reprod
 Generating a metadataset
 -------------------------
 MetaSynth can generate metadata from any given dataset (provided as
-Polars or Pandas dataframe), using the :meth:`MetaDataset.from_dataframe() <metasynth.dataset.MetaDataset.from_dataframe>` classmethod.
+Polars or Pandas DataFrame), using the :meth:`MetaDataset.from_dataframe() <metasynth.dataset.MetaDataset.from_dataframe>` classmethod.
 
 This function requires a :obj:`DataFrame` to be specified as parameter.
 
@@ -124,28 +124,20 @@ This function requires a :obj:`DataFrame` to be specified as parameter.
 
 
 .. note:: 
-    Internally, MetaSynth uses polars (instead of pandas) mainly because
-    typing and the handling of non-existing data is more consistent. It is
-    possible to supply a pandas DataFrame instead of a polars DataFrame to
-    ``MetaDataset.from_dataframe``. However, this uses the automatic polars
-    conversion functionality, which for some edge cases result in problems.
-    Therefore, we advise users to create polars DataFrames. The resulting
-    synthetic dataset is always a polars dataframe, but this can be easily
-    converted back to a pandas DataFrame by using
-    ``df_pandas = df_polars.to_pandas()``.
+    Internally, MetaSynth uses Polars (instead of Pandas) mainly because typing and the handling of non-existing data is more consistent. It is possible to supply a Pandas DataFrame instead of a Polars DataFrame to ``MetaDataset.from_dataframe``. However, this uses the automatic Polars conversion functionality, which for some edge cases result in problems. Therefore, we advise users to create Polars DataFrames. The resulting synthetic dataset is always a Polars dataframe, but this can be easily converted back to a Pandas DataFrame by using ``df_pandas = df_polars.to_pandas()``.
 
 
 Exporting a metadataset 
 -----------------------
 Metadata can be exported as .JSON file by calling the :meth:`metasynth.dataset.MetaDataset.to_json` method on a :obj:`MetaDatasets<metasynth.dataset.MetaDataset>`.
-This allows for manual (or automatic) inspection, editing, and easy sharing. 
+
 
 .. code-block:: python
 
    metadataset.to_json("metadataset.json")
 ..
 
-
+Exporting a :obj:`MetaDatasets<metasynth.dataset.MetaDataset>` allows for manual (or automatic) inspection, editing, and easy sharing. 
 
 Loading a metadataset
 --------------------

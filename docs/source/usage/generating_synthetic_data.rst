@@ -22,15 +22,15 @@ Before synthetic data can be generated, a :obj:`MetaDataset <metasynth.dataset.M
 
 Generating a synthetic dataset
 -------------------------
-To generate a synthetic dataset, call the :meth:`MetaDataset.synthesize(n)<metasynth.dataset.MetaDataset.synthesize>` method on a :obj:`MetaDataset <metasynth.dataset.MetaDataset>` object.
+To generate a synthetic dataset, call the :meth:`MetaDataset.synthesize(n)<metasynth.dataset.MetaDataset.synthesize>` method on a :obj:`MetaDataset <metasynth.dataset.MetaDataset>` object.This method takes an integer parameter `n` which represents the number of rows of data that should be generated. This parameter *must* be specified when calling the method. 
+
+The following code generates 5 rows of data:
 
 .. code-block:: python
 
    metadataset.synthesize(5)
 ..
 
-
-This method takes an integer parameter `n` which represents the number of rows of data that should be generated. This parameter *must* be specified when calling the method.
 Upon succesful execution of the :meth:`MetaDataset.synthesize(n)<metasynth.dataset.MetaDataset.synthesize>` method, a `Pandas DataFrame <https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html>`_ will be returned.
 
 

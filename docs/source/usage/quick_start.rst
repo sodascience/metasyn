@@ -10,7 +10,7 @@ dataset.
 Importing Libraries
 -------------------
 
-The first step in any Python project is to import the necessary libraries. For this example, we will need polars and metasynth.
+The first step in any Python project is to import the necessary libraries. For this example, we will need Polars and MetaSynth.
 
 
 .. code:: python
@@ -41,15 +41,17 @@ Then, we create a dictionary with information on the data types of the various c
        "Parch": pl.Categorical
    }
 
-To finish loading the dataset, we simply use the :meth:`polars.read_csv` function, passing in our CSV file and dictionary as parameters. This converts the CSV file into a DataFrame.
+To finish loading the dataset, we simply use the :meth:`polars.read_csv` function, passing in our CSV file and dictionary as parameters. 
 
 .. code-block:: python
 
    dataframe = pl.read_csv(dataset_csv, dtypes=data_types)
 
 
+This converts the CSV file into a DataFrame.
+
 .. note:: 
-	In this example, we used a polars DataFrame, but pandas DataFrames are also supported by MetaSynth. 
+	In this example, we used a Polars DataFrame, but Pandas DataFrames are also supported by MetaSynth. 
 
 
 Generating the MetaDataset
@@ -74,7 +76,6 @@ The MetaDataset can be saved to a .JSON file for future use.
 
 .. code-block:: python
 
-   # Export metadata
    metadataset.to_json("metadata.json")
 
 To load a saved MetaDataset, use the following code:
