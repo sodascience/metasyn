@@ -66,7 +66,6 @@ MetaDistribution
 This class will likely be removed at some point due to a lack of functionality. Only the fit function is currently used by
 `MetaVar`. It should be either be removed or added to a new `DistributionTree` class.
 
-
 Distributions
 -------------
 

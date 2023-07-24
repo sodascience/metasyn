@@ -13,3 +13,4 @@ information on installation, quickstart, tutorials and information on the core f
    generating_metadata
    generating_synthetic_data
    interactive_tutorials
+   extensions

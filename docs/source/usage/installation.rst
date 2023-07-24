@@ -4,7 +4,7 @@ Installation Guide
 This document will guide you through the process of installing the MetaSynth package. 
 
 .. note:: 
-	If you wish to try MetaSynth out in an online Notebook, before installing it locally, check out our :doc:`/usage/interactive_tutorials`.
+	If you're new to Python or simply want to quickly explore the basic features of MetaSynth without installing it locally, you can try one of our :doc:`/usage/interactive_tutorials`.
 
 
 Step 1: Python Installation
