@@ -158,7 +158,8 @@ class RegexDistribution(BaseDistribution):
         return cur_str
 
     @property
-    def regex_string(self):
+    def regex_string(self) -> str:
+        """String representation of the string."""
         return "".join([str(x) for x in self.re_list])
 
     def _param_dict(self):
