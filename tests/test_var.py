@@ -41,7 +41,7 @@ def check_var(series, var_type, temp_path):
     assert isinstance(series, (pd.Series, pl.Series))
     var = MetaVar.detect(series)
     assert isinstance(str(var), str)
-    assert "prop_missing" in str(var)
+    assert "Proportion of Missing Values" in str(var)
 
     with raises(ValueError):
         var.draw_series(100)
