@@ -3,11 +3,11 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-|
+
 
 .. image:: /images/logos/blue.svg
    :alt: MetaSynth_Logo
-|
+
 MetaSynth Documentation
 =======================
 Welcome to the MetaSynth documentation. MetaSynth is a Python package that facilitates the generation of synthetic data and metadata, enabling users to create surrogate datasets that mimic the structure and characteristics of their original data while preserving privacy.

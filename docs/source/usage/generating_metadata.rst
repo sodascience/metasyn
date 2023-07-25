@@ -101,7 +101,7 @@ This metadata can be exported as a .JSON file, allowing for manual and automatic
 .. raw:: html
 
    </details>
-|
+
 
 
 MetaSynth uses these :obj:`MetaDatasets<metasynth.dataset.MetaDataset>` to produce synthetic data that aligns with the metadata (see :doc:`/usage/generating_synthetic_data`).
@@ -147,21 +147,3 @@ MetaSynth can also load previously generated metadata, using the :meth:`MetaData
 
    metadataset = metasynth.MetaDataset.from_json("metadataset.json")
 ..
-
-
-
-
-
-
-
-
-
-|
-
-
-
- 
-
-
-
-
