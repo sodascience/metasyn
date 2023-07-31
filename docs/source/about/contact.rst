@@ -1,14 +1,13 @@
 Contact Us
 ==========
 
-**MetaSynth** is a project by the `ODISSEI Social Data Science (SoDa) <https://odissei-data.nl/nl/soda/>`_ team. 
+**MetaSynth** is a project by the `ODISSEI Social Data Science (SoDa) <https://odissei-data.nl/nl/soda/>`_ team and is currently being maintained by Erik-Jan van Kesteren, Raoul Schram and Samuel Spithorst.
 
 .. image:: /images/logos/soda.png
    :alt: SODA_logo
    :width: 250
    :target: https://odissei-data.nl/nl/soda/
 
-It is currently being maintained by Erik-Jan van Kesteren, Raoul Schram and Samuel Spithorst.
 
 Do you have questions, suggestions, or remarks on the technical implementation? We welcome your feedback and contributions!
 
