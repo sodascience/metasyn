@@ -1,0 +1,47 @@
+Contributing to MetaSynth
+=========================
+
+Thank you for your interest in contributing to MetaSynth! We greatly appreciate any contributions that can help improve the package and make it more useful for the community. Whether it's bug fixes, new features, or documentation enhancements, your efforts will be highly valued.
+
+To get started with contributing to MetaSynth, follow these steps:
+
+.. warning::
+    1. The code examples provided below are for illustrative purposes. Make sure to replace them with the actual commands relevant to your local environment. 
+    2. This is just a brief overview of the steps needed to get started, for specifics on Git or GitHub, check out the `Git documentation <https://git-scm.com/doc>`_ and the `Github documentation <https://docs.github.com/en>`_.  
+
+1. **Fork the Project**: Start by forking the `official MetaSynth repository <https://github.com/sodascience/metasynth>`_ to your GitHub account. This will create a copy of the repository under your account, allowing you to freely make changes.
+2. **Create a Branch**: Before making changes, create a new branch with a descriptive name. This helps maintain clarity and organization throughout the contribution process:
+
+   .. code-block:: shell
+
+       git checkout -b feature/AmazingFeature
+
+   Replace ``AmazingFeature`` with a short and descriptive name of your feature or fix.
+
+3. **Make Your Changes**: Implement the changes and improvements you wish to contribute. Ensure that your code adheres to the project's coding style and guidelines.
+
+4. **Commit Your Changes**: Commit your changes with a clear and concise message describing the modifications you made:
+
+   .. code-block:: shell
+
+       git add .
+       git commit -m 'Add some AmazingFeature'
+5. **Push to Your Branch**: Once your branch is up-to-date, push your changes to your GitHub repository:
+
+   .. code-block:: shell
+
+       git push origin feature/AmazingFeature
+
+Opening a Pull Request
+----------------------
+
+After pushing your changes to your GitHub repository, you can proceed to open a pull request (PR) to propose your changes for inclusion in the official MetaSynth repository:
+
+1. **Open a Pull Request**: Navigate to your forked repository on GitHub and click on the "Compare & pull request" button for the branch you want to merge. Provide a clear title and description for your PR, detailing the changes you made and any relevant context.
+
+2. **Review Process**: The project maintainers will review your PR, providing feedback and suggestions if needed. Please be patient during the review process, as it may take some time to thoroughly evaluate your contribution.
+
+3. **Merge Your Changes**: Once your PR is approved and any requested changes are addressed, the project maintainers will merge your changes into the official repository.
+
+Congratulations! You have successfully contributed to MetaSynth!
+

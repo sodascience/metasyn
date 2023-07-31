@@ -1,9 +1,9 @@
 Extensions
 ==========
-MetaSynth is developed with a strong focus on expandability, allowing developers to easily build upon its existing functionality. This page aims to document major extensions that are currently available.
+MetaSynth is developed with a strong focus on extensibility, allowing developers to easily build upon its existing functionality. This page aims to document major extensions that are currently available.
 
 .. note:: 
-    Refer to our :doc:`/developer` for more information on how to develop (additional functionality) for MetaSynth.
+    Refer to our :doc:`/developer/developer` for more information on how to develop (additional functionality) for MetaSynth.
 
 Disclosure control
 ------------------

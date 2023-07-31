@@ -1,11 +1,10 @@
 Quick start guide
 =================
 
-Get started quickly with MetaSynth using the following example. In this
-concise demonstration, you'll learn the basic functionality of MetaSynth
-by generating synthetic data from
-`titanic <https://raw.githubusercontent.com/pandas-dev/pandas/main/doc/data/titanic.csv>`__
-dataset.
+Get started quickly with MetaSynth using the following example. In this concise demonstration, you'll learn the basic functionality of MetaSynth by generating synthetic data from `titanic <https://raw.githubusercontent.com/pandas-dev/pandas/main/doc/data/titanic.csv>`_ dataset.
+
+.. note:: 
+   The steps on this page correspond to the basic tutorial available on the :doc:`/usage/interactive_tutorials` page. As such, if you prefer an interactive experience, check out the basic tutorial for a guided walkthrough!
 
 Importing Libraries
 -------------------
