@@ -7,6 +7,14 @@ Feedback, suggestions and issues:
 ---------------------------------
 If you encounter a bug or have a feature request, you can report it in the `issue tracker <https://github.com/sodascience/metasynth/issues>`_. Detailed bug reports and well-defined feature requests are highly appreciated. Additionally, you can help us by leaving suggestions or feedback on how to enhance MetaSynth on the project's `GitHub repository <https://github.com/sodascience/metasynth>`_. More information on getting in touch with us can be found on our :doc:`contact page </about/contact>`.
 
+.. image:: https://img.shields.io/badge/GitHub-blue?logo=github&link=https%3A%2F%2Fgithub.com%2Fsodascience%2Fmetasynth
+   :alt: GitHub Repository Button
+   :target: https://github.com/sodascience/metasynth
+
+.. image:: https://img.shields.io/badge/GitHub-Issue_Tracker-blue?logo=github&link=https%3A%2F%2Fgithub.com%2Fsodascience%2Fmetasynth%2Fissues   
+   :alt: GitHub Issue Tracker Button
+   :target: https://github.com/sodascience/metasynth/issues
+
 Contribute directly to the code or documentation:
 --------------------------------------------------
 You can contribute to the project by writing code to fix bugs, implement new features, or improve existing functionality. Alternatively, you can help improve the documentation by fixing errors, adding examples, or clarifying instructions.

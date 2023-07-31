@@ -3,20 +3,33 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+.. |break| raw:: html
+
+   <br />
 
 
 .. image:: /images/logos/blue.svg
    :alt: MetaSynth_Logo
-|
-.. 
-   the '|' gives a warning, but is required to maintain proper spacing between the image and the header.
-   
+
+|break|
+
+.. image:: https://img.shields.io/badge/GitHub-blue?logo=github&link=https%3A%2F%2Fgithub.com%2Fsodascience%2Fmetasynth
+   :alt: GitHub Repository Button
+   :target: https://github.com/sodascience/metasynth
+
+.. image:: https://img.shields.io/badge/GitHub-Issue_Tracker-blue?logo=github&link=https%3A%2F%2Fgithub.com%2Fsodascience%2Fmetasynth%2Fissues
+   :alt: GitHub Issue Tracker Button
+   :target: https://github.com/sodascience/metasynth/issues
+
+|break|
+
 MetaSynth Documentation
 =======================
 Welcome to the `MetaSynth <https://github.com/sodascience/metasynth/>`_ documentation. MetaSynth is a Python package that facilitates the generation of synthetic data and metadata, enabling users to create surrogate datasets that mimic the structure and characteristics of their original data while preserving privacy.
 
 .. warning:: 
    MetaSynth, and this documentation, are under active development. As a result, this documentation is still heavily work in progress. If you see any errors, missing content or have a suggestion for new content, feel free to :doc:`let us know </about/contact>`! 
+
 
 Documentation Outline
 ---------------------
@@ -58,3 +71,4 @@ Indices and tables
 
 * :ref:`genindex`
 * :ref:`modindex`
+
