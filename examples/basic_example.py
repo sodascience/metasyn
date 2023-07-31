@@ -28,7 +28,7 @@ spec_dict = {
 mf = MetaFrame.fit_dataframe(df, spec=spec_dict)
 
 # write to json
-mds.to_json("examples/basic_example.json")
+mf.to_json("examples/basic_example.json")
 
 # then, export json from secure environment
 
