@@ -5,8 +5,8 @@ Welcome to the MetaSynth User's Guide. This section features everything you need
 information on installation, quickstart, tutorials and information on the core features of the package.
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Usage:
+   :maxdepth: 1
+   :caption: Sections:
 
    installation
    quick_start

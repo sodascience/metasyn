@@ -5,7 +5,7 @@ Welcome to the MetaSynth About Section. This section is meant to provide more in
 
 .. toctree::
    :maxdepth: 1
-   :caption: About:
+   :caption: Sections:
    
    what_is
    contact
