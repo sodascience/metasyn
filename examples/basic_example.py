@@ -1,5 +1,5 @@
 import polars as pl
-from metasynth import MetaDataset
+from metasynth import MetaFrame
 
 # example dataframe from polars website
 df = pl.DataFrame(
@@ -24,8 +24,8 @@ spec_dict = {
     "B": {"unique": False}
 }
 
-# create metadataset
-mds = MetaDataset.from_dataframe(df, spec=spec_dict)
+# create MetaFrame
+mds = MetaFrame.fit_dataframe(df, spec=spec_dict)
 
 # write to json
 mds.to_json("examples/basic_example.json")
@@ -33,7 +33,7 @@ mds.to_json("examples/basic_example.json")
 # then, export json from secure environment
 
 # outside secure environment, load json
-mds_out = MetaDataset.from_json("examples/basic_example.json")
+mds_out = MetaFrame.from_json("examples/basic_example.json")
 
 # create a fake dataset
 mds_out.synthesize(10)
