@@ -25,7 +25,8 @@ class BaseDistribution(ABC):
     is_unique: bool = False
 
     @classmethod
-    def fit(cls, series: Union[Sequence, pl.Series], *args, **kwargs) -> BaseDistribution:
+    def fit(cls, series: Union[Sequence, pl.Series],
+            *args, **kwargs) -> BaseDistribution:
         """Fit the distribution to the series.
 
         Parameters
@@ -68,8 +69,17 @@ class BaseDistribution(ABC):
         """Reset the drawing of elements to start again."""
 
     def __str__(self) -> str:
-        """Create a human readable string of the object."""
-        return str(self.to_dict())
+        """Return an easy to read formatted string for the distribution."""
+        params_formatted = "\n".join(
+            f"\t- {param}: {value}" for param,
+            value in self._param_dict().items()
+        )
+        return (
+            f"- Type: {self.implements}\n"
+            f"- Provenance: {self.provenance}\n"
+            f"- Parameters:\n"
+            f"{params_formatted}\n"
+        )
 
     @abstractmethod
     def _param_dict(self):
@@ -149,9 +159,12 @@ class BaseDistribution(ABC):
         return cls()
 
 
-def metadist(implements: Optional[str] = None, provenance: Optional[str] = None,
-             var_type: Optional[str] = None, is_unique: Optional[bool] = None,
-             privacy: Optional[str] = None):
+def metadist(
+        implements: Optional[str] = None,
+        provenance: Optional[str] = None,
+        var_type: Optional[str] = None,
+        is_unique: Optional[bool] = None,
+        privacy: Optional[str] = None):
     """Decorate class to create a distribution with the right properties.
 
     Parameters
@@ -236,8 +249,8 @@ class ScipyDistribution(BaseDistribution):
     def information_criterion(self, values):
         vals = self._to_series(values)
         if len(vals) == 0:
-            return 2*self.n_par
+            return 2 * self.n_par
         return self._information_criterion(vals)
 
     def _information_criterion(self, values):
-        return 2*self.n_par - 2*np.sum(self.dist.logpdf(values))
+        return 2 * self.n_par - 2 * np.sum(self.dist.logpdf(values))

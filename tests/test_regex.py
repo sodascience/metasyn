@@ -26,7 +26,7 @@ def test_regex_single_digit(series_type):
         assert dist.re_list[0].character_selection == ["R"]
         assert dist.re_list[1].min_digit == 3
         assert dist.re_list[1].max_digit == 3
-        assert str(dist) == r"[R]\d{3,3}"
+        assert dist.regex_string == r"[R]\d{3,3}"
 
         for draw_str in [dist.draw() for _ in range(10)]:
             assert len(draw_str) == 4
@@ -96,9 +96,9 @@ def test_digits(digit_set, dist_class, regex_str, n_digits, series_type):
     assert dist.to_dict()["parameters"]["re_list"][0][0] == regex_str
     assert np.all([len(dist.draw()) == n_digits for _ in range(100)])
     assert np.all([c in digit_set for c in dist.draw()])
-    new_dist = dist_class.from_string(str(dist), 1.0)[0]
+    new_dist = dist_class.from_string(dist.regex_string, 1.0)[0]
     with raises(ValueError):
-        dist_class.from_string(str(dist), 3)[0]
+        dist_class.from_string(dist.regex_string, 3)[0]
     assert isinstance(new_dist, dist_class)
     assert new_dist.min_digit == dist.re_list[0].min_digit
     assert new_dist.max_digit == dist.re_list[0].max_digit
