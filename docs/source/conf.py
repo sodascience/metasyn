@@ -33,7 +33,7 @@ release = '0.3'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.napoleon', "sphinx.ext.autodoc", "sphinx_autodoc_typehints",
-              'sphinx_rtd_theme', "sphinx_inline_tabs",]
+              'sphinx_rtd_theme', "sphinx_inline_tabs", "sphinx_copybutton"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
