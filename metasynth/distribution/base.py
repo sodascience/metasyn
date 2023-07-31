@@ -23,6 +23,7 @@ class BaseDistribution(ABC):
     provenance: str = "builtin"
     privacy: str = "none"
     is_unique: bool = False
+    version: str = "1.0"
 
     @classmethod
     def fit(cls, series: Union[Sequence, pl.Series],
@@ -89,6 +90,7 @@ class BaseDistribution(ABC):
         """Convert the distribution to a dictionary."""
         return {
             "implements": self.implements,
+            "version": self.version,
             "provenance": self.provenance,
             "class_name": self.__class__.__name__,
             "parameters": deepcopy(self._param_dict()),
@@ -106,6 +108,7 @@ class BaseDistribution(ABC):
             "type": "object",
             "properties": {
                 "implements": {"const": cls.implements},
+                "version": {"type": "string"},
                 "provenance": {"const": cls.provenance},
                 "class_name": {"const": cls.__name__},
                 "parameters": {
@@ -164,6 +167,7 @@ def metadist(
         provenance: Optional[str] = None,
         var_type: Optional[Union[str, list[str]]] = None,
         is_unique: Optional[bool] = None,
+        version: Optional[str] = None,
         privacy: Optional[str] = None):
     """Decorate class to create a distribution with the right properties.
 
@@ -196,6 +200,8 @@ def metadist(
             cls.is_unique = is_unique
         if privacy is not None:
             cls.privacy = privacy
+        if version is not None:
+            cls.version = version
         return cls
     return _wrap
 

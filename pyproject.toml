@@ -37,6 +37,7 @@ dependencies = [
     "importlib-metadata;python_version<'3.10'",
     "importlib-resources;python_version<'3.9'",
     "wget",
+    "regexmodel>=0.2.0"
 ]
 
 dynamic = ["version"]
