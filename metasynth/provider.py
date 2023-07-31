@@ -19,6 +19,7 @@ except ImportError:
 import numpy as np
 import polars as pl
 
+from metasynth.distribution.na import NADistribution
 from metasynth.distribution.base import BaseDistribution
 from metasynth.distribution.categorical import MultinoulliDistribution
 from metasynth.distribution.continuous import (ExponentialDistribution,
@@ -188,6 +189,8 @@ class DistributionProviderList():
         BaseDistribution:
             Distribution fitted to the series.
         """
+        if len(series.drop_nulls()) == 0:
+            return NADistribution()
         dist_list = self._get_dist_list(privacy, var_type)
         if len(dist_list) == 0:
             raise ValueError(f"No available distributions with variable type: '{var_type}'")
@@ -228,7 +231,10 @@ class DistributionProviderList():
         tuple[Type[BaseDistribution], dict[str, Any]]:
             A distribution and the arguments to create an instance.
         """
-        for dist_class in self._get_dist_list(privacy):
+        if NADistribution.matches_name(dist_name):
+            return NADistribution
+
+        for dist_class in self._get_dist_list(privacy) + [NADistribution]:
             if dist_class.matches_name(dist_name) and dist_class.privacy == privacy.name:
                 return dist_class
         raise ValueError(f"Cannot find distribution with name '{dist_name}'.")
@@ -258,19 +264,20 @@ class DistributionProviderList():
             Fitted distribution.
         """
         dist_instance = None
+        if isinstance(dist, BaseDistribution):
+            return dist
 
         if isinstance(dist, str):
             dist_class = self.find_distribution(dist, privacy=privacy)
-            dist_instance = dist_class.fit(series, **privacy.fit_kwargs, **fit_kwargs)
         elif inspect.isclass(dist) and issubclass(dist, BaseDistribution):
-            dist_instance = dist.fit(series, **privacy.fit_kwargs, **fit_kwargs)
-        if isinstance(dist, BaseDistribution):
-            dist_instance = dist
-
-        if dist_instance is None:
+            dist_class = dist
+        else:
             raise TypeError(
-                f"Distribution with type {type(dist)} is not a BaseDistribution")
-
+                f"Distribution {dist} with type {type(dist)} is not a BaseDistribution")
+        if issubclass(dist_class, NADistribution):
+            dist_instance = dist_class.default_distribution()
+        else:
+            dist_instance = dist_class.fit(series, **privacy.fit_kwargs, **fit_kwargs)
         return dist_instance
 
     def _get_dist_list(self, privacy: Optional[BasePrivacy] = None,
@@ -300,7 +307,7 @@ class DistributionProviderList():
         BaseDistribution:
             Distribution representing the dictionary.
         """
-        for dist_class in self._get_dist_list(var_type=var_dict["type"]):
+        for dist_class in self._get_dist_list(var_type=var_dict["type"]) + [NADistribution]:
             if dist_class.implements == var_dict["distribution"]["implements"]:
                 return dist_class.from_dict(var_dict["distribution"])
         raise ValueError(f"Cannot find distribution with name "

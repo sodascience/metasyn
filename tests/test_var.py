@@ -41,7 +41,7 @@ def check_var(series, var_type, temp_path):
     assert isinstance(series, (pd.Series, pl.Series))
     var = MetaVar.detect(series)
     assert isinstance(str(var), str)
-    assert "prop_missing" in str(var)
+    assert "Proportion of Missing Values" in str(var)
 
     with raises(ValueError):
         var.draw_series(100)
@@ -150,6 +150,17 @@ def test_bool(tmp_path, series_type):
     series = series_type(np.random.choice([True, False], size=100))
     with raises(ValueError):
         check_var(series, "categorical", tmp_path)
+
+
+@mark.parametrize(
+    "prop_missing",
+    [-1, -0.1, 1.2],
+)
+def test_invalid_prop(prop_missing):
+    with raises(ValueError):
+        MetaVar("continuous")
+    with raises(ValueError):
+        MetaVar("continuous", prop_missing=prop_missing)
 
 
 @mark.parametrize(

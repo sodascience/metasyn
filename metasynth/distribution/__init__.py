@@ -20,11 +20,12 @@ from metasynth.distribution.discrete import (DiscreteUniformDistribution,
 from metasynth.distribution.faker import FakerDistribution
 from metasynth.distribution.regex import (RegexDistribution,
                                           UniqueRegexDistribution)
-
+from metasynth.distribution.na import NADistribution
 __all__ = [
     "MultinoulliDistribution", "UniformDistribution", "NormalDistribution",
     "LogNormalDistribution", "TruncatedNormalDistribution", "ExponentialDistribution",
     "DiscreteUniformDistribution", "PoissonDistribution", "UniqueKeyDistribution",
     "UniformDateDistribution", "UniformDateTimeDistribution", "UniformTimeDistribution",
     "FakerDistribution", "RegexDistribution", "UniqueRegexDistribution",
+    "NADistribution",
 ]

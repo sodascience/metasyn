@@ -12,6 +12,8 @@ except ImportError:
 import jsonschema
 
 from metasynth.provider import get_distribution_provider
+from metasynth.distribution.na import NADistribution
+
 
 SCHEMA_BASE = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -85,6 +87,7 @@ def create_schema(packages: list[str]) -> dict:
         pkg = get_distribution_provider(package_name)
         for dist in pkg.distributions:
             defs.append(dist.schema())
+    defs.append(NADistribution.schema())
 
     schema = deepcopy(SCHEMA_BASE)
     schema.update({"$defs": {"all_dist_def": {"anyOf": defs}}})
