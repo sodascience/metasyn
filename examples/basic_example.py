@@ -36,4 +36,4 @@ mf.to_json("examples/basic_example.json")
 mf_out = MetaFrame.from_json("examples/basic_example.json")
 
 # create a fake dataset
-mds_out.synthesize(10)
+mf_out.synthesize(10)
