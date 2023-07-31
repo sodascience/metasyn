@@ -46,13 +46,7 @@ The following shows a basic overview of the steps needed to do so.
    .. code-block:: shell
 
        git push origin feature/AmazingFeature
-6. After pushing your changes to your GitHub repository, you can proceed to open a pull request (PR) to propose your changes for inclusion in the official MetaSynth repository:
-
-  1. **Open a Pull Request**: Navigate to your forked repository on GitHub and click on the "Compare & pull request" button for the branch you want to merge. Provide a clear title and description for your PR, detailing the changes you made and any relevant context.
-
-  2. **Review Process**: The project maintainers will review your PR, providing feedback and suggestions if needed. Please be patient during the review process, as it may take some time to thoroughly evaluate your contribution.
-
-  3. **Merge Your Changes**: Once your PR is approved and any requested changes are addressed, the project maintainers will merge your changes into the official repository.
-
-Congratulations! You have successfully contributed to MetaSynth!
+6.  **Open a Pull Request**: After pushing your changes to your GitHub repository, you can proceed to open a pull request (PR) to propose your changes for inclusion in the official MetaSynth repository. Navigate to your forked repository on GitHub and click on the "Compare & pull request" button for the branch you want to merge. Provide a clear title and description for your PR, detailing the changes you made and any relevant context.
+7.  **Review Process**: The project maintainers will review your PR, providing feedback and suggestions if needed. Please be patient during the review process, as it may take some time to thoroughly evaluate your contribution. Once your PR is approved and any requested changes are addressed, the project maintainers will merge your changes into the official repository.
+8.  **Congratulations**! You have successfully contributed to MetaSynth!
 
