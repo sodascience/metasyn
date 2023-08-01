@@ -1,4 +1,4 @@
-Developer's Guide
+Developer Guide
 =================
 
 This guide is mainly directed at developers working on the MetaSynth package, but it may be useful for users that want
