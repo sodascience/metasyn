@@ -1,8 +1,7 @@
-Developer's Guide
+Detailed Overview
 =================
 
-This guide is mainly directed at developers working on the MetaSynth package, but it may be useful for users that want
-more control over the workings of the MetaSynth package.
+This page features a detailed overview of MetaSynth's modules, with the goal of helping developers get started developing for MetaSynth.
 
 MetaSynth File
 --------------
@@ -65,7 +64,6 @@ MetaDistribution
 
 This class will likely be removed at some point due to a lack of functionality. Only the fit function is currently used by
 `MetaVar`. It should be either be removed or added to a new `DistributionTree` class.
-
 
 Distributions
 -------------

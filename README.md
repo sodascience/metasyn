@@ -3,7 +3,7 @@
 [![Google Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sodascience/metasynth/blob/main/examples/getting_started.ipynb)
 [![docs](https://readthedocs.org/projects/metasynth/badge/?version=latest)](https://metasynth.readthedocs.io/en/latest/index.html)
 
-![MetaSynth Logo](docs/source/images/logo/blue.svg)
+![MetaSynth Logo](docs/source/images/logos/blue.svg)
 
 # MetaSynth
 MetaSynth is a Python package designed to generate tabular synthetic data for rigorous code testing and reproducibility.
@@ -250,4 +250,4 @@ Do you have questions, suggestions, or remarks on the technical implementation? 
 issue tracker or feel free to contact [Erik-Jan van Kesteren](https://github.com/vankesteren)
 or [Raoul Schram](https://github.com/qubixes).
 
-<img src="docs/soda.png" alt="SoDa logo" width="250px"/> 
+<img src="docs/source/images/logos/soda.png" alt="SoDa logo" width="250px"/> 

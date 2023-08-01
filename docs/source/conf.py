@@ -19,11 +19,12 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'MetaSynth'
-copyright = '2022, SODA Team'
+copyright = '2023, SODA Team'
 author = 'SODA Team'
 
+
 # The full version, including alpha/beta/rc tags
-release = '0.1'
+release = '0.3'
 
 
 # -- General configuration ---------------------------------------------------
@@ -32,7 +33,7 @@ release = '0.1'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.napoleon', "sphinx.ext.autodoc", "sphinx_autodoc_typehints",
-              'sphinx_rtd_theme']
+              'sphinx_rtd_theme', "sphinx_inline_tabs", "sphinx_copybutton"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -49,6 +50,10 @@ exclude_patterns = []
 # a list of builtin themes.
 #
 html_theme = 'sphinx_rtd_theme'
+html_logo = 'images/logos/white_med.png'
+html_theme_options = {
+    'logo_only': True, 
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
