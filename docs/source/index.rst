@@ -36,7 +36,7 @@ MetaSynth is a Python package for generating synthetic tabular data that statist
 This approach ensures the synthetic data remains separate and independent from any sensitive source data. Researchers and data owners can use MetaSynth to generate and share synthetic versions of their sensitive datasets, mitigating privacy concerns. Furthermore, the separation of metadata from original data promotes reproducibility, as the shareable metadata can be used to generate consistent synthetic data.
 
 .. note:: 
-   For more information on MetaSynth and its features, check out :doc:`/about/what_is`.
+   For more information on MetaSynth and its features, check out :doc:`/about/what_is`
 
 .. warning:: 
    MetaSynth, and this documentation, are under active development. As a result, this documentation is still heavily work in progress. If you see any errors, missing content or have a suggestion for new content, feel free to :doc:`let us know </about/contact>`! 
@@ -58,7 +58,7 @@ This documentation is designed to help you easily navigate and find the informat
 
 :doc:`/about/about`
 ^^^^^^^^^^^^^^^^^^^
-The :doc:`About Section </about/about>` provides a brief overview of MetaSynth's purpose and functionality, contact information, frequently asked questions (FAQs), and licensing details.
+The :doc:`About Section </about/about>` provides a brief overview of MetaSynth's purpose and functionality, contact information, and licensing details.
 
 :doc:`/usage/usage`
 ^^^^^^^^^^^^^^^^^^^
@@ -72,8 +72,9 @@ The :doc:`/api/metasynth` is a technical reference for MetaSynth. Here, each fun
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The :doc:`/developer/developer` provides resources for those interested in contributing to MetaSynth's development. This section includes guidance on how to build upon the existing MetaSynth codebase, add new modules, functions, or even integrate other packages.
 
-
-
+:doc:`/faq`
+^^^^^^^^^^^^^^^^^^^
+The :doc:`/faq` contains commonly asked questions and answers about MetaSynth. 
 
 
 

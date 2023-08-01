@@ -15,18 +15,3 @@ While the base MetaSynth package is generally good at protecting privacy, it doe
 Additional distributions
 ------------------------
 It is possible to add additional distribution types. Unfortunately, at this moment, no additional packages with distributions are publicly available. However, we encourage developers and users to explore the possibilities and contribute their custom distributions to enrich the MetaSynth ecosystem further. 
-
-
-
-
-
-
-|
-
-
-
- 
-
-
-
-

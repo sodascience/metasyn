@@ -9,5 +9,4 @@ Welcome to the MetaSynth About Section. This section is meant to provide more in
    
    what_is
    contact
-   faq
    license
