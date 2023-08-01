@@ -18,7 +18,7 @@ from metasynth.validation import validate_gmf_dict
 from metasynth.var import MetaVar
 
 
-class MetaDataset():
+class MetaFrame():
     """MetaSynth dataset consisting of variables.
 
     The MetaSynth dataset structure that is most easily created from
@@ -45,15 +45,13 @@ class MetaDataset():
         return len(self.meta_vars)
 
     @classmethod
-    def from_dataframe(cls,
-                       df: pl.DataFrame,
-                       spec: Optional[dict[str,
-                                           dict]] = None,
-                       dist_providers: Union[str,
-                                             list[str],
-                                             BaseDistributionProvider,
-                                             list[BaseDistributionProvider]] = "builtin",
-                       privacy: Optional[BasePrivacy] = None):
+    def fit_dataframe(
+            cls,
+            df: pl.DataFrame,
+            spec: Optional[dict[str, dict]] = None,
+            dist_providers: Union[str, list[str], BaseDistributionProvider,
+                                  list[BaseDistributionProvider]] = "builtin",
+            privacy: Optional[BasePrivacy] = None):
         """Create a MetaSynth object from a polars (or pandas) dataframe.
 
         The Polars dataframe should be formatted already with the correct
@@ -110,7 +108,7 @@ class MetaDataset():
 
         Returns
         -------
-        MetaDataset:
+        MetaFrame:
             Initialized MetaSynth dataset.
         """
         if privacy is None:
@@ -233,7 +231,7 @@ class MetaDataset():
 
     @classmethod
     def from_json(cls, fp: Union[pathlib.Path, str],
-                  validate: bool = True) -> MetaDataset:
+                  validate: bool = True) -> MetaFrame:
         """Read a MetaSynth dataset from a JSON file.
 
         Parameters
@@ -245,8 +243,8 @@ class MetaDataset():
 
         Returns
         -------
-        MetaDataset:
-            A restored metadataset from the file.
+        MetaFrame:
+            A restored MetaFrame from the file.
         """
         with open(fp, "r", encoding="utf-8") as f:
             self_dict = json.load(f)
@@ -275,7 +273,7 @@ class MetaDataset():
         return pl.DataFrame(synth_dict)
 
     def __repr__(self) -> str:
-        """Return the MetaDataSet as it would be output to JSON."""
+        """Return the MetaFrame as it would be output to JSON."""
         pretty_data = _jsonify(self.to_dict())
         output = json.dumps(pretty_data, indent=4)
         return output

@@ -6,7 +6,7 @@ import pandas as pd
 import polars as pl
 from pytest import mark
 
-from metasynth.dataset import MetaDataset
+from metasynth.dataset import MetaFrame
 from metasynth.var import MetaVar
 from metasynth.provider import get_distribution_provider
 
@@ -41,7 +41,7 @@ def test_dataset(tmp_path, dataframe_lib):
     titanic_fp = Path("tests", "data", "titanic.csv")
     tmp_fp = tmp_path / "tmp.json"
     df = _read_csv(titanic_fp, dataframe_lib)
-    dataset = MetaDataset.from_dataframe(
+    dataset = MetaFrame.fit_dataframe(
         df,
         spec={
                 "Name": {"prop_missing": 0.5},
@@ -73,7 +73,7 @@ def test_dataset(tmp_path, dataframe_lib):
 
     check_dataset(dataset)
     dataset.to_json(tmp_fp)
-    dataset = MetaDataset.from_json(tmp_fp)
+    dataset = MetaFrame.from_json(tmp_fp)
     check_dataset(dataset)
 
     dataset.descriptions = {"Embarked": "Some description", "Sex": "Other description"}
@@ -94,7 +94,7 @@ def test_dataset(tmp_path, dataframe_lib):
 
     # Check whether non-columns raise an error
     with pytest.raises(ValueError):
-        dataset = MetaDataset.from_dataframe(df, spec={"unicorn": {"prop_missing": 0.5}})
+        dataset = MetaFrame.fit_dataframe(df, spec={"unicorn": {"prop_missing": 0.5}})
 
 
 def test_distributions(tmp_path):
@@ -105,5 +105,5 @@ def test_distributions(tmp_path):
         for dist in provider.get_dist_list(var_type):
             var = MetaVar(var_type, name="None", distribution=dist.default_distribution(),
                           prop_missing=random())
-            dataset = MetaDataset([var], n_rows=10)
+            dataset = MetaFrame([var], n_rows=10)
             dataset.to_json(tmp_fp)
