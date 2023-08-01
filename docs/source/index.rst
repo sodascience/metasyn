@@ -13,12 +13,6 @@
 
 |break|
 
-MetaSynth Documentation
-=======================
-Welcome to the `MetaSynth <https://github.com/sodascience/metasynth/>`_ documentation. 
-
-MetaSynth is a Python package that generates synthetic tabular data. It extracts metadata like variable names, types, distributions, and the proportion of missing data from an input dataset. This metadata can be saved in an easy to read and easy to share `format <https://github.com/sodascience/generative_metadata_format>`_. MetaSynth then leverages the metadata to produce a new synthetic dataset that statistically resembles the original, without containing any original entries. The key features include metadata extraction, synthetic data generation, distribution fitting, support for various data types, integration with Faker for realistic fake data, structured string detection, and handling of unique values. By separating metadata from actual data, MetaSynth enables sharing useful statistical patterns instead of private values. This improves reproducibility and confidentiality when working with sensitive datasets. The synthetic data can be used for code testing, experimentation, and documentation without risks of re-identification.
-
 .. image:: https://img.shields.io/badge/GitHub-blue?logo=github&link=https%3A%2F%2Fgithub.com%2Fsodascience%2Fmetasynth
    :alt: GitHub Repository Button
    :target: https://github.com/sodascience/metasynth
@@ -26,6 +20,23 @@ MetaSynth is a Python package that generates synthetic tabular data. It extracts
 .. image:: https://img.shields.io/badge/GitHub-Issue_Tracker-blue?logo=github&link=https%3A%2F%2Fgithub.com%2Fsodascience%2Fmetasynth%2Fissues
    :alt: GitHub Issue Tracker Button
    :target: https://github.com/sodascience/metasynth/issues
+
+|break|
+
+MetaSynth Documentation
+=======================
+Welcome to the `MetaSynth <https://github.com/sodascience/metasynth/>`_ documentation. 
+
+MetaSynth is a Python package for generating synthetic tabular data that statistically resembles a source dataset without exposing real values. It has two main functionalities:
+
+1. First, MetaSynth can **extract metadata** including variable names, types, distributions, and missing data patterns from an input dataset. This metadata describes the overarching structure and characteristics of the dataset. This metadata can be saved in an easy to read and easy to share `format <https://github.com/sodascience/generative_metadata_format>`_.
+
+2. Second, MetaSynth leverages this metadata to **produce new synthetic data** that maintains key statistical properties and structure of the original dataset. Instead of relying on the actual data, the synthetic data is generated from the metadata.
+
+This approach ensures the synthetic data remains separate and independent from any sensitive source data. Researchers and data owners can use MetaSynth to generate and share synthetic versions of their sensitive datasets, mitigating privacy concerns. Furthermore, the separation of metadata from original data promotes reproducibility, as the shareable metadata can be used to generate consistent synthetic data.
+
+.. note:: 
+   For more information on MetaSynth and its features, check out :doc:`/about/what_is`.
 
 .. warning:: 
    MetaSynth, and this documentation, are under active development. As a result, this documentation is still heavily work in progress. If you see any errors, missing content or have a suggestion for new content, feel free to :doc:`let us know </about/contact>`! 
