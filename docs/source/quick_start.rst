@@ -70,9 +70,9 @@ distributions of the polars DataFrame:
 
 .. code-block:: python
 
-	from metasynth import MetaFrame
+	from metasynth import MetaDataset
 
-	dataset = MetaFrame.fit_dataframe(df)
+	dataset = MetaDataset.from_dataframe(df)
 
 
 Internally, the dataset is simply a list of all the column variables, with their statistical properties. Next, write it
@@ -92,7 +92,7 @@ To create the synthetic dataset we will first read the file (this is technically
 
 .. code-block:: python
 
-	dataset = MetaFrame.from_json("titanic.json")
+	dataset = MetaDataset.from_json("titanic.json")
 
 
 From the dataset it is easy to create a synthetic dataset with e.g. 100 rows:
