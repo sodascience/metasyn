@@ -15,7 +15,7 @@ The first step in any Python project is to import the necessary libraries. For t
 .. code:: python
 
    import polars as pl
-   import metasynth as ms
+   from metasynth import MetaFrame, demo_file
 
 
 Loading the Dataset
@@ -25,7 +25,7 @@ Next, load the Titanic CSV file, for this we can use the built-in :meth:`metasyn
 
 .. code-block:: python
 
-   dataset_csv = ms.demo_file() 
+   dataset_csv = demo_file() 
 
 Then, we create a dictionary with information on the data types of the various columns/variables. This will be used in the next step, when we convert the CSV file to a DataFrame.
 
@@ -44,23 +44,25 @@ To finish loading the dataset, we simply use the :meth:`polars.read_csv` functio
 
 .. code-block:: python
 
-   dataframe = pl.read_csv(dataset_csv, dtypes=data_types)
+   df = pl.read_csv(dataset_csv, dtypes=data_types)
 
 
-This converts the CSV file into a DataFrame.
+This converts the CSV file into a DataFrame named ``df``.
 
 .. note:: 
 	In this example, we used a Polars DataFrame, but Pandas DataFrames are also supported by MetaSynth. 
 
 
-Generating the MetaDataset
+Generating the MetaFrame
 --------------------------
-With the DataFrame loaded, you can now generate a :obj:`MetaDataset<metasynth.dataset.MetaDataset>`.
+With the DataFrame loaded, you can now generate a :obj:`MetaFrame <metasynth.dataset.MetaFrame>`.
 
 
 .. code-block:: python
 
-   metadataset = ms.MetaDataset.from_dataframe(dataframe)
+   mf = MetaFrame.fit_dataframe(df)
+
+This creates a MetaFrame named ``mf``.
 
 .. Note:: 
 	At this point, you might get a warning about a potential unique variable, but we can ignore that for now as it's safe to continue.
@@ -68,30 +70,30 @@ With the DataFrame loaded, you can now generate a :obj:`MetaDataset<metasynth.da
 	``Variable PassengerId seems unique, but not set to be unique. Set the variable to be either unique or not unique to remove this warning. warnings.warn(f"\nVariable {series.name} seems unique, but not set to be unique.\n"``
 
 
-Saving and Loading the MetaDataset
+Saving and Loading the MetaFrame
 ----------------------------------
 
-The MetaDataset can be saved to a .JSON file for future use.
+The MetaFrame can be saved to a .JSON file for future use.
 
 .. code-block:: python
 
-   metadataset.to_json("metadata.json")
+   mf.to_json("exported_metaframe.json")
 
 To load a saved MetaDataset, use the following code:
 
 .. code-block:: python
 
-   metadataset = ms.MetaDataset.from_json("metadata.json")
+   mf = MetaFrame.from_json("exported_metaframe.json")
 
 Synthesizing the Data
 ---------------------
 
-With the metadataset loaded, you can synthesize new data based on the original dataset. To do so, we simply call the :meth:`metasynth.dataset.MetaDataset.synthesize` function on the :obj:`MetaDataset<metasynth.dataset.MetaDataset>`, and pass in the number of rows we'd like to generate as a parameter. Let's generate five rows of synthetic data.
+With the :obj:`MetaFrame <metasynth.dataset.MetaFrame>` loaded, you can synthesize new data. To do so, we simply call the :meth:`metasynth.dataset.MetaFrame.synthesize` function on the :obj:`MetaFrame<metasynth.dataset.MetaFrame>`, and pass in the number of rows we'd like to generate as a parameter. Let's generate five rows of synthetic data.
 
 
 .. code-block:: python
 
-   synthetic_data = metadata.synthesize(5) 
+   synthetic_data = mf.synthesize(5) 
 
 
 Conclusion
