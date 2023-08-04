@@ -111,7 +111,7 @@ By separating the metadata and original data, this approach also promotes reprod
 
 
 Generating a MetaFrame
--------------------------
+----------------------
 MetaSynth can generate metadata from any given dataset (provided as Polars or Pandas DataFrame), using the :meth:`metasynth.MetaFrame.fit_dataframe(df) <metasynth.dataset.MetaFrame.fit_dataframe>` classmethod.
 
 .. image:: /images/flow_metadata_generation_code.png
