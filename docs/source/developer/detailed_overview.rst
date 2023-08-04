@@ -31,7 +31,7 @@ The full schema that describes the structure of this file is included in the
 `GitHub repository <https://github.com/sodascience/meta-synth/blob/main/metasynth/schema/metasynth-1_0.json>`_.
 
 MetaFrame
------------
+---------
 
 The main datastructure that the user will interface with. It contains exactly the information of the MetaSynth File. The main
 initialization methods are the classmethods :meth:`metasynth.dataset.MetaFrame.from_json` (to load from a file) and 
