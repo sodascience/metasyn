@@ -25,6 +25,7 @@ To generate a synthetic dataset, call the :meth:`MetaFrame.synthesize(n) <metasy
 The following code generates 5 rows of data based on a :obj:`MetaFrame <metasynth.dataset.MetaFrame>` named ``mf``.
 
 .. code-block:: python
+   
    mf.synthesize(5)
 
 Upon succesful execution of the :meth:`MetaFrame.synthesize(n)<metasynth.dataset.MetaFrame.synthesize>` method, a `Polars DataFrame <https://pola-rs.github.io/polars/py-polars/html/reference/dataframe/index.html>`_ will be returned.
