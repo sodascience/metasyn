@@ -71,7 +71,7 @@ This creates a MetaFrame named ``mf``.
 
 
 Saving and Loading the MetaFrame
-----------------------------------
+--------------------------------
 
 The MetaFrame can be saved to a .JSON file for future use.
 
