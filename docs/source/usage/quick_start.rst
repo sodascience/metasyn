@@ -54,7 +54,7 @@ This converts the CSV file into a DataFrame named ``df``.
 
 
 Generating the MetaFrame
---------------------------
+------------------------
 With the DataFrame loaded, you can now generate a :obj:`MetaFrame <metasynth.dataset.MetaFrame>`.
 
 
