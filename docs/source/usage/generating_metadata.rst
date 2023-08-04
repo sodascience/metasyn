@@ -120,6 +120,7 @@ MetaSynth can generate metadata from any given dataset (provided as Polars or Pa
 This function requires a :obj:`DataFrame` to be specified as parameter. The following code returns a :obj:`MetaFrame<metasynth.dataset.MetaFrame>` object named :obj:`mf`, based on a DataFrame named :obj:`df`.
 
 .. code-block:: python
+    
    mf = metasynth.MetaFrame.from_dataframe(df)
 
 .. note:: 
@@ -135,7 +136,7 @@ The following code exports a generated :obj:`MetaFrame<metasynth.dataset.MetaFra
 .. code-block:: python
 
    mf.to_json("exported_metaframe.json")
-..
+
 
 Exporting a :obj:`MetaFrame <metasynth.dataset.MetaFrame>` allows for manual (or automatic) inspection, editing, and easy sharing. 
 
