@@ -7,6 +7,7 @@ import sys
 from metasynth._version import __version__
 from metasynth import MetaFrame
 
+
 def main():
     """Parse arguments and generate synthetic data."""
     parser = argparse.ArgumentParser(
@@ -24,7 +25,7 @@ def main():
         type=pathlib.Path
     )
     parser.add_argument(
-        "-n", 
+        "-n",
         "--num_rows",
         help="Number of rows to synthesize",
         default=None,
