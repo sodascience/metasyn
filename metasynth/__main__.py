@@ -49,39 +49,38 @@ def main():
 
     print(args)
     # Create the metaframe from the json file
-    mf = MetaFrame.from_json(args.input)
+    meta_frame = MetaFrame.from_json(args.input)
 
     if args.print_only:
         # only print one row and exit
-        print(mf.synthesize(1))
+        print(meta_frame.synthesize(1))
         sys.exit(0)
 
     # Generate a data frame
     if args.num_rows is not None:
-        df = mf.synthesize(args.num_rows)
+        data_frame = meta_frame.synthesize(args.num_rows)
     else:
-        df = mf.synthesize(mf.n_rows)
+        data_frame = meta_frame.synthesize(meta_frame.n_rows)
 
     # Store the dataframe to file
-    match args.output.suffix:
-        case ".csv":
-            df.write_csv(args.output)
-        case ".feather":
-            df.write_ipc(args.output)
-        case ".parquet":
-            df.write_parquet(args.output)
-        case ".xlsx":
-            df.write_excel(args.output)
-        case ".pkl":
-            with open(args.output, "wb") as f:
-                pickle.dump(df, file=f)
-                f.close()
-        case _:
-            print(
-                f"Output file format ({args.output.suffix}) incorrect.",
-                "Use .csv, .feather, .parquet, .pkl, or .xlsx."
-            )
-            sys.exit(1)
+    if args.output.suffix == ".csv":
+        data_frame.write_csv(args.output)
+    elif args.output.suffix == ".feather":
+        data_frame.write_ipc(args.output)
+    elif args.output.suffix == ".parquet":
+        data_frame.write_parquet(args.output)
+    elif args.output.suffix == ".xlsx":
+        data_frame.write_excel(args.output)
+    elif args.output.suffix == ".pkl":
+        with open(args.output, "wb") as pkl_file:
+            pickle.dump(data_frame, file=pkl_file)
+            pkl_file.close()
+    else:
+        print(
+            f"Output file format ({args.output.suffix}) incorrect.",
+            "Use .csv, .feather, .parquet, .pkl, or .xlsx."
+        )
+        sys.exit(1)
     sys.exit(0)
 
 
