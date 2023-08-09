@@ -50,6 +50,9 @@ test = [
 	"sphinx<7.0.0", "sphinx-rtd-theme", "sphinxcontrib-napoleon", "sphinx-autodoc-typehints", "sphinx_inline_tabs", "sphinx_copybutton"
 ]
 
+[project.scripts]
+metasynth = "metasynth.__main__:main"
+
 [project.entry-points."metasynth.distribution_provider"]
 builtin = "metasynth.provider:BuiltinDistributionProvider"
 
