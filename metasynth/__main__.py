@@ -16,44 +16,45 @@ def main():
     )
     parser.add_argument(
         "input",
-        help="Input file.",
+        help="input file; typically .json adhering to the Generative Metadata Format",
         type=pathlib.Path
     )
     parser.add_argument(
         "output",
-        help="Output file. File extension should be one of: .csv, .feather, .parquet, .pkl, .xlsx",
+        help="output file (.csv, .feather, .parquet, .pkl, or .xlsx)",
+        nargs="?",
         type=pathlib.Path
     )
     parser.add_argument(
-        "-n",
-        "--num_rows",
-        help="Number of rows to synthesize",
+        "-n", "--num_rows",
+        help="number of rows to synthesize",
         default=None,
         type=int,
         required=False
     )
     parser.add_argument(
         "-p", "--print_only",
-        help="print one-row data frame to console and exit",
+        help="print six-row data frame to console and exit",
         action="store_true"
     )
     # version
     parser.add_argument(
-        "-v",
-        "--version",
+        "-v", "--version",
         action="version",
         version=f"%(prog)s {__version__}",
     )
 
     args, _ = parser.parse_known_args()
 
-    print(args)
+    if not args.print_only and not args.output:
+        parser.error("Output file is required.")
+
     # Create the metaframe from the json file
     meta_frame = MetaFrame.from_json(args.input)
 
     if args.print_only:
-        # only print one row and exit
-        print(meta_frame.synthesize(1))
+        # only print six rows and exit
+        print(meta_frame.synthesize(6))
         sys.exit(0)
 
     # Generate a data frame
@@ -76,11 +77,10 @@ def main():
             pickle.dump(data_frame, file=pkl_file)
             pkl_file.close()
     else:
-        print(
-            f"Output file format ({args.output.suffix}) incorrect.",
+        parser.error(
+            f"Output file format ({args.output.suffix}) incorrect." +
             "Use .csv, .feather, .parquet, .pkl, or .xlsx."
         )
-        sys.exit(1)
     sys.exit(0)
 
 
