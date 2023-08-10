@@ -1,3 +1,4 @@
+import sys
 import subprocess
 from pathlib import Path
 from pytest import mark, fixture
@@ -36,10 +37,20 @@ def tmp_dir(tmp_path_factory) -> Path:
 @mark.parametrize("ext", [".csv", ".feather", ".parquet", ".pkl", ".xlsx"])
 def test_cli(tmp_dir, ext):
     """A simple integration test for reading and writing using the CLI"""
-    input_file = tmp_dir / "titanic.json"
-    output_file = tmp_dir / f"titanic{ext}"
+    
+    # create out file path with correct extension
+    out_file = tmp_dir / f"titanic{ext}"
+
+    # create command to run in subprocess with arguments
+    cmd = [
+        Path(sys.executable).resolve(),   # the python executable
+        Path("metasynth", "__main__.py"), # the cli script
+        "-n 25",                          # only generate 25 samples
+        tmp_dir / "titanic.json",         # the input file
+        out_file                          # the output file
+    ]
 
     # Run the cli with different extensions
-    result = subprocess.run(["metasynth", "-n 25", input_file, output_file], check=False)
+    result = subprocess.run(cmd, check=False)
     assert result.returncode == 0
-    assert output_file.is_file()
+    assert out_file.is_file()
