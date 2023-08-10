@@ -37,7 +37,7 @@ def tmp_dir(tmp_path_factory) -> Path:
 def test_cli(tmp_dir, ext):
     """A simple integration test for reading and writing using the CLI"""
     input_file = tmp_dir / "titanic.json"
-    output_file = tmp_dir / f"titanic.{ext}"
+    output_file = tmp_dir / f"titanic{ext}"
 
     # Run the cli with different extensions
     result = subprocess.run(f"metasynth -n 25 {input_file} {output_file}", check=False)
