@@ -40,6 +40,6 @@ def test_cli(tmp_dir, ext):
     output_file = tmp_dir / f"titanic{ext}"
 
     # Run the cli with different extensions
-    result = subprocess.run(f"metasynth -n 25 {input_file} {output_file}", check=False)
+    result = subprocess.run(["metasynth", "-n 25", input_file, output_file], check=False)
     assert result.returncode == 0
     assert output_file.is_file()
