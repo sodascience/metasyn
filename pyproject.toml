@@ -24,9 +24,9 @@ classifiers = [
 ]
 
 dependencies = [
-	"pandas",
-	"polars>=0.14.17",
-	"numpy>=1.20",
+    "pandas",
+    "polars>=0.14.17",
+    "numpy>=1.20",
     "pyarrow",  # Dependency of polars since we're converting from pandas.
     "scipy",
     "numpy>=1.20",
@@ -46,9 +46,14 @@ documentation = "https://metasynth.readthedocs.io/en/latest/index.html"
 
 [project.optional-dependencies]
 test = [
-	"pytest", "pylint", "pydocstyle", "mypy", "flake8", "nbval",
-	"sphinx<7.0.0", "sphinx-rtd-theme", "sphinxcontrib-napoleon", "sphinx-autodoc-typehints", "sphinx_inline_tabs", "sphinx_copybutton"
+    "pytest", "pylint", "pydocstyle", "mypy", "flake8", "nbval",
+    "sphinx<7.0.0", "sphinx-rtd-theme", "sphinxcontrib-napoleon", 
+    "sphinx-autodoc-typehints", "sphinx_inline_tabs", "sphinx_copybutton",
+    "XlsxWriter"
 ]
+
+[project.scripts]
+metasynth = "metasynth.__main__:main"
 
 [project.entry-points."metasynth.distribution_provider"]
 builtin = "metasynth.provider:BuiltinDistributionProvider"
@@ -61,13 +66,13 @@ write_to = "metasynth/_version.py"
 
 [[tool.mypy.overrides]]
 module = [
-	"scipy.*",
-	"pandas.*",
-	"jsonschema.*",
-	"sklearn.*",
-	"importlib_metadata.*",
-	"importlib_resources.*",
-	"wget.*",
+    "scipy.*",
+    "pandas.*",
+    "jsonschema.*",
+    "sklearn.*",
+    "importlib_metadata.*",
+    "importlib_resources.*",
+    "wget.*",
 ]
 ignore_missing_imports = true
 
