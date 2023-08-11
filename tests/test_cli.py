@@ -45,6 +45,7 @@ def test_cli(tmp_dir, ext):
     cmd = [
         Path(sys.executable).resolve(),   # the python executable
         Path("metasynth", "__main__.py"), # the cli script
+        "synthesize",                     # the subcommand
         "-n 25",                          # only generate 25 samples
         tmp_dir / "titanic.json",         # the input file
         out_file                          # the output file

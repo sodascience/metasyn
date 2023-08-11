@@ -2,6 +2,7 @@
 import argparse
 import pathlib
 import pickle
+import sys
 
 from metasynth._version import __version__
 from metasynth import MetaFrame
@@ -12,6 +13,7 @@ def main():
     parser = argparse.ArgumentParser(
         prog="metasynth",
         description="Synthesize data from Generative Metadata Format .json file.",
+        usage="%(prog)s synthesize [options] input output"
     )
     parser.add_argument(
         "input",
@@ -43,6 +45,12 @@ def main():
         version=f"%(prog)s {__version__}",
     )
 
+    # pop the shim subcommand and check that it is "synthesize"
+    subcommand = sys.argv.pop(1)
+    if subcommand != "synthesize":
+        parser.error(f"Invalid subcommand ({subcommand}).")
+
+    # parse the args without the shim subcommand
     args, _ = parser.parse_known_args()
 
     if not args.preview and not args.output:
