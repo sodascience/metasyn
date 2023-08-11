@@ -2,7 +2,6 @@
 import argparse
 import pathlib
 import pickle
-import sys
 
 from metasynth._version import __version__
 from metasynth import MetaFrame
@@ -33,8 +32,8 @@ def main():
         required=False
     )
     parser.add_argument(
-        "-p", "--print_only",
-        help="print six-row data frame to console and exit",
+        "-p", "--preview",
+        help="preview six-row synthesized data frame in console and exit",
         action="store_true"
     )
     # version
@@ -46,16 +45,16 @@ def main():
 
     args, _ = parser.parse_known_args()
 
-    if not args.print_only and not args.output:
+    if not args.preview and not args.output:
         parser.error("Output file is required.")
 
     # Create the metaframe from the json file
     meta_frame = MetaFrame.from_json(args.input)
 
-    if args.print_only:
+    if args.preview:
         # only print six rows and exit
         print(meta_frame.synthesize(6))
-        sys.exit(0)
+        return
 
     # Generate a data frame
     if args.num_rows is not None:
@@ -75,13 +74,11 @@ def main():
     elif args.output.suffix == ".pkl":
         with open(args.output, "wb") as pkl_file:
             pickle.dump(data_frame, file=pkl_file)
-            pkl_file.close()
     else:
         parser.error(
-            f"Output file format ({args.output.suffix}) incorrect." +
+            f"Unsupported output file format ({args.output.suffix})." +
             "Use .csv, .feather, .parquet, .pkl, or .xlsx."
         )
-    sys.exit(0)
 
 
 if __name__ == "__main__":
