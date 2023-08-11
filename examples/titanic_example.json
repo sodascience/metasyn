@@ -4,9 +4,9 @@
     "provenance": {
         "created by": {
             "name": "MetaSynth",
-            "version": "0.3.0"
+            "version": "0.4.0"
         },
-        "creation time": "2023-06-05T08:43:30.641471"
+        "creation time": "2023-08-07T12:14:06.740514"
     },
     "vars": [
         {
@@ -206,17 +206,10 @@
             "dtype": "Utf8",
             "prop_missing": 1.0,
             "distribution": {
-                "implements": "core.regex",
+                "implements": "core.na",
                 "provenance": "builtin",
-                "class_name": "RegexDistribution",
-                "parameters": {
-                    "re_list": [
-                        [
-                            "\\d{3,4}",
-                            0.67
-                        ]
-                    ]
-                }
+                "class_name": "NADistribution",
+                "parameters": {}
             }
         }
     ]

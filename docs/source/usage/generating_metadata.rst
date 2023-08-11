@@ -20,81 +20,103 @@ This metadata can be exported as a .JSON file, allowing for manual and automatic
 .. code-block:: json
 
     {
-       "n_rows": 5,
-       "n_columns": 4,
-       "provenance": {
-           "created by": {
-               "name": "MetaSynth",
-               "version": "0.1.2+15.ged3af36",
-               "privacy": null
-           },
-           "creation time": "2022-11-17T13:54:16.686166"
-       },
-       "vars": [
-           {
-               "name": "ID",
-               "type": "discrete",
-               "dtype": "<class 'polars.datatypes.Int64'>",
-               "prop_missing": 0.0,
-               "distribution": {
-                   "name": "UniqueKeyDistribution",
-                   "parameters": {
-                       "low": 1,
-                       "consecutive": 1
-                   }
-               }
-           },
-           {
-               "name": "fruits",
-               "type": "categorical",
-               "dtype": "<class 'polars.datatypes.Categorical'>",
-               "prop_missing": 0.0,
-               "distribution": {
-                   "name": "MultinoulliDistribution",
-                   "parameters": {
-                       "labels": [
-                           "apple",
-                           "banana"
-                       ],
-                       "probs": [
-                           0.4,
-                           0.6
-                       ]
-                   }
-               }
-           },
-           {
-               "name": "B",
-               "type": "discrete",
-               "dtype": "<class 'polars.datatypes.Int64'>",
-               "prop_missing": 0.0,
-               "distribution": {
-                   "name": "PoissonDistribution",
-                   "parameters": {
-                       "mu": 3.0
-                   }
-               }
-           },
-           {
-               "name": "cars",
-               "type": "categorical",
-               "dtype": "<class 'polars.datatypes.Categorical'>",
-               "prop_missing": 0.0,
-               "distribution": {
-                   "name": "MultinoulliDistribution",
-                   "parameters": {
-                       "labels": [
-                           "audi",
-                           "beetle"
-                       ],
-                       "probs": [
-                           0.2,
-                           0.8
-                       ]
-                   }
-               }
-           },
-       ]
+        "n_rows": 5,
+        "n_columns": 5,
+        "provenance": {
+            "created by": {
+                "name": "MetaSynth",
+                "version": "0.4.0"
+            },
+            "creation time": "2023-08-07T12:14:06.232957"
+        },
+        "vars": [
+            {
+                "name": "ID",
+                "type": "discrete",
+                "dtype": "Int64",
+                "prop_missing": 0.0,
+                "distribution": {
+                    "implements": "core.unique_key",
+                    "provenance": "builtin",
+                    "class_name": "UniqueKeyDistribution",
+                    "parameters": {
+                        "low": 1,
+                        "consecutive": 1
+                    }
+                }
+            },
+            {
+                "name": "fruits",
+                "type": "categorical",
+                "dtype": "Categorical",
+                "prop_missing": 0.0,
+                "distribution": {
+                    "implements": "core.multinoulli",
+                    "provenance": "builtin",
+                    "class_name": "MultinoulliDistribution",
+                    "parameters": {
+                        "labels": [
+                            "apple",
+                            "banana"
+                        ],
+                        "probs": [
+                            0.4,
+                            0.6
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "B",
+                "type": "discrete",
+                "dtype": "Int64",
+                "prop_missing": 0.0,
+                "distribution": {
+                    "implements": "core.poisson",
+                    "provenance": "builtin",
+                    "class_name": "PoissonDistribution",
+                    "parameters": {
+                        "mu": 3.0
+                    }
+                }
+            },
+            {
+                "name": "cars",
+                "type": "categorical",
+                "dtype": "Categorical",
+                "prop_missing": 0.0,
+                "distribution": {
+                    "implements": "core.multinoulli",
+                    "provenance": "builtin",
+                    "class_name": "MultinoulliDistribution",
+                    "parameters": {
+                        "labels": [
+                            "audi",
+                            "beetle"
+                        ],
+                        "probs": [
+                            0.2,
+                            0.8
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "optional",
+                "type": "discrete",
+                "dtype": "Int64",
+                "prop_missing": 0.2,
+                "distribution": {
+                    "implements": "core.discrete_uniform",
+                    "provenance": "builtin",
+                    "class_name": "DiscreteUniformDistribution",
+                    "parameters": {
+                        "low": -30,
+                        "high": 301
+                    }
+                }
+            }
+        ]
    }
 
 

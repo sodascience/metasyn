@@ -29,23 +29,24 @@ This metadata follows the GMF standard, [Generative Metadata Format (GMF)](https
 ```json
  {
     "n_rows": 5,
-    "n_columns": 4,
+    "n_columns": 5,
     "provenance": {
         "created by": {
             "name": "MetaSynth",
-            "version": "0.1.2+15.ged3af36",
-            "privacy": null
+            "version": "0.4.0"
         },
-        "creation time": "2022-11-17T13:54:16.686166"
+        "creation time": "2023-08-07T12:04:40.669740"
     },
     "vars": [
         {
             "name": "ID",
             "type": "discrete",
-            "dtype": "<class 'polars.datatypes.Int64'>",
+            "dtype": "Int64",
             "prop_missing": 0.0,
             "distribution": {
-                "name": "UniqueKeyDistribution",
+                "implements": "core.unique_key",
+                "provenance": "builtin",
+                "class_name": "UniqueKeyDistribution",
                 "parameters": {
                     "low": 1,
                     "consecutive": 1
@@ -55,10 +56,12 @@ This metadata follows the GMF standard, [Generative Metadata Format (GMF)](https
         {
             "name": "fruits",
             "type": "categorical",
-            "dtype": "<class 'polars.datatypes.Categorical'>",
+            "dtype": "Categorical",
             "prop_missing": 0.0,
             "distribution": {
-                "name": "MultinoulliDistribution",
+                "implements": "core.multinoulli",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
                 "parameters": {
                     "labels": [
                         "apple",
@@ -74,10 +77,12 @@ This metadata follows the GMF standard, [Generative Metadata Format (GMF)](https
         {
             "name": "B",
             "type": "discrete",
-            "dtype": "<class 'polars.datatypes.Int64'>",
+            "dtype": "Int64",
             "prop_missing": 0.0,
             "distribution": {
-                "name": "PoissonDistribution",
+                "implements": "core.poisson",
+                "provenance": "builtin",
+                "class_name": "PoissonDistribution",
                 "parameters": {
                     "mu": 3.0
                 }
@@ -86,10 +91,12 @@ This metadata follows the GMF standard, [Generative Metadata Format (GMF)](https
         {
             "name": "cars",
             "type": "categorical",
-            "dtype": "<class 'polars.datatypes.Categorical'>",
+            "dtype": "Categorical",
             "prop_missing": 0.0,
             "distribution": {
-                "name": "MultinoulliDistribution",
+                "implements": "core.multinoulli",
+                "provenance": "builtin",
+                "class_name": "MultinoulliDistribution",
                 "parameters": {
                     "labels": [
                         "audi",
@@ -102,6 +109,21 @@ This metadata follows the GMF standard, [Generative Metadata Format (GMF)](https
                 }
             }
         },
+        {
+            "name": "optional",
+            "type": "discrete",
+            "dtype": "Int64",
+            "prop_missing": 0.2,
+            "distribution": {
+                "implements": "core.discrete_uniform",
+                "provenance": "builtin",
+                "class_name": "DiscreteUniformDistribution",
+                "parameters": {
+                    "low": -30,
+                    "high": 301
+                }
+            }
+        }
     ]
 }
 ```
