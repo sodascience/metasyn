@@ -63,6 +63,17 @@ class FakerDistribution(BaseDistribution):
 
 @metadist(implements="core.unique_faker", var_type="string")
 class UniqueFakerDistribution(FakerDistribution):
+    """Faker distribution that returns unique values.
+
+    It will raise a ValueError if it runs out of new values to draw from
+
+    Parameters
+    ----------
+    faker_type: str
+        The provider function in the faker package, e.g. 'city' or 'ipv4', etc.
+    locale: str
+        Locale used for the faker package.
+    """
     def __init__(self, faker_type: str, locale: str = "en_US"):
         super().__init__(faker_type, locale)
         self.key_set: set[str] = set()
