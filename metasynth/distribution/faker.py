@@ -64,37 +64,3 @@ class FakerDistribution(BaseDistribution):
 @metadist(implements="core.unique_faker", var_type="string")
 class UniqueFakerDistribution(UniqueMixin, FakerDistribution):
     """Faker distribution that returns unique values."""
-
-
-# @metadist(implements="core.unique_faker", var_type="string", is_unique=True)
-# class UniqueFakerDistribution(FakerDistribution):
-#     """Faker distribution that returns unique values.
-
-#     It will raise a ValueError if it runs out of new values to draw from
-
-#     Parameters
-#     ----------
-#     faker_type: str
-#         The provider function in the faker package, e.g. 'city' or 'ipv4', etc.
-#     locale: str
-#         Locale used for the faker package.
-#     """
-#     def __init__(self, faker_type: str, locale: str = "en_US"):
-#         super().__init__(faker_type, locale)
-#         self.key_set: set[str] = set()
-
-#     def draw_reset(self):  
-#         self.key_set = set()
-
-#     def draw(self) -> str:
-#         n_try = 0
-#         while n_try < 1e5:
-#             new_val = super().draw()
-#             if new_val not in self.key_set:
-#                 self.key_set.add(new_val)
-#                 return new_val
-#             n_try += 1
-#         raise ValueError("Failed to draw unique string after 100.000 tries.")
-
-#     def information_criterion(self, values):
-#         return 99999
