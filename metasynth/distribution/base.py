@@ -254,3 +254,27 @@ class ScipyDistribution(BaseDistribution):
 
     def _information_criterion(self, values):
         return 2 * self.n_par - 2 * np.sum(self.dist.logpdf(values))
+
+
+@metadist(is_unique=True)
+class UniqueMixin(BaseDistribution):
+    """Mixin class to make unique version of base distribution."""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.key_set: set = set()
+
+    def draw_reset(self):
+        self.key_set = set()
+
+    def draw(self) -> object:
+        n_retry = 0
+        while n_retry < 1e5:
+            new_val = super().draw()
+            if new_val not in self.key_set:
+                self.key_set.add(new_val)
+                return new_val
+            n_retry += 1
+        raise ValueError(f"Failed to draw unique string after {n_retry} tries.")
+
+    def information_criterion(self, values):
+        return 9999999
