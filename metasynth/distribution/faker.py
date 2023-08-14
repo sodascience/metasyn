@@ -61,7 +61,7 @@ class FakerDistribution(BaseDistribution):
         }
 
 
-@metadist(implements="core.unique_faker", var_type="string", unique=True)
+@metadist(implements="core.unique_faker", var_type="string", is_unique=True)
 class UniqueFakerDistribution(FakerDistribution):
     """Faker distribution that returns unique values.
 
