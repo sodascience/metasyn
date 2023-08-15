@@ -13,7 +13,7 @@ The package has two main functionalities. First, it allows for the **creation of
 
 ## Features
 ### Generating metadata from a dataset
-MetaSynth can generate metadata from any given dataset (provided as polars or pandas dataframe) in the form of MetaFrames. MetaFrames encapsulate the structure and characteristics of each column in the original dataset (including their names, variable types, data types, proportion of missing values and distribution specifications) and serve as complete recipes for generating new synthetic data. 
+MetaSynth can generate metadata from any given dataset (provided as polars or pandas dataframe) in the form of a MetaFrame. A MetaFrame encapsulates the structure and characteristics of each column in the original dataset (including their names, variable types, data types, proportion of missing values and distribution specifications) and serves as complete recipes for generating new synthetic data. 
 
 MetaFrames follow the GMF standard, [Generative Metadata Format (GMF)](https://github.com/sodascience/generative_metadata_format) and as such are designed to be easy to read. MetaFrames can be exported as .JSON file allowing for manual and automatic editing, as well as easy sharing.
 
