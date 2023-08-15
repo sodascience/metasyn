@@ -111,7 +111,7 @@ MetaSynth can then be used to **generate synthetic data** from any GMF standard 
 ![Synthetic_data_generation](docs/source/images/flow_synthetic_data_generation.png)
 
 The generated synthetic data, emulates the original data's format and plausibility at the individual record level and attempts to reproduce marginal (univariate) distributions where possible. Generated values are based on the observed distributions while adding a degree of variance and smoothing. The generated data does **not** aim to preserve the relationships between variables. The frequency of missing values and their codes are maintained in the synthetically-augmented dataset. 
- 
+
 ### Overview of features
 - **Metadata Generation**: MetaSynth allows the extraction of metadata from a dataset provided as a Polars or Pandas dataframe. Metadata includes key characteristics such as variable names, types, data types, the percentage of missing values, and distribution attributes.
 - **Synthetic Data Generation**: MetaSynth allows for the generation of a polars DataFrame with synthetic data that resembles the original data.
