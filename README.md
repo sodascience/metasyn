@@ -13,18 +13,14 @@ The package has two main functionalities. First, it allows for the **creation of
 
 ## Features
 ### Generating metadata from a dataset
-MetaSynth can generate metadata from any given dataset (provided as polars or pandas dataframe). 
+MetaSynth can generate metadata from any given dataset (provided as polars or pandas dataframe) in the form of a MetaFrame. A MetaFrame encapsulates the structure and characteristics of each column in the original dataset (including their names, variable types, data types, proportion of missing values and distribution specifications) and serves as complete recipes for generating new synthetic data. 
 
-This metadata describes the structure and characteristics of the variables in the synthetic dataset (including their names, types, data types, proportion of missing values, and distribution specifications). 
-
-This metadata follows the GMF standard, [Generative Metadata Format (GMF)](https://github.com/sodascience/generative_metadata_format) and as such is designed to be easy to read. It can be exported as .JSON file allowing for manual and automatic editing, as well as easy sharing.
-
+MetaFrames follow the GMF standard, [Generative Metadata Format (GMF)](https://github.com/sodascience/generative_metadata_format) and as such are designed to be easy to read. MetaFrames can be exported as .JSON file allowing for manual and automatic editing, as well as easy sharing.
 
 ![Metadata_generation_flowchart](docs/source/images/flow_metadata_generation.png)
 
-
 <details> 
-<summary> A simple example of a GMF file: </summary>
+<summary> A simple example of an exported MetaFrame (following the GMF standard): </summary>
 
 ```json
  {
@@ -131,8 +127,6 @@ This metadata follows the GMF standard, [Generative Metadata Format (GMF)](https
 A more advanced example GMF, based on the [Titanic](https://raw.githubusercontent.com/pandas-dev/pandas/main/doc/data/titanic.csv) dataset, can be found [here](examples/titanic_example.json)
 </details>
 
-
-
 ### Generating synthetic data from a GMF file
 MetaSynth can then be used to **generate synthetic data** from any GMF standard .JSON file.
 
@@ -177,18 +171,18 @@ It is important to start by importing the appropriate libraries:
 ```python
 # import libraries
 import polars as pl
-import metasynth as ms
+from metasynth import MetaFrame, demo_file
 ```
 
-#### Generating metadata
+#### Generating a MetaFrame 
 ##### 1.  Begin by creating a polars dataframe:
 ```python
 # import the demo csv 
-dataset_csv = ms.demo_file() # This function automatically loads the Titanic dataset (as found here )
+dataset_csv = demo_file() # This function automatically loads the Titanic dataset (as found here )
 
 
 # create dataframe
-dtypes = { 
+data_types = {
     "Sex": pl.Categorical,
     "Embarked": pl.Categorical,
     "Survived": pl.Categorical,
@@ -197,7 +191,7 @@ dtypes = { 
     "Parch": pl.Categorical
 }
 
-df = pl.read_csv(dataset_csv, dtypes=dtypes)
+df = pl.read_csv(dataset_csv, dtypes=data_types)
 ```
 
 <details>
@@ -205,18 +199,18 @@ df = pl.read_csv(dataset_csv, dtypes=dtypes)
      Note on using Pandas
      </summary>
      
-Internally, MetaSynth uses polars (instead of pandas) mainly because typing and the handling of non-existing data is more
-consistent. It is possible to supply a pandas DataFrame instead of a polars DataFrame to `MetaDataset.from_dataframe`.
+Internally, MetaSynth uses Polars (instead of Pandas) mainly because typing and the handling of non-existing data is more
+consistent. It is possible to supply a Pandas DataFrame instead of a polars DataFrame to `MetaFrame.fit_dataframe`.
 However, this uses the automatic polars conversion functionality, which for some edge cases result in problems. Therefore,
-we advise users to create polars DataFrames. The resulting synthetic dataset is always a polars dataframe, but this can
-be easily converted back to a pandas DataFrame by using `df_pandas = df_polars.to_pandas()`.
+we advise users to create Polars DataFrames. The resulting synthetic dataset is always a polars dataframe, but this can
+be easily converted back to a Pandas DataFrame by using `df_pandas = df_polars.to_pandas()`.
 </details>
 
-##### 2. Next, we can generate a metadataset from the polars dataframe.
+##### 2. Next, we can generate a MetaFrame from the polars DataFrame.
 
 ```python
-# create metadata
-metadata = ms.MetaDataset.from_dataframe(df)
+# create a MetaFrame (mf) from the DataFrame (df)
+mf = MetaFrame.fit_dataframe(df)
 ```
 
 > Note: if at this point you get the following warning about a potential unique variable, do not worry, it is safe to continue.
@@ -225,29 +219,27 @@ metadata = ms.MetaDataset.from_dataframe(df)
 > Variable PassengerId seems unique, but not set to be unique. Set the variable to be either unique or not unique to remove this warning. warnings.warn(f"\nVariable {series.name} seems unique, but not set to be unique.\n"
 > ```
 
-##### 3. We can export this metadataset to a .JSON file using:
+##### 3. We can export this MetaFrame to a .JSON file using:
 
 ```python
-#export metadata
-metadata.to_json("metadata.json")
+#export MetaFrame
+mf.to_json("exported_metaframe.json")
 ```
 
 #### Generating synthetic data
 
 ##### 1. We can load metadata from a .JSON file:
 ```python
-# load metadata
-metadata = ms.MetaDataset.from_json("metadata.json")
+# load MetaFrame
+mf = MetaFrame.from_json("exported_metaframe.json")
 ```
 
-##### 2. We can then synthesize a series of rows, based on this metadata using:
+##### 2. We can then synthesize a DataFrame based on a loaded MetaFrame using:
 
 ```python
-# synthesize 5 rows of data
-synthetic_data = metadata.synthesize(5) 
+# synthesize a DataFrame with 5 rows of data based on a MetaFrame
+synthetic_data = mf.synthesize(5) 
 ```
-
-
 
 
 
