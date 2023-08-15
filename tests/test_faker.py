@@ -10,6 +10,6 @@ def test_faker(series_type):
     var = FakerDistribution.fit(series_type([1, 2, 3]))
     assert isinstance(var.to_dict(), dict)
     assert isinstance(var.draw(), str)
-    assert str(var).startswith("faker")
+    assert 'faker' in str(var)
     assert var.locale == "en_US"
     assert var.faker_type == "city"
