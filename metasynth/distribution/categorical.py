@@ -54,9 +54,6 @@ class MultinoulliDistribution(BaseDistribution):
             "probs": {"type": "array", "items": {"type": "number"}},
         }
 
-    def __str__(self):
-        return str(self.to_dict())
-
     def draw(self):
         return str(np.random.choice(self.labels, p=self.probs))
 

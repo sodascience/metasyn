@@ -24,7 +24,7 @@ def test_util(dist_str, dist):
     provider_list = DistributionProviderList("builtin")
     dist_class = provider_list.find_distribution(dist_str)
     assert dist == dist_class
-    if dist_str.startswith("faker"):
+    if "faker" in dist_str:
         with raises(ValueError):
             provider_list.find_distribution("this is not a distribution")
     new_class = provider_list.find_distribution(dist_class.__name__)
