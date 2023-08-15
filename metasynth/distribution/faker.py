@@ -34,9 +34,6 @@ class FakerDistribution(BaseDistribution):
         """Select the appropriate faker function and locale."""
         return cls(faker_type, locale)
 
-    def __str__(self):
-        return f"faker.{self.faker_type}.{self.locale}"
-
     def draw(self):
         return getattr(self.fake, self.faker_type)()
 
