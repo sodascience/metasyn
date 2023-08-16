@@ -4,7 +4,7 @@ from typing import Iterable, Optional
 from faker import Faker
 from lingua import LanguageDetectorBuilder
 from lingua._constant import LETTERS, PUNCTUATION
-# LETTERS: Pattern = regex.compile(r"\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}|\p{L}+") 
+# LETTERS: Pattern = regex.compile(r"\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}|\p{L}+")
 # PUNCTUATION: Pattern = regex.compile(r"\p{P}")
 from scipy.stats import poisson
 
@@ -134,7 +134,7 @@ class UnstructuredTextDistribution(BaseDistribution):
         lang = detector.detect_language_of("\n".join(values))
         if lang is None:
             return None
-        return str(lang.iso_code_639_1).split(".")[-1]
+        return str(lang.iso_code_639_1).rsplit(".", maxsplit=1)[-1]
 
     def draw(self):
         if self.avg_sentences is None:
