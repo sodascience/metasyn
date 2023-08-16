@@ -147,8 +147,9 @@ class UnstructuredTextDistribution(BaseDistribution):
         n_words = max(1, poisson(avg_words_per_sent).rvs())
         return " ".join(self.fake.sentence(nb_words=n_words) for _ in range(n_sentences))
 
-    def information_criterion(self, values: Iterable) -> float:
-        lang = self.detect_language(values)
+    def information_criterion(self, values) -> float:
+        series = self._to_series(values)
+        lang = self.detect_language(series)
         if lang is None:
             return 9999999
         return -1
