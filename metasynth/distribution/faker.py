@@ -3,7 +3,7 @@ from typing import Iterable
 
 from faker import Faker
 
-from metasynth.distribution.base import metadist, BaseDistribution, UniqueMixin
+from metasynth.distribution.base import metadist, BaseDistribution, UniqueDistributionMixin
 
 
 @metadist(implements="core.faker", var_type="string")
@@ -62,5 +62,5 @@ class FakerDistribution(BaseDistribution):
 
 
 @metadist(implements="core.unique_faker", var_type="string")
-class UniqueFakerDistribution(UniqueMixin, FakerDistribution):
+class UniqueFakerDistribution(UniqueDistributionMixin, FakerDistribution):
     """Faker distribution that returns unique values."""

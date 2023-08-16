@@ -257,7 +257,7 @@ class ScipyDistribution(BaseDistribution):
 
 
 @metadist(is_unique=True)
-class UniqueMixin(BaseDistribution):
+class UniqueDistributionMixin(BaseDistribution):
     """Mixin class to make unique version of base distribution."""
 
     def __init__(self, *args, **kwargs):
