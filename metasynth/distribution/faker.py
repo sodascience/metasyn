@@ -2,7 +2,11 @@
 from typing import Iterable, Optional
 
 from faker import Faker
-from lingua import Language, LanguageDetectorBuilder
+from lingua import LanguageDetectorBuilder
+from lingua._constant import LETTERS, PUNCTUATION
+# LETTERS: Pattern = regex.compile(r"\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}|\p{L}+") 
+# PUNCTUATION: Pattern = regex.compile(r"\p{P}")
+from scipy.stats import poisson
 import numpy as np
 
 from metasynth.distribution.base import metadist, BaseDistribution, UniqueDistributionMixin
@@ -93,6 +97,8 @@ class UnstructuredTextDistribution(BaseDistribution):
         """Select the appropriate faker function and locale."""
         detector = LanguageDetectorBuilder.from_all_languages().with_low_accuracy_mode().build()
         lang = detector.detect_language_of("\n".join(values))
+        if lang is None:
+            return cls.default_distribution()
         lang_str = str(lang.iso_code_639_1).split(".")[-1]
 
         try:
@@ -100,28 +106,26 @@ class UnstructuredTextDistribution(BaseDistribution):
         except AttributeError:
             lang_str = "EN"
 
-        all_text = " ".join(values)
+        all_text = "\n".join(values)
         n_non_empty = (values != "").sum()
-        n_sentences = len(all_text.split("."))
-        n_words = len(all_text.split(" "))
-        if n_sentences < n_non_empty//3:
+        n_punctuation = len(list(PUNCTUATION.finditer(all_text)))
+        n_words = len(list(LETTERS.finditer(all_text)))
+        if n_punctuation < n_non_empty//3:
             avg_sentence = None
         else:
-            avg_sentence = n_sentences/len(values)
+            avg_sentence = n_punctuation/len(values)
         avg_words = n_words/len(values)
         return cls(lang_str, avg_sentence, avg_words)
 
-    # def __str__(self):
-        # return f"faker.{self.faker_type}.{self.locale}"
-
     def draw(self):
         if self.avg_sentences is None:
-            n_words = np.random.randint(2*int(self.avg_words+1)) + 1
+            n_words = max(1, poisson(self.avg_words).rvs())
             sentence = self.fake.sentence(n_words)
             return sentence[:-1]
 
-        n_sentences = np.random.randint(2*int(self.avg_sentences+1))
-        n_words = np.random.randint(2*int(self.avg_words+1)+1)
+        n_sentences = max(1, poisson(self.avg_sentences).rvs())
+        avg_words_per_sent = max(1, self.avg_words/max(1, self.avg_sentences))
+        n_words = max(1, poisson(avg_words_per_sent).rvs())
         return " ".join(self.fake.sentence(nb_words=n_words) for _ in range(n_sentences))
 
     def information_criterion(self, values: Iterable) -> float:
