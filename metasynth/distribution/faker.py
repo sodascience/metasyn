@@ -7,7 +7,6 @@ from lingua._constant import LETTERS, PUNCTUATION
 # LETTERS: Pattern = regex.compile(r"\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}|\p{L}+") 
 # PUNCTUATION: Pattern = regex.compile(r"\p{P}")
 from scipy.stats import poisson
-import numpy as np
 
 from metasynth.distribution.base import metadist, BaseDistribution, UniqueDistributionMixin
 
@@ -71,19 +70,21 @@ class UniqueFakerDistribution(UniqueDistributionMixin, FakerDistribution):
 
 @metadist(implements="core.unstructured", var_type="string")
 class UnstructuredTextDistribution(BaseDistribution):
-    """Distribution for the faker package.
+    """Distribution for unstructured text.
 
-    This is mainly an interface for the faker package, so that it
-    can be used within the MetaSynth package. It doesn't have any
-    true fitting/statistical inference method, so it has to be manually
-    selected.
+    This distribution detects the language and generates sentences using
+    the Faker package. The average number of sentences and words per item
+    are detected using regexes (with the lingua package).
 
     Parameters
     ----------
-    faker_type: str
-        The provider function in the faker package, e.g. 'city' or 'ipv4', etc.
     locale: str
         Locale used for the faker package.
+    avg_sentences:
+        Average number of sentences (punctuation marks) per (non-NA) row,
+        if None do not make sentences.
+    avg_words:
+        Average number of words per (non-NA) row.
     """
 
     def __init__(self, locale: str, avg_sentences: Optional[float], avg_words: int):
@@ -95,11 +96,9 @@ class UnstructuredTextDistribution(BaseDistribution):
     @classmethod
     def _fit(cls, values):
         """Select the appropriate faker function and locale."""
-        detector = LanguageDetectorBuilder.from_all_languages().with_low_accuracy_mode().build()
-        lang = detector.detect_language_of("\n".join(values))
-        if lang is None:
+        lang_str = cls.detect_language(values)
+        if lang_str is None:
             return cls.default_distribution()
-        lang_str = str(lang.iso_code_639_1).split(".")[-1]
 
         try:
             Faker(lang_str)
@@ -117,6 +116,26 @@ class UnstructuredTextDistribution(BaseDistribution):
         avg_words = n_words/len(values)
         return cls(lang_str, avg_sentence, avg_words)
 
+    @classmethod
+    def detect_language(cls, values: Iterable) -> Optional[str]:
+        """Detect the language of some text.
+
+        Parameters
+        ----------
+        values:
+            Values to detect the language of (usually polars dataframe).
+
+        Returns
+        -------
+        language:
+            Two letter ISO code to represent the language, or None if it could not be determined.
+        """
+        detector = LanguageDetectorBuilder.from_all_languages().with_low_accuracy_mode().build()
+        lang = detector.detect_language_of("\n".join(values))
+        if lang is None:
+            return None
+        return str(lang.iso_code_639_1).split(".")[-1]
+
     def draw(self):
         if self.avg_sentences is None:
             n_words = max(1, poisson(self.avg_words).rvs())
@@ -129,7 +148,10 @@ class UnstructuredTextDistribution(BaseDistribution):
         return " ".join(self.fake.sentence(nb_words=n_words) for _ in range(n_sentences))
 
     def information_criterion(self, values: Iterable) -> float:
-        return 99999
+        lang = self.detect_language(values)
+        if lang is None:
+            return 9999999
+        return -1
 
     @classmethod
     def default_distribution(cls):
