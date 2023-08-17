@@ -13,7 +13,7 @@ import polars as pl
 from metasynth.distribution.base import metadist, BaseDistribution
 
 
-@metadist(implements="core.multinoulli", var_type="categorical")
+@metadist(implements="core.multinoulli", var_type=["categorical", "discrete", "string"])
 class MultinoulliDistribution(BaseDistribution):
     """Categorical distribution that stores category labels and probabilities.
 
@@ -42,7 +42,7 @@ class MultinoulliDistribution(BaseDistribution):
     def _fit(cls, values: pl.Series):
         labels, counts = np.unique(values, return_counts=True)
         probs = counts/np.sum(counts)
-        return cls(labels.astype(str), probs)
+        return cls(labels, probs)
 
     def _param_dict(self):
         return {"labels": self.labels, "probs": self.probs}
@@ -50,7 +50,7 @@ class MultinoulliDistribution(BaseDistribution):
     @classmethod
     def _param_schema(cls):
         return {
-            "labels": {"type": "array", "items": {"type": "string"}, "uniqueItems": True},
+            "labels": {"type": "array", "uniqueItems": True},
             "probs": {"type": "array", "items": {"type": "number"}},
         }
 

@@ -68,14 +68,17 @@ class BaseDistributionProvider(ABC):
         list[Type[BaseDistribution]]:
             List of distributions with that variable type.
         """
-        return [dist_class for dist_class in self.distributions if dist_class.var_type == var_type]
+        return [dist_class for dist_class in self.distributions if var_type in dist_class.var_type]
 
     @property
     def all_var_types(self) -> List[str]:
         """Return list of available variable types."""
         var_type_set = set()
         for dist in self.distributions:
-            var_type_set.add(dist.var_type)
+            if isinstance(dist.var_type, str):
+                var_type_set.add(dist.var_type)
+            else:
+                var_type_set.update(dist.var_type)
         return list(var_type_set)
 
 
