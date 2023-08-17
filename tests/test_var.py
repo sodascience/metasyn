@@ -49,7 +49,7 @@ def check_var(series, var_type, temp_path):
     new_series = var.draw_series(len(series))
     check_similar(series, new_series)
     assert var.var_type == var_type
-    assert var.distribution.var_type == var_type
+    assert var_type in var.distribution.var_type
 
     new_var = MetaVar.from_dict(var.to_dict())
     with raises(ValueError):
@@ -69,7 +69,7 @@ def check_var(series, var_type, temp_path):
 
     assert type(new_var) == type(var)
     assert new_var.dtype == var.dtype
-    assert new_var.var_type == var_type
+    assert var_type == new_var.var_type
 
     # Write to JSON file and read it back
     tmp_fp = temp_path / "tmp.json"

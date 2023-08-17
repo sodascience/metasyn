@@ -55,20 +55,20 @@ class MultinoulliDistribution(BaseDistribution):
         }
 
     def draw(self):
-        return str(np.random.choice(self.labels, p=self.probs))
+        return np.random.choice(self.labels, p=self.probs)
 
     def information_criterion(self,
                               values: Union[pd.Series, pl.Series, npt.NDArray[np.str_]]
                               ) -> float:
-        values_array = np.array(values, dtype=str)
-        labels, counts = np.unique(values_array, return_counts=True)
+        series = self._to_series(values)
+        labels, counts = np.unique(series, return_counts=True)
         log_lik = 0.0
         pdict = dict(zip(self.labels, self.probs))
         for lab, count in zip(labels, counts):
             # account for missing values / missing categories
             # by setting default of .get to 1 (add log(1)=0 to log_lik)
             log_lik += count * np.log(pdict.get(lab, 1))
-        return 2*(len(self.probs) - 1) - 2 * log_lik
+        return 2*(2*len(self.probs)-1) - 2 * log_lik
 
     @classmethod
     def default_distribution(cls):
