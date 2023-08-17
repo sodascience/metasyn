@@ -256,19 +256,24 @@ class MetaFrame():
         meta_vars = [MetaVar.from_dict(d) for d in self_dict["vars"]]
         return cls(meta_vars, n_rows)
 
-    def synthesize(self, n: int) -> pl.DataFrame:
+    def synthesize(self, n: Optional[int] = None) -> pl.DataFrame:
         """Create a synthetic Polars dataframe.
 
         Parameters
         ----------
         n:
-            Number of rows to generate.
+            Number of rows to generate, if None, use number of rows in original dataframe.
 
         Returns
         -------
         polars.DataFrame:
             Dataframe with the synthetic data.
         """
+        if n is None:
+            if self.n_rows is None:
+                raise ValueError("Cannot synthesize DataFrame, since number of rows is unknown."
+                                 "Please specify the number of rows to synthesize.")
+            n = self.n_rows
         synth_dict = {var.name: var.draw_series(n) for var in self.meta_vars}
         return pl.DataFrame(synth_dict)
 

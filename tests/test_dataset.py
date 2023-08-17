@@ -70,6 +70,12 @@ def test_dataset(tmp_path, dataframe_lib):
             dataset[MetaVar]
 
         assert "Rows" in str(dataset)
+        assert len(dataset.synthesize()) == dataset.n_rows
+        assert len(dataset.synthesize(5)) == 5
+        with pytest.raises(ValueError):
+            dataset.n_rows = None
+            dataset.synthesize()
+        dataset.n_rows = 100
 
     check_dataset(dataset)
     dataset.to_json(tmp_fp)
