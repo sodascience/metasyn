@@ -162,7 +162,7 @@ class BaseDistribution(ABC):
 def metadist(
         implements: Optional[str] = None,
         provenance: Optional[str] = None,
-        var_type: Optional[str] = None,
+        var_type: Optional[Union[str, list[str]]] = None,
         is_unique: Optional[bool] = None,
         privacy: Optional[str] = None):
     """Decorate class to create a distribution with the right properties.
