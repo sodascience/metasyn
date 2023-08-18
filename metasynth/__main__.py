@@ -1,17 +1,17 @@
 """CLI for generating synthetic data frames from a metasynth .json file."""
 import argparse
+import json
 import pathlib
 import pickle
 import sys
-import json
 
-try:
+try:  # Python < 3.10 (backport)
     from importlib_metadata import entry_points
 except ImportError:
-    from importlib.metadata import entry_points  # type: ignore
+    from importlib.metadata import entry_points  # type: ignore [assignment]
 
-from metasynth._version import version_tuple
 from metasynth import MetaFrame
+from metasynth._version import version_tuple
 from metasynth.validation import create_schema
 
 SEMVER = f"{version_tuple[0]}.{version_tuple[1]}.{version_tuple[2]}"
@@ -54,30 +54,30 @@ def synthesize() -> None:
     """Program to generate synthetic data."""
     parser = argparse.ArgumentParser(
         prog="metasynth synthesize",
-        description="Synthesize data from Generative Metadata Format .json file."
+        description="Synthesize data from Generative Metadata Format .json file.",
     )
     parser.add_argument(
         "input",
         help="input file; typically .json adhering to the Generative Metadata Format",
-        type=pathlib.Path
+        type=pathlib.Path,
     )
     parser.add_argument(
         "output",
         help="output file (.csv, .feather, .parquet, .pkl, or .xlsx)",
         nargs="?",
-        type=pathlib.Path
+        type=pathlib.Path,
     )
     parser.add_argument(
         "-n", "--num_rows",
         help="number of rows to synthesize",
         default=None,
         type=int,
-        required=False
+        required=False,
     )
     parser.add_argument(
         "-p", "--preview",
         help="preview six-row synthesized data frame in console and exit",
-        action="store_true"
+        action="store_true",
     )
 
     # parse the args without the subcommand
@@ -98,7 +98,7 @@ def synthesize() -> None:
     if args.num_rows is not None:
         data_frame = meta_frame.synthesize(args.num_rows)
     else:
-        data_frame = meta_frame.synthesize(meta_frame.n_rows)  # type: ignore
+        data_frame = meta_frame.synthesize(meta_frame.n_rows)  # type: ignore [arg-type]
 
     # Store the dataframe to file
     if args.output.suffix == ".csv":
@@ -110,12 +110,12 @@ def synthesize() -> None:
     elif args.output.suffix == ".xlsx":
         data_frame.write_excel(args.output)
     elif args.output.suffix == ".pkl":
-        with open(args.output, "wb") as pkl_file:
+        with args.output.open("wb") as pkl_file:
             pickle.dump(data_frame, file=pkl_file)
     else:
         parser.error(
-            f"Unsupported output file format ({args.output.suffix})." +
-            "Use .csv, .feather, .parquet, .pkl, or .xlsx."
+            f"Unsupported output file format ({args.output.suffix})."
+            "Use .csv, .feather, .parquet, .pkl, or .xlsx.",
         )
 
 
@@ -123,19 +123,19 @@ def jsonschema() -> None:
     """Program to generate json schema from dist providers."""
     parser = argparse.ArgumentParser(
         prog="metasynth jsonschema",
-        description="Create Generative Metadata Format jsonschema and print to console."
+        description="Create Generative Metadata Format jsonschema and print to console.",
     )
 
     parser.add_argument(
         "plugins",
         help="Plugins to include in the generated schema (default none)",
-        nargs="*"
+        nargs="*",
     )
 
     parser.add_argument(
         "-a", "--avail",
         help="display available modules and quit",
-        action="store_true"
+        action="store_true",
     )
 
     # parse the args without the subcommand
@@ -152,8 +152,10 @@ def jsonschema() -> None:
     if len(plugins - plugins_avail) > 0:
         notfound = ", ".join(plugins - plugins_avail)
         pl_avail = ", ".join(plugins_avail - {"builtin"})
-        errmsg = f"\n  Requested plugin(s) not found: {notfound}" + \
+        errmsg = (
+            f"\n  Requested plugin(s) not found: {notfound}"
             f"\n  Available plugins: {pl_avail}"
+        )
         parser.error(errmsg)
     schema = create_schema(list(plugins))
     print(json.dumps(schema, indent=2))
