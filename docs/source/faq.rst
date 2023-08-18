@@ -28,7 +28,7 @@ MetaSynth's synthetically generated datasets are classified as `Synthetically-Au
    * To be used for extended code testing, minimal analytical value, non-negligible disclosure risk.
 
 **I encountered the warning: "Variable PassengerId seems unique, but not set to be unique." What should I do?**
---------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------
 This warning occurs when MetaSynth detects a column, that seems to have unique values in the real dataset but isn't specified to be unique in the fitting of the :obj:`MetaFrame<metasynth.dataset.MetaFrame>`. To address this, you can use the `spec` parameter to create a specification dictionary and indicate that the column should have unique values. Here's an example of how to do this (in this example ``PassengerId`` is the column with unique values):
 
 .. code-block:: python
