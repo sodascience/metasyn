@@ -32,6 +32,7 @@ Program information:
 
 ENTRYPOINTS = ["synthesize", "jsonschema"]
 
+
 def main() -> None:
     """CLI pointing to different entrypoints."""
     # show help by default, else consume first argument
@@ -79,7 +80,6 @@ def synthesize() -> None:
         action="store_true"
     )
 
-
     # parse the args without the subcommand
     args, _ = parser.parse_known_args()
 
@@ -98,7 +98,7 @@ def synthesize() -> None:
     if args.num_rows is not None:
         data_frame = meta_frame.synthesize(args.num_rows)
     else:
-        data_frame = meta_frame.synthesize(meta_frame.n_rows) # type: ignore
+        data_frame = meta_frame.synthesize(meta_frame.n_rows)  # type: ignore
 
     # Store the dataframe to file
     if args.output.suffix == ".csv":
@@ -117,6 +117,7 @@ def synthesize() -> None:
             f"Unsupported output file format ({args.output.suffix})." +
             "Use .csv, .feather, .parquet, .pkl, or .xlsx."
         )
+
 
 def jsonschema() -> None:
     """Program to generate json schema from dist providers."""
@@ -155,7 +156,7 @@ def jsonschema() -> None:
             f"\n  Available plugins: {pl_avail}"
         parser.error(errmsg)
     schema = create_schema(list(plugins))
-    print(json.dumps(schema, indent = 2))
+    print(json.dumps(schema, indent=2))
 
 
 if __name__ == "__main__":
