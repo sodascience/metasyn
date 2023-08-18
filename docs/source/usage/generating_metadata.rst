@@ -168,17 +168,29 @@ The following code to achieve this would look like:
 
 .. code-block:: python
     
-    from metasynth.distribution import FakerDistribution, DiscreteUniformDistribution RegexDistribution
+    from metasynth.distribution import FakerDistribution, DiscreteUniformDistribution, RegexDistribution
 
     # Create a specification dictionary for generating synthetic data
     var_spec = {
-        "PassengerId": {"unique": True},  # Ensure unique values for the PassengerId column
-        "Name": {"distribution": FakerDistribution("name")},  # Utilize the Faker library to synthesize realistic names
-        "Fare": {"distribution": "ExponentialDistribution"},  # Fit an exponential distribution based on the data
-        "Age": {"distribution": DiscreteUniformDistribution(20, 40)},  # Specify a discrete uniform distribution ranging from 20 to 40 for age
-        "Cabin": {"distribution": RegexDistribution(r"[ABCDEF]\d{2,3}")}  # Use a regex-based distribution to generate Cabin values following [ABCDEF]?(\d{2,3})
-    }
 
+        # Ensure unique values for the `PassengerId` column
+        "PassengerId": {"unique": True},
+
+        # Utilize the Faker library to synthesize realistic names for the `Name` column
+        "Name": {"distribution": FakerDistribution("name")},
+
+        # Fit `Fare` to an exponential distribution based on the data
+        "Fare": {"distribution": "ExponentialDistribution"},
+
+        # Fit `Age` to a discrete uniform distribution ranging from 20 to 40
+        "Age": {
+            "distribution": DiscreteUniformDistribution(20, 40),
+        },
+
+        # Use a regex-based distribution to generate `Cabin` values following [ABCDEF]\d{2,3}
+        "Cabin": {"distribution": RegexDistribution(r"[ABCDEF]\d{2,3}")}
+
+    }
 
     mf = MetaFrame.fit_dataframe(df, spec=var_spec)
 
@@ -189,8 +201,11 @@ dist_providers
    
 privacy
 """""""
-**privacy** (``privacy (Optional[BasePrivacy] = None)``) allows you to set the global privacy level for synthetic data generation. If it's not provided, the function defaults it to ``None``. 
+**privacy** (``privacy (Optional[BasePrivacy] = None)``) allows you to set the global privacy level for synthetic data generation. If it's not provided, the function defaults it to ``None``.
+For more on privacy modules available refer to :mod:`Privacy Features (experimental) <metasynth.privacy>`.
 
+.. warning::
+    Privacy features (such as differential privacy or other forms of disclosure control) are currently unfinished and under active development.
 
 Exporting a MetaFrame 
 ---------------------
