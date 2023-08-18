@@ -3,6 +3,9 @@ Detailed Overview
 
 This page features a detailed overview of MetaSynth's modules, with the goal of helping developers get started developing for MetaSynth.
 
+.. warning:: 
+  This page is unfinished and might be outdated, if information is lacking or does not seem right, feel free to :doc:`get in touch </about/contact>`  and we'll try to help you.
+
 MetaSynth File
 --------------
 
