@@ -183,7 +183,7 @@ The following code to achieve this would look like:
         "Fare": {"distribution": "ExponentialDistribution"},
 
         # Fit `Age` to a discrete uniform distribution ranging from 20 to 40
-        "Age": {"distribution": DiscreteUniformDistribution(20, 40),},
+        "Age": {"distribution": DiscreteUniformDistribution(20, 40)},
 
         # Use a regex-based distribution to generate `Cabin` values following [ABCDEF]\d{2,3}
         "Cabin": {"distribution": RegexDistribution(r"[ABCDEF]\d{2,3}")}
