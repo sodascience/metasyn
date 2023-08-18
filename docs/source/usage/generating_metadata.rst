@@ -127,7 +127,7 @@ This function requires a :obj:`DataFrame` to be specified as parameter. The foll
    mf = metasynth.MetaFrame.from_dataframe(df)
 
 .. note:: 
-    Internally, MetaSynth uses Polars (instead of Pandas) mainly because typing and the handling of non-existing data is more consistent. It is possible to supply a Pandas DataFrame instead of a Polars DataFrame to ``MetaDataset.from_dataframe``. However, this uses the automatic Polars conversion functionality, which for some edge cases result in problems. Therefore, we advise users to create Polars DataFrames. The resulting synthetic dataset is always a Polars dataframe, but this can be easily converted back to a Pandas DataFrame by using ``df_pandas = df_polars.to_pandas()``.
+    Internally, MetaSynth uses Polars (instead of Pandas) mainly because typing and the handling of non-existing data is more consistent. It is possible to supply a Pandas DataFrame instead of a Polars DataFrame to ``MetaDataset.from_dataframe``. However, this uses the automatic Polars conversion functionality, which for some edge cases result in problems. Therefore, we advise users to create Polars DataFrames. The resulting synthetic dataset is always a Polars DataFrame, but this can be easily converted back to a Pandas DataFrame by using ``df_pandas = df_polars.to_pandas()``.
 
 
 Advanced
