@@ -6,18 +6,15 @@ import pickle
 import sys
 
 try:  # Python < 3.10 (backport)
-    from importlib_metadata import entry_points
+    from importlib_metadata import entry_points, version
 except ImportError:
-    from importlib.metadata import entry_points  # type: ignore [assignment]
+    from importlib.metadata import entry_points, version  # type: ignore [assignment]
 
 from metasynth import MetaFrame
-from metasynth._version import version_tuple
 from metasynth.validation import create_schema
 
-SEMVER = f"{version_tuple[0]}.{version_tuple[1]}.{version_tuple[2]}"
-
 MAIN_HELP_MESSAGE = f"""
-Metasynth CLI version {SEMVER}
+Metasynth CLI version {version("metasynth")}
 
 Usage: metasynth [subcommand] [options]
 
@@ -30,7 +27,7 @@ Program information:
     -h, --help    - display this help file and exit
 """
 
-ENTRYPOINTS = ["synthesize", "jsonschema"]
+ENTRYPOINTS = ["synthesize", "schema"]
 
 
 def main() -> None:
@@ -41,10 +38,14 @@ def main() -> None:
     if subcommand in ["-h", "--help"]:
         print(MAIN_HELP_MESSAGE)
     elif subcommand in ["-v", "--version"]:
-        print(f"Metasynth CLI version {SEMVER}")
-    elif subcommand in ENTRYPOINTS:
-        # find the subcommand in this module and run it!
-        getattr(sys.modules[__name__], subcommand)()
+        print(f"Metasynth CLI version {version('metasynth')}")
+
+    # find the subcommand in this module and run it!
+    if subcommand == "synthesize":
+        synthesize()
+    elif subcommand == "schema":
+        schema()
+
     else:
         print(f"Invalid subcommand ({subcommand}). For help see metasynth --help")
         sys.exit(1)
@@ -119,22 +120,23 @@ def synthesize() -> None:
         )
 
 
-def jsonschema() -> None:
+def schema() -> None:
     """Program to generate json schema from dist providers."""
     parser = argparse.ArgumentParser(
-        prog="metasynth jsonschema",
-        description="Create Generative Metadata Format jsonschema and print to console.",
+        prog="metasynth schema",
+        description="Create Generative Metadata Format schema and print to console.",
     )
 
     parser.add_argument(
         "plugins",
-        help="Plugins to include in the generated schema (default none)",
+        help="Plugins to include in the generated schema (default builtin)",
         nargs="*",
+        default="builtin"
     )
 
     parser.add_argument(
-        "-a", "--avail",
-        help="display available modules and quit",
+        "-l", "--list",
+        help="display available plugins and quit",
         action="store_true",
     )
 
@@ -144,8 +146,10 @@ def jsonschema() -> None:
     # deduplicated list of plugins for schema
     plugins_avail = {entry.name for entry in entry_points(group="metasynth.distribution_provider")}
 
-    if args.avail:
-        _ = [print(a) for a in plugins_avail if a != "builtin"]
+    if args.list:
+        for a in plugins_avail:
+            if a != "builtin":
+                print(a)
         return
 
     plugins = {"builtin", *args.plugins}
@@ -157,8 +161,8 @@ def jsonschema() -> None:
             f"\n  Available plugins: {pl_avail}"
         )
         parser.error(errmsg)
-    schema = create_schema(list(plugins))
-    print(json.dumps(schema, indent=2))
+    jsonschema = create_schema(list(plugins))
+    print(json.dumps(jsonschema, indent=2))
 
 
 if __name__ == "__main__":
