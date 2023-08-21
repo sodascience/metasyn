@@ -96,10 +96,7 @@ def synthesize() -> None:
         return
 
     # Generate a data frame
-    if args.num_rows is not None:
-        data_frame = meta_frame.synthesize(args.num_rows)
-    else:
-        data_frame = meta_frame.synthesize(meta_frame.n_rows)  # type: ignore [arg-type]
+    data_frame = meta_frame.synthesize(args.num_rows)
 
     # Store the dataframe to file
     if args.output.suffix == ".csv":
