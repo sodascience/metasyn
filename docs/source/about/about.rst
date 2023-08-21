@@ -7,6 +7,6 @@ Welcome to the MetaSynth About Section. This section is meant to provide more in
    :maxdepth: 1
    :caption: Sections:
    
-   what_is
+   metasynth_in_detail
    contact
    license

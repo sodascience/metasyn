@@ -1,4 +1,4 @@
-Generating Metadata
+Generating MetaFrames
 ====================
 
 One of the main functionalities of MetaSynth is the functionality to create a metadata representation of a given dataset, resulting in a :obj:`MetaFrame <metasynth.dataset.MetaFrame>` object. 

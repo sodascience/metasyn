@@ -27,19 +27,39 @@ MetaSynth Documentation
 =======================
 Welcome to the `MetaSynth <https://github.com/sodascience/metasynth/>`_ documentation. 
 
-MetaSynth is a Python package for generating synthetic tabular data that statistically resembles a source dataset without exposing real values. It has two main functionalities:
+Metasynth is a Python package for generating synthetic tabular data with a focus on privacy. It is designed for owners of sensitive datasets who want to share approximations of their data for purposes like exploratory analysis and testing, without disclosing real values.
 
-1. First, MetaSynth can **extract metadata** including variable names, types, distributions, and missing data patterns from an input dataset. This metadata describes the overarching structure and characteristics of the dataset. This metadata can be saved in an easy to read and easy to share `format <https://github.com/sodascience/generative_metadata_format>`_.
+MetaSynth has three main functionalities:
 
-2. Second, MetaSynth leverages this metadata to **produce new synthetic data** that maintains key statistical properties and structure of the original dataset. Instead of relying on the actual data, the synthetic data is generated from the metadata.
+1. **Estimation**: MetaSynth can **create a MetaFrame**, from a provided dataset. This MetaFrame is essentially a fitted model that characterizes the schema of the original data source and its individual distributions and effectively captures the structure and features of the dataset. 
 
-This approach ensures the synthetic data remains separate and independent from any sensitive source data. Researchers and data owners can use MetaSynth to generate and share synthetic versions of their sensitive datasets, mitigating privacy concerns. Furthermore, the separation of metadata from original data promotes reproducibility, as the shareable metadata can be used to generate consistent synthetic data.
+2. **Serialization**: MetaSynth can **export a created MetaFrame** into an easy to read .json file, allowing users to audit, understand, and modify their data generation model. This exported MetaFrame can be seen as metadata.
 
-.. note:: 
-   For more information on MetaSynth and its features, check out :doc:`/about/what_is`
+3. **Generation**: MetaSynth can **generate synthetic data** based on a provided MetaFrame. The synthetic data produced solely depends on the MetaFrame, thereby maintaining a critical separation between the original sensitive data and the synthetic data generated.
 
-.. warning:: 
-   MetaSynth, and this documentation, are under active development. As a result, this documentation is still heavily work in progress. If you see any errors, missing content or have a suggestion for new content, feel free to :doc:`let us know </about/contact>`! 
+This approach ensures the synthetic data remains separate and independent from any sensitive source data. Researchers and data owners can use MetaSynth to generate and share synthetic versions of their sensitive datasets, mitigating privacy concerns. Furthermore, the separation of MetaFrame from original data promotes reproducibility, as the shareable MetaFrame can be used to generate consistent synthetic data.
+
+
+.. image:: /images/pipeline_basic.png
+   :width: 100%
+   :alt: MetaSynth Pipeline
+   :align: center
+
+.. admonition:: Key Features
+
+   -  **MetaFrame Generation**: MetaSynth allows the creation of a MetaFrame from a dataset provided as a Polars or Pandas DataFrame. MetaFrames includes key characteristics such as *variable names*, *data types*, *the percentage of missing values*, and *distribution parameters*. 
+   -  **Exporting MetaFrames**: MetaSynth can export and import MetaFrames. These MetaFrames follow the according to the `Generative Metadata Format (GMF) <https://github.com/sodascience/generative_metadata_format>`__, which is a standard designed to be easy to read and understand. 
+   -  **Synthetic Data Generation**: MetaSynth allows for the generation of a polars DataFrame with synthetic data that resembles the original data.
+   -  **Distribution Fitting**: MetaSynth allows for manual and automatic distribution fitting.
+   -  **Data Type Support**: MetaSynth supports generating synthetic data for a variety of common data types including ``categorical``, ``string``, ``integer``, ``float``, ``date``, ``time``, and ``datetime``.
+   -  **Integration with Faker**: MetaSynth integrates with the `faker <https://github.com/joke2k/faker>`__ package, a Python library for generating fake data such as names and emails. Allowing for more realistic synthetic data.
+   -  **Structured String Detection**: MetaSynth identifies structured strings within your dataset, which can include formatted text, codes, identifiers, or any string that follows a specific pattern.
+   -  **Handling Unique Values**: MetaSynth can identify and process variables with unique values or keys in the data, preserving their uniqueness in the synthetic dataset, which is crucial for generating synthetic data that maintains the characteristics of the original dataset.
+
+.. admonition:: Want to know more?
+
+   For more information on MetaSynth and its features, check out the :doc:`/about/about` section.
+
 
 Documentation Outline
 ---------------------
@@ -58,7 +78,7 @@ This documentation is designed to help you easily navigate and find the informat
 
 :doc:`/about/about`
 ^^^^^^^^^^^^^^^^^^^
-The :doc:`About Section </about/about>` provides a brief overview of MetaSynth's purpose and functionality, contact information, and licensing details.
+The :doc:`About Section </about/about>` provides an overview of MetaSynth's purpose and functionality, contact information, and licensing details.
 
 :doc:`/usage/usage`
 ^^^^^^^^^^^^^^^^^^^
