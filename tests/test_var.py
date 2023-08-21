@@ -241,11 +241,10 @@ def test_na_two(series):
 
 @mark.parametrize(
     "series",
-    [pd.Series(np.random.randint(0, 100000, size=10)),
-     pl.Series(np.random.randint(0, 100000, size=10))]
+    [pd.Series(np.random.randint(0, 100000, size=1000)),
+     pl.Series(np.random.randint(0, 100000, size=1000))]
 )
 def test_manual_unique_integer(series):
-    # series = pd.Series(np.random.randint(0, 100000, size=10))
     var = MetaVar.detect(series)
     var.fit()
     assert isinstance(var.distribution, DiscreteUniformDistribution)

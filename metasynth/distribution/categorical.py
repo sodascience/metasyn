@@ -68,6 +68,9 @@ class MultinoulliDistribution(BaseDistribution):
             # account for missing values / missing categories
             # by setting default of .get to 1 (add log(1)=0 to log_lik)
             log_lik += count * np.log(pdict.get(lab, 1))
+        if len(self.labels) > 0 and isinstance(self.labels[0], (int, np.int_)):
+            delta = max(1, np.max(self.labels)-np.min(self.labels))
+            return 2*(len(self.probs)+len(series)*np.log(delta)) - 2*log_lik
         return 2*(2*len(self.probs)-1) - 2 * log_lik
 
     @classmethod
