@@ -75,8 +75,6 @@ class BaseDistributionProvider(ABC):
             if str_chk or lst_chk:
                 dist_list.append(dist_class)
         return dist_list
-        # return [dist_class for dist_class in self.distributions
-                # if isinstance(var_type, str) var_type in dist_class.var_type]
 
     @property
     def all_var_types(self) -> List[str]:
