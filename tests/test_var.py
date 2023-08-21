@@ -12,6 +12,7 @@ from metasynth.dataset import _jsonify
 from metasynth.distribution.discrete import UniqueKeyDistribution
 from metasynth.distribution.regex import UniqueRegexDistribution
 from metasynth.distribution.continuous import TruncatedNormalDistribution
+from metasynth.distribution.categorical import MultinoulliDistribution
 
 
 def _series_drop_nans(series):
@@ -266,3 +267,18 @@ def test_manual_unique_string(series):
     assert isinstance(var.distribution, RegexDistribution)
     var.fit(unique=True)
     assert isinstance(var.distribution, UniqueRegexDistribution)
+
+
+@mark.parametrize(
+    "series",
+    [
+        pl.Series([2]*100 + [4]*100 + [12394]*100),
+        pl.Series([-123]*12 + [123]*12),
+        # pl.Series(["2"]*100 + ["5"]*100 + ["123"]*100),
+        pl.Series(["2"]*100 + ["5"]*100 + ["123"]*100, dtype=pl.Categorical)
+    ]
+)
+def test_int_multinoulli(series):
+    var = MetaVar.detect(series)
+    var.fit()
+    assert isinstance(var.distribution, MultinoulliDistribution)
