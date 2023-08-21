@@ -64,13 +64,29 @@ class MultinoulliDistribution(BaseDistribution):
         labels, counts = np.unique(series, return_counts=True)
         log_lik = 0.0
         pdict = dict(zip(self.labels, self.probs))
+        if len(self.labels) > 1 and isinstance(self.labels[0], (int, np.int_)):
+            # Do add-one smoothing, assume count of values is equal to one in initial fit.
+            alpha = 1
+            num_event = len(series)
+            num_tot_cat = np.max(self.labels)-np.min(self.labels)+1
+            num_zero_cat = num_tot_cat - len(self.labels)
+            theta = (self.probs*num_event+alpha)/(num_event+num_tot_cat*alpha)
+            theta_zero = alpha/(num_event+num_tot_cat*alpha)
+            theta_sum = np.sum(theta) + num_zero_cat*theta_zero
+            theta_dict = dict(zip(self.labels, theta))
+            for lab, count in zip(labels, counts):
+                cur_theta = theta_dict.get(lab, theta_zero)
+                cur_prob = cur_theta/theta_sum
+                log_lik += count * np.log(cur_prob)
+            return 2*(2*len(self.probs)-1) - 2*log_lik
+
         for lab, count in zip(labels, counts):
             # account for missing values / missing categories
             # by setting default of .get to 1 (add log(1)=0 to log_lik)
             log_lik += count * np.log(pdict.get(lab, 1))
-        if len(self.labels) > 0 and isinstance(self.labels[0], (int, np.int_)):
-            delta = max(1, np.max(self.labels)-np.min(self.labels))
-            return 2*(len(self.probs)+len(series)*np.log(delta)) - 2*log_lik
+
+            # delta = max(1, np.max(self.labels)-np.min(self.labels))
+            # return 2*(len(self.probs)+len(series)*np.log(delta)) - 2*log_lik
         return 2*(2*len(self.probs)-1) - 2 * log_lik
 
     @classmethod
