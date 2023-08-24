@@ -1,56 +1,87 @@
 """CLI for generating synthetic data frames from a metasynth .json file."""
 import argparse
+import json
 import pathlib
 import pickle
 import sys
 
-from metasynth._version import __version__
+try:  # Python < 3.10 (backport)
+    from importlib_metadata import entry_points, version
+except ImportError:
+    from importlib.metadata import entry_points, version  # type: ignore [assignment]
+
 from metasynth import MetaFrame
+from metasynth.validation import create_schema
+
+MAIN_HELP_MESSAGE = f"""
+Metasynth CLI version {version("metasynth")}
+
+Usage: metasynth [subcommand] [options]
+
+Available subcommands:
+    synthesize - generate synthetic data from a .json file
+    jsonschema - generate json schema from distribution providers
+
+Program information:
+    -v, --version - display CLI version and exit
+    -h, --help    - display this help file and exit
+"""
+
+ENTRYPOINTS = ["synthesize", "schema"]
 
 
-def main():
-    """Parse arguments and generate synthetic data."""
+def main() -> None:
+    """CLI pointing to different entrypoints."""
+    # show help by default, else consume first argument
+    subcommand = "--help" if len(sys.argv) < 2 else sys.argv.pop(1)
+
+    if subcommand in ["-h", "--help"]:
+        print(MAIN_HELP_MESSAGE)
+    elif subcommand in ["-v", "--version"]:
+        print(f"Metasynth CLI version {version('metasynth')}")
+
+    # find the subcommand in this module and run it!
+    if subcommand == "synthesize":
+        synthesize()
+    elif subcommand == "schema":
+        schema()
+
+    else:
+        print(f"Invalid subcommand ({subcommand}). For help see metasynth --help")
+        sys.exit(1)
+
+
+def synthesize() -> None:
+    """Program to generate synthetic data."""
     parser = argparse.ArgumentParser(
-        prog="metasynth",
+        prog="metasynth synthesize",
         description="Synthesize data from Generative Metadata Format .json file.",
-        usage="%(prog)s synthesize [options] input output"
     )
     parser.add_argument(
         "input",
         help="input file; typically .json adhering to the Generative Metadata Format",
-        type=pathlib.Path
+        type=pathlib.Path,
     )
     parser.add_argument(
         "output",
         help="output file (.csv, .feather, .parquet, .pkl, or .xlsx)",
         nargs="?",
-        type=pathlib.Path
+        type=pathlib.Path,
     )
     parser.add_argument(
         "-n", "--num_rows",
         help="number of rows to synthesize",
         default=None,
         type=int,
-        required=False
+        required=False,
     )
     parser.add_argument(
         "-p", "--preview",
         help="preview six-row synthesized data frame in console and exit",
-        action="store_true"
-    )
-    # version
-    parser.add_argument(
-        "-v", "--version",
-        action="version",
-        version=f"%(prog)s {__version__}",
+        action="store_true",
     )
 
-    # pop the shim subcommand and check that it is "synthesize"
-    subcommand = sys.argv.pop(1)
-    if subcommand != "synthesize":
-        parser.error(f"Invalid subcommand ({subcommand}).")
-
-    # parse the args without the shim subcommand
+    # parse the args without the subcommand
     args, _ = parser.parse_known_args()
 
     if not args.preview and not args.output:
@@ -65,10 +96,7 @@ def main():
         return
 
     # Generate a data frame
-    if args.num_rows is not None:
-        data_frame = meta_frame.synthesize(args.num_rows)
-    else:
-        data_frame = meta_frame.synthesize(meta_frame.n_rows)
+    data_frame = meta_frame.synthesize(args.num_rows)
 
     # Store the dataframe to file
     if args.output.suffix == ".csv":
@@ -80,13 +108,58 @@ def main():
     elif args.output.suffix == ".xlsx":
         data_frame.write_excel(args.output)
     elif args.output.suffix == ".pkl":
-        with open(args.output, "wb") as pkl_file:
+        with args.output.open("wb") as pkl_file:
             pickle.dump(data_frame, file=pkl_file)
     else:
         parser.error(
-            f"Unsupported output file format ({args.output.suffix})." +
-            "Use .csv, .feather, .parquet, .pkl, or .xlsx."
+            f"Unsupported output file format ({args.output.suffix})."
+            "Use .csv, .feather, .parquet, .pkl, or .xlsx.",
         )
+
+
+def schema() -> None:
+    """Program to generate json schema from dist providers."""
+    parser = argparse.ArgumentParser(
+        prog="metasynth schema",
+        description="Create Generative Metadata Format schema and print to console.",
+    )
+
+    parser.add_argument(
+        "plugins",
+        help="Plugins to include in the generated schema (default builtin)",
+        nargs="*",
+        default="builtin"
+    )
+
+    parser.add_argument(
+        "-l", "--list",
+        help="display available plugins and quit",
+        action="store_true",
+    )
+
+    # parse the args without the subcommand
+    args, _ = parser.parse_known_args()
+
+    # deduplicated list of plugins for schema
+    plugins_avail = {entry.name for entry in entry_points(group="metasynth.distribution_provider")}
+
+    if args.list:
+        for a in plugins_avail:
+            if a != "builtin":
+                print(a)
+        return
+
+    plugins = {"builtin", *args.plugins}
+    if len(plugins - plugins_avail) > 0:
+        notfound = ", ".join(plugins - plugins_avail)
+        pl_avail = ", ".join(plugins_avail - {"builtin"})
+        errmsg = (
+            f"\n  Requested plugin(s) not found: {notfound}"
+            f"\n  Available plugins: {pl_avail}"
+        )
+        parser.error(errmsg)
+    jsonschema = create_schema(list(plugins))
+    print(json.dumps(jsonschema, indent=2))
 
 
 if __name__ == "__main__":
