@@ -1,146 +1,21 @@
 Generating MetaFrames
-====================
+=====================
 
-One of the main functionalities of MetaSynth is the functionality to create a metadata representation of a given dataset, resulting in a :obj:`MetaFrame <metasynth.dataset.MetaFrame>` object. 
-This object captures essential aspects of the dataset, including variable names, types, data types, the percentage of missing values, and distribution attributes.
+One of the main functionalities of MetaSynth is the functionality to create a :obj:`MetaFrame <metasynth.dataset.MetaFrame>`, an object which captures the essential aspects of the dataset, including variable names, types, data types, the percentage of missing values, and distribution attributes. :obj:`MetaFrame <metasynth.dataset.MetaFrame>` objects essentially capture all the information needed to generate a synthetic dataset that aligns with the original dataset. MetaSynth can later use this information to generate a synthetic dataset that aligns with the original dataset.
 
-.. image:: /images/flow_metadata_generation.png
+.. image:: /images/pipeline_estimation_simple.png
    :alt: MetaFrame Generation Flow
+   :align: center
 
-:obj:`MetaFrame <metasynth.dataset.MetaFrame>` objects follow the  `Generative Metadata Format
-(GMF) <https://github.com/sodascience/generative_metadata_format>`__, a standard designed to be easy to read and understand. 
-This metadata can be exported as a .JSON file, allowing for manual and automatic editing, as well as easy sharing.
-
-
-.. raw:: html
-
-   <details> 
-   <summary> An example of a MetaFrame: </summary>
-
-.. code-block:: json
-
-    {
-        "n_rows": 5,
-        "n_columns": 5,
-        "provenance": {
-            "created by": {
-                "name": "MetaSynth",
-                "version": "0.4.0"
-            },
-            "creation time": "2023-08-07T12:14:06.232957"
-        },
-        "vars": [
-            {
-                "name": "ID",
-                "type": "discrete",
-                "dtype": "Int64",
-                "prop_missing": 0.0,
-                "distribution": {
-                    "implements": "core.unique_key",
-                    "provenance": "builtin",
-                    "class_name": "UniqueKeyDistribution",
-                    "parameters": {
-                        "low": 1,
-                        "consecutive": 1
-                    }
-                }
-            },
-            {
-                "name": "fruits",
-                "type": "categorical",
-                "dtype": "Categorical",
-                "prop_missing": 0.0,
-                "distribution": {
-                    "implements": "core.multinoulli",
-                    "provenance": "builtin",
-                    "class_name": "MultinoulliDistribution",
-                    "parameters": {
-                        "labels": [
-                            "apple",
-                            "banana"
-                        ],
-                        "probs": [
-                            0.4,
-                            0.6
-                        ]
-                    }
-                }
-            },
-            {
-                "name": "B",
-                "type": "discrete",
-                "dtype": "Int64",
-                "prop_missing": 0.0,
-                "distribution": {
-                    "implements": "core.poisson",
-                    "provenance": "builtin",
-                    "class_name": "PoissonDistribution",
-                    "parameters": {
-                        "mu": 3.0
-                    }
-                }
-            },
-            {
-                "name": "cars",
-                "type": "categorical",
-                "dtype": "Categorical",
-                "prop_missing": 0.0,
-                "distribution": {
-                    "implements": "core.multinoulli",
-                    "provenance": "builtin",
-                    "class_name": "MultinoulliDistribution",
-                    "parameters": {
-                        "labels": [
-                            "audi",
-                            "beetle"
-                        ],
-                        "probs": [
-                            0.2,
-                            0.8
-                        ]
-                    }
-                }
-            },
-            {
-                "name": "optional",
-                "type": "discrete",
-                "dtype": "Int64",
-                "prop_missing": 0.2,
-                "distribution": {
-                    "implements": "core.discrete_uniform",
-                    "provenance": "builtin",
-                    "class_name": "DiscreteUniformDistribution",
-                    "parameters": {
-                        "low": -30,
-                        "high": 301
-                    }
-                }
-            }
-        ]
-   }
-
-
-.. raw:: html
-
-   </details>
-
-
-
-MetaSynth uses these :obj:`MetaFrame<metasynth.dataset.MetaFrame>` objects to produce synthetic data that aligns with the metadata (see :doc:`/usage/generating_synthetic_data`).
-The synthetic dataset remains separate and independent from any sensitive source data, providing a solution for researchers and data owners to generate and share synthetic versions of their sensitive data, mitigating privacy concerns.
-
-By separating the metadata and original data, this approach also promotes reproducibility, as the metadata file can be easily shared and used to generate consistent synthetic datasets.
-
-Generating a MetaFrame
-----------------------
 
 Basics
-^^^^^^
+------
 
 MetaSynth can generate metadata from any given dataset (provided as Polars or Pandas DataFrame), using the :meth:`metasynth.MetaFrame.fit_dataframe(df) <metasynth.dataset.MetaFrame.fit_dataframe>` classmethod.
 
-.. image:: /images/flow_metadata_generation_code.png
-   :alt: MetaFrame Generation Flow With Code Snippet
+.. image:: /images/pipeline_estimation_code.png
+   :alt: MetaFrame Generation With Code Snippet
+   :align: center
 
 This function requires a :obj:`DataFrame` to be specified as parameter. The following code returns a :obj:`MetaFrame<metasynth.dataset.MetaFrame>` object named :obj:`mf`, based on a DataFrame named :obj:`df`.
 
@@ -152,8 +27,8 @@ This function requires a :obj:`DataFrame` to be specified as parameter. The foll
     Internally, MetaSynth uses Polars (instead of Pandas) mainly because typing and the handling of non-existing data is more consistent. It is possible to supply a Pandas DataFrame instead of a Polars DataFrame to ``MetaDataset.from_dataframe``. However, this uses the automatic Polars conversion functionality, which for some edge cases result in problems. Therefore, we advise users to create Polars DataFrames. The resulting synthetic dataset is always a Polars DataFrame, but this can be easily converted back to a Pandas DataFrame by using ``df_pandas = df_polars.to_pandas()``.
 
 
-Advanced
-^^^^^^^^
+Optional Parameters
+----------------------
 The :meth:`metasynth.MetaFrame.fit_dataframe() <metasynth.dataset.MetaFrame.fit_dataframe>` class method allows you to have more control over how your synthetic dataset is generated with additional (optional) parameters:
     
 Besides the required `df` parameter, :meth:`metasynth.MetaFrame.fit_dataframe() <metasynth.dataset.MetaFrame.fit_dataframe>` accepts three parameters: ``spec``, ``dist_providers`` and ``privacy``.
@@ -161,7 +36,7 @@ Besides the required `df` parameter, :meth:`metasynth.MetaFrame.fit_dataframe() 
 Let's take a look at each optional parameter individually:
 
 spec
-""""
+^^^^
 **spec** (``spec (Optional[dict[str, dict]] = None)``) is an optional dictionary that outlines specific directives for each DataFrame column. The potential directives include:
    
     - ``distribution``: Allows you to specify the statistical distribution of each column. To see what distributions are available refer to the :doc:`distribution package API reference</api/metasynth.distribution>`.
@@ -215,38 +90,14 @@ The following code to achieve this would look like:
     mf = MetaFrame.fit_dataframe(df, spec=var_spec)
 
 dist_providers
-""""""""""""""
+^^^^^^^^^^^^^^^^
 **dist_providers** (``dist_providers (Union[str, list[str], BaseDistributionProvider, list[BaseDistributionProvider]] = "builtin")``) allows you to specify distribution providers (as strings or actual provider objects) to use when fitting distributions to the column data.
 
    
 privacy
-"""""""
+^^^^^^^^^
 **privacy** (``privacy (Optional[BasePrivacy] = None)``) allows you to set the global privacy level for synthetic data generation. If it's not provided, the function defaults it to ``None``.
 For more on privacy modules available refer to :mod:`Privacy Features (experimental) <metasynth.privacy>`.
 
 .. warning::
     Privacy features (such as differential privacy or other forms of disclosure control) are currently unfinished and under active development.
-
-Exporting a MetaFrame 
----------------------
-Metadata can be exported as .JSON file by calling the :meth:`metasynth.dataset.MetaDataset.to_json` method on a :obj:`MetaDatasets<metasynth.dataset.MetaDataset>`.
-
-The following code exports a generated :obj:`MetaFrame<metasynth.dataset.MetaFrame>` object named ``mf`` to a .JSON file named ``exported_metaframe``.
-
-.. code-block:: python
-
-   mf.to_json("exported_metaframe.json")
-
-
-Exporting a :obj:`MetaFrame <metasynth.dataset.MetaFrame>` allows for manual (or automatic) inspection, editing, and easy sharing. 
-
-Loading a MetaFrame
--------------------
-MetaSynth can also load previously generated metadata, using the :meth:`MetaFrame.from_json <metasynth.dataset.MetaFrame.from_json>` classmethod. 
-
-The following code loads a :obj:`MetaFrame<metasynth.dataset.MetaFrame>` object named ``mf`` from a .JSON file named ``exported_metaframe``.
-
-.. code-block:: python
-
-   mf = metasynth.MetaFrame.from_json("exported_metaframe.json")
-..
