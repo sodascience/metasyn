@@ -1,13 +1,17 @@
 Generating MetaFrames
 =====================
 
-One of the main functionalities of MetaSynth is the functionality to create a :obj:`MetaFrame <metasynth.dataset.MetaFrame>`, an object which captures the essential aspects of the dataset, including variable names, types, data types, the percentage of missing values, and distribution attributes. :obj:`MetaFrame <metasynth.dataset.MetaFrame>` objects essentially capture all the information needed to generate a synthetic dataset that aligns with the original dataset. MetaSynth can later use this information to generate a synthetic dataset that aligns with the original dataset.
+One of the main functionalities of MetaSynth is the functionality to create a :obj:`MetaFrame <metasynth.dataset.MetaFrame>`, an object which captures the essential aspects of the dataset, including variable names, types, data types, the percentage of missing values, and distribution attributes. :obj:`MetaFrame <metasynth.dataset.MetaFrame>` objects essentially capture all the information needed to generate a synthetic dataset that aligns with the original dataset.
 
 .. image:: /images/pipeline_estimation_simple.png
    :alt: MetaFrame Generation Flow
    :align: center
 
 
+.. admonition:: Want to learn more?
+    
+   This page focuses on using MetaSynth to generate MetaFrames. If you're interested in learning more about how MetaFrames are generated behind the scenes and the assumptions involved, see the :doc:`/about/metasynth_in_detail` page for details.
+   
 Basics
 ------
 
@@ -23,9 +27,9 @@ This function requires a :obj:`DataFrame` to be specified as parameter. The foll
     
    mf = metasynth.MetaFrame.from_dataframe(df)
 
-.. note:: 
-    Internally, MetaSynth uses Polars (instead of Pandas) mainly because typing and the handling of non-existing data is more consistent. It is possible to supply a Pandas DataFrame instead of a Polars DataFrame to ``MetaDataset.from_dataframe``. However, this uses the automatic Polars conversion functionality, which for some edge cases result in problems. Therefore, we advise users to create Polars DataFrames. The resulting synthetic dataset is always a Polars DataFrame, but this can be easily converted back to a Pandas DataFrame by using ``df_pandas = df_polars.to_pandas()``.
+.. admonition:: Note on Pandas and Polars DataFrames
 
+    Internally, MetaSynth uses Polars (instead of Pandas) mainly because typing and the handling of non-existing data is more consistent. It is possible to supply a Pandas DataFrame instead of a Polars DataFrame to ``MetaDataset.from_dataframe``. However, this uses the automatic Polars conversion functionality, which for some edge cases result in problems. Therefore, we advise users to create Polars DataFrames. The resulting synthetic dataset is always a Polars DataFrame, but this can be easily converted back to a Pandas DataFrame by using ``df_pandas = df_polars.to_pandas()``.
 
 Optional Parameters
 ----------------------
@@ -100,4 +104,4 @@ privacy
 For more on privacy modules available refer to :mod:`Privacy Features (experimental) <metasynth.privacy>`.
 
 .. warning::
-    Privacy features (such as differential privacy or other forms of disclosure control) are currently unfinished and under active development.
+    Privacy features (such as differential privacy or other forms of disclosure control) are currently unfinished and under active development. More information on currently available extensions can be found in the :doc:`/usage/extensions` section.

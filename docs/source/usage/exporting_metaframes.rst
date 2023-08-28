@@ -207,7 +207,7 @@ Well, what if we wanted to change the distribution of the ``fruits`` variable to
 
     .. code-block:: json
 
-        ...
+        // ...
         {
                 "name": "fruits",
                 "type": "categorical",
@@ -229,14 +229,14 @@ Well, what if we wanted to change the distribution of the ``fruits`` variable to
                     }
                 }
             },
-            ...
+            // ...
 
-.. tab:: JSON file After
+.. tab:: JSON file after
     
     .. code-block:: json
         :emphasize-lines: 15, 18, 19, 20
 
-        ...
+        // ...
         {
                 "name": "fruits",
                 "type": "categorical",
@@ -260,7 +260,7 @@ Well, what if we wanted to change the distribution of the ``fruits`` variable to
                     }
                 }
             },
-            ...
+            // ...
 
 
 If we now synthesize five rows of data using the edited MetaFrame, we get the following dataset, which as you can see contains the added ``orange`` fruit, and follows the new distribution:

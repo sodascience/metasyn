@@ -1,5 +1,5 @@
-MetaSynth Detailed overview
-============================
+Detailed overview of MetaSynth
+=================================
 
 ``Metasynth`` is a python package for generating synthetic data with a
 focus on privacy and disclosure control. It is aimed at owners of
@@ -35,11 +35,10 @@ The privacy capacities of ``metasynth`` are extensible through a plug-in system,
 Currently released extensions and more information on them is available on the :doc:`/usage/extensions` page.
 
 The MetaSynth Pipeline
----------------------
+-----------------------
 The MetaSynth package offers a seamless and efficient pipeline for synthetic data generation. It is meticulously designed to ensure the privacy-preserving and reproducible generation of realistic tabular data. The three key stages of this pipeline include the Estimation of the MetaFrame from the original data, the Serialization of the MetaFrame into an auditable and editable intermediate representation, and the Generation of the synthetic data from the model represented by the MetaFrame or its serialized representation. This section provides a walkthrough of these steps.
 
 .. image:: /images/pipeline_basic.png
-   :width: 100%
    :alt: MetaSynth Pipeline
    :align: center
 
@@ -47,32 +46,19 @@ The MetaSynth package offers a seamless and efficient pipeline for synthetic dat
 Estimation
 ^^^^^^^^^^^^^
 .. image:: /images/pipeline_estimation_simple.png
-   :width: 100%
    :alt: MetaSynth Estimation Step in Pipeline
    :align: center
 
-The generative model for multivariate datasets in ``metasynth`` makes
-the simplifying assumption of marginal independence: each column is
-considered separately, just as is done in e.g., `naïve Bayes
-classifiers <https://springer.com/book/10.1007/978-0-387-84858-7>`_. Formally, this leads to the following generative model for the :math:`K`-variate data :math:`\mathbf{x}`:
+The generative model for multivariate datasets in ``metasynth`` makes the simplifying assumption of marginal independence: each column is considered separately, just as is done in e.g., `naïve Bayes classifiers <https://springer.com/book/10.1007/978-0-387-84858-7>`_. Formally, this leads to the following generative model for the :math:`K`-variate data :math:`\mathbf{x}`:
 
 .. math::
 
     p(x) = \prod_{k=1}^K p(x_k)
 
-There are many advantages to this naïve approach when compared to more
-advanced generative models: it is transparent and explainable, it is
-able to flexibly handle data of mixed types, and it is computationally
-scalable to high-dimensional datasets. As mentioned before, the tradeoff
-is the limited analytical validity when the independence assumption does
-not hold: in the synthetic data, the expected value of correlations,
-regression parameters, and other measures of association is 0.
+There are many advantages to this naïve approach when compared to more advanced generative models: it is transparent and explainable, it is able to flexibly handle data of mixed types, and it is computationally scalable to high-dimensional datasets. As mentioned before, the tradeoff is the limited analytical validity when the independence assumption does
+not hold: in the synthetic data, the expected value of correlations, regression parameters, and other measures of association is 0.
 
-Model estimation starts with an appropriately pre-processed data frame.
-For ``metasynth``, this means the data frame is `tidy <https://www.jstatsoft.org/article/view/v059i10>`_, each column has the correct data type, and missing data are represented
-by a missing value. Internally, our software uses the `polars <https://www.pola.rs/>`_ data
-frame library, as it is performant, has consistent data types, and native support for missing data (``null``). A simple example source table could look like this (note that categorical data
-has the appropriate ``cat`` data type, not ``str``):
+Model estimation starts with an appropriately pre-processed data frame. For ``metasynth``, this means the data frame is `tidy <https://www.jstatsoft.org/article/view/v059i10>`_, each column has the correct data type, and missing data are represented by a missing value. Internally, our software uses the `Polars <https://www.pola.rs/>`_ data frame library, as it is performant, has consistent data types, and native support for missing data (``null``). A simple example source  table could look like this (note that categorical data has the appropriate ``cat`` data type, not ``str``):
 
 .. list-table::
    :widths: 10 20 10 20 20
@@ -150,7 +136,6 @@ For each data type supported by ``metasynth``, there is a set of candidate distr
 Serialization and deserialization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. image:: /images/pipeline_serialization_simple.png
-   :width: 50%
    :alt: MetaSynth Serialization Step in Pipeline
    :align: center
 
@@ -270,12 +255,15 @@ Data generation
 ^^^^^^^^^^^^^^^^
 
 .. image:: /images/pipeline_generation_simple.png
-   :width: 100%
    :alt: MetaSynth Estimation Step in Pipeline
    :align: center
 
+Once a MetaFrame model has been created or loaded from a JSON file, new synthetic datasets can be generated from it.
 
-After creating either the fitted model object from the original data or by deserializing a model object from a ``.json`` file, new data can be generated by the object.
+This process involves repeatedly sampling values from the statistical distributions specified in the MetaFrame. For each variable, values are drawn randomly based on the modeled distribution for that variable. The software handles missing data by occasionally generating null values based on the missing data percentage.
+
+These per-variable synthetic value samples are collected into a dictionary, with the variable names as keys. This dictionary is then converted into a `Polars <https://www.pola.rs/>`_  DataFrame to create the full synthetic dataset.
+
 
 .. note:: 
   See the :doc:`/usage/generating_synthetic_data` page for information on *how* to generate synthetic data based on a MetaFrame.
