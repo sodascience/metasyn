@@ -148,11 +148,11 @@ class UnstructuredTextDistribution(BaseDistribution):
         return " ".join(self.fake.sentence(nb_words=n_words) for _ in range(n_sentences))
 
     def information_criterion(self, values) -> float:
-        series = self._to_series(values)
-        lang = self.detect_language(series)
-        if lang is None:
-            return 9999999
-        return -1
+        # series = self._to_series(values)
+        # lang = self.detect_language(series)
+        # if lang is None:
+        # Don't use this distribution by default (for now).
+        return 99999999
 
     @classmethod
     def default_distribution(cls):
