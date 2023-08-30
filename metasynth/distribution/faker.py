@@ -68,7 +68,7 @@ class UniqueFakerDistribution(UniqueDistributionMixin, FakerDistribution):
     """Faker distribution that returns unique values."""
 
 
-@metadist(implements="core.free_text", var_type="string")
+@metadist(implements="core.freetext", var_type="string")
 class FreeTextDistribution(BaseDistribution):
     """Distribution for free text.
 
