@@ -35,7 +35,7 @@ from metasynth.distribution.discrete import (DiscreteUniformDistribution,
                                              UniqueKeyDistribution)
 from metasynth.distribution.faker import (FakerDistribution,
                                           UniqueFakerDistribution,
-                                          UnstructuredTextDistribution)
+                                          FreeTextDistribution)
 from metasynth.distribution.regex.base import (RegexDistribution,
                                                UniqueRegexDistribution)
 from metasynth.privacy import BasePrivacy, BasicPrivacy
@@ -92,7 +92,7 @@ class BuiltinDistributionProvider(BaseDistributionProvider):
         TruncatedNormalDistribution, ExponentialDistribution,
         MultinoulliDistribution,
         RegexDistribution, UniqueRegexDistribution, FakerDistribution, UniqueFakerDistribution,
-        UnstructuredTextDistribution,
+        FreeTextDistribution,
         UniformDateDistribution,
         UniformTimeDistribution,
         UniformDateTimeDistribution,

@@ -68,9 +68,9 @@ class UniqueFakerDistribution(UniqueDistributionMixin, FakerDistribution):
     """Faker distribution that returns unique values."""
 
 
-@metadist(implements="core.unstructured", var_type="string")
-class UnstructuredTextDistribution(BaseDistribution):
-    """Distribution for unstructured text.
+@metadist(implements="core.free_text", var_type="string")
+class FreeTextDistribution(BaseDistribution):
+    """Distribution for free text.
 
     This distribution detects the language and generates sentences using
     the Faker package. The average number of sentences and words per item
