@@ -17,7 +17,8 @@ from metasynth.distribution.datetime import (UniformDateDistribution,
 from metasynth.distribution.discrete import (DiscreteUniformDistribution,
                                              PoissonDistribution,
                                              UniqueKeyDistribution)
-from metasynth.distribution.faker import (FakerDistribution, UniqueFakerDistribution)
+from metasynth.distribution.faker import (FakerDistribution, UniqueFakerDistribution,
+                                          FreeTextDistribution)
 from metasynth.distribution.regex import (RegexDistribution,
                                           UniqueRegexDistribution)
 from metasynth.distribution.na import NADistribution
@@ -27,5 +28,6 @@ __all__ = [
     "DiscreteUniformDistribution", "PoissonDistribution", "UniqueKeyDistribution",
     "UniformDateDistribution", "UniformDateTimeDistribution", "UniformTimeDistribution",
     "FakerDistribution", "UniqueFakerDistribution", "RegexDistribution", "UniqueRegexDistribution",
-    "NADistribution",
+    "NADistribution", "FreeTextDistribution"
+
 ]
