@@ -45,7 +45,7 @@ class BaseDistribution(ABC):
         return cls._fit(pd_series, *args, **kwargs)
 
     @staticmethod
-    def _to_series(values: Union[Sequence, pl.Series]):
+    def _to_series(values: Union[Sequence, pl.Series, pd.Series]):
         if isinstance(values, pl.Series):
             series = values.drop_nulls()
         elif isinstance(values, pd.Series):
@@ -162,7 +162,7 @@ class BaseDistribution(ABC):
 def metadist(
         implements: Optional[str] = None,
         provenance: Optional[str] = None,
-        var_type: Optional[str] = None,
+        var_type: Optional[Union[str, list[str]]] = None,
         is_unique: Optional[bool] = None,
         privacy: Optional[str] = None):
     """Decorate class to create a distribution with the right properties.

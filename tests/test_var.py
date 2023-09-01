@@ -12,6 +12,7 @@ from metasynth.dataset import _jsonify
 from metasynth.distribution.discrete import UniqueKeyDistribution
 from metasynth.distribution.regex import UniqueRegexDistribution
 from metasynth.distribution.continuous import TruncatedNormalDistribution
+from metasynth.distribution.categorical import MultinoulliDistribution
 
 
 def _series_drop_nans(series):
@@ -49,7 +50,7 @@ def check_var(series, var_type, temp_path):
     new_series = var.draw_series(len(series))
     check_similar(series, new_series)
     assert var.var_type == var_type
-    assert var.distribution.var_type == var_type
+    assert var_type in var.distribution.var_type
 
     new_var = MetaVar.from_dict(var.to_dict())
     with raises(ValueError):
@@ -69,7 +70,7 @@ def check_var(series, var_type, temp_path):
 
     assert type(new_var) == type(var)
     assert new_var.dtype == var.dtype
-    assert new_var.var_type == var_type
+    assert var_type == new_var.var_type
 
     # Write to JSON file and read it back
     tmp_fp = temp_path / "tmp.json"
@@ -241,11 +242,10 @@ def test_na_two(series):
 
 @mark.parametrize(
     "series",
-    [pd.Series(np.random.randint(0, 100000, size=10)),
-     pl.Series(np.random.randint(0, 100000, size=10))]
+    [pd.Series(np.random.randint(0, 100000, size=1000)),
+     pl.Series(np.random.randint(0, 100000, size=1000))]
 )
 def test_manual_unique_integer(series):
-    # series = pd.Series(np.random.randint(0, 100000, size=10))
     var = MetaVar.detect(series)
     var.fit()
     assert isinstance(var.distribution, DiscreteUniformDistribution)
@@ -267,3 +267,18 @@ def test_manual_unique_string(series):
     assert isinstance(var.distribution, RegexDistribution)
     var.fit(unique=True)
     assert isinstance(var.distribution, UniqueRegexDistribution)
+
+
+@mark.parametrize(
+    "series",
+    [
+        pl.Series([2]*100 + [4]*100 + [12394]*100),
+        pl.Series([-123]*12 + [123]*12),
+        # pl.Series(["2"]*100 + ["5"]*100 + ["123"]*100),
+        pl.Series(["2"]*100 + ["5"]*100 + ["123"]*100, dtype=pl.Categorical)
+    ]
+)
+def test_int_multinoulli(series):
+    var = MetaVar.detect(series)
+    var.fit()
+    assert isinstance(var.distribution, MultinoulliDistribution)
