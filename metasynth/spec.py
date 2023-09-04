@@ -5,45 +5,145 @@ import polars as pl
 from metasynth.provider import BaseDistribution
 from metasynth.privacy import BasePrivacy
 
+AVAILABLE_TYPES = {
+    "distribution": [BaseDistribution, type(BaseDistribution), str],
+    "unique": [bool],
+    "description": [str],
+    "privacy": [BasePrivacy, type(BasePrivacy), str],
+    "prop_missing": [float],
+    "fit_kwargs": [dict]
+}
+
+
+def type_check(key, value, type_dict=AVAILABLE_TYPES):
+    if not any(isinstance(value, allowed_type) for allowed_type in
+               type_dict[key]) and value is not None:
+        raise TypeError(
+            f"Expected type(s): '"
+            f"{', '.join([allowed_type.__name__ for allowed_type in type_dict[key]])}' for "
+            f"attribute '{key}', got '{type(value).__name__}'")
+
 
 class VariableSpec:
-    AVAILABLE_OPTIONS = ['distribution', 'unique', 'description', 'privacy', 'prop_missing']
+    """
+    A class to represent specifications for a variable (column) in a dataframe.
+    """
 
-    def __init__(self, spec):
-        self._spec = spec
+    def __init__(self):
+        """
+        Construct a new 'VariableSpec' object with all attributes set to None.
+        """
+        self.distribution = None
+        self.unique = None
+        self.description = None
+        self.privacy = None
+        self.prop_missing = None
+        self.fit_kwargs = None
 
     def __setattr__(self, key, value):
-        if key in VariableSpec.AVAILABLE_OPTIONS:
-            self._spec[key] = value
-        elif key == "_spec":
-            super().__setattr__(key, value)
-        else:
-            raise AttributeError(
-                f"{key} is not a valid attribute. It must be one of {', '.join(VariableSpec.AVAILABLE_OPTIONS)}.")
+        """
+        Set an attribute to the 'VariableSpec' object. Validates the attribute name and its type.
 
-    def __getattr__(self, key):
-        if key in VariableSpec.AVAILABLE_OPTIONS:
-            return self._spec.get(key, None)
-        else:
-            return super().__getattribute__(key)
+        Parameters
+        ----------
+        key : str
+            The name of the attribute.
+        value : any type that matches the attribute's valid types
+            The value of the attribute.
 
-    def pop(self, key, default=None):
-        return self._spec.pop(key, default)
-
-class MetaFrameSpec:
-    def __init__(self, df: pl.DataFrame):
-        self._df = df
-        self._specs = {var: VariableSpec({}) for var in df.columns}
-        for column in df.columns:
-            setattr(self, column, VariableSpec({}))
-
-    def __getattr__(self, var_name: str):
-        if var_name not in self._specs:
-            raise AttributeError(f"Column '{var_name}' does not exist in DataFrame")
-        return self._specs[var_name]
-
-    def __getitem__(self, var_name: str):
-        return self.__getattr__(var_name)
+        Raises
+        ----------
+        TypeError
+            If the attribute's value does not match its valid types.
+        """
+        type_check(key, value)
+        super().__setattr__(key, value)
 
     def to_dict(self):
-        return {key: value._spec for key, value in self._specs.items()}
+        """
+        Convert the 'VariableSpec' object to a dictionary, excluding attributes with None values.
+
+        Returns
+        ----------
+        dict
+            A dictionary that represents the 'VariableSpec' object.
+        """
+        dict_repr = {
+            'distribution': self.distribution,
+            'unique': self.unique,
+            'description': self.description,
+            'privacy': self.privacy,
+            'prop_missing': self.prop_missing,
+            'fit_kwargs': self.fit_kwargs
+        }
+        return {key: value for key, value in dict_repr.items() if value is not None}
+
+
+class MetaFrameSpec:
+    """
+       A class to represent specifications for all variables (columns) in a dataframe.
+
+       Attributes
+       ----------
+       columns : dict
+           A dictionary where keys are column names and values are VariableSpec objects.
+    """
+
+    def __init__(self, df: pl.DataFrame):
+        """
+               Construct a new 'MetaFrameSpec' object.
+
+               Parameters
+               ----------
+               df : DataFrame
+                   The dataframe from where column names are extracted.
+        """
+        self.columns = {col: VariableSpec() for col in df.columns}
+
+    def __getitem__(self, item):
+        """
+              Return the VariableSpec object for a given column.
+
+              Parameters
+              ----------
+              item : str
+                  The column name.
+
+              Returns
+              ----------
+              VariableSpec
+                  The VariableSpec object for the column.
+        """
+        return self.columns[item]
+
+    def __setitem__(self, key, value):
+        """
+               Set a VariableSpec object to a given column.
+
+               Parameters
+               ----------
+               key : str
+                   The column name.
+               value : VariableSpec
+                   The VariableSpec object to set.
+
+               Raises
+               ----------
+               ValueError
+                   If value is not a VariableSpec instance.
+        """
+        if not isinstance(value, VariableSpec):
+            raise ValueError("Value must be a VariableSpec instance.")
+        self.columns[key] = value
+
+    def to_dict(self):
+        """
+               Convert the MetaFrameSpec object to a dictionary.
+
+               Returns
+               ----------
+               dict
+                   A dictionary where keys are column names and values are dictionary
+                   representations of the VariableSpec objects.
+        """
+        return {col: spec.to_dict() for col, spec in self.columns.items()}
