@@ -41,7 +41,7 @@ Let's take a look at each optional parameter individually:
 
 spec
 ^^^^
-**spec** (``spec (Optional[dict[str, dict]] = None)``) is an optional dictionary that outlines specific directives for each DataFrame column. The potential directives include:
+**spec** is an optional dictionary that outlines specific directives for each DataFrame column. The potential directives include:
    
     - ``distribution``: Allows you to specify the statistical distribution of each column. To see what distributions are available refer to the :doc:`distribution package API reference</api/metasynth.distribution>`.
     
@@ -95,12 +95,12 @@ The following code to achieve this would look like:
 
 dist_providers
 ^^^^^^^^^^^^^^^^
-**dist_providers** (``dist_providers (Union[str, list[str], BaseDistributionProvider, list[BaseDistributionProvider]] = "builtin")``) allows you to specify distribution providers (as strings or actual provider objects) to use when fitting distributions to the column data.
+**dist_providers** allows you to specify distribution providers (as strings or actual provider objects) to use when fitting distributions to the column data.
 
    
 privacy
 ^^^^^^^^^
-**privacy** (``privacy (Optional[BasePrivacy] = None)``) allows you to set the global privacy level for synthetic data generation. If it's not provided, the function defaults it to ``None``.
+**privacy** allows you to set the global privacy level for synthetic data generation. If it's not provided, the function defaults it to ``None``.
 For more on privacy modules available refer to :mod:`Privacy Features (experimental) <metasynth.privacy>`.
 
 .. warning::

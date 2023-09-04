@@ -27,15 +27,15 @@ MetaSynth Documentation
 =======================
 Welcome to the `MetaSynth <https://github.com/sodascience/metasynth/>`_ documentation. 
 
-Metasynth is a Python package for generating synthetic tabular data with a focus on privacy. It is designed for owners of sensitive datasets who want to share approximations of their data for purposes like exploratory analysis and testing, without disclosing real values.
+Metasynth is a Python package for generating synthetic tabular data with a focus on privacy. It is designed for owners of sensitive datasets who want to share approximations of their data for so that others can perform exploratory analysis and testing, without disclosing real values.
 
 MetaSynth has three main functionalities:
 
-1. **Estimation**: MetaSynth can **create a MetaFrame**, from a dataset. A MetaFrame is essentially a fitted model that characterizes the structure of the original dataset without storing actual values. It captures individual distributions and features, enabling generation of synthetic data based on these MetaFrames.
-2. **Serialization**: MetaSynth can **export a created MetaFrame** into an easy to read JSON file, allowing users to audit, understand, and modify their data generation model. This exported MetaFrame can be seen as metadata.
+1. **Estimation**: MetaSynth can **create a MetaFrame**, from a dataset. A MetaFrame is essentially a fitted model that characterizes the structure of the original dataset without storing actual values. It captures individual distributions and features, enabling generation of synthetic data based on these MetaFrames and can be seen as (statistical) metadata. 
+2. **Serialization**: MetaSynth can **export a MetaFrame** into an easy to read JSON file, allowing users to audit, understand, and modify their data generation model. 
 3. **Generation**: MetaSynth can **generate synthetic data** based on a MetaFrame. The synthetic data produced solely depends on the MetaFrame, thereby maintaining a critical separation between the original sensitive data and the synthetic data generated.
 
-Researchers and data owners can use MetaSynth to generate and share synthetic versions of their sensitive datasets, mitigating privacy concerns. Furthermore, the separation of MetaFrame from original data promotes reproducibility, as the shareable MetaFrame can be used to generate consistent synthetic data.
+Researchers and data owners can use MetaSynth to generate and share synthetic versions of their sensitive datasets, mitigating privacy concerns. MetaSynth also promotes reproducibility by allowing MetaFrames to be exported as JSON files, as these can be shared and used to generate consistent synthetic data. 
 
 
 .. image:: /images/pipeline_basic.png

@@ -5,11 +5,13 @@
 Exporting and importing MetaFrames
 ===================================
 
-MetaSynth can **export a created MetaFrame** into an easy to read JSON file, allowing users to audit, understand, modify and share their data generation model. This exported MetaFrame can be seen as metadata.
+MetaSynth can **export a MetaFrame** into an easy to read JSON file, allowing users to audit, understand, modify and share their data generation model. 
 
 .. image:: /images/pipeline_serialization_simple.png
    :alt: MetaFrame Serialization Flow
    :align: center
+
+These JSON files follow the  `Generative Metadata Format (GMF) <https://github.com/sodascience/generative_metadata_format>`__, which a standard designed to be easy to read and understand. 
 
 Exporting a MetaFrame
 ----------------------
@@ -20,9 +22,6 @@ The following code exports a generated :obj:`MetaFrame<metasynth.dataset.MetaFra
 .. code-block:: python
 
    mf.to_json("exported_metaframe.json")
-
-Exported :obj:`MetaFrame <metasynth.dataset.MetaFrame>` objects follow the  `Generative Metadata Format
-(GMF) <https://github.com/sodascience/generative_metadata_format>`__, a standard designed to be easy to read and understand. 
 
 The following is an example of an exported MetaFrame:
 
@@ -163,7 +162,7 @@ For example, you can:
 * Modify distribution parameters
 * Adjust missing data rates
 
-Let's say we use the exported MetaFrame as provided above to synthesize 5 rows of data, resulting in the following dataset:
+Let's say we import the JSON (from earlier on this page) and use it to synthesize 5 rows of data. This results in the following dataset (note that the resulting dataset will be different every time you run this code, since the data is randomly generated):
 
 .. list-table::
    :widths: 10 20 10 20 20
@@ -263,7 +262,7 @@ Well, what if we wanted to change the distribution of the ``fruits`` variable to
             // ...
 
 
-If we now synthesize five rows of data using the edited MetaFrame, we get the following dataset, which as you can see contains the added ``orange`` fruit, and follows the new distribution:
+If we now synthesize five rows of data based on the edited JSON, we get the following dataset, which as you can see contains the added ``orange`` fruit, and follows the new distribution:
 
 .. list-table::
    :widths: 10 20 10 20 20
