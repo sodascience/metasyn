@@ -1,0 +1,28 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Build and export
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          tags: sodateam/metasynth:${{ github.ref }}
+          outputs: type=docker,dest=/tmp/myimage.tar
+      -
+        name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: sodateam/metasynth:${{ github.ref }}.tar
+          path: /tmp/myimage.tar
