@@ -5,30 +5,26 @@
 Exporting and importing MetaFrames
 ===================================
 
-MetaSynth can **export a MetaFrame** into an easy to read JSON file, allowing users to audit, understand, modify and share their data generation model. 
+MetaSynth can serialize and **export a MetaFrame** into a GMF file. GMF files are JSON files that follow the  `Generative Metadata Format (GMF) <https://github.com/sodascience/generative_metadata_format>`__ and have been designed to be easy to read and understand. This allows users to audit, understand, modify and share their data generation model with ease. 
 
 .. image:: /images/pipeline_serialization_simple.png
    :alt: MetaFrame Serialization Flow
    :align: center
 
-These JSON files follow the  `Generative Metadata Format (GMF) <https://github.com/sodascience/generative_metadata_format>`__, which a standard designed to be easy to read and understand. 
-
 Exporting a MetaFrame
 ----------------------
-MetaFrames can be serialized and exported to a JSON file by calling the :meth:`metasynth.dataset.MetaDataset.to_json` method on a :obj:`MetaDatasets<metasynth.dataset.MetaDataset>`. 
+MetaFrames can be serialized and exported to a GMF file by calling the :meth:`metasynth.dataset.MetaDataset.to_json` method on a :obj:`MetaDatasets<metasynth.dataset.MetaDataset>`. 
 
-The following code exports a generated :obj:`MetaFrame<metasynth.dataset.MetaFrame>` object named ``mf`` to a JSON file named ``exported_metaframe``.
+The following code exports a generated :obj:`MetaFrame<metasynth.dataset.MetaFrame>` object named ``mf`` to a GMF file named ``exported_metaframe``.
 
 .. code-block:: python
 
    mf.to_json("exported_metaframe.json")
 
-The following is an example of an exported MetaFrame:
-
 .. raw:: html
 
    <details> 
-   <summary> An example of an exported MetaFrame: </summary>
+   <summary> An example of a MetaFrame that has been exported to a GMF file: </summary>
 
 .. code-block:: json
     
@@ -141,9 +137,9 @@ The following is an example of an exported MetaFrame:
 
 Loading a MetaFrame
 -------------------
-You can load a MetaFrame JSON file using the :meth:`MetaFrame.from_json <metasynth.dataset.MetaFrame.from_json>` classmethod. 
+You can load a MetaFrame from a GMF file using the :meth:`MetaFrame.from_json <metasynth.dataset.MetaFrame.from_json>` classmethod. 
 
-The following code loads a :obj:`MetaFrame<metasynth.dataset.MetaFrame>` object named ``mf`` from a JSON file named ``exported_metaframe``.
+The following code loads a :obj:`MetaFrame<metasynth.dataset.MetaFrame>` object named ``mf`` from a GMF file named ``exported_metaframe``.
 
 .. code-block:: python
 
@@ -162,7 +158,7 @@ For example, you can:
 * Modify distribution parameters
 * Adjust missing data rates
 
-Let's say we import the JSON (from earlier on this page) and use it to synthesize 5 rows of data. This results in the following dataset (note that the resulting dataset will be different every time you run this code, since the data is randomly generated):
+Let's say we import a MetaFrame from the GMF (from earlier on this page) and use it to synthesize 5 rows of data. This results in the following dataset (note that the resulting dataset will be different every time you run this code, since the data is randomly generated):
 
 .. list-table::
    :widths: 10 20 10 20 20
@@ -202,7 +198,7 @@ Let's say we import the JSON (from earlier on this page) and use it to synthesiz
 Well, what if we wanted to change the distribution of the ``fruits`` variable to instead be 30% ``apple``, 30% ``banana``, and introduce a new fruit ``orange`` with a distribution of 40%? We can do this by editing the ``probs`` and ``labels`` attributes of the ``fruits`` variable in the exported MetaFrame. The following is the edited MetaFrame:
 
 
-.. tab:: JSON file before
+.. tab:: GMF file before
 
     .. code-block:: json
 
@@ -230,7 +226,7 @@ Well, what if we wanted to change the distribution of the ``fruits`` variable to
             },
             // ...
 
-.. tab:: JSON file after
+.. tab:: GMF file after
     
     .. code-block:: json
         :emphasize-lines: 15, 18, 19, 20
@@ -262,7 +258,7 @@ Well, what if we wanted to change the distribution of the ``fruits`` variable to
             // ...
 
 
-If we now synthesize five rows of data based on the edited JSON, we get the following dataset, which as you can see contains the added ``orange`` fruit, and follows the new distribution:
+If we now synthesize five rows of data based on a MetaFrame loaded from the edited GMF file, we get the following dataset, which as you can see contains the added ``orange`` fruit, and follows the new distribution:
 
 .. list-table::
    :widths: 10 20 10 20 20
@@ -303,5 +299,5 @@ If we now synthesize five rows of data based on the edited JSON, we get the foll
 As you can see, it is very easy to modify the metadata to change how data is synthesized. Similarly to this example, any other aspect of the MetaFrame can be edited, including the variable names, the variable types, the data types, the percentage of missing values, and the distribution attributes. 
 
 .. warning:: 
-    Be extra careful when manually editing JSON files as errors in names, values, or formatting can cause problems. 
+    Be extra careful when manually editing GMF files as errors in names, values, or formatting can cause problems. 
 

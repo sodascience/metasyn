@@ -35,8 +35,7 @@ MetaSynth has three main functionalities:
 2. **Serialization**: MetaSynth can **export a MetaFrame** into an easy to read JSON file, allowing users to audit, understand, and modify their data generation model. 
 3. **Generation**: MetaSynth can **generate synthetic data** based on a MetaFrame. The synthetic data produced solely depends on the MetaFrame, thereby maintaining a critical separation between the original sensitive data and the synthetic data generated.
 
-Researchers and data owners can use MetaSynth to generate and share synthetic versions of their sensitive datasets, mitigating privacy concerns. MetaSynth also promotes reproducibility by allowing MetaFrames to be exported as JSON files, as these can be shared and used to generate consistent synthetic data. 
-
+Researchers and data owners can use MetaSynth to generate and share synthetic versions of their sensitive datasets, mitigating privacy concerns. Additionally, MetaSynth facilitates transparency and reproducibility, by allowing the underlying MetaFrames to be exported and shared. Other researchers can use these to regenerate consistent synthetic datasets, validating published work without requiring sensitive data.
 
 .. image:: /images/pipeline_basic.png
    :width: 100%
@@ -46,7 +45,7 @@ Researchers and data owners can use MetaSynth to generate and share synthetic ve
 .. admonition:: Key Features
 
    -  **MetaFrame Generation**: MetaSynth allows the creation of a MetaFrame from a dataset provided as a Polars or Pandas DataFrame. MetaFrames includes key characteristics such as *variable names*, *data types*, *the percentage of missing values*, and *distribution parameters*. 
-   -  **Exporting MetaFrames**: MetaSynth can export and import MetaFrames. These MetaFrames follow the according to the `Generative Metadata Format (GMF) <https://github.com/sodascience/generative_metadata_format>`__, which is a standard designed to be easy to read and understand. 
+   -  **Exporting MetaFrames**: MetaSynth can export and import MetaFrames to GMF files. These are JSON files that follow the easy to read and understand `Generative Metadata Format (GMF) <https://github.com/sodascience/generative_metadata_format>`__.
    -  **Synthetic Data Generation**: MetaSynth allows for the generation of a polars DataFrame with synthetic data that resembles the original data.
    -  **Distribution Fitting**: MetaSynth allows for manual and automatic distribution fitting.
    -  **Data Type Support**: MetaSynth supports generating synthetic data for a variety of common data types including ``categorical``, ``string``, ``integer``, ``float``, ``date``, ``time``, and ``datetime``.
