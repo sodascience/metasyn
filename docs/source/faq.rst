@@ -27,6 +27,18 @@ MetaSynth's synthetically generated datasets are classified as `Synthetically-Au
    * Disclosure control evaluation is necessary case by case, special care to be taken with names and so on.
    * To be used for extended code testing, minimal analytical value, non-negligible disclosure risk.
 
+**What is a MetaFrame?**
+-------------------------
+A MetaFrame is a fitted model that describes the aggregate structure and characteristics of a dataset. It functions like (statistical) metadata for the dataset, providing information about the dataset without revealing the actual data itself. When MetaSynth is fed a dataset (as DataFrame), it generates this MetaFrame to capture certain key aspects of the data.
+
+Key elements encapsulated in a MetaFrame include variable names, their data types, the proportion of missing values, and the parameters of the distributions that these variables follow in the dataset. This information is sufficient to understand the overall structure and attributes of the data, without divulging the exact data points.
+
+When a MetaFrame is created from an input dataset, it can be exported for auditing or manual editing. 
+
+In the MetaSynth workflow, once you have a MetaFrame, MetaSynth can generate synthetic data that aligns with the MetaFrame. This synthetic data shares the structural and distributional characteristics (as defined in the MetaFrame) with the original data but does not contain any actual data points from the original dataset, thus preserving privacy.
+
+The process of generating synthetic data solely from the MetaFrame ensures that this synthetic data is separate and independent from the original sensitive source data, thereby reducing privacy concerns while sharing or distributing this synthetic data.
+
 **I encountered the warning: "Variable PassengerId seems unique, but not set to be unique." What should I do?**
 -----------------------------------------------------------------------------------------------------------------
 This warning occurs when MetaSynth detects a column, that seems to have unique values in the real dataset but isn't specified to be unique in the fitting of the :obj:`MetaFrame<metasynth.dataset.MetaFrame>`. To address this, you can use the `spec` parameter to create a specification dictionary and indicate that the column should have unique values. Here's an example of how to do this (in this example ``PassengerId`` is the column with unique values):
@@ -41,4 +53,5 @@ This warning occurs when MetaSynth detects a column, that seems to have unique v
    # Call the fit_dataframe() function, passing in the `var_spec` dictionary as the `spec` argument
    mf = MetaFrame.fit_dataframe(df, spec=var_spec)
 
-More information on how to use the optional parameters in the :meth:`metasynth.MetaFrame.fit_dataframe() <metasynth.dataset.MetaFrame.fit_dataframe>` function can be found in :doc:`/usage/generating_metadata`.
+More information on how to use the optional parameters in the :meth:`metasynth.MetaFrame.fit_dataframe() <metasynth.dataset.MetaFrame.fit_dataframe>` function can be found in :doc:`/usage/generating_metaframes`.
+
