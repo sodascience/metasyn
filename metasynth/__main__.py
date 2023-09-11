@@ -41,7 +41,7 @@ def main() -> None:
         print(f"Metasynth CLI version {version('metasynth')}")
 
     # find the subcommand in this module and run it!
-    if subcommand == "synthesize":
+    elif subcommand == "synthesize":
         synthesize()
     elif subcommand == "schema":
         schema()
@@ -127,8 +127,7 @@ def schema() -> None:
     parser.add_argument(
         "plugins",
         help="Plugins to include in the generated schema (default builtin)",
-        nargs="*",
-        default="builtin"
+        nargs="*"
     )
 
     parser.add_argument(
@@ -148,7 +147,7 @@ def schema() -> None:
             if a != "builtin":
                 print(a)
         return
-
+    
     plugins = {"builtin", *args.plugins}
     if len(plugins - plugins_avail) > 0:
         notfound = ", ".join(plugins - plugins_avail)
