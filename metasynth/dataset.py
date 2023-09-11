@@ -212,7 +212,7 @@ class MetaFrame():
 
     def to_json(self, fp: Union[pathlib.Path, str],
                 validate: bool = True) -> None:
-        """Serialize and export the MetaSynth dataset to a JSON file.
+        """Serialize and export the MetaFrame to a JSON file.
 
         Optional validation against a JSON schema included in the package.
 
@@ -231,9 +231,9 @@ class MetaFrame():
 
     def export(self, fp: Union[pathlib.Path, str],
                validate: bool = True) -> None:
-        """Serialize and export the MetaSynth dataset to a JSON file.
+        """Serialize and export the MetaFrame to a JSON file.
 
-        Optional validation against a JSON schema included in the package.
+        Optionally, the exported JSON file is validated against the JSON schema(s) included in the package.
 
         Parameters
         ----------
