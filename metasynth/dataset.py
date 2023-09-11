@@ -212,7 +212,7 @@ class MetaFrame():
 
     def to_json(self, fp: Union[pathlib.Path, str],
                 validate: bool = True) -> None:
-        """Write the MetaSynth dataset to a JSON file.
+        """Serialize and export the MetaSynth dataset to a JSON file.
 
         Optional validation against a JSON schema included in the package.
 
@@ -228,6 +228,21 @@ class MetaFrame():
             validate_gmf_dict(self_dict)
         with open(fp, "w", encoding="utf-8") as f:
             json.dump(self_dict, f, indent=4)
+
+    def export(self, fp: Union[pathlib.Path, str],
+               validate: bool = True) -> None:
+        """Serialize and export the MetaSynth dataset to a JSON file.
+
+        Optional validation against a JSON schema included in the package.
+
+        Parameters
+        ----------
+        fp:
+            File to write the dataset to.
+        validate:
+            Validate the JSON file with a schema.
+        """
+        self.to_json(fp, validate)
 
     @classmethod
     def from_json(cls, fp: Union[pathlib.Path, str],
