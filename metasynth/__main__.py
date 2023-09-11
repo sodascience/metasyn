@@ -147,7 +147,7 @@ def schema() -> None:
             if a != "builtin":
                 print(a)
         return
-    
+
     plugins = {"builtin", *args.plugins}
     if len(plugins - plugins_avail) > 0:
         notfound = ", ".join(plugins - plugins_avail)
