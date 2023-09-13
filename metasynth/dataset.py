@@ -1,4 +1,4 @@
-"""Conversion of dataframes to MetaSynth datasets."""   # pylint: disable=invalid-name
+"""Conversion of DataFrames to MetaFrames."""  # pylint: disable=invalid-name
 
 from __future__ import annotations
 
@@ -71,7 +71,7 @@ class MetaFrame():
             aliases or an actually fitted BaseDistribution. For example:
             {"distribution": "NormalDistribution"} which is the same as
             {"distribution": NormalDistribution} or
-            {"distribution": NormalDistribution(0, 1)}, which are all ways to set a variable
+            {"distribution": NormalDistribution(0, 1)}, which are always to set a variable
             to a normal distribution. Note that the first two do not set the parameters
             of the distribution, while the last does.
 
@@ -210,11 +210,12 @@ class MetaFrame():
             for i_desc, new_desc in enumerate(new_descriptions):
                 self[i_desc].description = new_desc
 
-    def to_json(self, fp: Union[pathlib.Path, str],
-                validate: bool = True) -> None:
-        """Write the MetaSynth dataset to a JSON file.
+    def export(self, fp: Union[pathlib.Path, str],
+               validate: bool = True) -> None:
+        """Serialize and export the MetaFrame to a JSON file, following the GMF format.
 
-        Optional validation against a JSON schema included in the package.
+        Optionally, validate the exported JSON file against the JSON schema(s) included in the
+        package.
 
         Parameters
         ----------
@@ -229,10 +230,28 @@ class MetaFrame():
         with open(fp, "w", encoding="utf-8") as f:
             json.dump(self_dict, f, indent=4)
 
+    def to_json(self, fp: Union[pathlib.Path, str],
+                validate: bool = True) -> None:
+        """Serialize and export the MetaFrame to a JSON file, following the GMF format.
+
+        This method is a wrapper and simply calls the 'export' function.
+
+        Optionally, validate the exported JSON file against the JSON schema(s) included in the
+        package.
+
+        Parameters
+        ----------
+        fp:
+            File to write the dataset to.
+        validate:
+            Validate the JSON file with a schema.
+        """
+        self.export(fp, validate)
+
     @classmethod
     def from_json(cls, fp: Union[pathlib.Path, str],
                   validate: bool = True) -> MetaFrame:
-        """Read a MetaSynth dataset from a JSON file.
+        """Read a MetaFrame from a JSON file.
 
         Parameters
         ----------
