@@ -58,6 +58,7 @@ class RegexDistribution(BaseDistribution):
     def _param_dict(self):
         return {"regex_data": self.regex_model.serialize()}
 
+    @property
     def _params_formatted(self):
         return f"\t- regex: {self.regex_model.regex}"
 
