@@ -5,7 +5,7 @@ from typing import Union
 
 from regexmodel import RegexModel
 
-from metasynth.distribution.base import metadist, BaseDistribution
+from metasynth.distribution.base import metadist, BaseDistribution, UniqueDistributionMixin
 
 
 @metadist(implements="core.regex", var_type="string", version="2.0")
@@ -78,34 +78,5 @@ class RegexDistribution(BaseDistribution):
 
 
 @metadist(implements="core.unique_regex", var_type="string", is_unique=True)
-class UniqueRegexDistribution(RegexDistribution):
-    """Unique variant of the regex distribution.
-
-    Same as the normal regex distribution, but checks whether a key
-    has already been used.
-
-    Parameters
-    ----------
-    re_list: list of BaseRegexElement
-        List of basic regex elements in the order that they occur.
-    """
-
-    def __init__(self, regex_data: Union[str, list]):
-        super().__init__(regex_data)
-        self.key_set: set[str] = set()
-
-    def draw_reset(self):
-        self.key_set = set()
-
-    def draw(self) -> str:
-        n_try = 0
-        while n_try < 1e5:
-            new_val = super().draw()
-            if new_val not in self.key_set:
-                self.key_set.add(new_val)
-                return new_val
-            n_try += 1
-        raise ValueError("Failed to draw unique string after 100.000 tries.")
-
-    def information_criterion(self, values):
-        return 99999
+class UniqueRegexDistribution(UniqueDistributionMixin, RegexDistribution):
+    """Unique variant of the regex distribution."""
