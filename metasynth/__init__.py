@@ -9,9 +9,9 @@ from importlib.metadata import version
 
 from metasynth.dataset import MetaFrame
 from metasynth.var import MetaVar
-from metasynth.spec import MetaFrameSpec
+from metasynth.spec import MetaFrameSpec, VariableSpec
 from metasynth.demo.dataset import demo_file
 from metasynth.distribution.base import metadist
 
-__all__ = ["MetaVar", "MetaFrame", "demo_file", "metadist", "MetaFrameSpec"]
+__all__ = ["MetaVar", "MetaFrame", "demo_file", "metadist", "MetaFrameSpec", "VariableSpec"]
 __version__ = version("metasynth")

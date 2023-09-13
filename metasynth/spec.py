@@ -1,7 +1,6 @@
-from typing import Optional, Union
+"""Module providing classes and methods for managing specifications of variables in a metaframe."""
 
 import polars as pl
-
 from metasynth.provider import BaseDistribution
 from metasynth.privacy import BasePrivacy
 
@@ -15,7 +14,26 @@ AVAILABLE_TYPES = {
 }
 
 
-def type_check(key, value, type_dict=AVAILABLE_TYPES):
+def type_check(key, value, type_dict=None):
+    """
+    Check if value is of the allowed types specified in the type_dict for the given key.
+
+    Parameters
+    ----------
+    key: any
+        The key to be checked in the type_dict.
+    value: any
+        The value whose instance type is to be checked against the allowed types.
+    type_dict: dict
+        Optional type_dict dictionary to lookup allowed key types. If None, uses AVAILABLE_TYPES.
+
+    Raises
+    ------
+    TypeError
+        If value's type doesn't match any of the allowed types for the given key.
+    """
+    if type_dict is None:
+        type_dict = AVAILABLE_TYPES
     if not any(isinstance(value, allowed_type) for allowed_type in
                type_dict[key]) and value is not None:
         raise TypeError(
@@ -25,14 +43,10 @@ def type_check(key, value, type_dict=AVAILABLE_TYPES):
 
 
 class VariableSpec:
-    """
-    A class to represent specifications for a variable (column) in a dataframe.
-    """
+    """Represent specifications for a dataframe variable column."""
 
     def __init__(self):
-        """
-        Construct a new 'VariableSpec' object with all attributes set to None.
-        """
+        """Create new VariableSpec object with all attributes set to None."""
         self.distribution = None
         self.unique = None
         self.description = None
@@ -52,7 +66,7 @@ class VariableSpec:
             The value of the attribute.
 
         Raises
-        ----------
+        ------
         TypeError
             If the attribute's value does not match its valid types.
         """
@@ -64,7 +78,7 @@ class VariableSpec:
         Convert the 'VariableSpec' object to a dictionary, excluding attributes with None values.
 
         Returns
-        ----------
+        -------
         dict
             A dictionary that represents the 'VariableSpec' object.
         """
@@ -81,56 +95,56 @@ class VariableSpec:
 
 class MetaFrameSpec:
     """
-       A class to represent specifications for all variables (columns) in a dataframe.
+    Class to represent specifications for all variables (columns) in a dataframe.
 
-       Attributes
-       ----------
-       columns : dict
-           A dictionary where keys are column names and values are VariableSpec objects.
+    Attributes
+    ----------
+    columns : dict
+        A dictionary where keys are column names and values are VariableSpec objects.
     """
 
-    def __init__(self, df: pl.DataFrame):
+    def __init__(self, df: pl.DataFrame):  # pylint: disable=invalid-name
         """
-               Construct a new 'MetaFrameSpec' object.
+        Construct a new 'MetaFrameSpec' object.
 
-               Parameters
-               ----------
-               df : DataFrame
-                   The dataframe from where column names are extracted.
+        Parameters
+        ----------
+        df : DataFrame
+            The dataframe from where column names are extracted.
         """
         self.columns = {col: VariableSpec() for col in df.columns}
 
     def __getitem__(self, item):
         """
-              Return the VariableSpec object for a given column.
+        Return the VariableSpec object for a given column.
 
-              Parameters
-              ----------
-              item : str
-                  The column name.
+        Parameters
+        ----------
+        item : str
+            The column name.
 
-              Returns
-              ----------
-              VariableSpec
-                  The VariableSpec object for the column.
+        Returns
+        -------
+        VariableSpec
+            The VariableSpec object for the column.
         """
         return self.columns[item]
 
     def __setitem__(self, key, value):
         """
-               Set a VariableSpec object to a given column.
+        Set a VariableSpec object to a given column.
 
-               Parameters
-               ----------
-               key : str
-                   The column name.
-               value : VariableSpec
-                   The VariableSpec object to set.
+        Parameters
+        ----------
+        key : str
+            The column name.
+        value : VariableSpec
+            The VariableSpec object to set.
 
-               Raises
-               ----------
-               ValueError
-                   If value is not a VariableSpec instance.
+        Raises
+        ------
+        ValueError
+            If value is not a VariableSpec instance.
         """
         if not isinstance(value, VariableSpec):
             raise ValueError("Value must be a VariableSpec instance.")
@@ -138,12 +152,12 @@ class MetaFrameSpec:
 
     def to_dict(self):
         """
-               Convert the MetaFrameSpec object to a dictionary.
+        Convert the MetaFrameSpec object to a dictionary.
 
-               Returns
-               ----------
-               dict
-                   A dictionary where keys are column names and values are dictionary
-                   representations of the VariableSpec objects.
+        Returns
+        -------
+        dict
+            A dictionary where keys are column names and values are dictionary
+            representations of the VariableSpec objects.
         """
         return {col: spec.to_dict() for col, spec in self.columns.items()}
