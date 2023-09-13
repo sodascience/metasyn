@@ -26,6 +26,7 @@ class RegexDistribution(BaseDistribution):
         of the model, and the other is a regex that satisfies falls within the language
         of the regexmodel package (which is a small subset of the python re package).
     """
+
     def __init__(self, regex_data: Union[str, list[dict], RegexModel]):
         self.regex_model = RegexModel(regex_data)
 

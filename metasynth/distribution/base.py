@@ -186,6 +186,9 @@ def metadist(
         Whether the distribution is unique or not.
     privacy:
         Privacy class/implementation of the distribution.
+    version:
+        Version of the distribution. Increment this to ensure that compatibility is
+        properly handled.
 
     Returns
     -------

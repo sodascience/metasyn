@@ -67,6 +67,8 @@ class BaseDistributionProvider(ABC):
         ----------
         var_type:
             Variable type to get the distributions for.
+        legacy:
+            Whether to find the distributions in the legacy distribution list.
 
         Returns
         -------
@@ -249,6 +251,11 @@ class DistributionProviderList():
             uniform distribution: "uniform", "core.uniform", "UniformDistribution".
         privacy:
             Type of privacy to be applied.
+        var_type:
+            Type of the variable to find. If var_type is None, then do not check the
+            variable type.
+        version:
+            Version of the distribution to get. If necessary get them from legacy.
 
         Returns
         -------
