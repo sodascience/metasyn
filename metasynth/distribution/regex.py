@@ -43,7 +43,7 @@ class RegexDistribution(BaseDistribution):
         method:
             Method for fitting the regex model. Possible values are ["accurate", "fast", "auto"]
             The "auto" method switches between the "accurate" and "fast" methods depending on
-            the number of characters (fast if #char > 10000) in the series. 
+            the number of characters (fast if #char > 10000) in the series.
         """
         if method == "auto":
             if values.str.lengths().sum() > 10000:
