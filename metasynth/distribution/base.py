@@ -69,17 +69,20 @@ class BaseDistribution(ABC):
     def draw_reset(self) -> None:
         """Reset the drawing of elements to start again."""
 
-    def __str__(self) -> str:
-        """Return an easy to read formatted string for the distribution."""
-        params_formatted = "\n".join(
+    @property
+    def _params_formatted(self):
+        return "\n".join(
             f"\t- {param}: {value}" for param,
             value in self._param_dict().items()
         )
+
+    def __str__(self) -> str:
+        """Return an easy to read formatted string for the distribution."""
         return (
             f"- Type: {self.implements}\n"
             f"- Provenance: {self.provenance}\n"
             f"- Parameters:\n"
-            f"{params_formatted}\n"
+            f"{self._params_formatted}\n"
         )
 
     @abstractmethod
