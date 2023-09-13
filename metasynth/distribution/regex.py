@@ -31,7 +31,7 @@ class RegexDistribution(BaseDistribution):
         self.regex_model = RegexModel(regex_data)
 
     @classmethod
-    def _fit(cls, values, count_thres: int = 3, method: str = "auto"):
+    def _fit(cls, values, count_thres: int = 5, method: str = "auto"):
         """Fit a regex to structured strings.
 
         Arguments
