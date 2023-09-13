@@ -80,6 +80,8 @@ ignore_missing_imports = true
 
 [tool.pylint.'MASTER']
 ignore-patterns="_version.py"
+ignore-paths = "^metasynth/distribution/legacy.*$"
+# ignore="metasynth.distribution.legacy"
 
 [tool.pylint.'FORMAT']
 max-line-length=100

@@ -236,7 +236,8 @@ class DistributionProviderList():
                              f"that have unique == {unique}.")
         return dist_instances[np.argmin(dist_aic)]
 
-    def find_distribution(self, dist_name: str, privacy: BasePrivacy = BasicPrivacy(),
+    def find_distribution(self,  # pylint: disable=too-many-branches
+                          dist_name: str, privacy: BasePrivacy = BasicPrivacy(),
                           var_type: Optional[str] = None,
                           version: Optional[str] = None) -> type[BaseDistribution]:
         """Find a distribution and fit keyword arguments from a name.
@@ -274,9 +275,8 @@ class DistributionProviderList():
                         warnings.warn("Distribution with name '{dist_name}' is deprecated and "
                                       "will be removed in the future.")
                         return dist_class
-                    else:
-                        warnings.warn("Version ({version}) of distribution with name '{dist_name}'"
-                                      " is deprecated and will be removed in the future.")
+                    warnings.warn("Version ({version}) of distribution with name '{dist_name}'"
+                                  " is deprecated and will be removed in the future.")
         if version is not None:
             major_version = version.split(".")[0]
             for dist_class in versions_found:
