@@ -212,8 +212,7 @@ class MetaFrame():
 
     def export(self, fp: Union[pathlib.Path, str],
                validate: bool = True) -> None:
-        """Serialize and export the MetaFrame to a JSON file, following the Generative Metadata
-        Format.
+        """Serialize and export the MetaFrame to a JSON file, following the GMF format.
 
         Optionally, validate the exported JSON file against the JSON schema(s) included in the
         package.
@@ -233,8 +232,9 @@ class MetaFrame():
 
     def to_json(self, fp: Union[pathlib.Path, str],
                 validate: bool = True) -> None:
-        """Serialize and export the MetaFrame to a JSON file, following the Generative Metadata
-        Format. This method is a wrapper and simply calls the 'export' function.
+        """Serialize and export the MetaFrame to a JSON file, following the GMF format.
+
+        This method is a wrapper and simply calls the 'export' function.
 
         Optionally, validate the exported JSON file against the JSON schema(s) included in the
         package.
