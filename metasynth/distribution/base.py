@@ -70,7 +70,7 @@ class BaseDistribution(ABC):
         """Reset the drawing of elements to start again."""
 
     @property
-    def _params_formatted(self):
+    def _params_formatted(self) -> str:
         return "\n".join(
             f"\t- {param}: {value}" for param,
             value in self._param_dict().items()
