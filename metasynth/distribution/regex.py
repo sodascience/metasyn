@@ -54,9 +54,7 @@ class RegexDistribution(BaseDistribution):
 
         # Make count_thres ~= #values/100 up to 50 if in auto mode.
         if count_thres is None:
-            count_thres = min(50, max(1, round(len(values)/50)))
-
-        print(count_thres, method)
+            count_thres = min(50, max(2, round(len(values)/50)))
 
         # Try to fit the values, if it cannot be fit, then use the default distribution.
         try:
