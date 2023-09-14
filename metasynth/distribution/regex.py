@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Union
 
-from regexmodel import RegexModel
+from regexmodel import RegexModel, NotFittedError
 
 from metasynth.distribution.base import metadist, BaseDistribution, UniqueDistributionMixin
 
@@ -51,7 +51,11 @@ class RegexDistribution(BaseDistribution):
                 method = "fast"
             else:
                 method = "accurate"
-        return cls(RegexModel.fit(values, count_thres=count_thres, method=method))
+        try:
+            model = RegexModel.fit(values, count_thres=count_thres, method=method)
+        except NotFittedError:
+            return cls.default_distribution()
+        return cls(model)
 
     def draw(self):
         return self.regex_model.draw()
