@@ -59,14 +59,15 @@ class BaseDistributionProvider(ABC):
         assert len(self.version) > 0
         assert len(self.distributions) > 0
 
-    def get_dist_list(self, var_type: str, legacy: bool = False) -> List[Type[BaseDistribution]]:
+    def get_dist_list(self, var_type: str,
+                      use_legacy: bool = False) -> List[Type[BaseDistribution]]:
         """Get all distributions for a certain variable type.
 
         Parameters
         ----------
         var_type:
             Variable type to get the distributions for.
-        legacy:
+        use_legacy:
             Whether to find the distributions in the legacy distribution list.
 
         Returns
@@ -75,7 +76,7 @@ class BaseDistributionProvider(ABC):
             List of distributions with that variable type.
         """
         dist_list = []
-        if legacy:
+        if use_legacy:
             distributions = self.legacy_distributions
         else:
             distributions = self.distributions
@@ -275,7 +276,7 @@ class DistributionProviderList():
         # Look for distribution in legacy
         warnings.simplefilter("always")
         legacy_versions: list[Type[BaseDistribution]] = []
-        for dist_class in self._get_dist_list(privacy, legacy=True, var_type=var_type):
+        for dist_class in self._get_dist_list(privacy, use_legacy=True, var_type=var_type):
             if dist_class.matches_name(dist_name):
                 if version is None or version == dist_class.version:
                     if len(versions_found) == 0:
@@ -346,13 +347,14 @@ class DistributionProviderList():
 
     def _get_dist_list(self, privacy: Optional[BasePrivacy] = None,
                        var_type: Optional[str] = None,
-                       legacy: bool = False) -> list[type[BaseDistribution]]:
+                       use_legacy: bool = False) -> list[type[BaseDistribution]]:
         dist_list = []
         for dist_provider in self.dist_packages:
             if var_type is None:
                 dist_list.extend(dist_provider.distributions)
             else:
-                dist_list.extend(dist_provider.get_dist_list(var_type, legacy=legacy))
+                dist_list.extend(dist_provider.get_dist_list(var_type,
+                                                             use_legacy=use_legacy))
 
         if privacy is None:
             return dist_list
