@@ -38,8 +38,7 @@ from metasynth.distribution.faker import (FakerDistribution,
                                           FreeTextDistribution)
 from metasynth.distribution.regex import (RegexDistribution,
                                           UniqueRegexDistribution)
-from metasynth.distribution.legacy import Regex1_0
-from metasynth.distribution.legacy import UniqueRegex1_0
+from metasynth.distribution import legacy
 from metasynth.privacy import BasePrivacy, BasicPrivacy
 
 
@@ -116,7 +115,7 @@ class BuiltinDistributionProvider(BaseDistributionProvider):
         UniformDateTimeDistribution,
     ]
     legacy_distributions = [
-        Regex1_0, UniqueRegex1_0
+        legacy.RegexDistribution, legacy.UniqueRegexDistribution
     ]
 
 
