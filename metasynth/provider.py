@@ -238,7 +238,8 @@ class DistributionProviderList():
         return dist_instances[np.argmin(dist_aic)]
 
     def find_distribution(self,  # pylint: disable=too-many-branches
-                          dist_name: str, privacy: BasePrivacy = BasicPrivacy(),
+                          dist_name: str, 
+                          privacy: BasePrivacy = BasicPrivacy(),
                           var_type: Optional[str] = None,
                           version: Optional[str] = None) -> type[BaseDistribution]:
         """Find a distribution and fit keyword arguments from a name.
