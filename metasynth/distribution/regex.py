@@ -12,6 +12,9 @@ from metasynth.distribution.base import metadist, BaseDistribution, UniqueDistri
 class RegexDistribution(BaseDistribution):
     """Distribution for structured strings.
 
+    Main implementation details in the regexmodel package:
+    https://github.com/sodascience/regexmodel
+
     This distribution tries to create a regex that fits the variable. This
     regex also contains statistical information about the probabilities if the
     regex has multiple options (e.g. a|b). The regex is only a subset what is provided
