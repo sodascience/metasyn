@@ -1,7 +1,7 @@
 """Distribution for structured strings, using regexes."""
 from __future__ import annotations
 
-from typing import Union
+from typing import Union, Optional
 
 from regexmodel import RegexModel, NotFittedError
 
@@ -31,7 +31,7 @@ class RegexDistribution(BaseDistribution):
         self.regex_model = RegexModel(regex_data)
 
     @classmethod
-    def _fit(cls, values, count_thres: int = 5, method: str = "auto"):
+    def _fit(cls, values, count_thres: Optional[int] = None, method: str = "auto"):
         """Fit a regex to structured strings.
 
         Arguments
@@ -47,10 +47,18 @@ class RegexDistribution(BaseDistribution):
             the number of characters (fast if #char > 10000) in the series.
         """
         if method == "auto":
-            if values.str.lengths().sum() > 10000:
+            if values.str.lengths().mean() > 10:
                 method = "fast"
             else:
                 method = "accurate"
+
+        # Make count_thres ~= #values/100 up to 50 if in auto mode.
+        if count_thres is None:
+            count_thres = min(50, max(1, round(len(values)/50)))
+
+        print(count_thres, method)
+
+        # Try to fit the values, if it cannot be fit, then use the default distribution.
         try:
             model = RegexModel.fit(values, count_thres=count_thres, method=method)
         except NotFittedError:
