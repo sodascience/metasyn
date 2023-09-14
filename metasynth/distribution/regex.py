@@ -12,22 +12,39 @@ from metasynth.distribution.base import metadist, BaseDistribution, UniqueDistri
 class RegexDistribution(BaseDistribution):
     """Distribution for structured strings.
 
+    This distribution tries to create a regex that fits the variable. This
+    regex also contains statistical information about the probabilities if the
+    regex has multiple options (e.g. a|b). The regex is only a subset what is provided
+    by the python re package. What is currently implemented:
+
+    - Parentheses with multiple options and no modifiers, e.g. ([a]|[b]|[c])
+    - Square brackets without negation, e.g. [abc]
+    - Ranges [A-Z], [a-z], [0-9], but not subranges (e.g. [0-3])
+    - Repetition quantifiers (curly brackets) with minimum and maximum [A-Z]{3,6}, but not [A-Z]{6}.
+
+    When fitting the RegexDistribution using the fit method, pay attention to the
+    count_thres and method parameters. By default these will be dynamic and take reasonable
+    values for the input, but in some cases it can be important to set them manually.
+    The count_thres parameter sets the minimum number of times a regex element needs to
+    be used. So, if count_thres=2, and there is only one value starting with "a", then the regex
+    will never start with "a". In effect, a higher value will provide more privacy, less
+    utility and a faster fit. The other parameter "method" has a small effect on the accuracy
+    of the regex, and a larger effect on the worst case time consumption for fitting.
+    Set to "accurate" for the best result, and "fast" for the fastest result.
+
     Examples that this distribution should work reasonably for are: email,
     ID's, telephone numbers, ip addresses, etc.
-
-    Valid regexes are ([a][b]|[c][d]), or [A-Z][0-9]{2,3}. During the fit, the probabilities
-    of each of the branches in the regex is also recorded so that synthetic values can be
-    drawn from a better distribution.
 
     Parameters
     ----------
     regex_data:
-        A valid input for the regex model. The two main ones is a serialized version
-        of the model, and the other is a regex that satisfies falls within the language
-        of the regexmodel package (which is a small subset of the python re package).
+        Valid inputs for the regex model are:
+        - str: String with a regex (that falls within the specifications, see above).
+        - dict: Serialized version of the regex model, as it is coming from a JSON file.
+        - RegexModel: Initialized regex model.
     """
 
-    def __init__(self, regex_data: Union[str, list[dict], RegexModel]):
+    def __init__(self, regex_data: Union[str, dict, RegexModel]):
         self.regex_model = RegexModel(regex_data)
 
     @classmethod
