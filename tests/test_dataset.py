@@ -6,7 +6,7 @@ import pandas as pd
 import polars as pl
 from pytest import mark
 
-from metasyn.dataset import MetaFrame
+from metasyn.metaframe import MetaFrame
 from metasyn.var import MetaVar
 from metasyn.provider import get_distribution_provider
 

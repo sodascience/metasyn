@@ -8,7 +8,7 @@ from metasyn.distribution import NormalDistribution, RegexDistribution, UniqueRe
 from metasyn.distribution import DiscreteUniformDistribution
 from metasyn.distribution import UniformDistribution
 from pytest import mark, raises
-from metasyn.dataset import _jsonify
+from metasyn.metaframe import _jsonify
 from metasyn.distribution.discrete import UniqueKeyDistribution
 from metasyn.distribution.continuous import TruncatedNormalDistribution
 from metasyn.distribution.categorical import MultinoulliDistribution
