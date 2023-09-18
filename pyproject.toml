@@ -64,7 +64,6 @@ builtin = "metasyn.provider:BuiltinDistributionProvider"
 packages = ["metasyn"]
 
 [tool.setuptools_scm]
-# version_file = "metasyn/_version.py
 write_to = "metasyn/_version.py"
 
 [[tool.mypy.overrides]]
