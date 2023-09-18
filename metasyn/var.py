@@ -10,8 +10,7 @@ import polars as pl
 
 from metasyn.distribution.base import BaseDistribution
 from metasyn.privacy import BasePrivacy, BasicPrivacy
-from metasyn.provider import (BaseDistributionProvider,
-                                DistributionProviderList)
+from metasyn.provider import BaseDistributionProvider, DistributionProviderList
 
 
 class MetaVar():

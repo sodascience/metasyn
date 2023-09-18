@@ -7,20 +7,20 @@ numerical data, but also for generating strings for example.
 
 from metasyn.distribution.categorical import MultinoulliDistribution
 from metasyn.distribution.continuous import (ExponentialDistribution,
-                                               LogNormalDistribution,
-                                               NormalDistribution,
-                                               TruncatedNormalDistribution,
-                                               UniformDistribution)
+                                             LogNormalDistribution,
+                                             NormalDistribution,
+                                             TruncatedNormalDistribution,
+                                             UniformDistribution)
 from metasyn.distribution.datetime import (UniformDateDistribution,
-                                             UniformDateTimeDistribution,
-                                             UniformTimeDistribution)
+                                           UniformDateTimeDistribution,
+                                           UniformTimeDistribution)
 from metasyn.distribution.discrete import (DiscreteUniformDistribution,
-                                             PoissonDistribution,
-                                             UniqueKeyDistribution)
+                                           PoissonDistribution,
+                                           UniqueKeyDistribution)
 from metasyn.distribution.faker import (FakerDistribution, UniqueFakerDistribution,
-                                          FreeTextDistribution)
+                                        FreeTextDistribution)
 from metasyn.distribution.regex import (RegexDistribution,
-                                          UniqueRegexDistribution)
+                                        UniqueRegexDistribution)
 from metasyn.distribution.na import NADistribution
 __all__ = [
     "MultinoulliDistribution", "UniformDistribution", "NormalDistribution",
