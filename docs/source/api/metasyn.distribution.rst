@@ -1,61 +1,61 @@
-metasynth.distribution package
+metasyn.distribution package
 ==============================
 
 Submodules
 ----------
 
-metasynth.distribution.base module
+metasyn.distribution.base module
 ----------------------------------
 
-.. automodule:: metasynth.distribution.base
+.. automodule:: metasyn.distribution.base
    :members:
    :undoc-members:
    :show-inheritance:
 
-metasynth.distribution.categorical module
+metasyn.distribution.categorical module
 -----------------------------------------
 
-.. automodule:: metasynth.distribution.categorical
+.. automodule:: metasyn.distribution.categorical
    :members:
    :undoc-members:
    :show-inheritance:
 
-metasynth.distribution.continuous module
+metasyn.distribution.continuous module
 ----------------------------------------
 
-.. automodule:: metasynth.distribution.continuous
+.. automodule:: metasyn.distribution.continuous
    :members:
    :undoc-members:
    :show-inheritance:
 
-metasynth.distribution.datetime module
+metasyn.distribution.datetime module
 --------------------------------------
 
-.. automodule:: metasynth.distribution.datetime
+.. automodule:: metasyn.distribution.datetime
    :members:
    :undoc-members:
    :show-inheritance:
 
-metasynth.distribution.discrete module
+metasyn.distribution.discrete module
 --------------------------------------
 
-.. automodule:: metasynth.distribution.discrete
+.. automodule:: metasyn.distribution.discrete
    :members:
    :undoc-members:
    :show-inheritance:
 
-metasynth.distribution.faker module
+metasyn.distribution.faker module
 -----------------------------------
 
-.. automodule:: metasynth.distribution.faker
+.. automodule:: metasyn.distribution.faker
    :members:
    :undoc-members:
    :show-inheritance:
 
-metasynth.distribution.regex module
+metasyn.distribution.regex module
 -----------------------------------
 
-.. automodule:: metasynth.distribution.regex
+.. automodule:: metasyn.distribution.regex
    :members:
    :undoc-members:
    :show-inheritance:
@@ -64,7 +64,7 @@ metasynth.distribution.regex module
 Module contents
 ---------------
 
-.. automodule:: metasynth.distribution
+.. automodule:: metasyn.distribution
    :members:
    :undoc-members:
    :show-inheritance:

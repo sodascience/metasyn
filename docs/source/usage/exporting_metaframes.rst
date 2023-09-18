@@ -5,7 +5,7 @@
 Exporting and importing MetaFrames
 ===================================
 
-MetaSynth can serialize and **export a MetaFrame** into a GMF file. GMF files are JSON files that follow the  `Generative Metadata Format (GMF) <https://github.com/sodascience/generative_metadata_format>`__ and have been designed to be easy to read and understand. This allows users to audit, understand, modify and share their data generation model with ease. 
+Metasyn can serialize and **export a MetaFrame** into a GMF file. GMF files are JSON files that follow the  `Generative Metadata Format (GMF) <https://github.com/sodascience/generative_metadata_format>`__ and have been designed to be easy to read and understand. This allows users to audit, understand, modify and share their data generation model with ease. 
 
 .. image:: /images/pipeline_serialization_simple.png
    :alt: MetaFrame Serialization Flow
@@ -13,9 +13,9 @@ MetaSynth can serialize and **export a MetaFrame** into a GMF file. GMF files ar
 
 Exporting a MetaFrame
 ----------------------
-MetaFrames can be serialized and exported to a GMF file by calling the :meth:`metasynth.dataset.MetaDataset.to_json` method on a :obj:`MetaDatasets<metasynth.dataset.MetaDataset>`. 
+MetaFrames can be serialized and exported to a GMF file by calling the :meth:`metasyn.dataset.MetaDataset.to_json` method on a :obj:`MetaDatasets<metasyn.dataset.MetaDataset>`. 
 
-The following code exports a generated :obj:`MetaFrame<metasynth.dataset.MetaFrame>` object named ``mf`` to a GMF file named ``exported_metaframe``.
+The following code exports a generated :obj:`MetaFrame<metasyn.dataset.MetaFrame>` object named ``mf`` to a GMF file named ``exported_metaframe``.
 
 .. code-block:: python
 
@@ -33,7 +33,7 @@ The following code exports a generated :obj:`MetaFrame<metasynth.dataset.MetaFra
         "n_columns": 5,
         "provenance": {
             "created by": {
-                "name": "MetaSynth",
+                "name": "metasyn",
                 "version": "0.4.0"
             },
             "creation time": "2023-08-07T12:14:06.232957"
@@ -137,13 +137,13 @@ The following code exports a generated :obj:`MetaFrame<metasynth.dataset.MetaFra
 
 Loading a MetaFrame
 -------------------
-You can load a MetaFrame from a GMF file using the :meth:`MetaFrame.from_json <metasynth.dataset.MetaFrame.from_json>` classmethod. 
+You can load a MetaFrame from a GMF file using the :meth:`MetaFrame.from_json <metasyn.dataset.MetaFrame.from_json>` classmethod. 
 
-The following code loads a :obj:`MetaFrame<metasynth.dataset.MetaFrame>` object named ``mf`` from a GMF file named ``exported_metaframe``.
+The following code loads a :obj:`MetaFrame<metasyn.dataset.MetaFrame>` object named ``mf`` from a GMF file named ``exported_metaframe``.
 
 .. code-block:: python
 
-   mf = metasynth.MetaFrame.from_json("exported_metaframe.json")
+   mf = metasyn.MetaFrame.from_json("exported_metaframe.json")
 
 
 Tweaking an exported MetaFrame

@@ -1,10 +1,10 @@
-metasynth.schema package
+metasyn.schema package
 ========================
 
 Module contents
 ---------------
 
-.. automodule:: metasynth.schema
+.. automodule:: metasyn.schema
    :members:
    :undoc-members:
    :show-inheritance:

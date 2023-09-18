@@ -1,7 +1,7 @@
 API Reference
 =============
 
-.. automodule:: metasynth
+.. automodule:: metasyn
    :members:
    :undoc-members:
    :show-inheritance:
@@ -13,56 +13,56 @@ Subpackages
 .. toctree::
    :maxdepth: 1
 
-   metasynth.distribution
-   metasynth.schema
+   metasyn.distribution
+   metasyn.schema
 
 Submodules
 ----------
 
-metasynth.dataset module
+metasyn.dataset module
 ------------------------
 
-.. automodule:: metasynth.dataset
+.. automodule:: metasyn.dataset
    :members:
    :undoc-members:
    :show-inheritance:
 
-metasynth.provider module
+metasyn.provider module
 -------------------------
 
-.. automodule:: metasynth.provider
+.. automodule:: metasyn.provider
    :members:
    :undoc-members:
    :show-inheritance:
 
-metasynth.var module
+metasyn.var module
 --------------------
 
-.. automodule:: metasynth.var
+.. automodule:: metasyn.var
    :members:
    :undoc-members:
    :show-inheritance:
 
-metasynth.testutils module
+metasyn.testutils module
 --------------------------
 
-.. automodule:: metasynth.testutils
+.. automodule:: metasyn.testutils
    :members:
    :undoc-members:
    :show-inheritance:
 
-metasynth.validation module
+metasyn.validation module
 ---------------------------
 
-.. automodule:: metasynth.validation
+.. automodule:: metasyn.validation
    :members:
    :undoc-members:
    :show-inheritance:
 
-metasynth.privacy module
+metasyn.privacy module
 ------------------------
 
-.. automodule:: metasynth.privacy
+.. automodule:: metasyn.privacy
    :members:
    :undoc-members:
    :show-inheritance:
