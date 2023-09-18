@@ -47,12 +47,17 @@ spec
    
     - ``distribution``: Allows you to specify the statistical distribution of each column. To see what distributions are available refer to the :doc:`distribution package API reference</api/metasynth.distribution>`.
     
-    - ``unique``: Declare whether the column in the synthetic dataset should contain unique values. 
+    - ``unique``: Declare whether the column in the synthetic dataset should contain unique values. By default no column is set to unique.
     
     .. admonition:: Detection of unique variables
 
-        MetaSynth automatically analyzes the DataFrame for columns that contain unique values, and notify the user with a warning when it detects one. This warning can safely be ignored. Alternatively, you can set the column to unique in the ``spec`` parameter to ensure that MetaSynth only produces unique values for this variable and remove the warning. 
-    
+        When generating a MetaFrame, MetaSynth will automatically analyze the columns of the input DataFrame to detect ones that contain only unique values.
+        If such a column is found, and it has not manually been set to unique in the ``spec`` dictionary, the user will be notified with the following warning:
+        ``Warning: Variable [column_name] seems unique, but not set to be unique. Set the variable to be either unique or not unique to remove this warning``
+        
+        It is safe to ignore this warning - however, be aware that without setting the column as unique, MetaSynth may generate duplicate values for that column when synthesizing data.
+        
+        To remove the warning and ensure the column remains unique, set the column to be unique (``"column" = {"unique": True}``) in the ``spec`` dictionary.    
     
     - ``description``: Includes a description for each column in the DataFrame.
 
@@ -93,7 +98,7 @@ spec
             "Age": {"distribution": DiscreteUniformDistribution(20, 40)},
 
             # Use a regex-based distribution to generate `Cabin` values following [ABCDEF]\d{2,3}
-            "Cabin": {"distribution": RegexDistribution(r"[ABCDEF]\d{2,3}")}
+            "Cabin": {"distribution": RegexDistribution(r"[ABCDEF][0-9]{2,3}")}
 
         }
 
@@ -111,6 +116,4 @@ privacy
 For more on privacy modules available refer to :mod:`Privacy Features (experimental) <metasynth.privacy>`.
 
 .. warning::
-    Privacy features (such as differential privacy or other forms of disclosure control) are currently unfinished and under active development. More information on currently available extensions can be found in the :doc:`/usage/extensions` section.
-
-
+    Privacy features (such as differential privacy or other forms of disclosure control) are currently under active development. More information on currently available extensions can be found in the :doc:`/usage/extensions` section.
