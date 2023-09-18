@@ -55,7 +55,7 @@ This converts the CSV file into a DataFrame named ``df``.
 
 Generating the MetaFrame
 ------------------------
-With the DataFrame loaded, you can now generate a :obj:`MetaFrame <metasyn.dataset.MetaFrame>`.
+With the DataFrame loaded, you can now generate a :obj:`MetaFrame <metasyn.metaframe.MetaFrame>`.
 
 
 .. code-block:: python
@@ -79,7 +79,7 @@ The MetaFrame can be saved to a JSON file for future use.
 
    mf.to_json("exported_metaframe.json")
 
-To load a saved MetaDataset, use the following code:
+To load a saved MetaFrame, use the following code:
 
 .. code-block:: python
 
@@ -88,7 +88,7 @@ To load a saved MetaDataset, use the following code:
 Synthesizing the Data
 ---------------------
 
-With the :obj:`MetaFrame <metasyn.dataset.MetaFrame>` loaded, you can synthesize new data. To do so, we simply call the :meth:`metasyn.dataset.MetaFrame.synthesize` function on the :obj:`MetaFrame<metasyn.dataset.MetaFrame>`, and pass in the number of rows we'd like to generate as a parameter. Let's generate five rows of synthetic data.
+With the :obj:`MetaFrame <metasyn.metaframe.MetaFrame>` loaded, you can synthesize new data. To do so, we simply call the :meth:`metasyn.metaframe.MetaFrame.synthesize` function on the :obj:`MetaFrame<metasyn.metaframe.MetaFrame>`, and pass in the number of rows we'd like to generate as a parameter. Let's generate five rows of synthetic data.
 
 
 .. code-block:: python

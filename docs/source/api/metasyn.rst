@@ -19,10 +19,10 @@ Subpackages
 Submodules
 ----------
 
-metasyn.dataset module
+metasyn.metaframe module
 ------------------------
 
-.. automodule:: metasyn.dataset
+.. automodule:: metasyn.metaframe
    :members:
    :undoc-members:
    :show-inheritance:

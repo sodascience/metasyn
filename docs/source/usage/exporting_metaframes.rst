@@ -13,9 +13,9 @@ Metasyn can serialize and **export a MetaFrame** into a GMF file. GMF files are 
 
 Exporting a MetaFrame
 ----------------------
-MetaFrames can be serialized and exported to a GMF file by calling the :meth:`metasyn.dataset.MetaDataset.to_json` method on a :obj:`MetaDatasets<metasyn.dataset.MetaDataset>`. 
+MetaFrames can be serialized and exported to a GMF file by calling the :meth:`metasyn.metaframe.MetaFrame.to_json` method on a :obj:`MetaFrames<metasyn.metaframe.MetaFrame>`. 
 
-The following code exports a generated :obj:`MetaFrame<metasyn.dataset.MetaFrame>` object named ``mf`` to a GMF file named ``exported_metaframe``.
+The following code exports a generated :obj:`MetaFrame<metasyn.metaframe.MetaFrame>` object named ``mf`` to a GMF file named ``exported_metaframe``.
 
 .. code-block:: python
 
@@ -137,9 +137,9 @@ The following code exports a generated :obj:`MetaFrame<metasyn.dataset.MetaFrame
 
 Loading a MetaFrame
 -------------------
-You can load a MetaFrame from a GMF file using the :meth:`MetaFrame.from_json <metasyn.dataset.MetaFrame.from_json>` classmethod. 
+You can load a MetaFrame from a GMF file using the :meth:`MetaFrame.from_json <metasyn.metaframe.MetaFrame.from_json>` classmethod. 
 
-The following code loads a :obj:`MetaFrame<metasyn.dataset.MetaFrame>` object named ``mf`` from a GMF file named ``exported_metaframe``.
+The following code loads a :obj:`MetaFrame<metasyn.metaframe.MetaFrame>` object named ``mf`` from a GMF file named ``exported_metaframe``.
 
 .. code-block:: python
 

@@ -54,7 +54,7 @@ SCHEMA_BASE = {
 
 
 def validate_gmf_dict(gmf_dict: dict):
-    """Validate a JSON dictionary of a dataset as it would be written to a GMF file.
+    """Validate a JSON dictionary of a metaframe as it would be written to a GMF file.
 
     Make sure that you have used the _jsonify function to convert numpy arrays to
     lists, etc.
@@ -62,7 +62,7 @@ def validate_gmf_dict(gmf_dict: dict):
     Arguments
     ---------
     gmf_dict:
-        Dictionary containing the metasyn output for a dataset.
+        Dictionary containing the metasyn output for a metaframe.
     """
     packages = [entry.name for entry in entry_points(group="metasyn.distribution_provider")]
     schema = create_schema(packages)

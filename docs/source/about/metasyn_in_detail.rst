@@ -145,7 +145,7 @@ Serialization and deserialization
    :align: center
 
 After a ``MetaFrame`` object is created, ``metasyn`` allows it to be stored in a human- and machine-readable ``.json`` file. This file can be considered as metadata.
-Exported :obj:`MetaFrames <metasyn.dataset.MetaFrame>` follow the  `Generative Metadata Format (GMF) <https://github.com/sodascience/generative_metadata_format>`__, a standard designed to be easy to read and understand. 
+Exported :obj:`MetaFrames <metasyn.metaframe.MetaFrame>` follow the  `Generative Metadata Format (GMF) <https://github.com/sodascience/generative_metadata_format>`__, a standard designed to be easy to read and understand. 
 This allows for manual and automatic editing, as well as easy sharing.
 
 .. raw:: html

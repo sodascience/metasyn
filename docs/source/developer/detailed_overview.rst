@@ -37,11 +37,11 @@ MetaFrame
 ---------
 
 The main datastructure that the user will interface with. It contains exactly the information of the Metasyn File. The main
-initialization methods are the classmethods :meth:`metasyn.dataset.MetaFrame.from_json` (to load from a file) and 
-:meth:`metasyn.dataset.MetaFrame.from_dataframe` to fit variables from a
+initialization methods are the classmethods :meth:`metasyn.metaframe.MetaFrame.from_json` (to load from a file) and 
+:meth:`metasyn.metaframe.MetaFrame.from_dataframe` to fit variables from a
 polars DataFrame. It implements ``__getitem__`` so that access to variables is easier, either by variable name or index.
 
-The last important method is :meth:`metasyn.dataset.MetaFrame.synthesize`, which creates a synthesized dataset.
+The last important method is :meth:`metasyn.metaframe.MetaFrame.synthesize`, which creates a synthesized dataset.
 
 MetaVar
 -------

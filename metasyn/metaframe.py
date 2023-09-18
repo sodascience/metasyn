@@ -19,9 +19,9 @@ from metasyn.var import MetaVar
 
 
 class MetaFrame():
-    """Metasyn dataset consisting of variables.
+    """Metasyn metaframe consisting of variables.
 
-    The metasyn dataset structure that is most easily created from
+    The metasyn metaframe structure that is most easily created from
     a polars dataset with the from_dataframe class method.
 
     Parameters
@@ -109,7 +109,7 @@ class MetaFrame():
         Returns
         -------
         MetaFrame:
-            Initialized metasyn dataset.
+            Initialized metasyn metaframe.
         """
         if privacy is None:
             privacy = BasicPrivacy()
@@ -180,7 +180,7 @@ class MetaFrame():
         raise TypeError(f"Cannot get item for key '{key}'")
 
     def __str__(self) -> str:
-        """Return an easy to read formatted string for the dataset."""
+        """Return an easy to read formatted string for the metaframe."""
         vars_formatted = "\n".join(
             f"Column {i + 1}: {str(var)}" for i,
             var in enumerate(
@@ -220,7 +220,7 @@ class MetaFrame():
         Parameters
         ----------
         fp:
-            File to write the dataset to.
+            File to write the metaframe to.
         validate:
             Validate the JSON file with a schema.
         """
@@ -242,7 +242,7 @@ class MetaFrame():
         Parameters
         ----------
         fp:
-            File to write the dataset to.
+            File to write the metaframe to.
         validate:
             Validate the JSON file with a schema.
         """

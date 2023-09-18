@@ -41,7 +41,7 @@ The process of generating synthetic data solely from the MetaFrame ensures that 
 
 **I encountered the warning: "Variable PassengerId seems unique, but not set to be unique." What should I do?**
 -----------------------------------------------------------------------------------------------------------------
-This warning occurs when metasyn detects a column, that seems to have unique values in the real dataset but isn't specified to be unique in the fitting of the :obj:`MetaFrame<metasyn.dataset.MetaFrame>`. To address this, you can use the `spec` parameter to create a specification dictionary and indicate that the column should have unique values. Here's an example of how to do this (in this example ``PassengerId`` is the column with unique values):
+This warning occurs when metasyn detects a column, that seems to have unique values in the real dataset but isn't specified to be unique in the fitting of the :obj:`MetaFrame<metasyn.metaframe.MetaFrame>`. To address this, you can use the `spec` parameter to create a specification dictionary and indicate that the column should have unique values. Here's an example of how to do this (in this example ``PassengerId`` is the column with unique values):
 
 .. code-block:: python
 
@@ -53,5 +53,5 @@ This warning occurs when metasyn detects a column, that seems to have unique val
    # Call the fit_dataframe() function, passing in the `var_spec` dictionary as the `spec` argument
    mf = MetaFrame.fit_dataframe(df, spec=var_spec)
 
-More information on how to use the optional parameters in the :meth:`metasyn.MetaFrame.fit_dataframe() <metasyn.dataset.MetaFrame.fit_dataframe>` function can be found in :doc:`/usage/generating_metaframes` under :ref:`optionalparams`.
+More information on how to use the optional parameters in the :meth:`metasyn.MetaFrame.fit_dataframe() <metasyn.metaframe.MetaFrame.fit_dataframe>` function can be found in :doc:`/usage/generating_metaframes` under :ref:`optionalparams`.
 
