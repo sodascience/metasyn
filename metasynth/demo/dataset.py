@@ -59,7 +59,7 @@ def create_titanic_demo(output_fp: Path) -> Path:
 
     dframe["all_NA"] = [pd.NA for _ in range(len(dframe))]
     # Remove some columns for brevity and write to a file.
-    dframe = dframe.drop(["SibSp", "Pclass", "Ticket", "Survived"], axis=1)
+    dframe = dframe.drop(["SibSp", "Pclass", "Survived"], axis=1)
     dframe.to_csv(output_fp, index=False)
     return output_fp
 

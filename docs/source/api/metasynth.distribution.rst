@@ -1,14 +1,6 @@
 metasynth.distribution package
 ==============================
 
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 4
-
-   metasynth.distribution.regex
-
 Submodules
 ----------
 
@@ -59,6 +51,15 @@ metasynth.distribution.faker module
    :members:
    :undoc-members:
    :show-inheritance:
+
+metasynth.distribution.regex module
+-----------------------------------
+
+.. automodule:: metasynth.distribution.regex
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 Module contents
 ---------------

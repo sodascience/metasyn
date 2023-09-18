@@ -23,6 +23,7 @@ class BaseDistribution(ABC):
     provenance: str = "builtin"
     privacy: str = "none"
     is_unique: bool = False
+    version: str = "1.0"
 
     @classmethod
     def fit(cls, series: Union[Sequence, pl.Series],
@@ -68,17 +69,20 @@ class BaseDistribution(ABC):
     def draw_reset(self) -> None:
         """Reset the drawing of elements to start again."""
 
-    def __str__(self) -> str:
-        """Return an easy to read formatted string for the distribution."""
-        params_formatted = "\n".join(
+    @property
+    def _params_formatted(self) -> str:
+        return "\n".join(
             f"\t- {param}: {value}" for param,
             value in self._param_dict().items()
         )
+
+    def __str__(self) -> str:
+        """Return an easy to read formatted string for the distribution."""
         return (
             f"- Type: {self.implements}\n"
             f"- Provenance: {self.provenance}\n"
             f"- Parameters:\n"
-            f"{params_formatted}\n"
+            f"{self._params_formatted}\n"
         )
 
     @abstractmethod
@@ -89,6 +93,7 @@ class BaseDistribution(ABC):
         """Convert the distribution to a dictionary."""
         return {
             "implements": self.implements,
+            "version": self.version,
             "provenance": self.provenance,
             "class_name": self.__class__.__name__,
             "parameters": deepcopy(self._param_dict()),
@@ -106,6 +111,7 @@ class BaseDistribution(ABC):
             "type": "object",
             "properties": {
                 "implements": {"const": cls.implements},
+                "version": {"type": "string"},
                 "provenance": {"const": cls.provenance},
                 "class_name": {"const": cls.__name__},
                 "parameters": {
@@ -164,6 +170,7 @@ def metadist(
         provenance: Optional[str] = None,
         var_type: Optional[Union[str, list[str]]] = None,
         is_unique: Optional[bool] = None,
+        version: Optional[str] = None,
         privacy: Optional[str] = None):
     """Decorate class to create a distribution with the right properties.
 
@@ -179,6 +186,9 @@ def metadist(
         Whether the distribution is unique or not.
     privacy:
         Privacy class/implementation of the distribution.
+    version:
+        Version of the distribution. Increment this to ensure that compatibility is
+        properly handled.
 
     Returns
     -------
@@ -196,6 +206,8 @@ def metadist(
             cls.is_unique = is_unique
         if privacy is not None:
             cls.privacy = privacy
+        if version is not None:
+            cls.version = version
         return cls
     return _wrap
 

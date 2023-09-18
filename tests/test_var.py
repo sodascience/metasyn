@@ -4,13 +4,12 @@ import pandas as pd
 import polars as pl
 import numpy as np
 from metasynth.var import MetaVar
-from metasynth.distribution import NormalDistribution, RegexDistribution
+from metasynth.distribution import NormalDistribution, RegexDistribution, UniqueRegexDistribution
 from metasynth.distribution import DiscreteUniformDistribution
 from metasynth.distribution import UniformDistribution
 from pytest import mark, raises
 from metasynth.dataset import _jsonify
 from metasynth.distribution.discrete import UniqueKeyDistribution
-from metasynth.distribution.regex import UniqueRegexDistribution
 from metasynth.distribution.continuous import TruncatedNormalDistribution
 from metasynth.distribution.categorical import MultinoulliDistribution
 

@@ -37,6 +37,7 @@ dependencies = [
     "importlib-metadata;python_version<'3.10'",
     "importlib-resources;python_version<'3.9'",
     "wget",
+    "regexmodel>=0.2.1"
 ]
 
 dynamic = ["version"]
@@ -79,6 +80,7 @@ ignore_missing_imports = true
 
 [tool.pylint.'MASTER']
 ignore-patterns="_version.py"
+ignore-paths = "^metasynth/distribution/legacy.*$"
 
 [tool.pylint.'FORMAT']
 max-line-length=100
