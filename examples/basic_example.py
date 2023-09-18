@@ -1,5 +1,5 @@
 import polars as pl
-from metasynth import MetaFrame
+from metasyn import MetaFrame
 
 # example dataframe from polars website
 df = pl.DataFrame(

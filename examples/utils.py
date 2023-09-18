@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
-from metasynth.distribution.datetime import UniformDateTimeDistribution, UniformTimeDistribution
-from metasynth.distribution.datetime import UniformDateDistribution
+from metasyn.distribution.datetime import UniformDateTimeDistribution, UniformTimeDistribution
+from metasyn.distribution.datetime import UniformDateDistribution
 import wget
 from pathlib import Path
 import random
