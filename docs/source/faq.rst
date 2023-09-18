@@ -53,5 +53,5 @@ This warning occurs when MetaSynth detects a column, that seems to have unique v
    # Call the fit_dataframe() function, passing in the `var_spec` dictionary as the `spec` argument
    mf = MetaFrame.fit_dataframe(df, spec=var_spec)
 
-More information on how to use the optional parameters in the :meth:`metasynth.MetaFrame.fit_dataframe() <metasynth.dataset.MetaFrame.fit_dataframe>` function can be found in :doc:`/usage/generating_metaframes`.
+More information on how to use the optional parameters in the :meth:`metasynth.MetaFrame.fit_dataframe() <metasynth.dataset.MetaFrame.fit_dataframe>` function can be found in :doc:`/usage/generating_metaframes` under :ref:`optionalparams`.
 

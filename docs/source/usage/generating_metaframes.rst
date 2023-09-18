@@ -31,6 +31,8 @@ This function requires a :obj:`DataFrame` to be specified as parameter. The foll
 
     Internally, MetaSynth uses Polars (instead of Pandas) mainly because typing and the handling of non-existing data is more consistent. It is possible to supply a Pandas DataFrame instead of a Polars DataFrame to ``MetaDataset.from_dataframe``. However, this uses the automatic Polars conversion functionality, which for some edge cases result in problems. Therefore, we advise users to create Polars DataFrames. The resulting synthetic dataset is always a Polars DataFrame, but this can be easily converted back to a Pandas DataFrame by using ``df_pandas = df_polars.to_pandas()``.
 
+.. _OptionalParams:
+
 Optional Parameters
 ----------------------
 The :meth:`metasynth.MetaFrame.fit_dataframe() <metasynth.dataset.MetaFrame.fit_dataframe>` class method allows you to have more control over how your synthetic dataset is generated with additional (optional) parameters:
@@ -41,11 +43,15 @@ Let's take a look at each optional parameter individually:
 
 spec
 ^^^^
-**spec** is an optional dictionary that outlines specific directives for each DataFrame column. The potential directives include:
+**spec** is an optional dictionary that outlines specific directives for each DataFrame column (variable). The potential directives include:
    
     - ``distribution``: Allows you to specify the statistical distribution of each column. To see what distributions are available refer to the :doc:`distribution package API reference</api/metasynth.distribution>`.
     
-    - ``unique``: Declare whether the column in the synthetic dataset should contain unique values.
+    - ``unique``: Declare whether the column in the synthetic dataset should contain unique values. 
+    
+    .. admonition:: Detection of unique variables
+
+        MetaSynth automatically analyzes the DataFrame for columns that contain unique values, and notify the user with a warning when it detects one. This warning can safely be ignored. Alternatively, you can set the column to unique in the ``spec`` parameter to ensure that MetaSynth only produces unique values for this variable and remove the warning. 
     
     
     - ``description``: Includes a description for each column in the DataFrame.
@@ -55,44 +61,45 @@ spec
 
     
     - ``prop_missing``: Set the intended proportion of missing values in the synthetic data for each column.
-     
 
-Here's an example use of the ``spec`` parameter, where:
 
-  - For the column ``PassengerId``, we want unique values.
-  - The ``Name`` column should be populated with realistic fake names using the `Faker <https://faker.readthedocs.io/en/master/>`_ library.
-  - In the ``Fare`` column, we aim for an exponential distribution.
-  - Age values in the ``Age`` column should follow a discrete uniform distribution, ranging between 20 and 40.
-  - The ``Cabin`` column should adhere to a predefined structure: a letter between A and F, followed by 2 to 3 digits (e.g., A40, B721).
+.. admonition:: Example use of the ``spec`` parameter
 
-The following code to achieve this would look like:
+    - For the column ``PassengerId``, we want unique values. 
+    - The ``Name`` column should be populated with realistic fake names using the `Faker <https://faker.readthedocs.io/en/master/>`_ library.
+    - In the ``Fare`` column, we aim for an exponential distribution.
+    - Age values in the ``Age`` column should follow a discrete uniform distribution, ranging between 20 and 40.
+    - The ``Cabin`` column should adhere to a predefined structure: a letter between A and F, followed by 2 to 3 digits (e.g., A40, B721).
 
-.. code-block:: python
-    
-    from metasynth.distribution import FakerDistribution, DiscreteUniformDistribution, RegexDistribution
+    The following code to achieve this would look like:
 
-    # Create a specification dictionary for generating synthetic data
-    var_spec = {
+    .. code-block:: python
+        
+        from metasynth.distribution import FakerDistribution, DiscreteUniformDistribution, RegexDistribution
 
-        # Ensure unique values for the `PassengerId` column
-        "PassengerId": {"unique": True},
+        # Create a specification dictionary for generating synthetic data
+        var_spec = {
 
-        # Utilize the Faker library to synthesize realistic names for the `Name` column
-        "Name": {"distribution": FakerDistribution("name")},
+            # Ensure unique values for the `PassengerId` column
+            "PassengerId": {"unique": True},
 
-        # Fit `Fare` to an exponential distribution based on the data
-        "Fare": {"distribution": "ExponentialDistribution"},
+            # Utilize the Faker library to synthesize realistic names for the `Name` column
+            "Name": {"distribution": FakerDistribution("name")},
 
-        # Fit `Age` to a discrete uniform distribution ranging from 20 to 40
-        "Age": {"distribution": DiscreteUniformDistribution(20, 40)},
+            # Fit `Fare` to an exponential distribution based on the data
+            "Fare": {"distribution": "ExponentialDistribution"},
 
-        # Use a regex-based distribution to generate `Cabin` values following [ABCDEF]\d{2,3}
-        "Cabin": {"distribution": RegexDistribution(r"[ABCDEF]\d{2,3}")}
+            # Fit `Age` to a discrete uniform distribution ranging from 20 to 40
+            "Age": {"distribution": DiscreteUniformDistribution(20, 40)},
 
-    }
+            # Use a regex-based distribution to generate `Cabin` values following [ABCDEF]\d{2,3}
+            "Cabin": {"distribution": RegexDistribution(r"[ABCDEF]\d{2,3}")}
 
-    mf = MetaFrame.fit_dataframe(df, spec=var_spec)
+        }
 
+        mf = MetaFrame.fit_dataframe(df, spec=var_spec)
+
+   
 dist_providers
 ^^^^^^^^^^^^^^^^
 **dist_providers** allows you to specify distribution providers (as strings or actual provider objects) to use when fitting distributions to the column data.
@@ -105,3 +112,5 @@ For more on privacy modules available refer to :mod:`Privacy Features (experimen
 
 .. warning::
     Privacy features (such as differential privacy or other forms of disclosure control) are currently unfinished and under active development. More information on currently available extensions can be found in the :doc:`/usage/extensions` section.
+
+
