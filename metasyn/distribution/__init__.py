@@ -5,23 +5,23 @@ somewhat realistic. The concept of distributions here is not only for
 numerical data, but also for generating strings for example.
 """  # pylint: disable=invalid-name
 
-from metasynth.distribution.categorical import MultinoulliDistribution
-from metasynth.distribution.continuous import (ExponentialDistribution,
+from metasyn.distribution.categorical import MultinoulliDistribution
+from metasyn.distribution.continuous import (ExponentialDistribution,
                                                LogNormalDistribution,
                                                NormalDistribution,
                                                TruncatedNormalDistribution,
                                                UniformDistribution)
-from metasynth.distribution.datetime import (UniformDateDistribution,
+from metasyn.distribution.datetime import (UniformDateDistribution,
                                              UniformDateTimeDistribution,
                                              UniformTimeDistribution)
-from metasynth.distribution.discrete import (DiscreteUniformDistribution,
+from metasyn.distribution.discrete import (DiscreteUniformDistribution,
                                              PoissonDistribution,
                                              UniqueKeyDistribution)
-from metasynth.distribution.faker import (FakerDistribution, UniqueFakerDistribution,
+from metasyn.distribution.faker import (FakerDistribution, UniqueFakerDistribution,
                                           FreeTextDistribution)
-from metasynth.distribution.regex import (RegexDistribution,
+from metasyn.distribution.regex import (RegexDistribution,
                                           UniqueRegexDistribution)
-from metasynth.distribution.na import NADistribution
+from metasyn.distribution.na import NADistribution
 __all__ = [
     "MultinoulliDistribution", "UniformDistribution", "NormalDistribution",
     "LogNormalDistribution", "TruncatedNormalDistribution", "ExponentialDistribution",

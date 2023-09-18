@@ -5,7 +5,7 @@ from scipy.optimize import minimize
 from scipy.stats import expon, lognorm, norm, truncnorm, uniform
 from scipy.stats._continuous_distns import FitDataError
 
-from metasynth.distribution.base import metadist, ScipyDistribution
+from metasyn.distribution.base import metadist, ScipyDistribution
 
 
 @metadist(implements="core.uniform", var_type="continuous")

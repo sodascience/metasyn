@@ -11,8 +11,8 @@ except ImportError:
 
 import jsonschema
 
-from metasynth.provider import get_distribution_provider
-from metasynth.distribution.na import NADistribution
+from metasyn.provider import get_distribution_provider
+from metasyn.distribution.na import NADistribution
 
 
 SCHEMA_BASE = {
@@ -62,9 +62,9 @@ def validate_gmf_dict(gmf_dict: dict):
     Arguments
     ---------
     gmf_dict:
-        Dictionary containing the MetaSynth output for a dataset.
+        Dictionary containing the metasyn output for a dataset.
     """
-    packages = [entry.name for entry in entry_points(group="metasynth.distribution_provider")]
+    packages = [entry.name for entry in entry_points(group="metasyn.distribution_provider")]
     schema = create_schema(packages)
     jsonschema.validate(gmf_dict, schema)
 

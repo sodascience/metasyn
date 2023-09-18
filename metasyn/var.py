@@ -8,9 +8,9 @@ import numpy as np
 import pandas as pd
 import polars as pl
 
-from metasynth.distribution.base import BaseDistribution
-from metasynth.privacy import BasePrivacy, BasicPrivacy
-from metasynth.provider import (BaseDistributionProvider,
+from metasyn.distribution.base import BaseDistribution
+from metasyn.privacy import BasePrivacy, BasicPrivacy
+from metasyn.provider import (BaseDistributionProvider,
                                 DistributionProviderList)
 
 
@@ -121,7 +121,7 @@ class MetaVar():
 
     @staticmethod
     def get_var_type(polars_dtype: str) -> str:
-        """Convert polars dtype to MetaSynth variable type."""
+        """Convert polars dtype to metasyn variable type."""
         convert_dict = {
             "int": "discrete",
             "float": "continuous",

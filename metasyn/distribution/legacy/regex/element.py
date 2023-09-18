@@ -11,7 +11,7 @@ from typing import Dict, Iterable, Optional, Sequence, Tuple
 import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 
-from metasynth.distribution.legacy.regex.optimizer import RegexOptimizer
+from metasyn.distribution.legacy.regex.optimizer import RegexOptimizer
 
 
 class BaseRegexElement(ABC):

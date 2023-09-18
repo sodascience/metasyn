@@ -3,7 +3,7 @@
 from abc import abstractmethod, ABC
 from typing import Type, Union
 
-from metasynth.distribution.base import BaseDistribution
+from metasyn.distribution.base import BaseDistribution
 
 
 class BasePrivacy(ABC):

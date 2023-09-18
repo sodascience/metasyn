@@ -7,10 +7,10 @@ import jsonschema
 import polars as pl
 from jsonschema.exceptions import SchemaError
 
-from metasynth.dataset import _jsonify
-from metasynth.distribution.base import BaseDistribution
-from metasynth.privacy import BasePrivacy
-from metasynth.provider import (get_distribution_provider,
+from metasyn.dataset import _jsonify
+from metasyn.distribution.base import BaseDistribution
+from metasyn.privacy import BasePrivacy
+from metasyn.provider import (get_distribution_provider,
                                 BaseDistributionProvider,
                                 DistributionProviderList)
 

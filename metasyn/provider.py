@@ -19,27 +19,27 @@ except ImportError:
 import numpy as np
 import polars as pl
 
-from metasynth.distribution.na import NADistribution
-from metasynth.distribution.base import BaseDistribution
-from metasynth.distribution.categorical import MultinoulliDistribution
-from metasynth.distribution.continuous import (ExponentialDistribution,
+from metasyn.distribution.na import NADistribution
+from metasyn.distribution.base import BaseDistribution
+from metasyn.distribution.categorical import MultinoulliDistribution
+from metasyn.distribution.continuous import (ExponentialDistribution,
                                                LogNormalDistribution,
                                                NormalDistribution,
                                                TruncatedNormalDistribution,
                                                UniformDistribution)
-from metasynth.distribution.datetime import (UniformDateDistribution,
+from metasyn.distribution.datetime import (UniformDateDistribution,
                                              UniformDateTimeDistribution,
                                              UniformTimeDistribution)
-from metasynth.distribution.discrete import (DiscreteUniformDistribution,
+from metasyn.distribution.discrete import (DiscreteUniformDistribution,
                                              PoissonDistribution,
                                              UniqueKeyDistribution)
-from metasynth.distribution.faker import (FakerDistribution,
+from metasyn.distribution.faker import (FakerDistribution,
                                           UniqueFakerDistribution,
                                           FreeTextDistribution)
-from metasynth.distribution.regex import (RegexDistribution,
+from metasyn.distribution.regex import (RegexDistribution,
                                           UniqueRegexDistribution)
-from metasynth.distribution import legacy
-from metasynth.privacy import BasePrivacy, BasicPrivacy
+from metasyn.distribution import legacy
+from metasyn.privacy import BasePrivacy, BasicPrivacy
 
 
 class BaseDistributionProvider(ABC):
@@ -385,7 +385,7 @@ def _get_all_providers() -> dict[str, EntryPoint]:
     """Get all available providers."""
     return {
         entry.name: entry
-        for entry in entry_points(group="metasynth.distribution_provider")
+        for entry in entry_points(group="metasyn.distribution_provider")
     }
 
 

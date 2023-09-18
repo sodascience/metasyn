@@ -8,7 +8,7 @@ from lingua._constant import LETTERS, PUNCTUATION
 # PUNCTUATION: Pattern = regex.compile(r"\p{P}")
 from scipy.stats import poisson
 
-from metasynth.distribution.base import metadist, BaseDistribution, UniqueDistributionMixin
+from metasyn.distribution.base import metadist, BaseDistribution, UniqueDistributionMixin
 
 
 @metadist(implements="core.faker", var_type="string")
@@ -16,7 +16,7 @@ class FakerDistribution(BaseDistribution):
     """Distribution for the faker package.
 
     This is mainly an interface for the faker package, so that it
-    can be used within the MetaSynth package. It doesn't have any
+    can be used within the metasyn package. It doesn't have any
     true fitting/statistical inference method, so it has to be manually
     selected.
 

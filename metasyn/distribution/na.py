@@ -2,7 +2,7 @@
 
 import polars as pl
 
-from metasynth.distribution.base import BaseDistribution, metadist
+from metasyn.distribution.base import BaseDistribution, metadist
 
 
 @metadist(implements="core.na", var_type="string")

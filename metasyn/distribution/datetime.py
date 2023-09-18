@@ -7,7 +7,7 @@ from typing import Any, Dict
 
 import numpy as np
 
-from metasynth.distribution.base import metadist, ScipyDistribution
+from metasyn.distribution.base import metadist, ScipyDistribution
 
 
 def convert_numpy_datetime(time_obj: np.datetime64) -> dt.datetime:

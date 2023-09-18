@@ -12,8 +12,8 @@ import pandas as pd
 import numpy as np
 import wget
 
-from metasynth.distribution.datetime import UniformDateTimeDistribution, UniformTimeDistribution
-from metasynth.distribution.datetime import UniformDateDistribution
+from metasyn.distribution.datetime import UniformDateTimeDistribution, UniformTimeDistribution
+from metasyn.distribution.datetime import UniformDateDistribution
 
 
 def create_titanic_demo(output_fp: Path) -> Path:

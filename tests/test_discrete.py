@@ -3,7 +3,7 @@ import polars as pl
 import numpy as np
 from scipy.stats import poisson
 
-from metasynth.distribution.discrete import UniqueKeyDistribution, DiscreteUniformDistribution,\
+from metasyn.distribution.discrete import UniqueKeyDistribution, DiscreteUniformDistribution,\
     PoissonDistribution
 from pytest import mark
 from math import fabs

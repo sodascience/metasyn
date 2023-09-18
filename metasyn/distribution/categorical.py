@@ -10,7 +10,7 @@ import numpy.typing as npt
 import pandas as pd
 import polars as pl
 
-from metasynth.distribution.base import metadist, BaseDistribution
+from metasyn.distribution.base import metadist, BaseDistribution
 
 
 @metadist(implements="core.multinoulli", var_type=["categorical", "discrete", "string"])

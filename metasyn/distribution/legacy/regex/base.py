@@ -6,12 +6,12 @@ from typing import List, Sequence, Set, Tuple, Type, Union
 
 import numpy as np
 
-from metasynth.distribution.base import metadist, BaseDistribution
-from metasynth.distribution.legacy.regex.element import (AlphaNumericRegex, AnyRegex,
+from metasyn.distribution.base import metadist, BaseDistribution
+from metasyn.distribution.legacy.regex.element import (AlphaNumericRegex, AnyRegex,
                                                          BaseRegexElement, DigitRegex,
                                                          LettersRegex, LowercaseRegex,
                                                          SingleRegex, UppercaseRegex)
-from metasynth.distribution.legacy.regex.optimizer import RegexOptimizer
+from metasyn.distribution.legacy.regex.optimizer import RegexOptimizer
 
 
 def _get_gradient_start(values: Sequence[str], new_values: Sequence[str],

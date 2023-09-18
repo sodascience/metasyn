@@ -12,16 +12,16 @@ from typing import Any, Dict, List, Optional, Sequence, Union
 import numpy as np
 import polars as pl
 
-from metasynth.privacy import BasePrivacy, BasicPrivacy
-from metasynth.provider import BaseDistributionProvider
-from metasynth.validation import validate_gmf_dict
-from metasynth.var import MetaVar
+from metasyn.privacy import BasePrivacy, BasicPrivacy
+from metasyn.provider import BaseDistributionProvider
+from metasyn.validation import validate_gmf_dict
+from metasyn.var import MetaVar
 
 
 class MetaFrame():
-    """MetaSynth dataset consisting of variables.
+    """Metasyn dataset consisting of variables.
 
-    The MetaSynth dataset structure that is most easily created from
+    The metasyn dataset structure that is most easily created from
     a polars dataset with the from_dataframe class method.
 
     Parameters
@@ -52,7 +52,7 @@ class MetaFrame():
             dist_providers: Union[str, list[str], BaseDistributionProvider,
                                   list[BaseDistributionProvider]] = "builtin",
             privacy: Optional[BasePrivacy] = None):
-        """Create a MetaSynth object from a polars (or pandas) dataframe.
+        """Create a metasyn object from a polars (or pandas) dataframe.
 
         The Polars dataframe should be formatted already with the correct
         datatypes, such as pl.Categorical (or the pandas equivalent).
@@ -109,7 +109,7 @@ class MetaFrame():
         Returns
         -------
         MetaFrame:
-            Initialized MetaSynth dataset.
+            Initialized metasyn dataset.
         """
         if privacy is None:
             privacy = BasicPrivacy()
@@ -158,8 +158,8 @@ class MetaFrame():
             "n_columns": self.n_columns,
             "provenance": {
                 "created by": {
-                    "name": "MetaSynth",
-                    "version": version("metasynth"),
+                    "name": "metasyn",
+                    "version": version("metasyn"),
                 },
                 "creation time": datetime.now().isoformat()
             },

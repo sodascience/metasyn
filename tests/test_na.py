@@ -2,8 +2,8 @@
 import polars as pl
 from pytest import mark
 
-from metasynth import MetaFrame
-from metasynth.distribution.na import NADistribution
+from metasyn import MetaFrame
+from metasyn.distribution.na import NADistribution
 
 
 @mark.parametrize("dtype", [pl.Float32, pl.Float64, pl.Int32, pl.Int64, pl.Categorical, pl.Utf8])

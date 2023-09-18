@@ -5,7 +5,7 @@ from typing import Union, Optional
 
 from regexmodel import RegexModel, NotFittedError
 
-from metasynth.distribution.base import metadist, BaseDistribution, UniqueDistributionMixin
+from metasyn.distribution.base import metadist, BaseDistribution, UniqueDistributionMixin
 
 
 @metadist(implements="core.regex", var_type="string", version="2.0")

@@ -1,4 +1,4 @@
-"""CLI for generating synthetic data frames from a metasynth .json file."""
+"""CLI for generating synthetic data frames from a metasyn .json file."""
 import argparse
 import json
 import pathlib
@@ -10,13 +10,13 @@ try:  # Python < 3.10 (backport)
 except ImportError:
     from importlib.metadata import entry_points, version  # type: ignore [assignment]
 
-from metasynth import MetaFrame
-from metasynth.validation import create_schema
+from metasyn import MetaFrame
+from metasyn.validation import create_schema
 
 MAIN_HELP_MESSAGE = f"""
-Metasynth CLI version {version("metasynth")}
+Metasynth CLI version {version("metasyn")}
 
-Usage: metasynth [subcommand] [options]
+Usage: metasyn [subcommand] [options]
 
 Available subcommands:
     synthesize - generate synthetic data from a .json file
@@ -38,7 +38,7 @@ def main() -> None:
     if subcommand in ["-h", "--help"]:
         print(MAIN_HELP_MESSAGE)
     elif subcommand in ["-v", "--version"]:
-        print(f"Metasynth CLI version {version('metasynth')}")
+        print(f"Metasynth CLI version {version('metasyn')}")
 
     # find the subcommand in this module and run it!
     elif subcommand == "synthesize":
@@ -47,14 +47,14 @@ def main() -> None:
         schema()
 
     else:
-        print(f"Invalid subcommand ({subcommand}). For help see metasynth --help")
+        print(f"Invalid subcommand ({subcommand}). For help see metasyn --help")
         sys.exit(1)
 
 
 def synthesize() -> None:
     """Program to generate synthetic data."""
     parser = argparse.ArgumentParser(
-        prog="metasynth synthesize",
+        prog="metasyn synthesize",
         description="Synthesize data from Generative Metadata Format .json file.",
     )
     parser.add_argument(
@@ -120,7 +120,7 @@ def synthesize() -> None:
 def schema() -> None:
     """Program to generate json schema from dist providers."""
     parser = argparse.ArgumentParser(
-        prog="metasynth schema",
+        prog="metasyn schema",
         description="Create Generative Metadata Format schema and print to console.",
     )
 
@@ -140,7 +140,7 @@ def schema() -> None:
     args, _ = parser.parse_known_args()
 
     # deduplicated list of plugins for schema
-    plugins_avail = {entry.name for entry in entry_points(group="metasynth.distribution_provider")}
+    plugins_avail = {entry.name for entry in entry_points(group="metasyn.distribution_provider")}
 
     if args.list:
         for a in plugins_avail:
