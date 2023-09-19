@@ -62,6 +62,7 @@ builtin = "metasyn.provider:BuiltinDistributionProvider"
 
 [tool.setuptools]
 packages = ["metasyn"]
+obsoletes = ["metasynth"]
 
 [tool.setuptools_scm]
 write_to = "metasyn/_version.py"
