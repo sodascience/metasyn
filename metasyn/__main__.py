@@ -14,7 +14,7 @@ from metasyn import MetaFrame
 from metasyn.validation import create_schema
 
 MAIN_HELP_MESSAGE = f"""
-Metasynth CLI version {version("metasyn")}
+Metasyn CLI version {version("metasyn")}
 
 Usage: metasyn [subcommand] [options]
 
@@ -38,7 +38,7 @@ def main() -> None:
     if subcommand in ["-h", "--help"]:
         print(MAIN_HELP_MESSAGE)
     elif subcommand in ["-v", "--version"]:
-        print(f"Metasynth CLI version {version('metasyn')}")
+        print(f"Metasyn CLI version {version('metasyn')}")
 
     # find the subcommand in this module and run it!
     elif subcommand == "synthesize":
