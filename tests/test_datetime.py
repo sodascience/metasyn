@@ -4,8 +4,8 @@ from pytest import mark
 import pandas as pd
 import polars as pl
 
-from metasynth.distribution.datetime import UniformDateDistribution, UniformDateTimeDistribution
-from metasynth.distribution.datetime import UniformTimeDistribution
+from metasyn.distribution.datetime import UniformDateDistribution, UniformDateTimeDistribution
+from metasyn.distribution.datetime import UniformTimeDistribution
 
 all_precision = ["microseconds", "seconds", "minutes", "hours"]
 start = ["10", ""]

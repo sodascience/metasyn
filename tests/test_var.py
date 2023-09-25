@@ -3,15 +3,15 @@ import json
 import pandas as pd
 import polars as pl
 import numpy as np
-from metasynth.var import MetaVar
-from metasynth.distribution import NormalDistribution, RegexDistribution, UniqueRegexDistribution
-from metasynth.distribution import DiscreteUniformDistribution
-from metasynth.distribution import UniformDistribution
+from metasyn.var import MetaVar
+from metasyn.distribution import NormalDistribution, RegexDistribution, UniqueRegexDistribution
+from metasyn.distribution import DiscreteUniformDistribution
+from metasyn.distribution import UniformDistribution
 from pytest import mark, raises
-from metasynth.dataset import _jsonify
-from metasynth.distribution.discrete import UniqueKeyDistribution
-from metasynth.distribution.continuous import TruncatedNormalDistribution
-from metasynth.distribution.categorical import MultinoulliDistribution
+from metasyn.metaframe import _jsonify
+from metasyn.distribution.discrete import UniqueKeyDistribution
+from metasyn.distribution.continuous import TruncatedNormalDistribution
+from metasyn.distribution.categorical import MultinoulliDistribution
 
 
 def _series_drop_nans(series):

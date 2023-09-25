@@ -3,7 +3,7 @@ import subprocess
 from pathlib import Path
 from pytest import mark, fixture
 import polars as pl
-from metasynth import MetaFrame
+from metasyn import MetaFrame
 
 TMP_DIR_PATH = None
 
@@ -44,7 +44,7 @@ def test_cli(tmp_dir, ext):
     # create command to run in subprocess with arguments
     cmd = [
         Path(sys.executable).resolve(),   # the python executable
-        Path("metasynth", "__main__.py"), # the cli script
+        Path("metasyn", "__main__.py"), # the cli script
         "synthesize",                     # the subcommand
         "-n 25",                          # only generate 25 samples
         tmp_dir / "titanic.json",         # the input file

@@ -1,8 +1,8 @@
 from pytest import mark
 
-from metasynth.provider import get_distribution_provider
-from metasynth.testutils import check_distribution, check_distribution_provider
-from metasynth.privacy import BasicPrivacy
+from metasyn.provider import get_distribution_provider
+from metasyn.testutils import check_distribution, check_distribution_provider
+from metasyn.privacy import BasicPrivacy
 
 
 def test_builtin_provider():

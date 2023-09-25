@@ -3,7 +3,7 @@ requires = ["setuptools>=45", "setuptools-scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "metasynth"
+name = "metasyn"
 authors = [
     {name = "Raoul Schram", email = "r.d.schram@uu.nl"},
     {name = "Erik-Jan van Kesteren", email = "e.vankesteren1@uu.nl"},
@@ -43,8 +43,8 @@ dependencies = [
 dynamic = ["version"]
 
 [project.urls]
-GitHub = "https://github.com/sodascience/metasynth"
-documentation = "https://metasynth.readthedocs.io/en/latest/index.html"
+GitHub = "https://github.com/sodascience/metasyn"
+documentation = "https://metasyn.readthedocs.io/en/latest/index.html"
 
 [project.optional-dependencies]
 test = [
@@ -55,16 +55,17 @@ test = [
 ]
 
 [project.scripts]
-metasynth = "metasynth.__main__:main"
+metasyn = "metasyn.__main__:main"
 
-[project.entry-points."metasynth.distribution_provider"]
-builtin = "metasynth.provider:BuiltinDistributionProvider"
+[project.entry-points."metasyn.distribution_provider"]
+builtin = "metasyn.provider:BuiltinDistributionProvider"
 
 [tool.setuptools]
-packages = ["metasynth"]
+packages = ["metasyn"]
+obsoletes = ["metasynth"]
 
 [tool.setuptools_scm]
-write_to = "metasynth/_version.py"
+write_to = "metasyn/_version.py"
 
 [[tool.mypy.overrides]]
 module = [
@@ -80,7 +81,7 @@ ignore_missing_imports = true
 
 [tool.pylint.'MASTER']
 ignore-patterns="_version.py"
-ignore-paths = "^metasynth/distribution/legacy.*$"
+ignore-paths = "^metasyn/distribution/legacy.*$"
 
 [tool.pylint.'FORMAT']
 max-line-length=100

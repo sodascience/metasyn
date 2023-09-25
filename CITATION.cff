@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-title: MetaSynth
+title: metasyn
 message: >-
   If you use this software, please cite it using the
   metadata from this file.
@@ -25,8 +25,8 @@ identifiers:
   - type: doi
     value: 10.5281/zenodo.7696031
     description: Latest archived version of Metasynth
-repository-code: 'https://github.com/sodascience/metasynth'
-url: 'https://metasynth.readthedocs.io/'
+repository-code: 'https://github.com/sodascience/metasyn'
+url: 'https://metasyn.readthedocs.io/'
 abstract: >-
   A Python package for generating synthetic data from
   tabular datasets, with a focus on privacy and

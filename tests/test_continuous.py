@@ -1,6 +1,6 @@
 import numpy as np
 from scipy import stats
-from metasynth.distribution.continuous import UniformDistribution,\
+from metasyn.distribution.continuous import UniformDistribution,\
     NormalDistribution, LogNormalDistribution, TruncatedNormalDistribution,\
     ExponentialDistribution
 from pytest import mark

@@ -1,12 +1,12 @@
 from pytest import mark, raises
 
-from metasynth.distribution.categorical import MultinoulliDistribution
-from metasynth.distribution.continuous import UniformDistribution,\
+from metasyn.distribution.categorical import MultinoulliDistribution
+from metasyn.distribution.continuous import UniformDistribution,\
     NormalDistribution
-from metasynth.distribution.faker import FakerDistribution
-from metasynth.distribution.regex import RegexDistribution
-from metasynth.distribution.discrete import DiscreteUniformDistribution
-from metasynth.provider import DistributionProviderList
+from metasyn.distribution.faker import FakerDistribution
+from metasyn.distribution.regex import RegexDistribution
+from metasyn.distribution.discrete import DiscreteUniformDistribution
+from metasyn.provider import DistributionProviderList
 
 
 @mark.parametrize(

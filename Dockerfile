@@ -5,12 +5,12 @@ FROM python:3.11-slim
 # git is used by versioneer to define the project version
 RUN apt update && apt install -y git
 
-# Install metasynth
-COPY . metasynth/
-RUN pip install metasynth/
+# Install metasyn
+COPY . metasyn/
+RUN pip install metasyn/
 
-# Remove metasynth folder
-RUN rm -r metasynth/
+# Remove metasyn folder
+RUN rm -r metasyn/
 
 # For excel output use optional XlsxWriter package
 RUN pip install XlsxWriter
@@ -18,4 +18,4 @@ RUN pip install XlsxWriter
 # Remove system dependencies
 RUN apt remove -y git && apt autoremove -y
 
-ENTRYPOINT [ "metasynth" ]
+ENTRYPOINT [ "metasyn" ]

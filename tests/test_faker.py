@@ -2,7 +2,7 @@ import pandas as pd
 import polars as pl
 from pytest import mark
 
-from metasynth.distribution.faker import FakerDistribution
+from metasyn.distribution.faker import FakerDistribution
 
 
 @mark.parametrize("series_type", [pd.Series, pl.Series])

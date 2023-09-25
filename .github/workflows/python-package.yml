@@ -37,16 +37,16 @@ jobs:
         python -m pip install ".[test]"
     - name: Check pep8 with flake8
       run: |
-        flake8 metasynth --max-line-length 100
+        flake8 metasyn --max-line-length 100
     - name: Lint with pylint
       run: |
-        pylint metasynth
+        pylint metasyn
     - name: Check docstrings with pydocstyle
       run: |
-        pydocstyle metasynth --convention=numpy --add-select=D417 --add-ignore="D102,D105"
+        pydocstyle metasyn --convention=numpy --add-select=D417 --add-ignore="D102,D105"
     - name: Check types with MyPy
       run: |
-        mypy metasynth
+        mypy metasyn
     - name: Check if documentation builds.
       run: |
         cd docs; make html SPHINXOPTS="-W --keep-going"
