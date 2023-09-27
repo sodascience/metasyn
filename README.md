@@ -8,3 +8,9 @@ Install metasyn with:
 ```bash
 pip install metasyn
 ```
+
+If you need metasynth for backward compatibility, use:
+
+```bash
+pip install metasynth==0.5.0
+```
