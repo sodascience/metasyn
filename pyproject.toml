@@ -8,7 +8,7 @@ authors = [
     {name = "Raoul Schram", email = "r.d.schram@uu.nl"},
     {name = "Erik-Jan van Kesteren", email = "e.vankesteren1@uu.nl"},
 ]
-description = "Package for creating synthetic datasets while preserving privacy."
+description = "[Inactive] Package for creating synthetic datasets while preserving privacy."
 readme = "README.md"
 requires-python = ">=3.8"
 keywords = ["metadata", "open-data", "privacy", "synthetic-data", "tabular datasets"]
@@ -19,73 +19,16 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 7 - Inactive",
     "License :: OSI Approved :: MIT License",
 ]
 
 dependencies = [
-    "pandas",
-    "polars>=0.14.17",
-    "numpy>=1.20",
-    "pyarrow",  # Dependency of polars since we're converting from pandas.
-    "scipy",
-    "numpy>=1.20",
-    "faker",
-    "lingua-language-detector",
-    "scikit-learn",
-    "jsonschema",
-    "importlib-metadata;python_version<'3.10'",
-    "importlib-resources;python_version<'3.9'",
-    "wget",
-    "regexmodel>=0.2.1"
+    "metasyn"
 ]
 
 dynamic = ["version"]
 
 [project.urls]
-GitHub = "https://github.com/sodascience/metasynth"
-documentation = "https://metasynth.readthedocs.io/en/latest/index.html"
-
-[project.optional-dependencies]
-test = [
-    "pytest", "pylint", "pydocstyle", "mypy", "flake8", "nbval",
-    "sphinx<7.0.0", "sphinx-rtd-theme", "sphinxcontrib-napoleon", 
-    "sphinx-autodoc-typehints", "sphinx_inline_tabs", "sphinx_copybutton",
-    "XlsxWriter"
-]
-
-[project.scripts]
-metasynth = "metasynth.__main__:main"
-
-[project.entry-points."metasynth.distribution_provider"]
-builtin = "metasynth.provider:BuiltinDistributionProvider"
-
-[tool.setuptools]
-packages = ["metasynth"]
-
-[tool.setuptools_scm]
-write_to = "metasynth/_version.py"
-
-[[tool.mypy.overrides]]
-module = [
-    "scipy.*",
-    "pandas.*",
-    "jsonschema.*",
-    "sklearn.*",
-    "importlib_metadata.*",
-    "importlib_resources.*",
-    "wget.*",
-]
-ignore_missing_imports = true
-
-[tool.pylint.'MASTER']
-ignore-patterns="_version.py"
-ignore-paths = "^metasynth/distribution/legacy.*$"
-
-[tool.pylint.'FORMAT']
-max-line-length=100
-max-locals=35
-max-args=10
-
-[tool.pylint.'BASIC']
-good-names=["a", "b", "mu"]
+GitHub = "https://github.com/sodascience/metasyn"
+documentation = "https://metasyn.readthedocs.io/en/latest/index.html"
