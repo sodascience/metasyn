@@ -11,7 +11,11 @@ One of the main features of metasyn is to create a :obj:`MetaFrame <metasyn.meta
 .. admonition:: Want to learn more?
     
    This page focuses on using metasyn to generate MetaFrames. If you're interested in learning more about how MetaFrames are generated behind the scenes and the assumptions involved, see the :doc:`/about/metasyn_in_detail` page for details.
-   
+
+.. admonition:: Command-line Interface
+
+    It is also possible to generate a MetaFrame, based on a given GMF file, using the metasyn command-line interface. For instructions on how to do so, see the :doc:`/usage/cli` page.
+
 Basics
 ------
 
