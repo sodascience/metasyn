@@ -7,7 +7,7 @@ Here, we've compiled answers to commonly asked questions about metasyn and its d
 
 The project was originally named MetaSynth. However, as we progressed, we discovered that there was already an existing and established audio synthesis software under the same `name <https://uisoftware.com/metasynth/>`_. To avoid potential confusion between these two unrelated projects, we have decided to change the name of our project to **metasyn**. This new name still reflects the package's core goal, of metadata-driven data synthesis. We have also changed the styling of the name to be all lowercase to align with how the package is used in code (e.g. ```import metasyn```).
 
-It is important to note that despite the name change, metasyn as a project and the package's functionality remain the same. We apologize for any confusion caused by the renaming. 
+It is important to note that despite the name change, metasyn as a project and the package's functionality remain the same.
 
 
 **I found a bug/issue, where can I report it?**
