@@ -22,25 +22,25 @@ Here's how you can use Docker to access Metasyn's CLI:
 
 1. **Install Docker:** If Docker isn't already set up on your machine, please follow the instructions on `Docker's official website <https://docs.docker.com/get-docker/>`_.
 
-2. **Pull the Metasyn Docker Image:** After successfully installing Docker, you can download the Metasyn Docker image from Docker Hub using the following command.
+2. **Pull the metasyn Docker Image:** After successfully installing Docker, you can download the metasyn Docker image from Docker Hub using the following command.
 
    .. code-block:: console
 
       docker pull sodateam/metasyn
 
-3. **Run Metasyn's CLI via Docker:** Once the Docker image is downloaded, you can use the following command to run the Metasyn CLI within a Docker container, and simultaneously set the working directory (which we denote as `wd` in this case).
+3. **Run metasyn's CLI via Docker:** Once the Docker image is downloaded, you can use the following command to run a metasyn CLI command within a Docker container (in this case ``--help``), and simultaneously set the working directory (which we denote as `wd` in this case).
 
    .. tab:: Windows
 
       .. code-block:: console
 
-         docker run -v %cd%:/wd sodascience/metasyn --help
+         docker run -v %cd%:/wd sodateam/metasyn --help
 
    .. tab:: Unix or MacOS:
 
       .. code-block:: console
 
-         docker run -v $pwd:/wd sodascience/metasyn --help
+         docker run -v $(pwd):/wd sodateam/metasyn --help
 
 
 The Metasyn CLI should now be up and running within the Docker container and ready for use!
@@ -48,9 +48,25 @@ The Metasyn CLI should now be up and running within the Docker container and rea
 .. note:: 
    You can also specify which metasyn version to use in docker, by adding a tag to the docker image. For example, to use version 0.5, you can use the following command:
 
+   .. tab:: Installing a specific version
+      
+      .. code-block:: console
+
+         docker pull sodateam/metasyn:v0.5
+
+   .. tab:: Using a command on a specific version
+
+      .. tab:: Windows
+
          .. code-block:: console
-            
-            docker run -v $pwd:/wd sodascience/metasyn:v0.5 --help
+
+            docker run -v %cd%:/wd sodateam/metasyn:v0.5 --help
+
+      .. tab:: Unix or MacOS:
+
+         .. code-block:: console
+
+            docker run -v $(pwd):/wd sodateam/metasyn:v0.5 --help
 
 
 Generating Synthetic Data
@@ -86,7 +102,7 @@ For example:
 
       .. code-block:: console
 
-         metasyn synthesize wd/my_exported_metaframe.json wd/my_synthetic_data.csv
+         metasyn synthesize wd/my_gmf.json wd/my_synthetic_data.csv
 
    .. tab:: Docker Container
 
@@ -94,17 +110,17 @@ For example:
 
          .. code-block:: console
 
-            docker run -v %cd%:/wd sodascience/metasyn synthesize wd/my_exported_metaframe.json wd/my_synthetic_data.csv
+            docker run -v %cd%:/wd sodateam/metasyn synthesize wd/my_gmf.json wd/my_synthetic_data.csv
 
       .. tab:: Unix or MacOS:
 
          .. code-block:: console
 
-            docker run -v $pwd:/wd sodascience/metasyn synthesize wd/my_exported_metaframe.json wd/my_synthetic_data.csv
+            docker run -v $(pwd):/wd sodateam/metasyn synthesize wd/my_gmf.json wd/my_synthetic_data.csv
 
 
 
-The ``synthesize `` command also takes two optional arguments:
+The ``synthesize`` command also takes two optional arguments:
 - ``-n [rows]`` or ``--num_rows [rows]``: To generate a specific number of data rows.
 - ``-p`` or ``--preview``: To preview the first six rows of synthesized data. This can be extremely useful for quick data validation without saving it to a file.
 
@@ -116,31 +132,23 @@ The ``synthesize `` command also takes two optional arguments:
 Creating Validation schemas
 ---------------------------
 
-The ``schema`` subcommand generates a schema that can be used to validate GMF files.
+The ``schema`` subcommand generates a schema that describes the expected format of the GMF files. These can be used to validate GMF files before importing and loading them into a :obj:`MetaFrame<metasyn.metaframe.MetaFrame>`.
 
 .. code-block:: console
    
    metasyn schema
 
-The schema subcommand generates a JSON schema that describes the expected format of the GMF files according to the metasyn format. It uses the built-in plugin by default.
-It's possible to specify additional plugins, these plugins will be included in the generated schema. The names of these plugins can be passed as space-separated arguments.
+It's also possible to include additional plugins in the validation schema, this can be done by passing in their names as space-seperated arguments:
 
 .. code-block:: console
    
    metasyn schema plugin1 plugin2
 
-To retrieve a list of all available plugins, you can use the --list or -l argument. This displays the available plugins and quit the command without generating a schema.
+To retrieve a list of all available plugins, you can use the ``--list`` or ``-l`` argument. This displays the available plugins:
 
 .. code-block:: console
    
    metasyn schema --list
-
-This command will print a JSON schema to the console. This schema can be used to validate GMF files, ensuring their compliance with schema requirements.
-
-.. note::
-   The schema command doesn't require any arguments by default but you may specify plugins as arguments if desired.
-
-
 
 
 
