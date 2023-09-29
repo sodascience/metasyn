@@ -2,7 +2,7 @@ Command-line Interface
 =====================
 Metasyn provides a command-line interface (CLI) for accessing core functionality without needing to write any Python code.
 
-The CLI currently has two subcommands. The ``synthesize`` subcommand, which allows you to **generate synthetic data** from any ``GMF file``, and the ``schema`` subcommand, which allows you to **create validation schemas** for a :obj:`MetaFrame<metasyn.metaframe.MetaFrame>`.
+The CLI currently has two subcommands. The ``synthesize`` subcommand, which allows you to **generate synthetic data** from any ``GMF file``, and the ``schema`` subcommand, which allows you to **create validation schemas** for GMF files.
 
 
 At any point, you can also use the help command to get more information about the CLI and its subcommands:
@@ -46,13 +46,13 @@ Here's how you can use Docker to access Metasyn's CLI:
 The Metasyn CLI should now be up and running within the Docker container and ready for use!
 
 .. note:: 
-   You can also specify which metasyn version to use in docker, by adding a tag to the docker image. For example, to use version 0.5, you can use the following command:
+   You can also specify which metasyn version to use in docker, by adding a tag to the docker image. For example, to use version 0.6, you can use the following command:
 
    .. tab:: Installing a specific version
       
       .. code-block:: console
 
-         docker pull sodateam/metasyn:v0.5
+         docker pull sodateam/metasyn:v0.6
 
    .. tab:: Using a command on a specific version
 
@@ -60,17 +60,17 @@ The Metasyn CLI should now be up and running within the Docker container and rea
 
          .. code-block:: console
 
-            docker run -v %cd%:/wd sodateam/metasyn:v0.5 --help
+            docker run -v %cd%:/wd sodateam/metasyn:v0.6 --help
 
       .. tab:: Unix or MacOS:
 
          .. code-block:: console
 
-            docker run -v $(pwd):/wd sodateam/metasyn:v0.5 --help
+            docker run -v $(pwd):/wd sodateam/metasyn:v0.6 --help
 
 
 Generating Synthetic Data
---------------------------
+-------------------------
 The ``synthesize`` subcommand combines the :doc:`deserialization </usage/exporting_metaframes>` and :doc:`generation </usage/generating_synthetic_data>` steps in the pipeline into one, and allows you to generate a synthetic dataset from a previously exported MetaFrame (stored as GMF file). 
 
 .. image:: /images/pipeline_cli.png
