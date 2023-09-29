@@ -15,7 +15,8 @@ One of the main features of metasyn is to create a :obj:`MetaFrame <metasyn.meta
 .. admonition:: Command-line Interface
 
     It is also possible to generate a MetaFrame, based on a given GMF file, using the metasyn command-line interface. For instructions on how to do so, see the :doc:`/usage/cli` page.
-   
+
+  
 Basics
 ------
 
