@@ -48,7 +48,7 @@ documentation = "https://metasyn.readthedocs.io/en/latest/index.html"
 
 [project.optional-dependencies]
 test = [
-    "pytest", "pylint", "pydocstyle", "mypy", "flake8", "nbval",
+    "ruff", "pytest", "pylint", "pydocstyle", "mypy", "flake8", "nbval",
     "sphinx<7.0.0", "sphinx-rtd-theme", "sphinxcontrib-napoleon", 
     "sphinx-autodoc-typehints", "sphinx_inline_tabs", "sphinx_copybutton",
     "XlsxWriter"
