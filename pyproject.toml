@@ -5,14 +5,14 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "metasyn"
 authors = [
-    {name = "Raoul Schram", email = "r.d.schram@uu.nl"},
-    {name = "Erik-Jan van Kesteren", email = "e.vankesteren1@uu.nl"},
+    { name = "Raoul Schram", email = "r.d.schram@uu.nl" },
+    { name = "Erik-Jan van Kesteren", email = "e.vankesteren1@uu.nl" },
 ]
 description = "Package for creating synthetic datasets while preserving privacy."
 readme = "README.md"
 requires-python = ">=3.8"
 keywords = ["metadata", "open-data", "privacy", "synthetic-data", "tabular datasets"]
-license = {file = "LICENSE"}
+license = { file = "LICENSE" }
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
@@ -27,7 +27,7 @@ dependencies = [
     "pandas",
     "polars>=0.14.17",
     "numpy>=1.20",
-    "pyarrow",  # Dependency of polars since we're converting from pandas.
+    "pyarrow", # Dependency of polars since we're converting from pandas.
     "scipy",
     "numpy>=1.20",
     "faker",
@@ -49,7 +49,7 @@ documentation = "https://metasyn.readthedocs.io/en/latest/index.html"
 [project.optional-dependencies]
 test = [
     "ruff", "pytest", "pylint", "pydocstyle", "mypy", "flake8", "nbval",
-    "sphinx<7.0.0", "sphinx-rtd-theme", "sphinxcontrib-napoleon", 
+    "sphinx<7.0.0", "sphinx-rtd-theme", "sphinxcontrib-napoleon",
     "sphinx-autodoc-typehints", "sphinx_inline_tabs", "sphinx_copybutton",
     "XlsxWriter"
 ]
@@ -64,7 +64,7 @@ builtin = "metasyn.provider:BuiltinDistributionProvider"
 packages = ["metasyn"]
 obsoletes = ["metasynth"]
 
-[tool.setuptools_scm]
+[tool.setuptoolsru_scm]
 write_to = "metasyn/_version.py"
 
 [[tool.mypy.overrides]]
@@ -79,14 +79,24 @@ module = [
 ]
 ignore_missing_imports = true
 
-[tool.pylint.'MASTER']
-ignore-patterns="_version.py"
-ignore-paths = "^metasyn/distribution/legacy.*$"
+#[tool.pylint.'MASTER']
+#ignore-patterns="_version.py"
+#ignore-paths = "^metasyn/distribution/legacy.*$"
+#
+#[tool.pylint.'FORMAT']
+#max-line-length=100
+#max-locals=35
+#max-args=10
+#
+#[tool.pylint.'BASIC']
+#good-names=["a", "b", "mu"]
 
-[tool.pylint.'FORMAT']
-max-line-length=100
-max-locals=35
-max-args=10
+[tool.ruff]
+exclude = ["_version.py", "metasyn/distribution/legacy.*"]
+line-length = 100
 
-[tool.pylint.'BASIC']
-good-names=["a", "b", "mu"]
+[tool.ruff.pylint]
+max-args = 10
+
+[tool.ruff.pep8-naming]
+ignore-names = ["a", "b", "mu"]
