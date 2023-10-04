@@ -185,6 +185,10 @@ class TruncatedNormalDistribution(ScipyDistribution):
             "sigma": {"type": "number"},
         }
 
+    @staticmethod
+    def estimated_time(series):
+        return 8e-6*len(series) + 0.07
+
 
 @metadist(implements="core.exponential", var_type="continuous")
 class ExponentialDistribution(ScipyDistribution):

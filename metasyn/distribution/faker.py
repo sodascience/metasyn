@@ -62,6 +62,10 @@ class FakerDistribution(BaseDistribution):
             "locale": {"type": "string"},
         }
 
+    @staticmethod
+    def estimated_time(series):
+        return 0.01
+
 
 @metadist(implements="core.unique_faker", var_type="string")
 class UniqueFakerDistribution(UniqueDistributionMixin, FakerDistribution):
@@ -87,16 +91,16 @@ class FreeTextDistribution(BaseDistribution):
         Average number of words per (non-NA) row.
     """
 
-    def __init__(self, locale: str, avg_sentences: Optional[float], avg_words: int):
+    def __init__(self, locale: str, avg_sentences: Optional[float], avg_words: float):
         self.locale: str = locale
         self.avg_sentences = avg_sentences
         self.avg_words = avg_words
         self.fake = Faker(locale=self.locale)
 
     @classmethod
-    def _fit(cls, values):
+    def _fit(cls, values, max_values: int = 50):
         """Select the appropriate faker function and locale."""
-        lang_str = cls.detect_language(values)
+        lang_str = cls.detect_language(values[:max_values])
         if lang_str is None:
             return cls.default_distribution()
 
@@ -172,3 +176,10 @@ class FreeTextDistribution(BaseDistribution):
             "avg_sentences": {"type": ["number", "null"]},
             "avg_words": {"type": "number"},
         }
+
+    @staticmethod
+    def estimated_time(series):
+        avg_len = series.drop_nulls().str.lengths().mean()
+        if avg_len is None:
+            return 1e-5
+        return 15*(0.05 + 2e-4*min(50, len(series))*(avg_len/28.0))

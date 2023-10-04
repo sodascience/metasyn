@@ -11,9 +11,10 @@ from typing import Any, Dict, List, Optional, Sequence, Union
 
 import numpy as np
 import polars as pl
+from tqdm import tqdm
 
 from metasyn.privacy import BasePrivacy, BasicPrivacy
-from metasyn.provider import BaseDistributionProvider
+from metasyn.provider import BaseDistributionProvider, DistributionProviderList
 from metasyn.validation import validate_gmf_dict
 from metasyn.var import MetaVar
 
@@ -51,7 +52,8 @@ class MetaFrame():
             spec: Optional[dict[str, dict]] = None,
             dist_providers: Union[str, list[str], BaseDistributionProvider,
                                   list[BaseDistributionProvider]] = "builtin",
-            privacy: Optional[BasePrivacy] = None):
+            privacy: Optional[BasePrivacy] = None,
+            progress_bar: Optional[bool] = None):
         """Create a metasyn object from a polars (or pandas) dataframe.
 
         The Polars dataframe should be formatted already with the correct
@@ -118,13 +120,17 @@ class MetaFrame():
         else:
             spec = deepcopy(spec)
 
+        if progress_bar is None:
+            est_time = cls.estimated_time(df, privacy, dist_providers)
+            progress_bar = (est_time > 5)
+
         if set(list(spec)) - set(df.columns):
             raise ValueError(
                 "Argument 'spec' includes the specifications for column names that do "
                 "not exist in the supplied dataframe:"
                 f" '{set(list(spec)) - set(df.columns)}'")
         all_vars = []
-        for col_name in df.columns:
+        for col_name in tqdm(df.columns, disable=not progress_bar):
             series = df[col_name]
             col_spec = spec.get(col_name, {})
             dist = col_spec.pop("distribution", None)
@@ -150,6 +156,19 @@ class MetaFrame():
             all_vars.append(var)
 
         return cls(all_vars, len(df))
+
+    @staticmethod
+    def estimated_time(df: pl.DataFrame, privacy, dist_providers) -> float:
+        provider_list = DistributionProviderList(dist_providers)
+
+        var_list = MetaVar.detect(df)
+        tot_time = 0
+        for var in var_list:
+            dist_list = provider_list._get_dist_list(privacy, var.var_type)
+            for dist in dist_list:
+                new_time = dist.estimated_time(var.series)
+                tot_time += new_time
+        return tot_time
 
     def to_dict(self) -> Dict[str, Any]:
         """Create dictionary with the properties for recreation."""

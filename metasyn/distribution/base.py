@@ -164,6 +164,11 @@ class BaseDistribution(ABC):
         """Get a distribution with default parameters."""
         return cls()
 
+    @staticmethod
+    def estimated_time(series):
+        """Return the estimated time fitting the series."""
+        return 4e-4 + len(series)*1e-9
+
 
 def metadist(
         implements: Optional[str] = None,

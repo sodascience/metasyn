@@ -132,3 +132,7 @@ class MultinoulliDistribution(BaseDistribution):
     @classmethod
     def default_distribution(cls):
         return cls(["a", "b", "c"], [0.1, 0.3, 0.6])
+
+    @staticmethod
+    def estimated_time(series) -> float:
+        return 3e-7*len(series) + 1e-5

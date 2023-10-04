@@ -110,17 +110,18 @@ class MetaVar():
             return [MetaVar.detect(series) for series in series_or_dataframe]
 
         series = _to_polars(series_or_dataframe)
+        var_type = cls.get_var_type(series)
 
-        try:
-            var_type = pl.datatypes.dtype_to_py_type(series.dtype).__name__
-        except NotImplementedError:
-            var_type = pl.datatypes.dtype_to_ffiname(series.dtype)
-        return cls(cls.get_var_type(var_type), series,
-                   description=description, prop_missing=prop_missing)
+        return cls(var_type, series, description=description, prop_missing=prop_missing)
 
     @staticmethod
-    def get_var_type(polars_dtype: str) -> str:
+    def get_var_type(series: pl.Series) -> str:
         """Convert polars dtype to metasyn variable type."""
+        try:
+            polars_dtype = pl.datatypes.dtype_to_py_type(series.dtype).__name__
+        except NotImplementedError:
+            polars_dtype = pl.datatypes.dtype_to_ffiname(series.dtype)
+
         convert_dict = {
             "int": "discrete",
             "float": "continuous",
