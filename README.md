@@ -127,7 +127,7 @@ The package has three main functionalities:
     }
     ```
 
-    A more advanced example GMF, based on the [Titanic](https://raw.githubusercontent.com/pandas-dev/pandas/main/doc/data/titanic.csv) dataset, can be found [here](examples/titanic_example.json)
+    A more advanced example GMF, based on the [Titanic](https://raw.githubusercontent.com/pandas-dev/pandas/main/doc/data/titanic.csv) dataset, can be found [here](examples/example_gmf_titanic.json)
     </details>
 
 -   **Synthetic Data Generation**: Metasyn allows for the generation of a polars DataFrame with synthetic data that resembles the original data.

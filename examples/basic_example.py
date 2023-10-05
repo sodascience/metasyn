@@ -28,12 +28,12 @@ spec_dict = {
 mf = MetaFrame.fit_dataframe(df, spec=spec_dict)
 
 # write to json
-mf.to_json("examples/basic_example.json")
+mf.export("example_gmf_simple.json")
 
 # then, export json from secure environment
 
 # outside secure environment, load json
-mf_out = MetaFrame.from_json("examples/basic_example.json")
+mf_out = MetaFrame.from_json("example_gmf_simple.json")
 
 # create a fake dataset
 mf_out.synthesize(10)
