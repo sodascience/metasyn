@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from typing import Union, Optional
 
-import polars as pl
 from regexmodel import RegexModel, NotFittedError
 
 from metasyn.distribution.base import metadist, BaseDistribution, UniqueDistributionMixin

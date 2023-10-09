@@ -14,7 +14,7 @@ import polars as pl
 from tqdm import tqdm
 
 from metasyn.privacy import BasePrivacy, BasicPrivacy
-from metasyn.provider import BaseDistributionProvider, DistributionProviderList
+from metasyn.provider import BaseDistributionProvider
 from metasyn.validation import validate_gmf_dict
 from metasyn.var import MetaVar
 
