@@ -79,24 +79,25 @@ module = [
 ]
 ignore_missing_imports = true
 
-#[tool.pylint.'MASTER']
-#ignore-patterns="_version.py"
-#ignore-paths = "^metasyn/distribution/legacy.*$"
-#
-#[tool.pylint.'FORMAT']
-#max-line-length=100
-#max-locals=35
-#max-args=10
-#
-#[tool.pylint.'BASIC']
-#good-names=["a", "b", "mu"]
+[tool.pylint.'MASTER']
+ignore-patterns="_version.py"
+ignore-paths = "^metasyn/distribution/legacy.*$"
+
+[tool.pylint.'FORMAT']
+max-line-length=100
+max-locals=35
+max-args=10
+
+[tool.pylint.'BASIC']
+good-names=["a", "b", "mu"]
 
 [tool.ruff]
 exclude = ["_version.py", "metasyn/distribution/legacy.*"]
 line-length = 100
+select = ["E", "F", "W", "I", "N"]
 
-[tool.ruff.pylint]
-max-args = 10
+#[tool.ruff.pylint]
+#max-args = 10
 
 [tool.ruff.pep8-naming]
 ignore-names = ["a", "b", "mu"]
