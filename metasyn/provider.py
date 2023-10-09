@@ -215,7 +215,7 @@ class DistributionProviderList():
         """
         if len(series.drop_nulls()) == 0:
             return NADistribution()
-        dist_list = self._get_dist_list(privacy, var_type)
+        dist_list = self.get_distributions(privacy, var_type)
         if len(dist_list) == 0:
             raise ValueError(f"No available distributions with variable type: '{var_type}'")
         dist_instances = [d.fit(series, **privacy.fit_kwargs) for d in dist_list]
@@ -267,7 +267,7 @@ class DistributionProviderList():
             return NADistribution
 
         versions_found = []
-        for dist_class in self._get_dist_list(privacy, var_type=var_type) + [NADistribution]:
+        for dist_class in self.get_distributions(privacy, var_type=var_type) + [NADistribution]:
             if dist_class.matches_name(dist_name):
                 if version is None or version == dist_class.version:
                     return dist_class
@@ -276,7 +276,7 @@ class DistributionProviderList():
         # Look for distribution in legacy
         warnings.simplefilter("always")
         legacy_versions: list[Type[BaseDistribution]] = []
-        for dist_class in self._get_dist_list(privacy, use_legacy=True, var_type=var_type):
+        for dist_class in self.get_distributions(privacy, use_legacy=True, var_type=var_type):
             if dist_class.matches_name(dist_name):
                 if version is None or version == dist_class.version:
                     if len(versions_found) == 0:
@@ -345,9 +345,25 @@ class DistributionProviderList():
             dist_instance = dist_class.fit(series, **privacy.fit_kwargs, **fit_kwargs)
         return dist_instance
 
-    def _get_dist_list(self, privacy: Optional[BasePrivacy] = None,
-                       var_type: Optional[str] = None,
-                       use_legacy: bool = False) -> list[type[BaseDistribution]]:
+    def get_distributions(self, privacy: Optional[BasePrivacy] = None,
+                          var_type: Optional[str] = None,
+                          use_legacy: bool = False) -> list[type[BaseDistribution]]:
+        """Get the available distributions with constraints.
+
+        Parameters
+        ----------
+        privacy:
+            Privacy level/type to filter the distributions.
+        var_type:
+            Variable type to filter for, e.g. 'string'.
+        use_legacy:
+            Whether to use legacy distributions or not.
+
+        Returns
+        -------
+        dist_list:
+            List of distributions that fit the given constraints.
+        """
         dist_list = []
         for dist_provider in self.dist_packages:
             if var_type is None:

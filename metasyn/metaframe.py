@@ -107,6 +107,9 @@ class MetaFrame():
             Can be a string, provider, or provider type.
         privacy:
             Privacy level to use by default.
+        progress_bar:
+            Whether to create a progress bar. By default it will estimate the time to fit all
+            columns and decide based on that whether to create a progress bar or not.
 
         Returns
         -------
@@ -122,7 +125,7 @@ class MetaFrame():
 
         if progress_bar is None:
             est_time = cls.estimated_time(df, privacy, dist_providers)
-            progress_bar = (est_time > 5)
+            progress_bar = est_time > 5
 
         if set(list(spec)) - set(df.columns):
             raise ValueError(
@@ -159,12 +162,31 @@ class MetaFrame():
 
     @staticmethod
     def estimated_time(df: pl.DataFrame, privacy, dist_providers) -> float:
+        """Estimate the time for the dataframe to be fitted.
+
+        Note: This should be adapted one day to take the var_spec into
+        account.
+
+        Parameters
+        ----------
+        df:
+            Dataframe to estimate the fit time for.
+        privacy:
+            Privacy level to use.
+        dist_providers:
+            Distribution providers to be used.
+
+        Returns
+        -------
+        tot_time:
+            Total time to fit all columns in the dataframe.
+        """
         provider_list = DistributionProviderList(dist_providers)
 
         var_list = MetaVar.detect(df)
         tot_time = 0
         for var in var_list:
-            dist_list = provider_list._get_dist_list(privacy, var.var_type)
+            dist_list = provider_list.get_distributions(privacy, var.var_type)
             for dist in dist_list:
                 new_time = dist.estimated_time(var.series)
                 tot_time += new_time

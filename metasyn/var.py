@@ -116,7 +116,21 @@ class MetaVar():
 
     @staticmethod
     def get_var_type(series: pl.Series) -> str:
-        """Convert polars dtype to metasyn variable type."""
+        """Convert polars dtype to metasyn variable type.
+
+        This method uses internal polars methods, so this might break at some
+        point.
+
+        Parameters
+        ----------
+        series:
+            Series to get the metasyn variable type for.
+
+        Returns
+        -------
+        var_type:
+            The variable type that is found.
+        """
         try:
             polars_dtype = pl.datatypes.dtype_to_py_type(series.dtype).__name__
         except NotImplementedError:
