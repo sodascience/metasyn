@@ -53,7 +53,7 @@ class MetaFrame():
             dist_providers: Union[str, list[str], BaseDistributionProvider,
                                   list[BaseDistributionProvider]] = "builtin",
             privacy: Optional[BasePrivacy] = None,
-            progress_bar: Optional[bool] = None):
+            progress_bar: bool = True):
         """Create a metasyn object from a polars (or pandas) dataframe.
 
         The Polars dataframe should be formatted already with the correct
@@ -108,8 +108,7 @@ class MetaFrame():
         privacy:
             Privacy level to use by default.
         progress_bar:
-            Whether to create a progress bar. By default it will estimate the time to fit all
-            columns and decide based on that whether to create a progress bar or not.
+            Whether to create a progress bar.
 
         Returns
         -------
@@ -122,10 +121,6 @@ class MetaFrame():
             spec = {}
         else:
             spec = deepcopy(spec)
-
-        if progress_bar is None:
-            est_time = cls.estimated_time(df, privacy, dist_providers)
-            progress_bar = est_time > 5
 
         if set(list(spec)) - set(df.columns):
             raise ValueError(
@@ -159,38 +154,6 @@ class MetaFrame():
             all_vars.append(var)
 
         return cls(all_vars, len(df))
-
-    @staticmethod
-    def estimated_time(df: pl.DataFrame, privacy, dist_providers) -> float:
-        """Estimate the time for the dataframe to be fitted.
-
-        Note: This should be adapted one day to take the var_spec into
-        account.
-
-        Parameters
-        ----------
-        df:
-            Dataframe to estimate the fit time for.
-        privacy:
-            Privacy level to use.
-        dist_providers:
-            Distribution providers to be used.
-
-        Returns
-        -------
-        tot_time:
-            Total time to fit all columns in the dataframe.
-        """
-        provider_list = DistributionProviderList(dist_providers)
-
-        var_list = MetaVar.detect(df)
-        tot_time = 0
-        for var in var_list:
-            dist_list = provider_list.get_distributions(privacy, var.var_type)
-            for dist in dist_list:
-                new_time = dist.estimated_time(var.series)
-                tot_time += new_time
-        return tot_time
 
     def to_dict(self) -> Dict[str, Any]:
         """Create dictionary with the properties for recreation."""

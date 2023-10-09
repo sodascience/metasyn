@@ -62,10 +62,6 @@ class FakerDistribution(BaseDistribution):
             "locale": {"type": "string"},
         }
 
-    @staticmethod
-    def estimated_time(series):
-        return 0.01
-
 
 @metadist(implements="core.unique_faker", var_type="string")
 class UniqueFakerDistribution(UniqueDistributionMixin, FakerDistribution):
@@ -176,10 +172,3 @@ class FreeTextDistribution(BaseDistribution):
             "avg_sentences": {"type": ["number", "null"]},
             "avg_words": {"type": "number"},
         }
-
-    @staticmethod
-    def estimated_time(series):
-        avg_len = series.drop_nulls().str.lengths().mean()
-        if avg_len is None:
-            return 1e-5
-        return 15*(0.05 + 2e-4*min(50, len(series))*(avg_len/28.0))

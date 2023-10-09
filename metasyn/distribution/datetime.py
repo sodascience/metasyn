@@ -131,10 +131,6 @@ class UniformDateTimeDistribution(BaseUniformDistribution):
             "precision": {"type": "string"},
         }
 
-    @staticmethod
-    def estimated_time(series):
-        return 4e-6*len(series) + 0.003
-
 
 @metadist(implements="core.uniform_time", var_type="time")
 class UniformTimeDistribution(BaseUniformDistribution):
@@ -160,10 +156,6 @@ class UniformTimeDistribution(BaseUniformDistribution):
             "end": {"type": "string"},
             "precision": {"type": "string"},
         }
-
-    @staticmethod
-    def estimated_time(series):
-        return 1.7e-6*len(series) + 0.0035
 
 
 @metadist(implements="core.uniform_date", var_type="date")

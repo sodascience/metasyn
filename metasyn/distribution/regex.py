@@ -109,13 +109,6 @@ class RegexDistribution(BaseDistribution):
     def default_distribution(cls):
         return cls(r"[ABC][0-9]{3,4}")
 
-    @staticmethod
-    def estimated_time(series: pl.Series) -> float:
-        avg_len = series.drop_nulls().str.lengths().mean()
-        if avg_len is None:
-            return 1e-5
-        return 1e-4*len(series)*(avg_len/28.0) + 1e-2
-
 
 @metadist(implements="core.unique_regex", var_type="string", is_unique=True)
 class UniqueRegexDistribution(UniqueDistributionMixin, RegexDistribution):
