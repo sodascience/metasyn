@@ -302,6 +302,11 @@ class MetaFrame():
         output = json.dumps(pretty_data, indent=4)
         return output
 
+    def gmf_preview(self):
+        """Print a preview of the MetaFrame in the GMF format."""
+        print(self.__repr__())
+
+
 
 def _jsonify(data):
     if isinstance(data, (list, tuple)):
