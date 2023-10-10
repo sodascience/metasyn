@@ -26,6 +26,7 @@ classifiers = [
 dependencies = [
     "pandas",
     "polars>=0.14.17",
+    "tqdm",
     "numpy>=1.20",
     "pyarrow",  # Dependency of polars since we're converting from pandas.
     "scipy",
@@ -51,7 +52,7 @@ test = [
     "pytest", "pylint", "pydocstyle", "mypy", "flake8", "nbval",
     "sphinx<7.0.0", "sphinx-rtd-theme", "sphinxcontrib-napoleon", 
     "sphinx-autodoc-typehints", "sphinx_inline_tabs", "sphinx_copybutton",
-    "XlsxWriter"
+    "XlsxWriter", "types-tqdm"
 ]
 
 [project.scripts]

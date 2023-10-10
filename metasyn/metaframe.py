@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional, Sequence, Union
 
 import numpy as np
 import polars as pl
+from tqdm import tqdm
 
 from metasyn.privacy import BasePrivacy, BasicPrivacy
 from metasyn.provider import BaseDistributionProvider
@@ -51,7 +52,8 @@ class MetaFrame():
             spec: Optional[dict[str, dict]] = None,
             dist_providers: Union[str, list[str], BaseDistributionProvider,
                                   list[BaseDistributionProvider]] = "builtin",
-            privacy: Optional[BasePrivacy] = None):
+            privacy: Optional[BasePrivacy] = None,
+            progress_bar: bool = True):
         """Create a metasyn object from a polars (or pandas) dataframe.
 
         The Polars dataframe should be formatted already with the correct
@@ -105,6 +107,8 @@ class MetaFrame():
             Can be a string, provider, or provider type.
         privacy:
             Privacy level to use by default.
+        progress_bar:
+            Whether to create a progress bar.
 
         Returns
         -------
@@ -124,7 +128,7 @@ class MetaFrame():
                 "not exist in the supplied dataframe:"
                 f" '{set(list(spec)) - set(df.columns)}'")
         all_vars = []
-        for col_name in df.columns:
+        for col_name in tqdm(df.columns, disable=not progress_bar):
             series = df[col_name]
             col_spec = spec.get(col_name, {})
             dist = col_spec.pop("distribution", None)

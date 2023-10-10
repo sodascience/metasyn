@@ -87,16 +87,16 @@ class FreeTextDistribution(BaseDistribution):
         Average number of words per (non-NA) row.
     """
 
-    def __init__(self, locale: str, avg_sentences: Optional[float], avg_words: int):
+    def __init__(self, locale: str, avg_sentences: Optional[float], avg_words: float):
         self.locale: str = locale
         self.avg_sentences = avg_sentences
         self.avg_words = avg_words
         self.fake = Faker(locale=self.locale)
 
     @classmethod
-    def _fit(cls, values):
+    def _fit(cls, values, max_values: int = 50):
         """Select the appropriate faker function and locale."""
-        lang_str = cls.detect_language(values)
+        lang_str = cls.detect_language(values[:max_values])
         if lang_str is None:
             return cls.default_distribution()
 

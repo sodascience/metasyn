@@ -1,5 +1,5 @@
 Command-line Interface
-=====================
+======================
 Metasyn provides a command-line interface (CLI) for accessing core functionality without needing to write any Python code.
 
 The CLI currently has two subcommands. The ``synthesize`` subcommand, which allows you to **generate synthetic data** from any ``GMF file``, and the ``schema`` subcommand, which allows you to **create validation schemas** for GMF files.
