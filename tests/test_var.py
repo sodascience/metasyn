@@ -102,7 +102,7 @@ def test_categorical(tmp_path, series):
 
 @mark.parametrize("dtype", ["int8", "int16", "int32", "int64", "int"])
 def test_integer(dtype, tmp_path):
-    series = pd.Series([np.random.randint(0, 10) for _ in range(100)], dtype=dtype)
+    series = pd.Series([np.random.randint(0, 10) for _ in range(300)], dtype=dtype)
     new_series = check_var(series, "discrete", tmp_path)
     assert new_series.min() >= 0
     assert new_series.max() < 10
@@ -111,7 +111,7 @@ def test_integer(dtype, tmp_path):
 @mark.parametrize("dtype", ["Int8", "Int16", "Int32", "Int64"])
 def test_nullable_integer(dtype, tmp_path):
     series = pd.Series([np.random.randint(0, 10) if np.random.rand() > 0.5 else None
-                        for _ in range(100)], dtype=dtype)
+                        for _ in range(500)], dtype=dtype)
     new_series = check_var(series, "discrete", tmp_path)
     assert new_series.min() >= 0
     assert new_series.max() < 10
