@@ -4,9 +4,9 @@
     "provenance": {
         "created by": {
             "name": "metasyn",
-            "version": "0.6.0"
+            "version": "0.6.1.dev2+g0cc6408.d20231009"
         },
-        "creation time": "2023-10-12T11:26:34.842857"
+        "creation time": "2023-10-12T11:24:27.459158"
     },
     "vars": [
         {
