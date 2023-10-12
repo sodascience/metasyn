@@ -9,8 +9,9 @@ from importlib.metadata import version
 
 from metasyn.metaframe import MetaFrame
 from metasyn.var import MetaVar
+from metasyn.spec import MetaFrameSpec, VariableSpec
 from metasyn.demo.dataset import demo_file
 from metasyn.distribution.base import metadist
 
-__all__ = ["MetaVar", "MetaFrame", "demo_file", "metadist"]
+__all__ = ["MetaVar", "MetaFrame", "demo_file", "metadist", "MetaFrameSpec", "VariableSpec"]
 __version__ = version("metasyn")
