@@ -85,7 +85,7 @@ def _parse_config(config_fp):
 
 
 def create_metadata():
-    """Program to create metadata from a dataframe."""
+    """Program to create and export metadata from a DataFrame into a GMF file (.json)."""
     parser = argparse.ArgumentParser(
         prog="metasyn create-meta",
         description="Create a Generative Metadata Format file from a CSV file.",
