@@ -92,7 +92,7 @@ def create_metadata():
     )
     parser.add_argument(
         "input",
-        help="input file; a csv file that you want to synthesize later.",
+        help="input file; a CSV file that you want to synthesize later.",
         type=pathlib.Path,
     )
     parser.add_argument(
