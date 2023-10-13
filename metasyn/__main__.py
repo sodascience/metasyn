@@ -23,7 +23,7 @@ Usage: metasyn [subcommand] [options]
 
 Available subcommands:
     create-meta - generate a GMF (.json) file.
-    synthesize - generate synthetic data from a GMF (.json) file 
+    synthesize - generate synthetic data from a GMF (.json) file
     jsonschema - generate json schema from distribution providers
 
 Program information:
@@ -85,7 +85,7 @@ def _parse_config(config_fp):
 
 
 def create_metadata():
-    """Program to create and export metadata from a DataFrame into a GMF file (.json)."""
+    """Program to create and export metadata from a DataFrame to a GMF file (.json)."""
     parser = argparse.ArgumentParser(
         prog="metasyn create-meta",
         description="Create a Generative Metadata Format file from a CSV file.",
