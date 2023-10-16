@@ -135,6 +135,14 @@ The following code exports a generated :obj:`MetaFrame<metasyn.metaframe.MetaFra
 
 |break|
 
+    
+It is possible to preview the GMF file, without having to export it. This can be done by calling the Python built-in :func:`repr <python:repr>` function on a :obj:`MetaFrame<metasyn.metaframe.MetaFrame>` object, and printing its output.
+
+.. code-block:: python
+
+    gmf_preview = repr(mf)
+    print(gmf_preview)
+
 Loading a MetaFrame
 -------------------
 You can load a MetaFrame from a GMF file using the :meth:`MetaFrame.from_json <metasyn.metaframe.MetaFrame.from_json>` classmethod. 
