@@ -103,16 +103,9 @@ class MetaFrameSpec:
         A dictionary where keys are column names and values are VariableSpec objects.
     """
 
-    def __init__(self, df: pl.DataFrame):  # pylint: disable=invalid-name
-        """
-        Construct a new 'MetaFrameSpec' object.
-
-        Parameters
-        ----------
-        df : DataFrame
-            The dataframe from where column names are extracted.
-        """
-        self.columns = {col: VariableSpec() for col in df.columns}
+    def __init__(self):  # pylint: disable=invalid-name
+        """Create new MetaFrameSpec object with an empty dictionary of column specifications."""
+        self.columns = {}
 
     def __getitem__(self, item):
         """
@@ -128,6 +121,8 @@ class MetaFrameSpec:
         VariableSpec
             The VariableSpec object for the column.
         """
+        if item not in self.columns:
+            self.columns[item] = VariableSpec()
         return self.columns[item]
 
     def __setitem__(self, key, value):
