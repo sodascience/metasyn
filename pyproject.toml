@@ -96,8 +96,107 @@ exclude = ["_version.py", "metasyn/distribution/legacy.*"]
 line-length = 100
 select = ["E", "F", "W", "I", "N"]
 
-#[tool.ruff.pylint]
-#max-args = 10
-
 [tool.ruff.pep8-naming]
 ignore-names = ["a", "b", "mu"]
+
+[tool.tox]
+legacy_tox_ini = """
+    [tox]
+    env_list =
+        py311
+    minversion = 4.11.3
+
+    [testenv]
+    description = run the tests with pytest
+    package = wheel
+    wheel_build_env = .pkg
+    deps =
+        pytest
+        pandas
+        polars>=0.14.17
+        numpy>=1.20
+        pyarrow
+        scipy
+        numpy>=1.20
+        faker
+        lingua-language-detector
+        scikit-learn
+        jsonschema
+        importlib-metadata;python_version<'3.10'
+        importlib-resources;python_version<'3.9'
+        wget
+        regexmodel>=0.2.1
+        ruff
+        pytest
+        pylint
+        pydocstyle
+        mypy
+        nbval
+        sphinx<7.0.0
+        sphinx-rtd-theme
+        sphinxcontrib-napoleon
+        sphinx-autodoc-typehints
+        sphinx_inline_tabs
+        sphinx_copybutton
+        XlsxWriter
+
+    [testenv:ruff]
+    description = Lint with Ruff
+    deps =
+        ruff
+    commands =
+        ruff metasyn
+
+    [testenv:pylint]
+    description = Lint with PyLint
+    deps =
+        pylint
+    commands =
+        pylint metasyn
+
+    [testenv:pydocstyle]
+    description = Check docstrings with pydocstyle
+    deps =
+        pydocstyle
+    commands =
+        pydocstyle metasyn --convention=numpy --add-select=D417 --add-ignore="D102,D105"
+
+    [testenv:mypy]
+    description = Check types with MyPy
+    deps =
+        mypy
+    commands =
+        mypy metasyn
+
+    [testenv:sphinx]
+    description = Check if documentation builds.
+    allowlist_externals =
+        make
+    deps =
+        sphinx<7.0.0
+        sphinx-rtd-theme
+        sphinxcontrib-napoleon
+        sphinx-autodoc-typehints
+        sphinx_inline_tabs
+        sphinx_copybutton
+    changedir = docs
+    commands =
+        make html SPHINXOPTS="-W --keep-going"
+
+    [testenv:pytest]
+    description = Test with pytest
+    deps =
+        pytest
+        XlsxWriter
+    commands =
+        pytest tests
+
+    [testenv:nbval]
+    description = Check notebook output
+    deps =
+        pytest
+        nbval
+        XlsxWriter
+    commands =
+        pytest --nbval-lax examples
+"""
