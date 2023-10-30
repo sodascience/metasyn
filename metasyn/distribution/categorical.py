@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
-from typing import Union
 import warnings
+from typing import Union
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 import polars as pl
 
-from metasyn.distribution.base import metadist, BaseDistribution
+from metasyn.distribution.base import BaseDistribution, metadist
 
 
 @metadist(implements="core.multinoulli", var_type=["categorical", "discrete", "string"])

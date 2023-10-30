@@ -12,33 +12,40 @@ from abc import ABC
 from typing import Any, List, Optional, Type, Union
 
 try:
-    from importlib_metadata import entry_points, EntryPoint
+    from importlib_metadata import EntryPoint, entry_points
 except ImportError:
-    from importlib.metadata import entry_points, EntryPoint  # type: ignore
+    from importlib.metadata import EntryPoint, entry_points  # type: ignore
 
 import numpy as np
 import polars as pl
 
-from metasyn.distribution.na import NADistribution
+from metasyn.distribution import legacy
 from metasyn.distribution.base import BaseDistribution
 from metasyn.distribution.categorical import MultinoulliDistribution
-from metasyn.distribution.continuous import (ExponentialDistribution,
-                                             LogNormalDistribution,
-                                             NormalDistribution,
-                                             TruncatedNormalDistribution,
-                                             UniformDistribution)
-from metasyn.distribution.datetime import (UniformDateDistribution,
-                                           UniformDateTimeDistribution,
-                                           UniformTimeDistribution)
-from metasyn.distribution.discrete import (DiscreteUniformDistribution,
-                                           PoissonDistribution,
-                                           UniqueKeyDistribution)
-from metasyn.distribution.faker import (FakerDistribution,
-                                        UniqueFakerDistribution,
-                                        FreeTextDistribution)
-from metasyn.distribution.regex import (RegexDistribution,
-                                        UniqueRegexDistribution)
-from metasyn.distribution import legacy
+from metasyn.distribution.continuous import (
+    ExponentialDistribution,
+    LogNormalDistribution,
+    NormalDistribution,
+    TruncatedNormalDistribution,
+    UniformDistribution,
+)
+from metasyn.distribution.datetime import (
+    UniformDateDistribution,
+    UniformDateTimeDistribution,
+    UniformTimeDistribution,
+)
+from metasyn.distribution.discrete import (
+    DiscreteUniformDistribution,
+    PoissonDistribution,
+    UniqueKeyDistribution,
+)
+from metasyn.distribution.faker import (
+    FakerDistribution,
+    FreeTextDistribution,
+    UniqueFakerDistribution,
+)
+from metasyn.distribution.na import NADistribution
+from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistribution
 from metasyn.privacy import BasePrivacy, BasicPrivacy
 
 

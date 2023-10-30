@@ -6,22 +6,31 @@ numerical data, but also for generating strings for example.
 """  # pylint: disable=invalid-name
 
 from metasyn.distribution.categorical import MultinoulliDistribution
-from metasyn.distribution.continuous import (ExponentialDistribution,
-                                             LogNormalDistribution,
-                                             NormalDistribution,
-                                             TruncatedNormalDistribution,
-                                             UniformDistribution)
-from metasyn.distribution.datetime import (UniformDateDistribution,
-                                           UniformDateTimeDistribution,
-                                           UniformTimeDistribution)
-from metasyn.distribution.discrete import (DiscreteUniformDistribution,
-                                           PoissonDistribution,
-                                           UniqueKeyDistribution)
-from metasyn.distribution.faker import (FakerDistribution, UniqueFakerDistribution,
-                                        FreeTextDistribution)
-from metasyn.distribution.regex import (RegexDistribution,
-                                        UniqueRegexDistribution)
+from metasyn.distribution.continuous import (
+    ExponentialDistribution,
+    LogNormalDistribution,
+    NormalDistribution,
+    TruncatedNormalDistribution,
+    UniformDistribution,
+)
+from metasyn.distribution.datetime import (
+    UniformDateDistribution,
+    UniformDateTimeDistribution,
+    UniformTimeDistribution,
+)
+from metasyn.distribution.discrete import (
+    DiscreteUniformDistribution,
+    PoissonDistribution,
+    UniqueKeyDistribution,
+)
+from metasyn.distribution.faker import (
+    FakerDistribution,
+    FreeTextDistribution,
+    UniqueFakerDistribution,
+)
 from metasyn.distribution.na import NADistribution
+from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistribution
+
 __all__ = [
     "MultinoulliDistribution", "UniformDistribution", "NormalDistribution",
     "LogNormalDistribution", "TruncatedNormalDistribution", "ExponentialDistribution",

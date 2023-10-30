@@ -1,11 +1,11 @@
 """Distribution for structured strings, using regexes."""
 from __future__ import annotations
 
-from typing import Union, Optional
+from typing import Optional, Union
 
-from regexmodel import RegexModel, NotFittedError
+from regexmodel import NotFittedError, RegexModel
 
-from metasyn.distribution.base import metadist, BaseDistribution, UniqueDistributionMixin
+from metasyn.distribution.base import BaseDistribution, UniqueDistributionMixin, metadist
 
 
 @metadist(implements="core.regex", var_type="string", version="2.0")

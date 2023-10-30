@@ -4,11 +4,12 @@ from typing import Iterable, Optional
 from faker import Faker
 from lingua import LanguageDetectorBuilder
 from lingua._constant import LETTERS, PUNCTUATION
+
 # LETTERS: Pattern = regex.compile(r"\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}|\p{L}+")
 # PUNCTUATION: Pattern = regex.compile(r"\p{P}")
 from scipy.stats import poisson
 
-from metasyn.distribution.base import metadist, BaseDistribution, UniqueDistributionMixin
+from metasyn.distribution.base import BaseDistribution, UniqueDistributionMixin, metadist
 
 
 @metadist(implements="core.faker", var_type="string")

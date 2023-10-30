@@ -7,10 +7,10 @@ metadata.
 
 from importlib.metadata import version
 
-from metasyn.metaframe import MetaFrame
-from metasyn.var import MetaVar
 from metasyn.demo.dataset import demo_file
 from metasyn.distribution.base import metadist
+from metasyn.metaframe import MetaFrame
+from metasyn.var import MetaVar
 
 __all__ = ["MetaVar", "MetaFrame", "demo_file", "metadist"]
 __version__ = version("metasyn")

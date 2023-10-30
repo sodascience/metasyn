@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import Iterable, Sequence, Union, Optional
+from typing import Iterable, Optional, Sequence, Union
 
 import numpy as np
 import pandas as pd
