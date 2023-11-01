@@ -67,7 +67,7 @@ class RegexDistribution(BaseDistribution):
             the number of characters (fast if #char > 10000) in the series.
         """
         if method == "auto":
-            if values.str.lengths().mean() > 10:
+            if values.str.len_chars().mean() > 10:
                 method = "fast"
             else:
                 method = "accurate"
