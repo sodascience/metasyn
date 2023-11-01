@@ -49,7 +49,7 @@ documentation = "https://metasyn.readthedocs.io/en/latest/index.html"
 [project.optional-dependencies]
 test = [
     "ruff", "pytest", "pylint", "pydocstyle", "mypy", "flake8", "nbval",
-    "sphinx<7.0.0", "sphinx-rtd-theme", "sphinxcontrib-napoleon",
+    "sphinx", "sphinx-rtd-theme", "sphinxcontrib-napoleon",
     "sphinx-autodoc-typehints", "sphinx_inline_tabs", "sphinx_copybutton",
     "XlsxWriter"
 ]
@@ -64,7 +64,7 @@ builtin = "metasyn.provider:BuiltinDistributionProvider"
 packages = ["metasyn"]
 obsoletes = ["metasynth"]
 
-[tool.setuptoolsru_scm]
+[tool.setuptools_scm]
 write_to = "metasyn/_version.py"
 
 [[tool.mypy.overrides]]
@@ -111,7 +111,6 @@ legacy_tox_ini = """
     package = wheel
     wheel_build_env = .pkg
     deps =
-        pytest
         pandas
         polars>=0.14.17
         numpy>=1.20
@@ -126,19 +125,6 @@ legacy_tox_ini = """
         importlib-resources;python_version<'3.9'
         wget
         regexmodel>=0.2.1
-        ruff
-        pytest
-        pylint
-        pydocstyle
-        mypy
-        nbval
-        sphinx<7.0.0
-        sphinx-rtd-theme
-        sphinxcontrib-napoleon
-        sphinx-autodoc-typehints
-        sphinx_inline_tabs
-        sphinx_copybutton
-        XlsxWriter
 
     [testenv:ruff]
     description = Lint with Ruff
@@ -173,7 +159,7 @@ legacy_tox_ini = """
     allowlist_externals =
         make
     deps =
-        sphinx<7.0.0
+        sphinx
         sphinx-rtd-theme
         sphinxcontrib-napoleon
         sphinx-autodoc-typehints
