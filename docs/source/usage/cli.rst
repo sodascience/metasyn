@@ -2,7 +2,11 @@ Command-line Interface
 ======================
 Metasyn provides a command-line interface (CLI) for accessing core functionality without needing to write any Python code.
 
-The CLI currently has two subcommands. The ``synthesize`` subcommand, which allows you to **generate synthetic data** from any ``GMF file``, and the ``schema`` subcommand, which allows you to **create validation schemas** for GMF files.
+The CLI currently has three subcommands:
+
+* The ``create-meta`` subcommand, which allows you to **create generative metadata** from a ``CSV file``
+* The ``synthesize`` subcommand, which allows you to **generate synthetic data** from a ``GMF file``
+* The ``schema`` subcommand, which allows you to **create validation schemas** for GMF files.
 
 
 At any point, you can also use the help command to get more information about the CLI and its subcommands:
@@ -69,14 +73,79 @@ The Metasyn CLI should now be up and running within the Docker container and rea
             docker run -v $(pwd):/wd sodateam/metasyn:v0.6 --help
 
 
+Creating Generative Metadata
+----------------------------
+The ``create-meta`` subcommand combines the :doc:`estimation </usage/generating_metaframes>` and :doc:`serialization </usage/exporting_metaframes>` steps in the pipeline into one, this allows you to generate generative metadata for a tabular dataset (in CSV format), and store it in a GMF (Generative Metadata Format) file.
+
+.. image:: /images/pipeline_cli_create_meta.png
+   :alt: Creating Generative Metadata using the CLI
+   :align: center
+
+The ``create-meta`` command can be used as follows:
+
+.. code-block:: bash
+
+   metasyn create-meta [input] [output]
+
+This will:
+
+1. Read the CSV file from the `[input]` filepath
+2. Estimate the metadata from the data
+3. Serialize the metadata into a GMF file and save it at the `[output]` filepath
+
+The ``create-meta`` command takes two positional arguments:
+
+* ``[input]``: The filepath and name of the CSV file from which the metadata will be generated.
+* ``[output]``: The filepath and name of the output JSON file that will contain the generative metadata.
+
+An example of how to use the ``create-meta`` subcommand is as follows:
+
+.. tab:: Local Installation
+
+   .. code-block:: console
+
+      metasyn create-meta wd/my_dataset.csv wd/my_gmf.json
+
+.. tab:: Docker Container
+
+   .. tab:: Windows
+
+      .. code-block:: console
+
+         docker run -v %cd%:/wd sodateam/metasyn create-meta wd/my_dataset.csv wd/my_gmf.json
+
+   .. tab:: Unix or MacOS:
+
+      .. code-block:: console
+
+         docker run -v $(pwd):/wd sodateam/metasyn create-meta wd/my_dataset.csv wd/my_gmf.json
+
+The ``create-meta`` command also takes one optional argument:
+
+* ``--config [config-file]``: The filepath and name of a configuration file that specifies distribution behavior. For example, if we want to set a column to be unique or to have a specific distribution, we can do so by specifying it in the configuration file.
+
+.. note::
+
+   The configuration file must be in the `.ini` format. For more information on the format, please refer to the `Python documentation <https://docs.python.org/3/library/configparser.html>`_.
+
+   An example of a configuration file that specifies the ``PassengerId`` column to be unique and the ``Fare`` column to have a log-normal distribution is as follows:
+
+   .. code-block:: ini
+
+      [var.PassengerId]
+      unique = True
+
+      [var.Fare]
+      distribution=LogNormalDistribution
+
+
 Generating Synthetic Data
 -------------------------
 The ``synthesize`` subcommand combines the :doc:`deserialization </usage/exporting_metaframes>` and :doc:`generation </usage/generating_synthetic_data>` steps in the pipeline into one, and allows you to generate a synthetic dataset from a previously exported MetaFrame (stored as GMF file). 
 
 .. image:: /images/pipeline_cli.png
-   :alt: CLI in the metasyn pipeline
+   :alt: Creating Synthetic Data from a GMF file using the CLI
    :align: center
-
 
 The ``synthesize`` command can be used as follows:
 
@@ -86,37 +155,37 @@ The ``synthesize`` command can be used as follows:
 
 This will:
 
-1. Read the GMF file
-2. Deserialize it into a MetaFrame
+1. Read the GMF file from the `[input]` filepath
+2. Deserialize it into a MetaFrame 
 3. Generate synthetic data based on the metadata
-4. Save the output data to a file
+4. Save the output data to a file at the `[output]` filepath
 
 The ``synthesize`` command takes two positional arguments:
 
 * ``[input]``: The filepath and name of the GMF file.
 * ``[output]``: The Filepath and name of the desired synthetic data output file. The file extension determines the output format. Currently supported file types are ``.csv``, ``.feather``, ``.parquet``, ``.pkl`` and ``.xlsx``.
 
-For example: 
+An example of how to use the ``synthesize`` subcommand is as follows:
 
-   .. tab:: Local Installation
+.. tab:: Local Installation
+
+   .. code-block:: console
+
+      metasyn synthesize wd/my_gmf.json wd/my_synthetic_data.csv
+
+.. tab:: Docker Container
+
+   .. tab:: Windows
 
       .. code-block:: console
 
-         metasyn synthesize wd/my_gmf.json wd/my_synthetic_data.csv
+         docker run -v %cd%:/wd sodateam/metasyn synthesize wd/my_gmf.json wd/my_synthetic_data.csv
 
-   .. tab:: Docker Container
+   .. tab:: Unix or MacOS:
 
-      .. tab:: Windows
+      .. code-block:: console
 
-         .. code-block:: console
-
-            docker run -v %cd%:/wd sodateam/metasyn synthesize wd/my_gmf.json wd/my_synthetic_data.csv
-
-      .. tab:: Unix or MacOS:
-
-         .. code-block:: console
-
-            docker run -v $(pwd):/wd sodateam/metasyn synthesize wd/my_gmf.json wd/my_synthetic_data.csv
+         docker run -v $(pwd):/wd sodateam/metasyn synthesize wd/my_gmf.json wd/my_synthetic_data.csv
 
 
 
