@@ -4,9 +4,9 @@
     "provenance": {
         "created by": {
             "name": "metasyn",
-            "version": "0.4.0"
+            "version": "0.6.0"
         },
-        "creation time": "2023-08-07T12:04:40.669740"
+        "creation time": "2023-10-05T11:15:51.631727"
     },
     "vars": [
         {
@@ -16,6 +16,7 @@
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.unique_key",
+                "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "UniqueKeyDistribution",
                 "parameters": {
@@ -31,6 +32,7 @@
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.multinoulli",
+                "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "MultinoulliDistribution",
                 "parameters": {
@@ -52,6 +54,7 @@
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.poisson",
+                "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "PoissonDistribution",
                 "parameters": {
@@ -66,6 +69,7 @@
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.multinoulli",
+                "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "MultinoulliDistribution",
                 "parameters": {
@@ -87,6 +91,7 @@
             "prop_missing": 0.2,
             "distribution": {
                 "implements": "core.discrete_uniform",
+                "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "DiscreteUniformDistribution",
                 "parameters": {
