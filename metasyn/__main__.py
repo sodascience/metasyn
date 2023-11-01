@@ -209,8 +209,7 @@ def schema() -> None:
 
     if args.list:
         for a in plugins_avail:
-            if a != "builtin":
-                print(a)
+            print(a)
         return
 
     plugins = {"builtin", *args.plugins}
