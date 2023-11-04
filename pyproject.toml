@@ -104,6 +104,13 @@ legacy_tox_ini = """
     [tox]
     env_list =
         py311
+        ruff
+        pylint
+        pydocstyle
+        mypy
+        sphinx
+        pytest
+        nbval
     minversion = 4.11.3
 
     [testenv]
