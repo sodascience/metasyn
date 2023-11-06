@@ -1,7 +1,5 @@
 """Legacy distributions that will be removed in the future."""
 
-from metasyn.distribution.legacy.regex import RegexDistribution
-from metasyn.distribution.legacy.regex import UniqueRegexDistribution
-
+from metasyn.distribution.legacy.regex import RegexDistribution, UniqueRegexDistribution
 
 __all__ = ["RegexDistribution", "UniqueRegexDistribution"]

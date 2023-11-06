@@ -11,9 +11,8 @@ except ImportError:
 
 import jsonschema
 
-from metasyn.provider import get_distribution_provider
 from metasyn.distribution.na import NADistribution
-
+from metasyn.provider import get_distribution_provider
 
 SCHEMA_BASE = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",

@@ -5,7 +5,7 @@ from typing import Set
 import numpy as np
 from scipy.stats import poisson, randint
 
-from metasyn.distribution.base import metadist, ScipyDistribution
+from metasyn.distribution.base import ScipyDistribution, metadist
 
 
 @metadist(implements="core.discrete_uniform", var_type="discrete")
