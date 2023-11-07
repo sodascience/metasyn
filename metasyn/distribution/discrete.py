@@ -131,7 +131,7 @@ class UniqueKeyDistribution(ScipyDistribution):
         high = values.max()+1
 
         if self.consecutive == 1:
-            # Check if the values are truly
+            # Check if the values are truly consecutive
             if len(values) == high-low and np.all(values.to_numpy() == np.arange(low, high)):
                 return 3
             return 3+999*len(values)

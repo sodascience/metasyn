@@ -1,3 +1,4 @@
+from pathlib import Path
 from pytest import mark, raises
 from metasyn.demo.dataset import demo_file, create_titanic_demo
 import polars as pl
@@ -16,12 +17,12 @@ def test_demo_non_exist():
 
 def check_titan(output_fp):
     df = pl.read_csv(output_fp)
-    assert len(df.columns) == 9
+    assert len(df.columns) == 13
     assert "Board time" in df.columns
 
 
 def test_create_titanic(tmpdir):
-    output_fp = tmpdir / "titanic.csv"
+    output_fp = Path(tmpdir / "titanic.csv")
     new_output_fp = create_titanic_demo(output_fp)
     assert new_output_fp == output_fp
     check_titan(output_fp)

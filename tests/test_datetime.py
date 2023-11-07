@@ -3,6 +3,7 @@ import datetime as dt
 from pytest import mark
 import pandas as pd
 import polars as pl
+import numpy as np
 
 from metasyn.distribution.datetime import UniformDateDistribution, UniformDateTimeDistribution
 from metasyn.distribution.datetime import UniformTimeDistribution
@@ -67,11 +68,16 @@ def test_date(series_type):
         ("2020-07-09 10:23:45", "2020-08-09 16:23:45", "seconds"),
         ("2020-07-09 10:23:00", "2020-08-09 16:23:00", "minutes"),
         ("2020-07-09 10:00:00", "2020-08-09 16:00:00", "hours"),
+        (np.datetime64('2005-02-25T03:30'), np.datetime64('2006-02-25T03:30'), "minutes")
     ]
 )
 @mark.parametrize("series_type", [pl.Series, pd.Series])
 def test_datetime(start, end, precision, series_type):
-    begin_iso, end_iso = dt.datetime.fromisoformat(start), dt.datetime.fromisoformat(end)
+    if isinstance(start, str):
+        begin_iso, end_iso = dt.datetime.fromisoformat(start), dt.datetime.fromisoformat(end)
+    else:
+        begin_iso = start
+        end_iso = end
     dist = UniformDateTimeDistribution(start, end, precision)
     all_datetimes = []
     for _ in range(100):

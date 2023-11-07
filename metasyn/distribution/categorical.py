@@ -30,9 +30,10 @@ class MultinoulliDistribution(BaseDistribution):
                  probs: Union[npt.NDArray[np.float_], list[float]]):
         self.labels = np.array(labels)
         self.probs = np.array(probs)
+        if np.any(self.probs < 0):
+            raise ValueError("Cannot create multinoulli distribution with probabilities < 0.")
+
         if not np.isclose(np.sum(self.probs), 1):
-            if np.any(self.probs < 0):
-                raise ValueError("Cannot create multinoulli distribution with probabilities < 0.")
             warnings.simplefilter("always")
             warnings.warn("Multinoulli probabilities do not add up to 1 "
                           f" ({np.sum(self.probs)}); they will be rescaled.")

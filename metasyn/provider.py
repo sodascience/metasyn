@@ -59,7 +59,7 @@ class BaseDistributionProvider(ABC):
         assert len(self.version) > 0
         assert len(self.distributions) > 0
 
-    def get_dist_list(self, var_type: str,
+    def get_dist_list(self, var_type: Optional[str],
                       use_legacy: bool = False) -> List[Type[BaseDistribution]]:
         """Get all distributions for a certain variable type.
 
@@ -80,6 +80,8 @@ class BaseDistributionProvider(ABC):
             distributions = self.legacy_distributions
         else:
             distributions = self.distributions
+        if var_type is None:
+            return distributions
         for dist_class in distributions:
             str_chk = (isinstance(dist_class.var_type, str) and var_type == dist_class.var_type)
             lst_chk = (not isinstance(dist_class.var_type, str) and var_type in dist_class.var_type)
@@ -275,34 +277,47 @@ class DistributionProviderList():
 
         # Look for distribution in legacy
         warnings.simplefilter("always")
-        legacy_versions: list[Type[BaseDistribution]] = []
-        for dist_class in self.get_distributions(privacy, use_legacy=True, var_type=var_type):
-            if dist_class.matches_name(dist_name):
-                if version is None or version == dist_class.version:
-                    if len(versions_found) == 0:
-                        warnings.warn("Distribution with name '{dist_name}' is deprecated and "
-                                      "will be removed in the future.")
-                        return dist_class
-                    warnings.warn("Version ({version}) of distribution with name '{dist_name}'"
-                                  " is deprecated and will be removed in the future.")
-        if version is not None:
-            major_version = version.split(".")[0]
-            for dist_class in versions_found:
-                if dist_class.version.split(".")[0] == major_version:
-                    warnings.warn("Version mismatch ({version}) versus ({dist_class.version})")
-                    return dist_class
-            for dist_class in legacy_versions:
-                if dist_class.version.split(".")[0] == major_version:
-                    warnings.warn("Version mismatch ({version}) versus ({dist_class.version})"
-                                  " for '{dist_name}")
-                    warnings.warn("(Major) Version ({dist_classversion}) of distribution is"
-                                  " deprecated")
-                    return dist_class
-        if len(legacy_versions+versions_found) == 0:
+        # legacy_versions: list[Type[BaseDistribution]] = []
+        # print(self.get_distributions(privacy, use_legacy=True, var_type=var_type))
+        legacy_distribs = [
+            dist_class
+            for dist_class in self.get_distributions(privacy, use_legacy=True, var_type=var_type)
+            if dist_class.matches_name(dist_name)]
+
+        if len(legacy_distribs+versions_found) == 0:
             raise ValueError(f"Cannot find distribution with name '{dist_name}'.")
-        raise ValueError(
-            f"Cannot find compatible version for distribution '{dist_name}', available: "
-            f"{legacy_versions+versions_found}")
+
+        if len(versions_found) == 0:
+            warnings.warn("Distribution with name '{dist_name}' is deprecated and "
+                          "will be removed in the future.")
+
+        # Find exact matches in legacy distributions
+        legacy_versions = [dist.version for dist in legacy_distribs]
+        if version is not None and version in legacy_versions:
+            warnings.warn("Version ({version}) of distribution with name '{dist_name}'"
+                          " is deprecated and will be removed in the future.")
+            return legacy_distribs[legacy_versions.index(version)]
+
+        if version is None:
+            scores = [int(dist.version.split(".")[0])*100 + int(dist.version.split(".")[1])
+                      for dist in legacy_distribs]
+            i_min = np.argmax(scores)
+            return legacy_distribs[i_min]
+
+        major_version = int(version.split(".")[0])
+        minor_version = int(version.split(".")[1])
+        all_dist = versions_found + legacy_distribs
+        all_versions = [[int(x) for x in dist.version.split(".")] for dist in all_dist]
+        score = [int(ver[0] == major_version)*1000000 - (ver[1]-minor_version)**2
+                 for ver in all_versions]
+        i_max = np.argmax(score)
+        if score[i_max] < 500000:
+            raise ValueError(
+                f"Cannot find compatible version for distribution '{dist_name}', available: "
+                f"{legacy_versions+versions_found}")
+
+        warnings.warn("Version mismatch ({version}) versus ({all_dist[i_max].version}))")
+        return all_dist[i_max]
 
     def _fit_distribution(self, series: pl.Series,
                           dist: Union[str, Type[BaseDistribution], BaseDistribution],
@@ -366,11 +381,7 @@ class DistributionProviderList():
         """
         dist_list = []
         for dist_provider in self.dist_packages:
-            if var_type is None:
-                dist_list.extend(dist_provider.distributions)
-            else:
-                dist_list.extend(dist_provider.get_dist_list(var_type,
-                                                             use_legacy=use_legacy))
+            dist_list.extend(dist_provider.get_dist_list(var_type, use_legacy=use_legacy))
 
         if privacy is None:
             return dist_list
