@@ -29,7 +29,7 @@ def create_titanic_demo(output_fp: Path) -> Path:
         Output file location.
     """
     titanic_fp = Path("titanic.csv")
-    if output_fp.is_file():
+    if Path(output_fp).is_file():
         return output_fp
     if not titanic_fp.is_file():
         wget.download(
