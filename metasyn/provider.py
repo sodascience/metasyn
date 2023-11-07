@@ -277,8 +277,6 @@ class DistributionProviderList():
 
         # Look for distribution in legacy
         warnings.simplefilter("always")
-        # legacy_versions: list[Type[BaseDistribution]] = []
-        # print(self.get_distributions(privacy, use_legacy=True, var_type=var_type))
         legacy_distribs = [
             dist_class
             for dist_class in self.get_distributions(privacy, use_legacy=True, var_type=var_type)
@@ -298,12 +296,14 @@ class DistributionProviderList():
                           " is deprecated and will be removed in the future.")
             return legacy_distribs[legacy_versions.index(version)]
 
+        # If version is None, take the latest version.
         if version is None:
             scores = [int(dist.version.split(".")[0])*100 + int(dist.version.split(".")[1])
                       for dist in legacy_distribs]
             i_min = np.argmax(scores)
             return legacy_distribs[i_min]
 
+        # Find the distribution with the same major revision, and closest minor revision.
         major_version = int(version.split(".")[0])
         minor_version = int(version.split(".")[1])
         all_dist = versions_found + legacy_distribs
@@ -311,6 +311,8 @@ class DistributionProviderList():
         score = [int(ver[0] == major_version)*1000000 - (ver[1]-minor_version)**2
                  for ver in all_versions]
         i_max = np.argmax(score)
+
+        # Wrong major revision.
         if score[i_max] < 500000:
             raise ValueError(
                 f"Cannot find compatible version for distribution '{dist_name}', available: "
