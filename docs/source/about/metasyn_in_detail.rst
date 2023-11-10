@@ -45,6 +45,7 @@ The three key stages of the ``metasyn`` pipeline include the **estimation** of t
     #. Load the MetaFrame by importing the GMF file. (Deserialization) 
     #. Use the MetaFrame to generate a synthetic dataset. (Generation)
     #. Check that the outcomes of the analysis scripts are reproducible on the synthetic data.
+
   This approach builds confidence that the results and conclusions are accurate, without the need to release sensitive data.
 
 
