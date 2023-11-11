@@ -69,7 +69,7 @@ spec
         
         It is safe to ignore this warning - however, be aware that without setting the column as unique, metasyn may generate duplicate values for that column when synthesizing data.
         
-        To remove the warning and ensure the values in the synthetic column are unique, set the column to be unique (``"column" = {"unique": True}``) in the ``spec`` dictionary.    
+        To remove the warning and ensure the values in the synthesized column are unique, set the column to be unique (``"column" = {"unique": True}``) in the ``spec`` dictionary.    
     
     - ``description``: Includes a description for each column in the DataFrame.
 
