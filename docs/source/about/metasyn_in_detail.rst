@@ -123,7 +123,7 @@ From all those fits, the distribution with the lowest `AIC <https://springer.com
      - DiscreteUniformDistribution
    * - categorical
      - pl.Categorical
-     - Male, Female, Male, Female
+     - Yes, No, Maybe, No
      - MultinoulliDistribution
    * - string
      - str
