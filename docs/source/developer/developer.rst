@@ -10,3 +10,4 @@ more control over the workings of the metasyn package.
    
    contributing
    detailed_overview
+   extending_functionality

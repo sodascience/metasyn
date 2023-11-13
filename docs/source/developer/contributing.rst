@@ -51,7 +51,16 @@ The following shows a basic overview of the steps needed to do so.
 8.  **Congratulations**! You have successfully contributed to metasyn!
 
 
+Running local tests
+-------------------
+When a pull request is created, GitHub automatically runs `a series of tests <https://github.com/sodascience/metasyn/actions>`_ on the code to ensure it meets the projects standards and does not introduce any errors. You can run these tests locally to ensure your code passes before opening a pull request, using the `Tox <https://tox.wiki/>`_ package. 
+
+To do so, first install Tox to your environment following the `Tox installation guide <https://tox.wiki/en/4.11.3/installation.html>`_. Then simply run the ``tox`` on the metasyn root directory to run all the tests. If you want to run a specific test, you can do so by specifying a (list of) test environment(s), e.g. ``tox -e ruff`` or ``tox -e ruff,pylint,pydocstyle,mypy,sphinx,pytest,nbval``. The available test environments can be found in the `pyproject.toml <https://github.com/sodascience/metasyn/blob/main/pyproject.toml>`_ file, under the ``[tool.tox]`` section.
+
+
+
+
 Maintaining the package
-=======================
+-----------------------
 Our GitHub Wiki contains a guide on how to maintain the package. You can find it `here <https://github.com/sodascience/metasyn/wiki/Maintainers-guide>`_.
 
