@@ -50,3 +50,8 @@ The following shows a basic overview of the steps needed to do so.
 7.  **Review Process**: The project maintainers will review your PR, providing feedback and suggestions if needed. Please be patient during the review process, as it may take some time to thoroughly evaluate your contribution. Once your PR is approved and any requested changes are addressed, the project maintainers will merge your changes into the official repository.
 8.  **Congratulations**! You have successfully contributed to metasyn!
 
+
+Maintaining the package
+=======================
+Our GitHub Wiki contains a guide on how to maintain the package. You can find it `here <https://github.com/sodascience/metasyn/wiki/Maintainers-guide>`_.
+
