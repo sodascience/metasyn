@@ -4,12 +4,12 @@ Quick start guide
 Get started quickly with metasyn using the following example. In this concise demonstration, you'll learn the basic functionality of metasyn by generating synthetic data from `titanic <https://raw.githubusercontent.com/pandas-dev/pandas/main/doc/data/titanic.csv>`_ dataset.
 
 .. note:: 
-   The steps on this page correspond to the basic tutorial available on the :doc:`/usage/interactive_tutorials` page. As such, if you prefer an interactive experience, check out the basic tutorial for a guided walkthrough!
+   A more elaborate version of this page is also available as an interactive tutorial available on the :doc:`/usage/interactive_tutorials` page.
 
 Importing Libraries
 -------------------
 
-The first step in any Python project is to import the necessary libraries. For this example, we will need Polars and metasyn.
+The first step is to import the required Python libraries. For this example, we will need Polars and metasyn.
 
 
 .. code:: python

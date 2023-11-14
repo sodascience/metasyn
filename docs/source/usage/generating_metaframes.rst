@@ -33,7 +33,7 @@ This function requires a :obj:`DataFrame` to be specified as parameter. The foll
 
 .. admonition:: Note on Pandas and Polars DataFrames
 
-    Internally, metasyn uses Polars (instead of Pandas) mainly because typing and the handling of non-existing data is more consistent. It is possible to supply a Pandas DataFrame instead of a Polars DataFrame to the ``MetaFrame.from_dataframe`` method. However, this uses the automatic Polars conversion functionality, which for some edge cases result in problems. Therefore, we advise users to create Polars DataFrames. The resulting synthetic dataset is always a Polars DataFrame, but this can be easily converted back to a Pandas DataFrame by using ``df_pandas = df_polars.to_pandas()``.
+    Internally, metasyn uses Polars (instead of Pandas) mainly because typing and the handling of non-existing data is more consistent. It is possible to supply a Pandas DataFrame instead of a Polars DataFrame to the ``MetaFrame.from_dataframe`` method. However, this uses the automatic Polars conversion functionality, which for some edge cases results in problems. Therefore, we recommend users to create Polars DataFrames. The resulting synthetic dataset is always a Polars DataFrame, but this can be easily converted back to a Pandas DataFrame by using ``df_pandas = df_polars.to_pandas()``.
 
 
 It is possible to print the (statistical metadata contained in the) :obj:`MetaFrame <metasyn.metaframe.MetaFrame>` to the console/output log. This can simply be done by calling the Python built-in `print` function on a :obj:`MetaFrame <metasyn.metaframe.MetaFrame>`:
@@ -69,7 +69,7 @@ spec
         
         It is safe to ignore this warning - however, be aware that without setting the column as unique, metasyn may generate duplicate values for that column when synthesizing data.
         
-        To remove the warning and ensure the column remains unique, set the column to be unique (``"column" = {"unique": True}``) in the ``spec`` dictionary.    
+        To remove the warning and ensure the values in the synthesized column are unique, set the column to be unique (``"column" = {"unique": True}``) in the ``spec`` dictionary.    
     
     - ``description``: Includes a description for each column in the DataFrame.
 
@@ -109,8 +109,8 @@ spec
             # Fit `Age` to a discrete uniform distribution ranging from 20 to 40
             "Age": {"distribution": DiscreteUniformDistribution(20, 40)},
 
-            # Use a regex-based distribution to generate `Cabin` values following [ABCDEF]\d{2,3}
-            "Cabin": {"distribution": RegexDistribution(r"[ABCDEF][0-9]{2,3}")}
+            # Use a regex-based distribution to generate `Cabin` values following [A-F][0-9]{2,3}
+            "Cabin": {"distribution": RegexDistribution(r"[A-F][0-9]{2,3}")}
 
         }
 
@@ -125,7 +125,6 @@ dist_providers
 privacy
 ^^^^^^^^^
 **privacy** allows you to set the global privacy level for synthetic data generation. If it's not provided, the function defaults it to ``None``.
-For more on privacy modules available refer to :mod:`Privacy Features (experimental) <metasyn.privacy>`.
 
 .. warning::
     Privacy features (such as differential privacy or other forms of disclosure control) are currently under active development. More information on currently available extensions can be found in the :doc:`/usage/extensions` section.

@@ -36,7 +36,7 @@ Metasyn's synthetically generated datasets are classified as `Synthetically-Augm
 
 **What is a MetaFrame?**
 -------------------------
-A MetaFrame is a fitted model that describes the aggregate structure and characteristics of a dataset. It functions like (statistical) metadata for the dataset, providing information about the dataset without revealing the actual data itself. When metasyn is fed a dataset (as DataFrame), it generates this MetaFrame to capture certain key aspects of the data.
+A MetaFrame is a fitted model that describes the aggregate structure and characteristics of a dataset. It functions like (statistical) metadata for the dataset, providing information about the dataset without revealing the actual data itself. When metasyn is fed a dataset (as a DataFrame), it generates this MetaFrame to capture certain key aspects of the data.
 
 Key elements encapsulated in a MetaFrame include variable names, their data types, the proportion of missing values, and the parameters of the distributions that these variables follow in the dataset. This information is sufficient to understand the overall structure and attributes of the data, without divulging the exact data points.
 
