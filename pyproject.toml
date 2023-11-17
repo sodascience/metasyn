@@ -161,6 +161,8 @@ legacy_tox_ini = """
     description = Check types with MyPy
     deps =
         mypy
+        types-tqdm
+        types-regex
     commands =
         mypy metasyn
 
