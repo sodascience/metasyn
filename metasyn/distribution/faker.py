@@ -1,14 +1,13 @@
 """Module containing an interface to the faker package."""
 from typing import Iterable, Optional
 
-from faker import Faker
-from lingua import LanguageDetectorBuilder  # pylint: disable=no-name-in-module
 # from lingua._constant import LETTERS, PUNCTUATION
 import regex
+from faker import Faker
+from lingua import LanguageDetectorBuilder  # pylint: disable=no-name-in-module
 from scipy.stats import poisson
 
 from metasyn.distribution.base import BaseDistribution, UniqueDistributionMixin, metadist
-
 
 LETTERS = regex.compile(r"\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}|\p{L}+")
 PUNCTUATION = regex.compile(r"\p{P}")
