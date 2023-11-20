@@ -1,15 +1,16 @@
 """Module containing an interface to the faker package."""
 from typing import Iterable, Optional
 
+# from lingua._constant import LETTERS, PUNCTUATION
+import regex
 from faker import Faker
-from lingua import LanguageDetectorBuilder
-from lingua._constant import LETTERS, PUNCTUATION
-
-# LETTERS: Pattern = regex.compile(r"\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}|\p{L}+")
-# PUNCTUATION: Pattern = regex.compile(r"\p{P}")
+from lingua import LanguageDetectorBuilder  # pylint: disable=no-name-in-module
 from scipy.stats import poisson
 
 from metasyn.distribution.base import BaseDistribution, UniqueDistributionMixin, metadist
+
+LETTERS = regex.compile(r"\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}|\p{L}+")
+PUNCTUATION = regex.compile(r"\p{P}")
 
 
 @metadist(implements="core.faker", var_type="string")
