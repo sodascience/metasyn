@@ -38,7 +38,8 @@ class UniformDistribution(ScipyDistribution):
             return np.log(len(values))*self.n_par + 100*len(values)
         if np.fabs(self.max_val-self.min_val) < 1e-8:
             return np.log(len(values))*self.n_par - 100*len(values)
-        return np.log(len(values))*self.n_par - 2*len(values)*np.log((self.max_val-self.min_val)**-1)
+        return (np.log(len(values))*self.n_par
+                - 2*len(values)*np.log((self.max_val-self.min_val)**-1))
 
     @classmethod
     def default_distribution(cls):

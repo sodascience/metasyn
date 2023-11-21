@@ -139,7 +139,8 @@ class UniqueKeyDistribution(ScipyDistribution):
         n_choice = high - low
 
         # Probabilities go up like 1/n, 1/(n-1), 1/(n-2), ..., 1/2, 1
-        return 3*np.log(len(values)) - 2*np.sum(np.log(1/np.arange(n_choice, n_choice-len(values), -1)))
+        return (3*np.log(len(values))
+                - 2*np.sum(np.log(1/np.arange(n_choice, n_choice-len(values), -1))))
 
     @classmethod
     def default_distribution(cls):
