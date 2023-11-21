@@ -4,9 +4,9 @@
     "provenance": {
         "created by": {
             "name": "metasyn",
-            "version": "0.6.1.dev33+ga9bf94a.d20231117"
+            "version": "0.6.1.dev34+gbe5cfd5.d20231121"
         },
-        "creation time": "2023-11-17T17:11:01.598392"
+        "creation time": "2023-11-21T12:22:40.735282"
     },
     "vars": [
         {
@@ -31,46 +31,14 @@
             "dtype": "Utf8",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.regex",
-                "version": "2.0",
+                "implements": "core.freetext",
+                "version": "1.0",
                 "provenance": "builtin",
-                "class_name": "RegexDistribution",
+                "class_name": "FreeTextDistribution",
                 "parameters": {
-                    "regex_data": {
-                        "regex": "[A-Z][a-z]{2,9}[,][ ][M][a-z]{1,5}[\\.][ ][A-Z][a-z]{3,8}(|[ ][A-Z](|[a-z]{3,8}))",
-                        "counts": [
-                            567,
-                            567,
-                            567,
-                            567,
-                            567,
-                            567,
-                            567,
-                            567,
-                            567,
-                            567,
-                            [
-                                [
-                                    265
-                                ],
-                                [
-                                    302,
-                                    302,
-                                    [
-                                        [
-                                            25
-                                        ],
-                                        [
-                                            277,
-                                            277
-                                        ]
-                                    ],
-                                    0
-                                ]
-                            ],
-                            0
-                        ]
-                    }
+                    "locale": "EN",
+                    "avg_sentences": 2.4691358024691357,
+                    "avg_words": 4.093153759820426
                 }
             }
         },
