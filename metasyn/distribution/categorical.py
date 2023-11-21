@@ -77,7 +77,7 @@ class MultinoulliDistribution(BaseDistribution):
                 log_lik += count * np.log(pdict.get(lab, 1))
             n_parameters = len(self.probs)-1
 
-        return 2*n_parameters - 2*log_lik
+        return np.log(len(series))*n_parameters - 2*log_lik
 
     def _log_like_int(
             self,

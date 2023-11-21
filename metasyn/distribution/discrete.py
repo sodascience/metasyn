@@ -30,7 +30,7 @@ class DiscreteUniformDistribution(ScipyDistribution):
         self.dist = self.dist_class(low=low, high=high)
 
     def _information_criterion(self, values):
-        return 2*self.n_par - 2*np.sum(self.dist.logpmf(values))
+        return np.log(len(values))*self.n_par - 2*np.sum(self.dist.logpmf(values))
 
     @classmethod
     def _fit(cls, values):
@@ -60,7 +60,7 @@ class PoissonDistribution(ScipyDistribution):
         self.dist = self.dist_class(mu=mu)
 
     def _information_criterion(self, values):
-        return 2*self.n_par - 2*np.sum(self.dist.logpmf(values))
+        return np.log(len(values))*self.n_par - 2*np.sum(self.dist.logpmf(values))
 
     @classmethod
     def _fit(cls, values):
@@ -121,11 +121,11 @@ class UniqueKeyDistribution(ScipyDistribution):
 
     def _information_criterion(self, values):
         if values.min() < self.low:
-            return 3+999*len(values)
+            return 2*np.log(len(values))+999*len(values)
 
         # If the values are not unique the fit is extremely bad.
         if len(set(values)) != len(values):
-            return 3+999*len(values)
+            return 2*np.log(len(values))+999*len(values)
 
         low = values.min()
         high = values.max()+1
@@ -133,13 +133,13 @@ class UniqueKeyDistribution(ScipyDistribution):
         if self.consecutive == 1:
             # Check if the values are truly consecutive
             if len(values) == high-low and np.all(values.to_numpy() == np.arange(low, high)):
-                return 3
-            return 3+999*len(values)
+                return 2*np.log(len(values))
+            return 2*np.log(len(values))+999*len(values)
 
         n_choice = high - low
 
         # Probabilities go up like 1/n, 1/(n-1), 1/(n-2), ..., 1/2, 1
-        return 5 - 2*np.sum(np.log(1/np.arange(n_choice, n_choice-len(values), -1)))
+        return 3*np.log(len(values)) - 2*np.sum(np.log(1/np.arange(n_choice, n_choice-len(values), -1)))
 
     @classmethod
     def default_distribution(cls):

@@ -1,9 +1,14 @@
 import numpy as np
-from scipy import stats
-from metasyn.distribution.continuous import UniformDistribution,\
-    NormalDistribution, LogNormalDistribution, TruncatedNormalDistribution,\
-    ExponentialDistribution
 from pytest import mark
+from scipy import stats
+
+from metasyn.distribution.continuous import (
+    ExponentialDistribution,
+    LogNormalDistribution,
+    NormalDistribution,
+    TruncatedNormalDistribution,
+    UniformDistribution,
+)
 
 
 @mark.parametrize(
@@ -20,7 +25,7 @@ def test_uniform(lower_bound, upper_bound):
     dist = UniformDistribution.fit(values)
     assert dist.min_val <= values.min()
     assert dist.max_val >= values.max()
-    assert dist.information_criterion(values) < 4 - 200*np.log((upper_bound-lower_bound)**-1)
+    assert dist.information_criterion(values) < 2*np.log(len(values)) - 200*np.log((upper_bound-lower_bound)**-1)
     assert isinstance(dist.draw(), float)
 
 
