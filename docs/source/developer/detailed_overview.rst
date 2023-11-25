@@ -128,8 +128,8 @@ This is the base class providing the basic structure for all distributions. It i
 
 **Fields:**
 
-- ``implements``: The name of the distribution.
-- ``var_type``: The type of variable associated with the distribution.
+- ``implements``: A unique string identifier for the distribution type, e.g. ``core.discrete_uniform`` or ``core.poisson``.
+- ``var_type``: The type of variable associated with the distribution, e.g. ``discrete`` or ``continuous``.
 - ``provenance``: Information about the source of the distribution.
 - ``privacy``: The privacy class or implementation associated with the distribution.
 - ``is_unique``: A boolean indicating whether the values in the distribution are unique.
@@ -160,33 +160,69 @@ This is the base class providing the basic structure for all distributions. It i
   When implementing a new distribution, the :meth:`~metasyn.distribution.BaseDistribution._fit`, :meth:`~metasyn.distribution.BaseDistribution.draw`, and :meth:`~metasyn.distribution.BaseDistribution.to_dict` methods must be implemented. 
 
 
-Variable type specific distributions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+metadist decorator
+^^^^^^^^^^^^^^^^^^
+When implementing a new distribution, you can use the ``metadist`` decorator to specify its attributes.
 
-For each variable type a class is derived from the ``BaseDistribution``. It sets the ``var_type`` which is used in the :obj:`~metasyn.MetaVar``
-class and the Metasyn File. A distribution should always derive from one of those distributions, either directly or indirectly.
 
-ScipyDistribution
-~~~~~~~~~~~~~~~~~
+**Usage:**
 
-This distribution is useful for discrete and continuous distributions that are based on
-`SciPy <https://docs.scipy.org/doc/scipy/index.html>`_. Most of the currently implemented numerical distributions
-use the ``ScipyDistribution`` as their base class (while also having either ``DiscreteDistribution`` or ``ContinuousDistribution``
-as a baseclass).
+To use the ``metadist`` decorator, annotate the custom distribution class with ``@metadist`` and provide relevant parameters to define specific characteristics of the distribution.
 
-:mod:`~Privacy Features (experimental) <metasyn.privacy>`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Parameters:**
 
-A system to incorporate privacy features such as differential privacy or other forms of disclosure control is being implemented.
-This part of the code is considered to be particularly unstable, so modifications for future versions are likely necessary.
+- ``implements``: A unique string identifier for the distribution type, such as ``core.discrete_uniform`` or ``core.poisson``.
+- ``var_type``: Specifies the variable type associated with the distribution, e.g., ``discrete`` or ``continuous``.
+- ``is_unique``: (Optional) A boolean flag indicating if the distribution produces unique values.
+- ``privacy``: (Optional) Specifies the privacy class or implementation.
+- ``version``: (Optional) The version of the distribution, useful for tracking updates and compatibility.
 
-The :mod:`~metasyn.privacy.cbs` sub-package is an example of how to implement a privacy package. Notice that all distributions
-are derived from their non-private counterparts in :mod:`~metasyn.distribution`. Only distributions that are derived in the
-privacy package are available while fitting. Thus, if the privacy package simply wants the copy the distribution from the main
-package it should simply use class derivation and add a docstring, such as :class:`~metasyn.privacy.cbs.continuous.CbsNormal`.
+**Examples:**
 
-The :mod:`~metasyn.privacy.cbs` sub-package will be removed at some point and possibly be redistributed as its own package if
-there is demand for it.
+.. code-block:: python
+
+   @metadist(implements="core.discrete_uniform", var_type="discrete")
+   class DiscreteUniformDistribution(ScipyDistribution):
+       # Implementation details here
+
+   @metadist(implements="core.poisson", var_type="discrete")
+   class PoissonDistribution(ScipyDistribution):
+       # Implementation details here
+
+   @metadist(implements="core.unique_key", var_type="discrete", is_unique=True)
+   class UniqueKeyDistribution(ScipyDistribution):
+       # Implementation details here
+
+
+
+
+.. Variable type specific distributions
+.. ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. For each variable type a class is derived from the ``BaseDistribution``. It sets the ``var_type`` which is used in the :obj:`~metasyn.MetaVar``
+.. class and the Metasyn File. A distribution should always derive from one of those distributions, either directly or indirectly.
+
+.. ScipyDistribution
+.. ~~~~~~~~~~~~~~~~~
+
+.. This distribution is useful for discrete and continuous distributions that are based on
+.. `SciPy <https://docs.scipy.org/doc/scipy/index.html>`_. Most of the currently implemented numerical distributions
+.. use the ``ScipyDistribution`` as their base class (while also having either ``DiscreteDistribution`` or ``ContinuousDistribution``
+.. as a baseclass).
+
+.. :mod:`~Privacy Features (experimental) <metasyn.privacy>`
+.. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. A system to incorporate privacy features such as differential privacy or other forms of disclosure control is being implemented.
+.. This part of the code is considered to be particularly unstable, so modifications for future versions are likely necessary.
+
+.. The :mod:`~metasyn.privacy.cbs` sub-package is an example of how to implement a privacy package. Notice that all distributions
+.. are derived from their non-private counterparts in :mod:`~metasyn.distribution`. Only distributions that are derived in the
+.. privacy package are available while fitting. Thus, if the privacy package simply wants the copy the distribution from the main
+.. package it should simply use class derivation and add a docstring, such as :class:`~metasyn.privacy.cbs.continuous.CbsNormal`.
+
+.. The :mod:`~metasyn.privacy.cbs` sub-package will be removed at some point and possibly be redistributed as its own package if
+.. there is demand for it.
 
 
 
