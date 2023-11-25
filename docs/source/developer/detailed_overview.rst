@@ -58,26 +58,26 @@ The :class:`~metasyn.MetaFrame` class is a core component of the ``metasyn`` pac
 
 **Methods:**
 
-- :meth:`~metasyn.MetaFrame.fit_dataframe`: Creates a `MetaFrame` object from a Polars DataFrame. It takes several parameters including the DataFrame, column specifications, distribution providers, privacy level, and a progress bar flag.
-- :meth:`~metasyn.MetaFrame.to_dict`: Returns a dictionary with the properties of the `MetaFrame` for recreation.
-- :meth:`~metasyn.MetaFrame.__getitem__`: Returns a `MetaVar` either by variable name or index.
-- :meth:`~metasyn.MetaFrame.__str__`: Returns a formatted string representation of the `MetaFrame`.
-- :meth:`~metasyn.MetaFrame.export`: Serializes and exports the `MetaFrame` to a JSON file, following the GMF format.
+- :meth:`~metasyn.MetaFrame.fit_dataframe`: Creates a :obj:`~metasyn.MetaFrame` object from a Polars DataFrame. It takes several parameters including the DataFrame, column specifications, distribution providers, privacy level, and a progress bar flag.
+- :meth:`~metasyn.MetaFrame.to_dict`: Returns a dictionary with the properties of the :obj:`~metasyn.MetaFrame` for recreation.
+- :meth:`~metasyn.MetaFrame.__getitem__`: Returns a :obj:`~metasyn.MetaVar` either by variable name or index.
+- :meth:`~metasyn.MetaFrame.__str__`: Returns a formatted string representation of the :obj:`~metasyn.MetaFrame`.
+- :meth:`~metasyn.MetaFrame.export`: Serializes and exports the :obj:`~metasyn.MetaFrame` to a JSON file, following the GMF format.
 - :meth:`~metasyn.MetaFrame.to_json`: A wrapper for the `export` method.
-- :meth:`~metasyn.MetaFrame.from_json`: Reads a `MetaFrame` from a JSON file.
-- :meth:`~metasyn.MetaFrame.synthesize`: Creates a synthetic Polars DataFrame based on the `MetaFrame`.
-- :meth:`~metasyn.MetaFrame.__repr__`: Returns the `MetaFrame` as it would be output to JSON.
+- :meth:`~metasyn.MetaFrame.from_json`: Reads a :obj:`~metasyn.MetaFrame` from a JSON file.
+- :meth:`~metasyn.MetaFrame.synthesize`: Creates a synthetic Polars DataFrame based on the :obj:`~metasyn.MetaFrame`.
+- :meth:`~metasyn.MetaFrame.__repr__`: Returns the :obj:`~metasyn.MetaFrame` as it would be output to JSON.
 
-**Relation to other classes**
+.. **Relation to other classes**
 
-- :obj:`~metasyn.MetaVar`: A `MetaFrame` is composed of a list of :obj:`~metasyn.MetaVar` objects, each of which represents a column in the DataFrame. 
-- :mod:`~metasyn.privacy.BasePrivacy` and :mod:`~metasyn.privacy.BasicPrivacy```: These are used to set the privacy level when creating a `MetaFrame` from a DataFrame.
-- :mod:`~metasyn.provider.BaseDistributionProvider`: This is used to set the distribution providers when creating a `MetaFrame` from a DataFrame.
+.. - :obj:`~metasyn.MetaVar`: A :obj:`~metasyn.MetaFrame` is composed of a list of :obj:`~metasyn.MetaVar` objects, each of which represents a column in the DataFrame. 
+.. - :mod:`~metasyn.privacy.BasePrivacy` and :mod:`~metasyn.privacy.BasicPrivacy`: These are used to set the privacy level when creating a :obj:`~metasyn.MetaFrame` from a DataFrame.
+.. - :mod:`~metasyn.provider.BaseDistributionProvider`: This module is used to set the distribution providers when creating a :obj:`~metasyn.MetaFrame` from a DataFrame.
 
 MetaVar
 ~~~~~~~
 
-The :class:`~metasyn.MetaVar` represents a metadata variable, and is a structure that holds all metadata needed to generate a synthetic column for it. This is the variable level building block for the MetaFrame. It contains the methods to convert a polars `Series` into a variable with an appropriate distribution. The `MetaVar` class is to the `MetaFrame` what a polars `Series` is to a `DataFrame`.
+The :class:`~metasyn.MetaVar` represents a metadata variable, and is a structure that holds all metadata needed to generate a synthetic column for it. This is the variable level building block for the MetaFrame. It contains the methods to convert a polars `Series` into a variable with an appropriate distribution. The :obj:`~metasyn.MetaVar` class is to the :obj:`~metasyn.MetaFrame` what a polars `Series` is to a `DataFrame`.
 
 **Fields:**
 
@@ -91,8 +91,8 @@ The :class:`~metasyn.MetaVar` represents a metadata variable, and is a structure
 
 **Methods:**
 
-- :meth:`~metasyn.MetaVar.__init__`: Initializes a new instance of the ``MetaVar`` class. 
-- :meth:`~metasyn.MetaVar.detect`: Detects the variable class(es) of a series or dataframe. This method does not fit any distribution, but it does infer the correct types for the ``MetaVar`` and saves the ``Series`` for later fitting.
+- :meth:`~metasyn.MetaVar.__init__`: Initializes a new instance of the :obj:`~metasyn.MetaVar` class. 
+- :meth:`~metasyn.MetaVar.detect`: Detects the variable class(es) of a series or dataframe. This method does not fit any distribution, but it does infer the correct types for the :obj:`~metasyn.MetaVar` and saves the ``Series`` for later fitting.
 - :meth:`~metasyn.MetaVar.get_var_type`: Converts a polars ``dtype`` to a metasyn variable type.
 - :meth:`~metasyn.MetaVar.to_dict`: Creates a dictionary from the variable.
 - :meth:`~metasyn.MetaVar.__str__`: Returns an easy-to-read formatted string for the variable.
@@ -102,22 +102,29 @@ The :class:`~metasyn.MetaVar` represents a metadata variable, and is a structure
 - :meth:`~metasyn.MetaVar.from_dict`: Restores a variable from a dictionary.
 
 
-**Relation to other classes**
+.. **Relation to other classes**
 
-- :mod:`~metasyn.distribution.BaseDistribution`: Used to represent the distribution of the variable.
-- :mod:`~metasyn.privacy.BasePrivacy`: Represents the privacy level used for fitting the series.
-- :mod:`~metasyn.provider.BaseDistributionProvider`: Provides distributions for fitting.
+.. - :mod:`~metasyn.distribution.BaseDistribution`: This is the base class for all distributions. It is used to set the distribution when fitting a variable.
+.. - :mod:`~metasyn.privacy.BasePrivacy`: Represents the privacy level used for fitting the series.
+.. - :mod:`~metasyn.provider.BaseDistributionProvider`: This module is used to set the pool of distributions from which to choose when fitting a variable.
 
 
 Distributions
 -------------
 
+The :mod:`~metasyn.distribution` module contains the classes used to represent distributions. It is composed of a base class (:class:`~metasyn.distribution.BaseDistribution`) and several derived classes, each representing a different type of distribution. The base class provides the basic structure for all distributions, and is not intended to be used directly. Rather, it is intended to be derived from when implementing a new distribution.
+
+An overview of all the (built-in) distributions can be seen below.
+
+.. image:: /images/distributions.svg
+   :alt: Metasyn distributions
+   :scale: 100%
+
 
 BaseDistribution
 ~~~~~~~~~~~~~~~~
 
-This is the base class providing the basic structure for all distributions. It is not intended to be used directly, but rather to be derived from. 
-
+This is the base class providing the basic structure for all distributions. It is not intended to be used directly, but rather to be derived from when implementing a new distribution.
 
 **Fields:**
 
@@ -135,12 +142,12 @@ This is the base class providing the basic structure for all distributions. It i
 **Methods:**
 
 - :meth:`~metasyn.distribution.BaseDistribution.fit`: Class method to fit a distribution to a given series. 
-- :meth:`~metasyn.distribution.BaseDistribution._fit`: Abstract class method intended to contain the fitting logic for the distribution. It does not need to handle N/A values. It *must* be implemented by derived classes.
+- :meth:`~metasyn.distribution.BaseDistribution._fit`: Abstract class method intended to contain the fitting logic for the distribution. It does not need to handle N/A values. **It must be implemented by derived classes.**
 - :meth:`~metasyn.distribution.BaseDistribution._to_series`: Static method converting different data types (Polars Series, Pandas Series, or sequences) into a Polars Series, handling null values appropriately.
-- :meth:`~metasyn.distribution.BaseDistribution.draw`: Abstract method, intended to draw a new value from the distribution. It *must* be implemented by derived classes.
+- :meth:`~metasyn.distribution.BaseDistribution.draw`: Abstract method, intended to draw a new value from the distribution. **It must be implemented by derived classes.**
 - :meth:`~metasyn.distribution.BaseDistribution.draw_reset`: Method to reset the distribution's drawing mechanism. This should be implemented if the drawing does not happen randomly.
 - :meth:`~metasyn.distribution.BaseDistribution._param_dict`: Abstract method to return a dictionary of the distribution's parameters. 
-- :meth:`~metasyn.distribution.BaseDistribution.to_dict`: Method to create a dictionary representation of the distribution. It *must* be implemented by derived classes.
+- :meth:`~metasyn.distribution.BaseDistribution.to_dict`: Method to create a dictionary representation of the distribution. **It must be implemented by derived classes.**
 - :meth:`~metasyn.distribution.BaseDistribution.from_dict`: Class method to create a distribution from a dictionary. 
 - :meth:`~metasyn.distribution.BaseDistribution._param_schema`: Abstract method intended to return a schema for the distribution's parameters. 
 - :meth:`~metasyn.distribution.BaseDistribution.schema`: Class method to generate a JSON schema to validate the distribution's structure.
@@ -153,12 +160,10 @@ This is the base class providing the basic structure for all distributions. It i
   When implementing a new distribution, the :meth:`~metasyn.distribution.BaseDistribution._fit`, :meth:`~metasyn.distribution.BaseDistribution.draw`, and :meth:`~metasyn.distribution.BaseDistribution.to_dict` methods must be implemented. 
 
 
-
-
 Variable type specific distributions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-For each variable type a class is derived from the ``BaseDistribution``. It sets the ``var_type`` which is used in the ``MetaVar``
+For each variable type a class is derived from the ``BaseDistribution``. It sets the ``var_type`` which is used in the :obj:`~metasyn.MetaVar``
 class and the Metasyn File. A distribution should always derive from one of those distributions, either directly or indirectly.
 
 ScipyDistribution
