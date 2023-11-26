@@ -1,12 +1,10 @@
 Structural Overview
-===============
+===================
 
-This page features a detailed overview of metasyn's modules, with the goal of helping developers get started developing for metasyn.
+This page features a detailed overview of metasyn's core components, with the goal of helping developers get started developing for metasyn.
 
 .. warning:: 
   This page is unfinished and might be outdated, if information is lacking or does not seem right, feel free to :doc:`get in touch </about/contact>`  and we'll try to help you.
-
-
 
 Generative Metadata Format
 --------------------------
@@ -36,17 +34,16 @@ The full schema that describes the structure of this file is included in the
 `GitHub repository <https://github.com/sodascience/meta-synth/blob/main/metasyn/schema/metasyn-1_0.json>`_.
 
 
-
 Module Architecture
 -------------------
-
+The following modules are part of the metasyn package:
 
 MetaFrame
 ~~~~~~~~~
 
 The :class:`~metasyn.MetaFrame` class is a core component of the ``metasyn`` package. It represents a metadata frame, which is a structure that holds metadata about a dataset. 
 
-**Fields:**
+**Attributes:**
 
 - ``meta_vars``: A list of :obj:`~metasyn.MetaVar` objects, each representing a column in a DataFrame.
 - ``n_rows``: The number of rows in the original DataFrame.
@@ -79,7 +76,7 @@ MetaVar
 
 The :class:`~metasyn.MetaVar` represents a metadata variable, and is a structure that holds all metadata needed to generate a synthetic column for it. This is the variable level building block for the MetaFrame. It contains the methods to convert a polars `Series` into a variable with an appropriate distribution. The :obj:`~metasyn.MetaVar` class is to the :obj:`~metasyn.MetaFrame` what a polars `Series` is to a `DataFrame`.
 
-**Fields:**
+**Attributes:**
 
 - ``var_type``: The type of the variable (e.g., continuous, string, etc.).
 - ``series``: The (Polars) series from which the variable is created.
@@ -109,31 +106,40 @@ The :class:`~metasyn.MetaVar` represents a metadata variable, and is a structure
 .. - :mod:`~metasyn.provider.BaseDistributionProvider`: This module is used to set the pool of distributions from which to choose when fitting a variable.
 
 
-Distributions
--------------
+Distributions module
+--------------------
 
-The :mod:`~metasyn.distribution` module contains the classes used to represent distributions. It is composed of a base class (:class:`~metasyn.distribution.BaseDistribution`) and several derived classes, each representing a different type of distribution. The base class provides the basic structure for all distributions, and is not intended to be used directly. Rather, it is intended to be derived from when implementing a new distribution.
+The :mod:`~metasyn.distribution` module contains submodules, each containing the classes used to represent distributions. 
 
-An overview of all the (built-in) distributions can be seen below.
+
+The modules are :mod:`~metasyn.distribution.base`, :mod:`~metasyn.distribution.categorical`, :mod:`~metasyn.distribution.continuous`, :mod:`~metasyn.distribution.datetime`, :mod:`~metasyn.distribution.discrete`, :mod:`~metasyn.distribution.faker`, :mod:`~metasyn.distribution.na` and :mod:`~metasyn.distribution.regex`. :mod:`~metasyn.distribution.base` contains the base classes for all distributions, while the other modules implement distributions for their respective variable types.
+
+An overview of the distributions each module implements, and from which it inherits, is shown below:
 
 .. image:: /images/distributions.svg
    :alt: Metasyn distributions
    :scale: 100%
 
+Base module
+~~~~~~~~~~~
+The base module contains the :class:`~metasyn.distribution.BaseDistribution` class, which is the base class for all distributions. It also contains the :class:`~metasyn.distribution.ScipyDistribution` class, which is a specialized base class for distributions that are built on top of SciPy's statistical distributions. 
 
-BaseDistribution
-~~~~~~~~~~~~~~~~
+Additionally it contains the :class:`~metasyn.distribution.UniqueDistributionMixin` class, which is a mixin class that can be used to indicate that a distribution is unique (i.e., that it does not contain duplicate values).
 
+Finally it contains the :func:`~metasyn.distribution.metadist` decorator, which is used to set the attributes of a distribution (e.g., ``implements``, ``var_type``, etc.).
+
+BaseDistribution class
+^^^^^^^^^^^^^^^^^^^^^^
 This is the base class providing the basic structure for all distributions. It is not intended to be used directly, but rather to be derived from when implementing a new distribution.
 
-**Fields:**
+**Attributes:**
 
 - ``implements``: A unique string identifier for the distribution type, e.g. ``core.discrete_uniform`` or ``core.poisson``.
 - ``var_type``: The type of variable associated with the distribution, e.g. ``discrete`` or ``continuous``.
-- ``provenance``: Information about the source of the distribution.
+- ``provenance``: Information about the source (core, plugin, etc.) of the distribution.
 - ``privacy``: The privacy class or implementation associated with the distribution.
 - ``is_unique``: A boolean indicating whether the values in the distribution are unique.
-- ``version``: The version of the distribution.
+- ``version``: The version of the distribution. 
 
 **Properties:**
 
@@ -157,58 +163,98 @@ This is the base class providing the basic structure for all distributions. It i
 - ``__str__``: Overridden method to return a formatted string representation of the distribution.
 
 .. warning:: 
-  When implementing a new distribution, the :meth:`~metasyn.distribution.BaseDistribution._fit`, :meth:`~metasyn.distribution.BaseDistribution.draw`, and :meth:`~metasyn.distribution.BaseDistribution.to_dict` methods must be implemented. 
+  When implementing a new distribution, the :meth:`~metasyn.distribution.BaseDistribution._fit`, :meth:`~metasyn.distribution.BaseDistribution.draw`, and :meth:`~metasyn.distribution.BaseDistribution.to_dict` methods *must* be implemented. 
+
+ScipyDistribution class
+^^^^^^^^^^^^^^^^^^^^^^^
+The :class:`~metasyn.distribution.ScipyDistribution` is a specialized base class for distributions that are based on
+`SciPy <https://docs.scipy.org/doc/scipy/index.html>`_ statistical distributions. 
+
+All the :mod:`~metasyn.distribution.datetime`, :mod:`~metasyn.distribution.discrete`, and :mod:`~metasyn.distribution.continuous` distributions are derived from this class.
 
 
-metadist decorator
-^^^^^^^^^^^^^^^^^^
-When implementing a new distribution, you can use the ``metadist`` decorator to specify its attributes.
+UniqueDistributionMixin class
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The :class:`~metasyn.distribution.UniqueDistributionMixin` is a mixin class that can be combined with other distribution classes to create distributions that generate unique values.
 
-
-**Usage:**
-
-To use the ``metadist`` decorator, annotate the custom distribution class with ``@metadist`` and provide relevant parameters to define specific characteristics of the distribution.
-
-**Parameters:**
-
-- ``implements``: A unique string identifier for the distribution type, such as ``core.discrete_uniform`` or ``core.poisson``.
-- ``var_type``: Specifies the variable type associated with the distribution, e.g., ``discrete`` or ``continuous``.
-- ``is_unique``: (Optional) A boolean flag indicating if the distribution produces unique values.
-- ``privacy``: (Optional) Specifies the privacy class or implementation.
-- ``version``: (Optional) The version of the distribution, useful for tracking updates and compatibility.
-
-**Examples:**
+For example, the unique variants of the :class:`metasyn.distribution.regex.RegexDistribution` and the :class:`metasyn.distribution.faker.UniqueFakerDistribution` are implemented using this mixin as follows:
 
 .. code-block:: python
 
-   @metadist(implements="core.discrete_uniform", var_type="discrete")
-   class DiscreteUniformDistribution(ScipyDistribution):
-       # Implementation details here
+    @metadist(implements="core.unique_regex", var_type="string", is_unique=True)
+    class UniqueRegexDistribution(UniqueDistributionMixin, RegexDistribution):
 
-   @metadist(implements="core.poisson", var_type="discrete")
-   class PoissonDistribution(ScipyDistribution):
-       # Implementation details here
+.. code-block:: python
 
-   @metadist(implements="core.unique_key", var_type="discrete", is_unique=True)
-   class UniqueKeyDistribution(ScipyDistribution):
-       # Implementation details here
+    @metadist(implements="core.unique_faker", var_type="string")
+    class UniqueFakerDistribution(UniqueDistributionMixin, FakerDistribution):
 
 
+Metadist decorator method
+^^^^^^^^^^^^^^^^^^^^^^^^^
+When implementing a new distribution, the ``metadist`` decorator helps set the attributes of that distribution (e.g. ``implements``, ``var_type``, etc.). 
+
+**Parameters:**
+
+- ``implements``: A unique string identifier for the distribution type, e.g. ``core.discrete_uniform`` or ``core.poisson``.
+- ``var_type``: The type of variable associated with the distribution, e.g. ``discrete`` or ``continuous``.
+- ``provenance``: Information about the source (core, plugin, etc.) of the distribution.
+- ``privacy``: The privacy class or implementation associated with the distribution.
+- ``is_unique``: A boolean indicating whether the values in the distribution are unique.
+- ``version``: The version of the distribution. 
+
+To use the ``metadist`` decorator, annotate the custom distribution class with ``@metadist``, passing in the attributes of the target distribution as parameters.
+
+For example, the following distributions use the decorator as follows:
+
+.. code-block:: python
+
+    @metadist(implements="core.multinoulli", var_type=["categorical", "discrete", "string"])
+    class MultinoulliDistribution(BaseDistribution):
+
+.. code-block:: python
+
+    @metadist(implements="core.unique_regex", var_type="string", is_unique=True)
+    class UniqueRegexDistribution(UniqueDistributionMixin, RegexDistribution):
+
+.. code-block:: python
+      
+    @metadist(implements="core.uniform_date", var_type="date")
+    class UniformDateDistribution(BaseUniformDistribution):
 
 
-.. Variable type specific distributions
-.. ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Categorical module
+^^^^^^^^^^^^^^^^^^
+The :mod:`~metasyn.distribution.categorical` module contain the :class:`metasyn.distribution.categorical.MultinoulliDistribution` class, which is used to represent categorical distributions.
 
-.. For each variable type a class is derived from the ``BaseDistribution``. It sets the ``var_type`` which is used in the :obj:`~metasyn.MetaVar``
-.. class and the Metasyn File. A distribution should always derive from one of those distributions, either directly or indirectly.
+Continuous module
+^^^^^^^^^^^^^^^^^
+The :mod:`~metasyn.distribution.continuous` module contains the classes used to represent continuous distributions.
 
-.. ScipyDistribution
-.. ~~~~~~~~~~~~~~~~~
+DateTime module
+^^^^^^^^^^^^^^^
+The :mod:`~metasyn.distribution.datetime` module contains the classes used to represent datetime distributions.
 
-.. This distribution is useful for discrete and continuous distributions that are based on
-.. `SciPy <https://docs.scipy.org/doc/scipy/index.html>`_. Most of the currently implemented numerical distributions
-.. use the ``ScipyDistribution`` as their base class (while also having either ``DiscreteDistribution`` or ``ContinuousDistribution``
-.. as a baseclass).
+Discrete module
+^^^^^^^^^^^^^^^
+The :mod:`~metasyn.distribution.discrete` module contains the classes used to represent discrete distributions.
+
+Faker module
+^^^^^^^^^^^^
+The :mod:`~metasyn.distribution.faker` module contains the classes used to represent distributions that are based on the `Faker <https://faker.readthedocs.io/en/master/>`_ package.
+
+NA module
+^^^^^^^^^
+The :mod:`~metasyn.distribution.na` module contains the :class:`metasyn.distribution.NADistribution` class, a distribution which generates *only* NA values.
+
+Regex module
+^^^^^^^^^^^^
+The :mod:`~metasyn.distribution.regex` module contains the classes used to represent distributions that are based on regular expressions.
+
+There is also a legacy module :mod:`~metasyn.distribution.legacy.regex` that contains the old implementation of the regex distribution. 
+
+
+
 
 .. :mod:`~Privacy Features (experimental) <metasyn.privacy>`
 .. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
