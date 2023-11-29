@@ -19,6 +19,8 @@ from metasyn.distribution.datetime import (
     UniformTimeDistribution,
 )
 from metasyn.distribution.discrete import (
+    DiscreteNormalDistribution,
+    DiscreteTruncatedNormalDistribution,
     DiscreteUniformDistribution,
     PoissonDistribution,
     UniqueKeyDistribution,
@@ -32,11 +34,24 @@ from metasyn.distribution.na import NADistribution
 from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistribution
 
 __all__ = [
-    "MultinoulliDistribution", "UniformDistribution", "NormalDistribution",
-    "LogNormalDistribution", "TruncatedNormalDistribution", "ExponentialDistribution",
-    "DiscreteUniformDistribution", "PoissonDistribution", "UniqueKeyDistribution",
-    "UniformDateDistribution", "UniformDateTimeDistribution", "UniformTimeDistribution",
-    "FakerDistribution", "UniqueFakerDistribution", "RegexDistribution", "UniqueRegexDistribution",
-    "NADistribution", "FreeTextDistribution"
-
+    "MultinoulliDistribution",
+    "ExponentialDistribution",
+    "LogNormalDistribution",
+    "NormalDistribution",
+    "TruncatedNormalDistribution",
+    "UniformDistribution",
+    "UniformDateDistribution",
+    "UniformDateTimeDistribution",
+    "UniformTimeDistribution",
+    "DiscreteNormalDistribution",
+    "DiscreteTruncatedNormalDistribution",
+    "DiscreteUniformDistribution",
+    "PoissonDistribution",
+    "UniqueKeyDistribution",
+    "FakerDistribution",
+    "FreeTextDistribution",
+    "UniqueFakerDistribution",
+    "NADistribution",
+    "RegexDistribution", 
+    "UniqueRegexDistribution",
 ]
