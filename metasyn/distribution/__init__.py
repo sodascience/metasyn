@@ -52,6 +52,6 @@ __all__ = [
     "FreeTextDistribution",
     "UniqueFakerDistribution",
     "NADistribution",
-    "RegexDistribution", 
+    "RegexDistribution",
     "UniqueRegexDistribution",
 ]

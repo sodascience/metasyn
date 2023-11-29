@@ -8,6 +8,7 @@ from scipy.stats import poisson, randint
 from metasyn.distribution.base import ScipyDistribution, metadist
 from metasyn.distribution.continuous import NormalDistribution, TruncatedNormalDistribution
 
+
 @metadist(implements="core.discrete_uniform", var_type="discrete")
 class DiscreteUniformDistribution(ScipyDistribution):
     """Integer uniform distribution.
@@ -63,6 +64,7 @@ class DiscreteNormalDistribution(NormalDistribution):
     std_dev: float
         Standard deviation of the normal distribution.
     """
+
     def draw(self):
         return int(super().draw())
 
@@ -81,6 +83,7 @@ class DiscreteTruncatedNormalDistribution(TruncatedNormalDistribution):
     sigma: float
         Standard deviation of the non-truncated normal distribution.
     """
+    
     def draw(self):
         return int(super().draw())
 
