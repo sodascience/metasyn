@@ -150,10 +150,12 @@ class FreeTextDistribution(BaseDistribution):
         return " ".join(self.fake.sentence(nb_words=n_words) for _ in range(n_sentences))
 
     def information_criterion(self, values) -> float:
-        # series = self._to_series(values)
-        # lang = self.detect_language(series)
-        # if lang is None:
-        # Don't use this distribution by default (for now).
+        series = self._to_series(values)
+        # Check the average number of characters
+        if series.str.len_chars().mean() >= 25:
+            lang = self.detect_language(series)
+            if lang is not None:
+                return -1.0
         return 99999999
 
     @classmethod

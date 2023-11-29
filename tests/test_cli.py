@@ -68,7 +68,7 @@ def test_cli(tmp_dir, ext):
 
     # Run the cli with different extensions
     result = subprocess.run(cmd, check=False)
-    assert result.returncode == 0
+    assert result.returncode == 0, (result.stdout, result.stderr)
     assert out_file.is_file()
     if ext == ".csv":
         df = pl.read_csv(out_file)
