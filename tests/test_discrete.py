@@ -1,12 +1,16 @@
+from math import fabs
+
+import numpy as np
 import pandas as pd
 import polars as pl
-import numpy as np
+from pytest import mark
 from scipy.stats import poisson
 
-from metasyn.distribution.discrete import UniqueKeyDistribution, DiscreteUniformDistribution,\
-    PoissonDistribution
-from pytest import mark
-from math import fabs
+from metasyn.distribution.discrete import (
+    DiscreteUniformDistribution,
+    PoissonDistribution,
+    UniqueKeyDistribution,
+)
 
 
 @mark.parametrize(
@@ -29,7 +33,7 @@ def test_uniform(data, series_type):
         assert len(drawn_values) == len(series)
     drawn_values = np.array(list(drawn_values))
     assert np.isclose(dist.information_criterion(drawn_values),
-                      4+2*len(drawn_values)*(np.log(dist.high-dist.low)))
+                      np.log(len(drawn_values))*2+2*len(drawn_values)*(np.log(dist.high-dist.low)))
 
 
 @mark.parametrize(
