@@ -32,6 +32,11 @@ from metasyn.distribution.faker import (
 )
 from metasyn.distribution.na import NADistribution
 from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistribution
+from metasyn.distribution.constant import (
+    ConstantDistribution,
+    DiscreteConstantDistribution,
+    StringConstantDistribution,
+)
 
 __all__ = [
     "MultinoulliDistribution",
@@ -54,4 +59,7 @@ __all__ = [
     "NADistribution",
     "RegexDistribution",
     "UniqueRegexDistribution",
+    "ConstantDistribution",
+    "DiscreteConstantDistribution",
+    "StringConstantDistribution",
 ]
