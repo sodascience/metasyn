@@ -83,7 +83,7 @@ class DiscreteTruncatedNormalDistribution(TruncatedNormalDistribution):
     sigma: float
         Standard deviation of the non-truncated normal distribution.
     """
-    
+
     def draw(self):
         return int(super().draw())
 

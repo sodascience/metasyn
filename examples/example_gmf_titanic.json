@@ -4,9 +4,9 @@
     "provenance": {
         "created by": {
             "name": "metasyn",
-            "version": "0.6.1.dev32+g871b8ec"
+            "version": "0.6.1.dev35+gf3115b8.d20231130"
         },
-        "creation time": "2023-11-21T13:22:03.439633"
+        "creation time": "2023-11-30T09:40:01.749592"
     },
     "vars": [
         {
@@ -70,13 +70,15 @@
             "dtype": "Int64",
             "prop_missing": 0.19865319865319866,
             "distribution": {
-                "implements": "core.discrete_uniform",
+                "implements": "core.discrete_truncated_normal",
                 "version": "1.0",
                 "provenance": "builtin",
-                "class_name": "DiscreteUniformDistribution",
+                "class_name": "DiscreteTruncatedNormalDistribution",
                 "parameters": {
-                    "low": 0,
-                    "high": 81
+                    "lower_bound": -1e-08,
+                    "upper_bound": 80.00000001,
+                    "mu": 28.403638823278087,
+                    "sigma": 15.862325051407092
                 }
             }
         },
@@ -86,29 +88,15 @@
             "dtype": "Int64",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.multinoulli",
+                "implements": "core.discrete_truncated_normal",
                 "version": "1.0",
                 "provenance": "builtin",
-                "class_name": "MultinoulliDistribution",
+                "class_name": "DiscreteTruncatedNormalDistribution",
                 "parameters": {
-                    "labels": [
-                        0,
-                        1,
-                        2,
-                        3,
-                        4,
-                        5,
-                        6
-                    ],
-                    "probs": [
-                        0.760942760942761,
-                        0.13243546576879914,
-                        0.08978675645342313,
-                        0.0056116722783389455,
-                        0.004489337822671157,
-                        0.0056116722783389455,
-                        0.0011223344556677893
-                    ]
+                    "lower_bound": -1e-08,
+                    "upper_bound": 6.00000001,
+                    "mu": -380.6440825743838,
+                    "sigma": 12.066012048277289
                 }
             }
         },
