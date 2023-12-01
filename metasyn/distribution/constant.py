@@ -12,6 +12,7 @@ class BaseConstantDistribution(BaseDistribution):
     This base class makes it easy to implement new constant distributions
     for different variable types.
     """
+    
     def __init__(self, value) -> None:
         self.value = value
 
@@ -44,6 +45,7 @@ class BaseConstantDistribution(BaseDistribution):
 @metadist(implements="core.constant", var_type="continuous")
 class ConstantDistribution(BaseConstantDistribution):
     """Constant distribution for continuous vars."""
+    
     @classmethod
     def default_distribution(cls) -> BaseDistribution:
         return cls(0.0)
@@ -59,6 +61,7 @@ class ConstantDistribution(BaseConstantDistribution):
 @metadist(implements="core.discrete_constant", var_type="discrete")
 class DiscreteConstantDistribution(BaseConstantDistribution):
     """Constant distribution for discrete vars."""
+
     @classmethod
     def default_distribution(cls) -> BaseDistribution:
         return cls(0)
@@ -73,6 +76,7 @@ class DiscreteConstantDistribution(BaseConstantDistribution):
 @metadist(implements="core.string_constant", var_type="string")
 class StringConstantDistribution(ConstantDistribution):
     """Constant distribution for string vars."""
+    
     @classmethod
     def default_distribution(cls) -> BaseDistribution:
         return cls("text")
