@@ -22,6 +22,11 @@ import polars as pl
 from metasyn.distribution import legacy
 from metasyn.distribution.base import BaseDistribution
 from metasyn.distribution.categorical import MultinoulliDistribution
+from metasyn.distribution.constant import (
+    ConstantDistribution,
+    DiscreteConstantDistribution,
+    StringConstantDistribution,
+)
 from metasyn.distribution.continuous import (
     ExponentialDistribution,
     LogNormalDistribution,
@@ -45,11 +50,6 @@ from metasyn.distribution.faker import (
     FakerDistribution,
     FreeTextDistribution,
     UniqueFakerDistribution,
-)
-from metasyn.distribution.constant import (
-    ConstantDistribution,
-    DiscreteConstantDistribution,
-    StringConstantDistribution,
 )
 from metasyn.distribution.na import NADistribution
 from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistribution
