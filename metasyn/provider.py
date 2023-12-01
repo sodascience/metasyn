@@ -35,6 +35,8 @@ from metasyn.distribution.datetime import (
     UniformTimeDistribution,
 )
 from metasyn.distribution.discrete import (
+    DiscreteNormalDistribution,
+    DiscreteTruncatedNormalDistribution,
     DiscreteUniformDistribution,
     PoissonDistribution,
     UniqueKeyDistribution,
@@ -114,6 +116,7 @@ class BuiltinDistributionProvider(BaseDistributionProvider):
     name = "builtin"
     version = "1.1"
     distributions = [
+        DiscreteNormalDistribution, DiscreteTruncatedNormalDistribution,
         DiscreteUniformDistribution, PoissonDistribution, UniqueKeyDistribution,
         UniformDistribution, NormalDistribution, LogNormalDistribution,
         TruncatedNormalDistribution, ExponentialDistribution,
