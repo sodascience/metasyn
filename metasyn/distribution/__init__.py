@@ -38,7 +38,6 @@ from metasyn.distribution.constant import (
 from metasyn.distribution.na import NADistribution
 from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistribution
 
-
 __all__ = [
     "MultinoulliDistribution",
     "ExponentialDistribution",
