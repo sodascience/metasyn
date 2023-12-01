@@ -38,7 +38,7 @@ class BaseConstantDistribution(BaseDistribution):
 
     def information_criterion(self, values):
         vals = self._to_series(values)
-        return 0.0 if vals.n_unique() < 2 else Inf
+        return -Inf if vals.n_unique() < 2 else Inf
 
 
 @metadist(implements="core.constant", var_type="continuous")

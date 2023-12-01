@@ -46,6 +46,11 @@ from metasyn.distribution.faker import (
     FreeTextDistribution,
     UniqueFakerDistribution,
 )
+from metasyn.distribution.constant import (
+    ConstantDistribution,
+    DiscreteConstantDistribution,
+    StringConstantDistribution,
+)
 from metasyn.distribution.na import NADistribution
 from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistribution
 from metasyn.privacy import BasePrivacy, BasicPrivacy
@@ -126,6 +131,9 @@ class BuiltinDistributionProvider(BaseDistributionProvider):
         UniformDateDistribution,
         UniformTimeDistribution,
         UniformDateTimeDistribution,
+        ConstantDistribution,
+        DiscreteConstantDistribution,
+        StringConstantDistribution,
     ]
     legacy_distributions = [
         legacy.RegexDistribution, legacy.UniqueRegexDistribution

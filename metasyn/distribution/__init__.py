@@ -30,13 +30,14 @@ from metasyn.distribution.faker import (
     FreeTextDistribution,
     UniqueFakerDistribution,
 )
-from metasyn.distribution.na import NADistribution
-from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistribution
 from metasyn.distribution.constant import (
     ConstantDistribution,
     DiscreteConstantDistribution,
     StringConstantDistribution,
 )
+from metasyn.distribution.na import NADistribution
+from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistribution
+
 
 __all__ = [
     "MultinoulliDistribution",
