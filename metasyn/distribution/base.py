@@ -129,12 +129,12 @@ class BaseDistribution(ABC):
         return cls(**dist_dict["parameters"])
 
     def information_criterion(self, values: Iterable) -> float:  # pylint: disable=unused-argument
-        """Get the AIC value for a particular set of values.
+        """Get the BIC value for a particular set of values.
 
         Parameters
         ----------
         values: array_like
-            Values to determine the AIC value of.
+            Values to determine the BIC value of.
         """
         return 0.0
 
