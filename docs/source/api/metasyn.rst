@@ -6,21 +6,21 @@ API Reference
    :undoc-members:
    :show-inheritance:
 
-
 Subpackages
 -----------
 
-.. toctree::
+.. toctree:: 
    :maxdepth: 1
 
    metasyn.distribution
    metasyn.schema
+   metasyn.demo
 
 Submodules
 ----------
 
 metasyn.metaframe module
-------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: metasyn.metaframe
    :members:
@@ -28,7 +28,7 @@ metasyn.metaframe module
    :show-inheritance:
 
 metasyn.provider module
--------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: metasyn.provider
    :members:
@@ -36,7 +36,7 @@ metasyn.provider module
    :show-inheritance:
 
 metasyn.var module
---------------------
+^^^^^^^^^^^^^^^^^^
 
 .. automodule:: metasyn.var
    :members:
@@ -44,7 +44,7 @@ metasyn.var module
    :show-inheritance:
 
 metasyn.testutils module
---------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: metasyn.testutils
    :members:
@@ -52,7 +52,7 @@ metasyn.testutils module
    :show-inheritance:
 
 metasyn.validation module
----------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: metasyn.validation
    :members:
@@ -60,7 +60,7 @@ metasyn.validation module
    :show-inheritance:
 
 metasyn.privacy module
-------------------------
+^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: metasyn.privacy
    :members:

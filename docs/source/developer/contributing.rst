@@ -5,7 +5,7 @@ Thank you for your interest in contributing to metasyn! We greatly appreciate an
 
 Feedback, suggestions and issues:
 ---------------------------------
-If you encounter a bug or have a feature request, you can report it in the `issue tracker <https://github.com/sodascience/metasyn/issues>`_. Detailed bug reports and well-defined feature requests are highly appreciated. Additionally, you can help us by leaving suggestions or feedback on how to enhance metasyn on the project's `GitHub repository <https://github.com/sodascience/metasyn>`_. More information on getting in touch with us can be found on our :doc:`contact page </about/contact>`.
+If you encounter a bug or have a feature request, you can report it in the `issue tracker <https://github.com/sodascience/metasyn/issues>`_. Detailed bug reports and well-defined feature requests are highly appreciated. Additionally, you can help us by leaving suggestions or feedback on how to enhance ``metasyn`` on the project's `GitHub repository <https://github.com/sodascience/metasyn>`_. More information on getting in touch with us can be found on our :doc:`contact page </about/contact>`.
 
 .. image:: https://img.shields.io/badge/GitHub-blue?logo=github&link=https%3A%2F%2Fgithub.com%2Fsodascience%2Fmetasyn
    :alt: GitHub Repository Button
@@ -46,7 +46,7 @@ The following shows a basic overview of the steps needed to do so.
    .. code-block:: shell
 
        git push origin feature/AmazingFeature
-6.  **Open a Pull Request**: After pushing your changes to your GitHub repository, you can proceed to open a pull request (PR) to propose your changes for inclusion in the official metasyn repository. Navigate to your forked repository on GitHub and click on the "Compare & pull request" button for the branch you want to merge. Provide a clear title and description for your PR, detailing the changes you made and any relevant context.
+6.  **Open a Pull Request**: After pushing your changes to your GitHub repository, you can proceed to open a pull request (PR) to propose your changes for inclusion in the official ``metasyn`` repository. Navigate to your forked repository on GitHub and click on the "Compare & pull request" button for the branch you want to merge. Provide a clear title and description for your PR, detailing the changes you made and any relevant context.
 7.  **Review Process**: The project maintainers will review your PR, providing feedback and suggestions if needed. Please be patient during the review process, as it may take some time to thoroughly evaluate your contribution. Once your PR is approved and any requested changes are addressed, the project maintainers will merge your changes into the official repository.
 8.  **Congratulations**! You have successfully contributed to metasyn!
 
@@ -55,7 +55,7 @@ Running local tests
 -------------------
 When a pull request is created, GitHub automatically runs `a series of tests <https://github.com/sodascience/metasyn/actions>`_ on the code to ensure it meets the projects standards and does not introduce any errors. You can run these tests locally to ensure your code passes before opening a pull request, using the `Tox <https://tox.wiki/>`_ package. 
 
-To do so, first install Tox to your environment following the `Tox installation guide <https://tox.wiki/en/4.11.3/installation.html>`_. Then simply run the ``tox`` on the metasyn root directory to run all the tests. If you want to run a specific test, you can do so by specifying a (list of) test environment(s), e.g. ``tox -e ruff`` or ``tox -e ruff,pylint,pydocstyle,mypy,sphinx,pytest,nbval``. The available test environments can be found in the `pyproject.toml <https://github.com/sodascience/metasyn/blob/main/pyproject.toml>`_ file, under the ``[tool.tox]`` section.
+To do so, first install Tox to your environment following the `Tox installation guide <https://tox.wiki/en/4.11.3/installation.html>`_. Then simply run the ``tox`` on the ``metasyn`` root directory to run all the tests. If you want to run a specific test, you can do so by specifying a (list of) test environment(s), e.g. ``tox -e ruff`` or ``tox -e ruff,pylint,pydocstyle,mypy,sphinx,pytest,nbval``. The available test environments can be found in the `pyproject.toml <https://github.com/sodascience/metasyn/blob/main/pyproject.toml>`_ file, under the ``[tool.tox]`` section.
 
 
 

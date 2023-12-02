@@ -1,11 +1,16 @@
 metasyn.distribution package
 ==============================
 
+.. automodule:: metasyn.distribution
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Submodules
 ----------
 
 metasyn.distribution.base module
-----------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: metasyn.distribution.base
    :members:
@@ -13,7 +18,7 @@ metasyn.distribution.base module
    :show-inheritance:
 
 metasyn.distribution.categorical module
------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: metasyn.distribution.categorical
    :members:
@@ -21,7 +26,7 @@ metasyn.distribution.categorical module
    :show-inheritance:
 
 metasyn.distribution.continuous module
-----------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: metasyn.distribution.continuous
    :members:
@@ -29,7 +34,7 @@ metasyn.distribution.continuous module
    :show-inheritance:
 
 metasyn.distribution.datetime module
---------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: metasyn.distribution.datetime
    :members:
@@ -37,7 +42,7 @@ metasyn.distribution.datetime module
    :show-inheritance:
 
 metasyn.distribution.discrete module
---------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: metasyn.distribution.discrete
    :members:
@@ -45,7 +50,7 @@ metasyn.distribution.discrete module
    :show-inheritance:
 
 metasyn.distribution.faker module
------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: metasyn.distribution.faker
    :members:
@@ -53,7 +58,7 @@ metasyn.distribution.faker module
    :show-inheritance:
 
 metasyn.distribution.regex module
------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: metasyn.distribution.regex
    :members:
@@ -61,10 +66,5 @@ metasyn.distribution.regex module
    :show-inheritance:
 
 
-Module contents
----------------
 
-.. automodule:: metasyn.distribution
-   :members:
-   :undoc-members:
-   :show-inheritance:
+

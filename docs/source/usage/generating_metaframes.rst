@@ -1,7 +1,7 @@
 Generating MetaFrames
 =====================
 
-One of the main features of metasyn is to create a :obj:`MetaFrame <metasyn.metaframe.MetaFrame>`, an object which captures the essential aspects of the dataset, including variable names, types, data types, the percentage of missing values, and distribution attributes. :obj:`MetaFrame <metasyn.metaframe.MetaFrame>` objects essentially capture all the information needed to generate a synthetic dataset that aligns with the original dataset.
+One of the main features of ``metasyn`` is to create a :obj:`MetaFrame <metasyn.metaframe.MetaFrame>`, an object which captures the essential aspects of the dataset, including variable names, types, data types, the percentage of missing values, and distribution attributes. :obj:`MetaFrame <metasyn.metaframe.MetaFrame>` objects essentially capture all the information needed to generate a synthetic dataset that aligns with the original dataset.
 
 .. image:: /images/pipeline_estimation_simple.png
    :alt: MetaFrame Generation Flow
@@ -10,11 +10,11 @@ One of the main features of metasyn is to create a :obj:`MetaFrame <metasyn.meta
 
 .. admonition:: Want to learn more?
     
-   This page focuses on using metasyn to generate MetaFrames. If you're interested in learning more about how MetaFrames are generated behind the scenes and the assumptions involved, see the :doc:`/about/metasyn_in_detail` page for details.
+   This page focuses on using ``metasyn`` to generate MetaFrames. If you're interested in learning more about how MetaFrames are generated behind the scenes and the assumptions involved, see the :doc:`/about/metasyn_in_detail` page for details.
 
 .. admonition:: Command-line Interface
 
-    It is also possible to generate a MetaFrame, based on a given GMF file, using the metasyn command-line interface. For instructions on how to do so, see the :doc:`/usage/cli` page.
+    It is also possible to generate a MetaFrame, based on a given GMF file, using the ``metasyn`` command-line interface. For instructions on how to do so, see the :doc:`/usage/cli` page.
    
 Basics
 ------
@@ -33,7 +33,7 @@ This function requires a :obj:`DataFrame` to be specified as parameter. The foll
 
 .. admonition:: Note on Pandas and Polars DataFrames
 
-    Internally, metasyn uses Polars (instead of Pandas) mainly because typing and the handling of non-existing data is more consistent. It is possible to supply a Pandas DataFrame instead of a Polars DataFrame to the ``MetaFrame.from_dataframe`` method. However, this uses the automatic Polars conversion functionality, which for some edge cases result in problems. Therefore, we advise users to create Polars DataFrames. The resulting synthetic dataset is always a Polars DataFrame, but this can be easily converted back to a Pandas DataFrame by using ``df_pandas = df_polars.to_pandas()``.
+    Internally, ``metasyn`` uses Polars (instead of Pandas) mainly because typing and the handling of non-existing data is more consistent. It is possible to supply a Pandas DataFrame instead of a Polars DataFrame to the ``MetaFrame.from_dataframe`` method. However, this uses the automatic Polars conversion functionality, which for some edge cases result in problems. Therefore, we advise users to create Polars DataFrames. The resulting synthetic dataset is always a Polars DataFrame, but this can be easily converted back to a Pandas DataFrame by using ``df_pandas = df_polars.to_pandas()``.
 
 
 It is possible to print the (statistical metadata contained in the) :obj:`MetaFrame <metasyn.metaframe.MetaFrame>` to the console/output log. This can simply be done by calling the Python built-in `print` function on a :obj:`MetaFrame <metasyn.metaframe.MetaFrame>`:
@@ -63,11 +63,11 @@ spec
     
     .. admonition:: Detection of unique variables
 
-        When generating a MetaFrame, metasyn will automatically analyze the columns of the input DataFrame to detect ones that contain only unique values.
+        When generating a MetaFrame, ``metasyn`` will automatically analyze the columns of the input DataFrame to detect ones that contain only unique values.
         If such a column is found, and it has not manually been set to unique in the ``spec`` dictionary, the user will be notified with the following warning:
         ``Warning: Variable [column_name] seems unique, but not set to be unique. Set the variable to be either unique or not unique to remove this warning``
         
-        It is safe to ignore this warning - however, be aware that without setting the column as unique, metasyn may generate duplicate values for that column when synthesizing data.
+        It is safe to ignore this warning - however, be aware that without setting the column as unique, ``metasyn`` may generate duplicate values for that column when synthesizing data.
         
         To remove the warning and ensure the column remains unique, set the column to be unique (``"column" = {"unique": True}``) in the ``spec`` dictionary.    
     

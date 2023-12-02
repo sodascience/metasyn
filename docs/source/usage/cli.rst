@@ -13,26 +13,26 @@ At any point, you can also use the help command to get more information about th
 
 .. code-block:: console
 
-   metasyn --help
+   ``metasyn`` --help
 
 
 Accessing the CLI
 -----------------
-If you have installed the main metasyn package, the CLI should be available automatically. You can find instructions on how to install metasyn in the :doc:`installation` section of the documentation.
+If you have installed the main ``metasyn`` package, the CLI should be available automatically. You can find instructions on how to install ``metasyn`` in the :doc:`installation` section of the documentation.
 
-Alternatively, the CLI can be accessed through a Docker container, allowing you to run metasyn in an isolated environment without installing the package on your system. This can be useful, for example, when trying out metasyn without affecting your existing Python environment.
+Alternatively, the CLI can be accessed through a Docker container, allowing you to run ``metasyn`` in an isolated environment without installing the package on your system. This can be useful, for example, when trying out ``metasyn`` without affecting your existing Python environment.
 
 Here's how you can use Docker to access Metasyn's CLI:
 
 1. **Install Docker:** If Docker isn't already set up on your machine, please follow the instructions on `Docker's official website <https://docs.docker.com/get-docker/>`_.
 
-2. **Pull the metasyn Docker Image:** After successfully installing Docker, you can download the metasyn Docker image from Docker Hub using the following command.
+2. **Pull the ``metasyn`` Docker Image:** After successfully installing Docker, you can download the ``metasyn`` Docker image from Docker Hub using the following command.
 
    .. code-block:: console
 
       docker pull sodateam/metasyn
 
-3. **Run metasyn's CLI via Docker:** Once the Docker image is downloaded, you can use the following command to run a metasyn CLI command within a Docker container (in this case ``--help``), and simultaneously set the working directory (which we denote as `wd` in this case).
+3. **Run metasyn's CLI via Docker:** Once the Docker image is downloaded, you can use the following command to run a ``metasyn`` CLI command within a Docker container (in this case ``--help``), and simultaneously set the working directory (which we denote as `wd` in this case).
 
    .. tab:: Windows
 
@@ -47,10 +47,10 @@ Here's how you can use Docker to access Metasyn's CLI:
          docker run -v $(pwd):/wd sodateam/metasyn --help
 
 
-The Metasyn CLI should now be up and running within the Docker container and ready for use!
+The ``metasyn`` CLI should now be up and running within the Docker container and ready for use!
 
 .. note:: 
-   You can also specify which metasyn version to use in docker, by adding a tag to the docker image. For example, to use version 0.6, you can use the following command:
+   You can also specify which ``metasyn`` version to use in docker, by adding a tag to the docker image. For example, to use version 0.6, you can use the following command:
 
    .. tab:: Installing a specific version
       
@@ -85,7 +85,7 @@ The ``create-meta`` command can be used as follows:
 
 .. code-block:: bash
 
-   metasyn create-meta [input] [output]
+   ``metasyn`` create-meta [input] [output]
 
 This will:
 
@@ -104,7 +104,7 @@ An example of how to use the ``create-meta`` subcommand is as follows:
 
    .. code-block:: console
 
-      metasyn create-meta wd/my_dataset.csv wd/my_gmf.json
+      ``metasyn`` create-meta wd/my_dataset.csv wd/my_gmf.json
 
 .. tab:: Docker Container
 
@@ -151,7 +151,7 @@ The ``synthesize`` command can be used as follows:
 
 .. code-block:: bash
 
-   metasyn synthesize [input] [output]
+   ``metasyn`` synthesize [input] [output]
 
 This will:
 
@@ -171,7 +171,7 @@ An example of how to use the ``synthesize`` subcommand is as follows:
 
    .. code-block:: console
 
-      metasyn synthesize wd/my_gmf.json wd/my_synthetic_data.csv
+      ``metasyn`` synthesize wd/my_gmf.json wd/my_synthetic_data.csv
 
 .. tab:: Docker Container
 
@@ -205,19 +205,19 @@ The ``schema`` subcommand generates a schema that describes the expected format 
 
 .. code-block:: console
    
-   metasyn schema
+   ``metasyn`` schema
 
 It's also possible to include additional plugins in the validation schema, this can be done by passing in their names as space-seperated arguments:
 
 .. code-block:: console
    
-   metasyn schema plugin1 plugin2
+   ``metasyn`` schema plugin1 plugin2
 
 To retrieve a list of all available plugins, you can use the ``--list`` or ``-l`` argument. This displays the available plugins:
 
 .. code-block:: console
    
-   metasyn schema --list
+   ``metasyn`` schema --list
 
 
 

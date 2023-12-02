@@ -1,10 +1,10 @@
 Installation Guide
 ==================
 
-This document will guide you through the process of installing the metasyn package. 
+This document will guide you through the process of installing the ``metasyn`` package. 
 
 .. note:: 
-	If you're new to Python or simply want to quickly explore the basic features of metasyn without installing it locally, you can try one of our :doc:`/usage/interactive_tutorials`.
+	If you're new to Python or simply want to quickly explore the basic features of ``metasyn`` without installing it locally, you can try one of our :doc:`/usage/interactive_tutorials`.
 
 
 Step 1: Python Installation
@@ -41,7 +41,7 @@ Choose the method that best suits your needs. If you're unsure, using PyPI is th
 Step 4: Verifying Installation
 -------------------------------
 
-To ensure metasyn has been successfully installed, run the following command in a Python console:
+To ensure ``metasyn`` has been successfully installed, run the following command in a Python console:
 
 .. code-block:: python
 
@@ -74,5 +74,5 @@ To activate the environment:
 
 		source metasyn-env/bin/activate
 
-With the virtual environment activated, you can then install metasyn as described in Step 3. To exit the virtual environment, simply type `deactivate` in your console.
+With the virtual environment activated, you can then install ``metasyn`` as described in Step 3. To exit the virtual environment, simply type `deactivate` in your console.
 
