@@ -5,14 +5,14 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "metasyn"
 authors = [
-    {name = "Raoul Schram", email = "r.d.schram@uu.nl"},
-    {name = "Erik-Jan van Kesteren", email = "e.vankesteren1@uu.nl"},
+    { name = "Raoul Schram", email = "r.d.schram@uu.nl" },
+    { name = "Erik-Jan van Kesteren", email = "e.vankesteren1@uu.nl" },
 ]
 description = "Package for creating synthetic datasets while preserving privacy."
 readme = "README.md"
 requires-python = ">=3.8"
 keywords = ["metadata", "open-data", "privacy", "synthetic-data", "tabular datasets"]
-license = {file = "LICENSE"}
+license = { file = "LICENSE" }
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
@@ -28,11 +28,12 @@ dependencies = [
     "polars>=0.19.8",
     "tqdm",
     "numpy>=1.20",
-    "pyarrow",  # Dependency of polars since we're converting from pandas.
+    "pyarrow", # Dependency of polars since we're converting from pandas.
     "scipy",
     "numpy>=1.20",
     "faker",
     "lingua-language-detector",
+    "regex",
     "scikit-learn",
     "jsonschema",
     "importlib-metadata;python_version<'3.10'",
@@ -49,10 +50,10 @@ documentation = "https://metasyn.readthedocs.io/en/latest/index.html"
 
 [project.optional-dependencies]
 test = [
-    "pytest", "pylint", "pydocstyle", "mypy", "flake8", "nbval",
-    "sphinx<7.0.0", "sphinx-rtd-theme", "sphinxcontrib-napoleon", 
+    "ruff", "pytest", "pylint", "pydocstyle", "mypy", "flake8", "nbval",
+    "sphinx", "sphinx-rtd-theme", "sphinxcontrib-napoleon",
     "sphinx-autodoc-typehints", "sphinx_inline_tabs", "sphinx_copybutton",
-    "XlsxWriter", "types-tqdm"
+    "XlsxWriter", "types-tqdm", "types-regex",
 ]
 
 [project.scripts]
@@ -77,6 +78,7 @@ module = [
     "importlib_metadata.*",
     "importlib_resources.*",
     "wget.*",
+    "lingua.*",
 ]
 ignore_missing_imports = true
 
@@ -91,3 +93,108 @@ max-args=10
 
 [tool.pylint.'BASIC']
 good-names=["a", "b", "mu"]
+
+[tool.ruff]
+exclude = ["_version.py", "metasyn/distribution/legacy.*"]
+line-length = 100
+select = ["E", "F", "W", "I", "N"]
+
+[tool.ruff.pep8-naming]
+ignore-names = ["a", "b", "mu"]
+
+[tool.tox]
+legacy_tox_ini = """
+    [tox]
+    env_list =
+        py311
+        ruff
+        pylint
+        pydocstyle
+        mypy
+        sphinx
+        pytest
+        nbval
+    minversion = 4.11.3
+
+    [testenv]
+    description = run the tests with pytest
+    package = wheel
+    wheel_build_env = .pkg
+    deps =
+        pandas
+        polars>=0.14.17
+        numpy>=1.20
+        pyarrow
+        scipy
+        numpy>=1.20
+        faker
+        lingua-language-detector
+        scikit-learn
+        jsonschema
+        importlib-metadata;python_version<'3.10'
+        importlib-resources;python_version<'3.9'
+        wget
+        regexmodel>=0.2.1
+
+    [testenv:ruff]
+    description = Lint with Ruff
+    deps =
+        ruff
+    commands =
+        ruff metasyn
+
+    [testenv:pylint]
+    description = Lint with PyLint
+    deps =
+        pylint
+    commands =
+        pylint metasyn
+
+    [testenv:pydocstyle]
+    description = Check docstrings with pydocstyle
+    deps =
+        pydocstyle
+    commands =
+        pydocstyle metasyn --convention=numpy --add-select=D417 --add-ignore="D102,D105"
+
+    [testenv:mypy]
+    description = Check types with MyPy
+    deps =
+        mypy
+        types-tqdm
+        types-regex
+    commands =
+        mypy metasyn
+
+    [testenv:sphinx]
+    description = Check if documentation builds.
+    allowlist_externals =
+        make
+    deps =
+        sphinx
+        sphinx-rtd-theme
+        sphinxcontrib-napoleon
+        sphinx-autodoc-typehints
+        sphinx_inline_tabs
+        sphinx_copybutton
+    changedir = docs
+    commands =
+        make html SPHINXOPTS="-W --keep-going"
+
+    [testenv:pytest]
+    description = Test with pytest
+    deps =
+        pytest
+        XlsxWriter
+    commands =
+        pytest tests
+
+    [testenv:nbval]
+    description = Check notebook output
+    deps =
+        pytest
+        nbval
+        XlsxWriter
+    commands =
+        pytest --nbval-lax examples
+"""

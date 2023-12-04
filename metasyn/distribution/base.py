@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import Iterable, Sequence, Union, Optional
+from typing import Iterable, Optional, Sequence, Union
 
 import numpy as np
 import pandas as pd
@@ -265,7 +265,7 @@ class ScipyDistribution(BaseDistribution):
         return self._information_criterion(vals)
 
     def _information_criterion(self, values):
-        return 2 * self.n_par - 2 * np.sum(self.dist.logpdf(values))
+        return np.log(len(values)) * self.n_par - 2 * np.sum(self.dist.logpdf(values))
 
 
 @metadist(is_unique=True)

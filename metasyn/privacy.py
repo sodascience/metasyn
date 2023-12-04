@@ -1,6 +1,6 @@
 """Module with privacy classes to be used for creating GMF files."""
 
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 from typing import Type, Union
 
 from metasyn.distribution.base import BaseDistribution

@@ -1,14 +1,16 @@
 """Module containing an interface to the faker package."""
 from typing import Iterable, Optional
 
+# from lingua._constant import LETTERS, PUNCTUATION
+import regex
 from faker import Faker
-from lingua import LanguageDetectorBuilder
-from lingua._constant import LETTERS, PUNCTUATION
-# LETTERS: Pattern = regex.compile(r"\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}|\p{L}+")
-# PUNCTUATION: Pattern = regex.compile(r"\p{P}")
+from lingua import LanguageDetectorBuilder  # pylint: disable=no-name-in-module
 from scipy.stats import poisson
 
-from metasyn.distribution.base import metadist, BaseDistribution, UniqueDistributionMixin
+from metasyn.distribution.base import BaseDistribution, UniqueDistributionMixin, metadist
+
+LETTERS = regex.compile(r"\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}|\p{L}+")
+PUNCTUATION = regex.compile(r"\p{P}")
 
 
 @metadist(implements="core.faker", var_type="string")
@@ -148,10 +150,12 @@ class FreeTextDistribution(BaseDistribution):
         return " ".join(self.fake.sentence(nb_words=n_words) for _ in range(n_sentences))
 
     def information_criterion(self, values) -> float:
-        # series = self._to_series(values)
-        # lang = self.detect_language(series)
-        # if lang is None:
-        # Don't use this distribution by default (for now).
+        series = self._to_series(values)
+        # Check the average number of characters
+        if series.str.len_chars().mean() >= 25:
+            lang = self.detect_language(series)
+            if lang is not None:
+                return -1.0
         return 99999999
 
     @classmethod

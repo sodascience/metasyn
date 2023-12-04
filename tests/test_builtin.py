@@ -1,8 +1,9 @@
-from pytest import mark
+from pytest import mark, raises
 
 from metasyn.provider import get_distribution_provider
 from metasyn.testutils import check_distribution, check_distribution_provider
 from metasyn.privacy import BasicPrivacy
+from metasyn.distribution import UniformDistribution
 
 
 def test_builtin_provider():
@@ -15,3 +16,13 @@ def test_builtin_provider():
 def test_dist_validation(distribution):
     check_distribution(distribution, privacy=BasicPrivacy(),
                        provenance="builtin")
+
+
+class Distribution(UniformDistribution):
+    def schema():
+        return "[{"
+
+
+def test_schema_val():
+    with raises(ValueError):
+        check_distribution(Distribution, "none", "builtin")

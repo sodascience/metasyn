@@ -1,11 +1,16 @@
+import json
 import sys
 import subprocess
 from pathlib import Path
+
+import jsonschema
 from pytest import mark, fixture
 import polars as pl
 from metasyn import MetaFrame
+from metasyn.validation import validate_gmf_dict
 
 TMP_DIR_PATH = None
+
 
 @fixture(scope="module")
 def tmp_dir(tmp_path_factory) -> Path:
@@ -32,19 +37,29 @@ def tmp_dir(tmp_path_factory) -> Path:
         data_frame = pl.read_csv(csv_fp, dtypes=csv_dt)[:100]
         meta_frame = MetaFrame.fit_dataframe(data_frame, spec={"PassengerId": {"unique": True}})
         meta_frame.to_json(json_path)
+        config_fp = TMP_DIR_PATH / "config.ini"
+        with open(config_fp, "w") as handle:
+            handle.write("""
+[var.PassengerId]
+unique = True
+
+[var.Fare]
+distribution=LogNormalDistribution
+prop_missing=0.2""")
     return TMP_DIR_PATH
+
 
 @mark.parametrize("ext", [".csv", ".feather", ".parquet", ".pkl", ".xlsx"])
 def test_cli(tmp_dir, ext):
     """A simple integration test for reading and writing using the CLI"""
-    
+
     # create out file path with correct extension
     out_file = tmp_dir / f"titanic{ext}"
 
     # create command to run in subprocess with arguments
     cmd = [
         Path(sys.executable).resolve(),   # the python executable
-        Path("metasyn", "__main__.py"), # the cli script
+        Path("metasyn", "__main__.py"),   # the cli script
         "synthesize",                     # the subcommand
         "-n 25",                          # only generate 25 samples
         tmp_dir / "titanic.json",         # the input file
@@ -53,5 +68,60 @@ def test_cli(tmp_dir, ext):
 
     # Run the cli with different extensions
     result = subprocess.run(cmd, check=False)
+    assert result.returncode == 0, (result.stdout, result.stderr)
+    assert out_file.is_file()
+    if ext == ".csv":
+        df = pl.read_csv(out_file)
+        assert len(df) == 25
+
+
+@mark.parametrize("config", [True, False])
+def test_create_meta(tmp_dir, config):
+    out_file = tmp_dir / "test.json"
+    cmd = [
+        Path(sys.executable).resolve(),     # the python executable
+        Path("metasyn", "__main__.py"),     # the cli script
+        "create-meta",                      # the subcommand
+        Path("tests", "data", "titanic.csv"),         # the input file
+        out_file                        # the output file
+    ]
+    if config:
+        cmd.extend(["--config", Path(tmp_dir) / 'config.ini'])
+    result = subprocess.run(cmd, check=False, capture_output=True)
     assert result.returncode == 0
     assert out_file.is_file()
+    meta_frame = MetaFrame.from_json(out_file)
+    assert len(meta_frame.meta_vars) == 12
+
+
+def test_schema_list():
+    cmd = [
+        Path(sys.executable).resolve(),     # the python executable
+        Path("metasyn", "__main__.py"),     # the cli script
+        "schema",
+        "--list"
+    ]
+    result = subprocess.run(cmd, check=False, capture_output=True)
+    assert result.returncode == 0
+    assert "builtin" in result.stdout.decode()
+
+
+def test_schema_gen(tmp_dir):
+    titanic_json = tmp_dir / "titanic.json"
+    cmd = [
+        Path(sys.executable).resolve(),     # the python executable
+        Path("metasyn", "__main__.py"),     # the cli script
+        "schema",
+        "builtin"
+    ]
+    result = subprocess.run(cmd, check=False, capture_output=True)
+    assert result.returncode == 0
+    json_schema = json.loads(result.stdout.decode())
+    with open(titanic_json, "r") as handle:
+        gmf_dict = json.load(handle)
+    validate_gmf_dict(gmf_dict)
+    jsonschema.validate(gmf_dict, json_schema)
+
+    cmd.append("non-existent-plugin")
+    result = subprocess.run(cmd, check=False, capture_output=True)
+    assert result.returncode != 0

@@ -5,7 +5,7 @@ from scipy.optimize import minimize
 from scipy.stats import expon, lognorm, norm, truncnorm, uniform
 from scipy.stats._continuous_distns import FitDataError
 
-from metasyn.distribution.base import metadist, ScipyDistribution
+from metasyn.distribution.base import ScipyDistribution, metadist
 
 
 @metadist(implements="core.uniform", var_type="continuous")
@@ -35,10 +35,11 @@ class UniformDistribution(ScipyDistribution):
 
     def _information_criterion(self, values):
         if np.any(np.array(values) < self.min_val) or np.any(np.array(values) > self.max_val):
-            return 2*self.n_par + 100*len(values)
+            return np.log(len(values))*self.n_par + 100*len(values)
         if np.fabs(self.max_val-self.min_val) < 1e-8:
-            return 2*self.n_par - 100*len(values)
-        return 2*self.n_par - 2*len(values)*np.log((self.max_val-self.min_val)**-1)
+            return np.log(len(values))*self.n_par - 100*len(values)
+        return (np.log(len(values))*self.n_par
+                - 2*len(values)*np.log((self.max_val-self.min_val)**-1))
 
     @classmethod
     def default_distribution(cls):

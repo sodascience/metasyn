@@ -98,6 +98,8 @@ def test_dataset(tmp_path, dataframe_lib):
         print(name, dataset.descriptions[name])
         assert dataset.descriptions[name] == name
 
+    assert isinstance(repr(dataset), str)
+
     # Check whether non-columns raise an error
     with pytest.raises(ValueError):
         dataset = MetaFrame.fit_dataframe(df, spec={"unicorn": {"prop_missing": 0.5}})

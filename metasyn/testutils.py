@@ -7,12 +7,14 @@ import jsonschema
 import polars as pl
 from jsonschema.exceptions import SchemaError
 
-from metasyn.metaframe import _jsonify
 from metasyn.distribution.base import BaseDistribution
+from metasyn.metaframe import _jsonify
 from metasyn.privacy import BasePrivacy
-from metasyn.provider import (get_distribution_provider,
-                              BaseDistributionProvider,
-                              DistributionProviderList)
+from metasyn.provider import (
+    BaseDistributionProvider,
+    DistributionProviderList,
+    get_distribution_provider,
+)
 
 
 def check_distribution_provider(provider_name: str):

@@ -1,19 +1,22 @@
 """Load/create different demo datasets."""
 
-from pathlib import Path
 import random
+from pathlib import Path
 
 try:
     from importlib_resources import files
 except ImportError:
     from importlib.resources import files  # type: ignore
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 import wget
 
-from metasyn.distribution.datetime import UniformDateTimeDistribution, UniformTimeDistribution
-from metasyn.distribution.datetime import UniformDateDistribution
+from metasyn.distribution.datetime import (
+    UniformDateDistribution,
+    UniformDateTimeDistribution,
+    UniformTimeDistribution,
+)
 
 
 def create_titanic_demo(output_fp: Path) -> Path:
@@ -29,7 +32,7 @@ def create_titanic_demo(output_fp: Path) -> Path:
         Output file location.
     """
     titanic_fp = Path("titanic.csv")
-    if output_fp.is_file():
+    if Path(output_fp).is_file():
         return output_fp
     if not titanic_fp.is_file():
         wget.download(

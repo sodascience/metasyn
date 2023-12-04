@@ -3,11 +3,13 @@ import json
 import pandas as pd
 import polars as pl
 import numpy as np
+from pytest import mark, raises
+import pytest
+
 from metasyn.var import MetaVar
 from metasyn.distribution import NormalDistribution, RegexDistribution, UniqueRegexDistribution
 from metasyn.distribution import DiscreteUniformDistribution
 from metasyn.distribution import UniformDistribution
-from pytest import mark, raises
 from metasyn.metaframe import _jsonify
 from metasyn.distribution.discrete import UniqueKeyDistribution
 from metasyn.distribution.continuous import TruncatedNormalDistribution
@@ -281,3 +283,10 @@ def test_int_multinoulli(series):
     var = MetaVar.detect(series)
     var.fit()
     assert isinstance(var.distribution, MultinoulliDistribution)
+
+
+def test_error_multinoulli():
+    with raises(ValueError):
+        MultinoulliDistribution(["1", "2"], [-0.1, 1.1])
+    with pytest.warns():
+        MultinoulliDistribution(["1", "2"], [0.1, 0.2])

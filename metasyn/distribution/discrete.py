@@ -5,7 +5,8 @@ from typing import Set
 import numpy as np
 from scipy.stats import poisson, randint
 
-from metasyn.distribution.base import metadist, ScipyDistribution
+from metasyn.distribution.base import ScipyDistribution, metadist
+from metasyn.distribution.continuous import NormalDistribution, TruncatedNormalDistribution
 
 
 @metadist(implements="core.discrete_uniform", var_type="discrete")
@@ -30,7 +31,7 @@ class DiscreteUniformDistribution(ScipyDistribution):
         self.dist = self.dist_class(low=low, high=high)
 
     def _information_criterion(self, values):
-        return 2*self.n_par - 2*np.sum(self.dist.logpmf(values))
+        return np.log(len(values))*self.n_par - 2*np.sum(self.dist.logpmf(values))
 
     @classmethod
     def _fit(cls, values):
@@ -48,6 +49,44 @@ class DiscreteUniformDistribution(ScipyDistribution):
             "high": {"type": "integer"},
         }
 
+@metadist(implements="core.discrete_normal", var_type="discrete")
+class DiscreteNormalDistribution(NormalDistribution):
+    """Normal distribution for integer type.
+
+    This class implements the normal/gaussian distribution and takes
+    the average and standard deviation as initialization input.
+
+    Parameters
+    ----------
+    mean: float
+        Mean of the normal distribution.
+
+    std_dev: float
+        Standard deviation of the normal distribution.
+    """
+
+    def draw(self):
+        return int(super().draw())
+
+@metadist(implements="core.discrete_truncated_normal", var_type="discrete")
+class DiscreteTruncatedNormalDistribution(TruncatedNormalDistribution):
+    """Truncated normal distribution for integer type.
+
+    Parameters
+    ----------
+    lower_bound: float
+        Lower bound of the truncated normal distribution.
+    upper_bound: float
+        Upper bound of the truncated normal distribution.
+    mu: float
+        Mean of the non-truncated normal distribution.
+    sigma: float
+        Standard deviation of the non-truncated normal distribution.
+    """
+
+    def draw(self):
+        return int(super().draw())
+
 
 @metadist(implements="core.poisson", var_type="discrete")
 class PoissonDistribution(ScipyDistribution):
@@ -60,7 +99,7 @@ class PoissonDistribution(ScipyDistribution):
         self.dist = self.dist_class(mu=mu)
 
     def _information_criterion(self, values):
-        return 2*self.n_par - 2*np.sum(self.dist.logpmf(values))
+        return np.log(len(values))*self.n_par - 2*np.sum(self.dist.logpmf(values))
 
     @classmethod
     def _fit(cls, values):
@@ -121,25 +160,26 @@ class UniqueKeyDistribution(ScipyDistribution):
 
     def _information_criterion(self, values):
         if values.min() < self.low:
-            return 3+999*len(values)
+            return 2*np.log(len(values))+999*len(values)
 
         # If the values are not unique the fit is extremely bad.
         if len(set(values)) != len(values):
-            return 3+999*len(values)
+            return 2*np.log(len(values))+999*len(values)
 
         low = values.min()
         high = values.max()+1
 
         if self.consecutive == 1:
-            # Check if the values are truly
+            # Check if the values are truly consecutive
             if len(values) == high-low and np.all(values.to_numpy() == np.arange(low, high)):
-                return 3
-            return 3+999*len(values)
+                return 2*np.log(len(values))
+            return 2*np.log(len(values))+999*len(values)
 
         n_choice = high - low
 
         # Probabilities go up like 1/n, 1/(n-1), 1/(n-2), ..., 1/2, 1
-        return 5 - 2*np.sum(np.log(1/np.arange(n_choice, n_choice-len(values), -1)))
+        return (3*np.log(len(values))
+                - 2*np.sum(np.log(1/np.arange(n_choice, n_choice-len(values), -1))))
 
     @classmethod
     def default_distribution(cls):

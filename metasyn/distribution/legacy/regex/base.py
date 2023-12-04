@@ -6,11 +6,17 @@ from typing import List, Sequence, Set, Tuple, Type, Union
 
 import numpy as np
 
-from metasyn.distribution.base import metadist, BaseDistribution
-from metasyn.distribution.legacy.regex.element import (AlphaNumericRegex, AnyRegex,
-                                                       BaseRegexElement, DigitRegex,
-                                                       LettersRegex, LowercaseRegex,
-                                                       SingleRegex, UppercaseRegex)
+from metasyn.distribution.base import BaseDistribution, metadist
+from metasyn.distribution.legacy.regex.element import (
+    AlphaNumericRegex,
+    AnyRegex,
+    BaseRegexElement,
+    DigitRegex,
+    LettersRegex,
+    LowercaseRegex,
+    SingleRegex,
+    UppercaseRegex,
+)
 from metasyn.distribution.legacy.regex.optimizer import RegexOptimizer
 
 

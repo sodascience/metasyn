@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
-from typing import Union
 import warnings
+from typing import Union
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 import polars as pl
 
-from metasyn.distribution.base import metadist, BaseDistribution
+from metasyn.distribution.base import BaseDistribution, metadist
 
 
 @metadist(implements="core.multinoulli", var_type=["categorical", "discrete", "string"])
@@ -30,9 +30,10 @@ class MultinoulliDistribution(BaseDistribution):
                  probs: Union[npt.NDArray[np.float_], list[float]]):
         self.labels = np.array(labels)
         self.probs = np.array(probs)
+        if np.any(self.probs < 0):
+            raise ValueError("Cannot create multinoulli distribution with probabilities < 0.")
+
         if not np.isclose(np.sum(self.probs), 1):
-            if np.any(self.probs < 0):
-                raise ValueError("Cannot create multinoulli distribution with probabilities < 0.")
             warnings.simplefilter("always")
             warnings.warn("Multinoulli probabilities do not add up to 1 "
                           f" ({np.sum(self.probs)}); they will be rescaled.")
@@ -76,7 +77,7 @@ class MultinoulliDistribution(BaseDistribution):
                 log_lik += count * np.log(pdict.get(lab, 1))
             n_parameters = len(self.probs)-1
 
-        return 2*n_parameters - 2*log_lik
+        return np.log(len(series))*n_parameters - 2*log_lik
 
     def _log_like_int(
             self,
