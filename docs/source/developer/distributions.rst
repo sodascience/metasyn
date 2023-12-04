@@ -30,7 +30,7 @@ This is the base class providing the basic structure for all distributions. It i
 
 **Attributes:**
 
-- ``implements``: A unique string identifier for the distribution type, e.g. ``core.discrete_uniform`` or ``core.poisson``.
+- ``implements``: A unique string identifier for the distribution type, e.g. ``core.uniform`` or ``core.poisson``.
 - ``var_type``: The type of variable associated with the distribution, e.g. ``discrete`` or ``continuous``.
 - ``provenance``: Information about the source (core, plugin, etc.) of the distribution.
 - ``privacy``: The privacy class or implementation associated with the distribution.
@@ -92,12 +92,16 @@ When implementing a new distribution, the ``metadist`` decorator helps set the a
 
 **Parameters:**
 
-- ``implements``: A unique string identifier for the distribution type, e.g. ``core.discrete_uniform`` or ``core.poisson``.
+- ``implements``: A unique name for the distribution type, e.g. ``core.uniform`` or ``core.poisson``. 
 - ``var_type``: The type of variable associated with the distribution, e.g. ``discrete`` or ``continuous``.
 - ``provenance``: Information about the source (core, plugin, etc.) of the distribution.
 - ``privacy``: The privacy class or implementation associated with the distribution.
 - ``is_unique``: A boolean indicating whether the values in the distribution are unique.
 - ``version``: The version of the distribution. 
+
+.. admonition:: Note
+
+    Note that the parameters are the same as the attributes of the :class:`~metasyn.distribution.BaseDistribution` class.
 
 To use the ``metadist`` decorator, annotate the custom distribution class with ``@metadist``, passing in the attributes of the target distribution as parameters.
 
@@ -172,13 +176,21 @@ For example, let's say we want to implement a new series of similar distribution
 
         # implementation details here
 
-Then we can create more specific distributions for different variable types by inheriting from this base class, and using the ``metadist`` decorator to set the proper attributes of the distribution:
+Then we can create distributions for different variable types by inheriting from this base class, and using the ``metadist`` decorator to set the proper attributes. 
+
+.. admonition:: Important
+
+    In cases where there are multiple variations of a distribution for different data types, such as in the example given in this section, or the ``core.uniform`` distributions in ``metasyn``. 
+    
+    In this case, the metasyn convention is to put the data type **after** the distribution name, e.g. ``core.uniform_discrete``, ``core.uniform_datetime``, ``core.uniform_date``, etc.
+
+We can create a new distribution for continuous, discrete and string variables as follows (note that the implementation here is a basic implementation serving as an example):
 
 .. code-block:: python
 
     @metadist(implements="core.newdistribution", var_type="continuous")
     class NewContinuousDistribution(BaseNewDistribution):
-        """Variant of new distribution for continuous vars."""
+        """Variant of the new distribution for continuous vars."""
 
         @classmethod
         def default_distribution(cls) -> BaseDistribution:
@@ -191,7 +203,7 @@ Then we can create more specific distributions for different variable types by i
             }
 
 
-    @metadist(implements="core.discrete_newdistribution", var_type="discrete")
+    @metadist(implements="core.newdistribution_discrete", var_type="discrete")
     class DiscreteNewDistribution(BaseNewDistribution):
         """Variant of new distribution for discrete vars."""
 
@@ -205,7 +217,7 @@ Then we can create more specific distributions for different variable types by i
                 "value": {"type": "integer"}
             }
 
-    @metadist(implements="core.string_newdistribution", var_type="string")
+    @metadist(implements="core.newdistribution_string", var_type="string")
     class StringNewDistribution(NewDistribution):
         """Variant of new distribution for string vars."""
 
