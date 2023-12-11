@@ -27,7 +27,7 @@ It is possible to add additional distribution types. Unfortunately, at this mome
 
 .. .. code-block:: python
 
-..     from ``metasyn`` import MetaFrame
+..     from metasyn import MetaFrame
 ..     from metasyncontrib.disclosure import DisclosurePrivacy
 
 ..     mds = MetaFrame.from_dataframe(df, privacy=DisclosurePrivacy())

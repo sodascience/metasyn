@@ -85,7 +85,7 @@ The ``create-meta`` command can be used as follows:
 
 .. code-block:: bash
 
-   ``metasyn`` create-meta [input] [output]
+   metasyn create-meta [input] [output]
 
 This will:
 
@@ -104,7 +104,7 @@ An example of how to use the ``create-meta`` subcommand is as follows:
 
    .. code-block:: console
 
-      ``metasyn`` create-meta wd/my_dataset.csv wd/my_gmf.json
+      metasyn create-meta wd/my_dataset.csv wd/my_gmf.json
 
 .. tab:: Docker Container
 
@@ -151,7 +151,7 @@ The ``synthesize`` command can be used as follows:
 
 .. code-block:: bash
 
-   ``metasyn`` synthesize [input] [output]
+   metasyn synthesize [input] [output]
 
 This will:
 
@@ -171,7 +171,7 @@ An example of how to use the ``synthesize`` subcommand is as follows:
 
    .. code-block:: console
 
-      ``metasyn`` synthesize wd/my_gmf.json wd/my_synthetic_data.csv
+      metasyn synthesize wd/my_gmf.json wd/my_synthetic_data.csv
 
 .. tab:: Docker Container
 
@@ -205,19 +205,19 @@ The ``schema`` subcommand generates a schema that describes the expected format 
 
 .. code-block:: console
    
-   ``metasyn`` schema
+   metasyn schema
 
 It's also possible to include additional plugins in the validation schema, this can be done by passing in their names as space-seperated arguments:
 
 .. code-block:: console
    
-   ``metasyn`` schema plugin1 plugin2
+   metasyn schema plugin1 plugin2
 
 To retrieve a list of all available plugins, you can use the ``--list`` or ``-l`` argument. This displays the available plugins:
 
 .. code-block:: console
    
-   ``metasyn`` schema --list
+   metasyn schema --list
 
 
 

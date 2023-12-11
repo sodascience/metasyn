@@ -15,7 +15,7 @@ The first step is to import the required Python libraries. For this example, we 
 .. code:: python
 
    import polars as pl
-   from ``metasyn`` import MetaFrame, demo_file
+   from metasyn import MetaFrame, demo_file
 
 
 Loading the Dataset

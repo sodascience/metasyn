@@ -15,7 +15,7 @@ class BaseDistribution(ABC):
     """Abstract base class to define a distribution.
 
     All distributions should be derived from this class, and the following
-    methods need to be implemented: _fit, draw, to_dict.
+    methods need to be implemented: _fit, draw, _param_dict, _param_schema, and default_distribution.
     """
 
     implements: str = "unknown"
