@@ -9,7 +9,7 @@ API Reference
 Subpackages
 -----------
 
-.. toctree:: 
+.. toctree::
    :maxdepth: 1
 
    metasyn.distribution

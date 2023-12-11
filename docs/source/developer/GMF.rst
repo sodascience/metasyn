@@ -15,7 +15,7 @@ Each variable in ``vars`` contains at least the following attributes:
 * ``name``: Name of the variable (column name).
 * ``type``: Type of variable
 * ``dtype``: This is the polars dtype that the variable has to be converted back to.
-* ``prop_missing``: The proportion of values that are NA.
+* ``prop_missing``: The proportion of values that are missing (NA).
 * ``distribution``: The distribution that describes the variable. This distribution has at least two attributes:
 
     * ``name``: Name of the distribution.

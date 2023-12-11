@@ -10,7 +10,7 @@ Submodules
 ----------
 
 metasyn.distribution.base module
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: metasyn.distribution.base
    :members:

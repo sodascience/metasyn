@@ -47,13 +47,13 @@ This is the base class providing the basic structure for all distributions. It i
 - :meth:`~metasyn.distribution.BaseDistribution._fit`: Abstract class method intended to contain the fitting logic for the distribution. It does not need to handle N/A values. **It must be implemented by derived classes.**
 - :meth:`~metasyn.distribution.BaseDistribution._to_series`: Static method converting different data types (Polars Series, Pandas Series, or sequences) into a Polars Series, handling null values appropriately.
 - :meth:`~metasyn.distribution.BaseDistribution.draw`: Abstract method, intended to draw a new value from the distribution. **It must be implemented by derived classes.**
-- :meth:`~metasyn.distribution.BaseDistribution.draw_reset`: Method to reset the distribution's drawing mechanism. This should be implemented if the drawing does not happen randomly.
+- :meth:`~metasyn.distribution.BaseDistribution.draw_reset`: Method to reset the distribution's drawing mechanism. This should be implemented if the subsequent draws are not independent.
 - :meth:`~metasyn.distribution.BaseDistribution._param_dict`: Abstract method to return a dictionary of the distribution's parameters. 
 - :meth:`~metasyn.distribution.BaseDistribution.to_dict`: Method to create a dictionary representation of the distribution. **It must be implemented by derived classes.**
 - :meth:`~metasyn.distribution.BaseDistribution.from_dict`: Class method to create a distribution from a dictionary. 
 - :meth:`~metasyn.distribution.BaseDistribution._param_schema`: Abstract method intended to return a schema for the distribution's parameters. 
 - :meth:`~metasyn.distribution.BaseDistribution.schema`: Class method to generate a JSON schema to validate the distribution's structure.
-- :meth:`~metasyn.distribution.BaseDistribution.information_criterion`: Class method to determine the relative priority (information criterion) for a series of values. For discrete and continuous distributions it is currently implemented as `BIC <https://en.wikipedia.org/wiki/Bayesian_information_criterion>`_). It is recommended to be implemented by derived classes.
+- :meth:`~metasyn.distribution.BaseDistribution.information_criterion`: Class method to determine which distribution gets selected during the fitting process for a series of values. The distribution with the lowest information criterion with the correct variable type will be selected. For discrete and continuous distributions it is currently implemented as `BIC <https://en.wikipedia.org/wiki/Bayesian_information_criterion>`_). It is recommended to be implemented by derived classes.
 - :meth:`~metasyn.distribution.BaseDistribution.matches_name`: Class method to check if a distribution matches a given name (specified in the ``implements`` field).
 - :meth:`~metasyn.distribution.BaseDistribution.default_distribution`: Abstract class method
 - ``__str__``: Overridden method to return a formatted string representation of the distribution.
@@ -88,7 +88,7 @@ For example, the unique variants of the :class:`metasyn.distribution.regex.Regex
 
 Metadist decorator method
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-When implementing a new distribution, the ``metadist`` decorator helps set the attributes of that distribution (e.g. ``implements``, ``var_type``, etc.). 
+When implementing a new distribution, the ``metadist`` decorator helps set the class attributes of that distribution (e.g. ``implements``, ``var_type``, etc.). 
 
 **Parameters:**
 
@@ -128,7 +128,7 @@ The ``metadist`` decorator is implemented automatically as part of the main ``me
 
 Categorical submodule
 ~~~~~~~~~~~~~~~~~~~~~
-The :mod:`~metasyn.distribution.categorical` module contain the :class:`metasyn.distribution.categorical.MultinoulliDistribution` class, which is used for categorical distributions.
+The :mod:`~metasyn.distribution.categorical` module contains the :class:`metasyn.distribution.categorical.MultinoulliDistribution` class, which is used for categorical distributions.
 
 Continuous submodule
 ~~~~~~~~~~~~~~~~~~~~
