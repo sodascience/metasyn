@@ -88,7 +88,7 @@ class MultinoulliDistribution(BaseDistribution):
             ) -> float:
         """Information criterion for the integer variant of the multinoulli distribution.
 
-        This information criterion is a little bit different from the AIC, which is why
+        This information criterion is a little bit different from the BIC, which is why
         the method is split into its own method. The reason is that with the default IC,
         the multinomial distribution is unfairly favored compared to the uniform distribution
         in particular (but really any discrete distribution). Assume for instance that we have a
@@ -101,7 +101,7 @@ class MultinoulliDistribution(BaseDistribution):
         with parameter alpha = 1. This effectively says that all values in between the observed
         values have a probability of 1/N, where N is the number of total values. Hoewever, to
         prevent confusion (and potentially improve the synthesis) is draw from these unobserved
-        values. That is why the information criterion for integers is not a true AIC, but a pseudo
+        values. That is why the information criterion for integers is not a true BIC, but a pseudo
         information criterion.
 
         The number of parameters is also in discussion, since we could imagine another multinoulli

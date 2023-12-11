@@ -183,9 +183,10 @@ class DistributionProviderList():
         var_type:
             The variable type of the data.
         dist:
-            Distribution to fit. If not supplied or None, the AIC information
+            Distribution to fit. If not supplied or None, the information
             criterion will be used to determine which distribution is the most
-            suitable.
+            suitable. For most variable types, the information criterion is based on
+            the BIC (Bayesian Information Criterion).
         privacy:
             Level of privacy that will be used in the fit.
         unique:
