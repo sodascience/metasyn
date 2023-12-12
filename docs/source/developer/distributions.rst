@@ -1,16 +1,21 @@
 Distributions 
 =============
 
-Distributions subpackage
+This page is intended to provide an overview of how distributions are implemented and organized in ``metasyn``. It should help you understand how to create new distributions, or modify existing ones. 
+
+For a detailed overview of classes, methods and attributes mentioned on this page, refer to the :doc:`/api/metasyn`. Clicking on object names will automatically take you to their API reference page.
+
+Distribution subpackage
 ------------------------
 
-The :mod:`~metasyn.distribution` is an essential subpackage that contains (submodules with) classes used to represent and handle various distributions. 
+:mod:`~metasyn.distribution` is an essential subpackage that contains (submodules with) classes used to represent and handle various distributions. 
 
 The modules are :mod:`~metasyn.distribution.base`, :mod:`~metasyn.distribution.categorical`, :mod:`~metasyn.distribution.continuous`, :mod:`~metasyn.distribution.datetime`, :mod:`~metasyn.distribution.discrete`, :mod:`~metasyn.distribution.faker`, :mod:`~metasyn.distribution.na` and :mod:`~metasyn.distribution.regex`. 
 
 :mod:`~metasyn.distribution.base` contains the base classes for all distributions, while the other modules implement distributions for their respective variable types.
 
 An overview of the distributions each module implements, and from which it inherits, is shown below:
+
 
 .. image:: /images/distributions.svg
    :alt: Metasyn distributions
@@ -22,46 +27,81 @@ The base module contains the :class:`~metasyn.distribution.BaseDistribution` cla
 
 Additionally it contains the :class:`~metasyn.distribution.UniqueDistributionMixin` class, which is a mixin class that can be used to make a distribution unique (i.e., one that does not contain duplicate values).
 
-Finally it contains the :func:`~metasyn.distribution.metadist` decorator, which is used to set the attributes of a distribution (e.g., ``implements``, ``var_type``, etc.).
+Finally it contains the :func:`~metasyn.distribution.metadist` decorator, which is used to set the attributes of a distribution.
 
 BaseDistribution class
 ^^^^^^^^^^^^^^^^^^^^^^
 This is the base class providing the basic structure for all distributions. It is not intended to be used directly, but rather to be derived from when implementing a new distribution.
 
-**Attributes:**
+:class:`~metasyn.distribution.BaseDistribution` has the following attributes:
 
-- ``implements``: A unique string identifier for the distribution type, e.g. ``core.uniform`` or ``user.months``. The naming convention for the ``implements`` attribute is ``<provider_name>.<distribution_name>``. Distributions that are part of the core metasyn distribution provider should use ``core`` as the provider name.
-- ``var_type``: The type of variable associated with the distribution, e.g. ``discrete`` or ``continuous``.
-- ``provenance``: Information about the source (core, plugin, etc.) of the distribution.
-- ``privacy``: The privacy class or implementation associated with the distribution.
-- ``is_unique``: A boolean indicating whether the values in the distribution are unique.
-- ``version``: The version of the distribution. 
++------------+-------------------------------------------------------------------------+---------------------------------------------+
+| Attribute  | Description                                                             | Example(s)                                  |
++============+=========================================================================+=============================================+
+| implements | A unique string identifier for the distribution type it implements      | ``"core.uniform"``, ``"user.months"``, etc. |
++------------+-------------------------------------------------------------------------+---------------------------------------------+
+| var_type   | The type of variable associated with the distribution                   | ``"discrete"``, ``"continuous"``, etc.      |
++------------+-------------------------------------------------------------------------+---------------------------------------------+
+| provenance | Information about the source (core, plugin, etc.) of the distribution.  | ``"builtin"``, ``"myplugin"``, etc.         |
++------------+-------------------------------------------------------------------------+---------------------------------------------+
+| privacy    | The privacy class or implementation associated with the distribution.   | ``"none"``, ``"customPrivacyClass"``, etc.  |
++------------+-------------------------------------------------------------------------+---------------------------------------------+
+| is_unique  | A boolean indicating whether the values in the distribution are unique. | ``True``, ``False``                         |
++------------+-------------------------------------------------------------------------+---------------------------------------------+
+| version    | The version of the distribution.                                        | ``"1.0"``, ``"2.3"``, etc.                  |
++------------+-------------------------------------------------------------------------+---------------------------------------------+
 
-Though they can be set manually, the intended way of setting these attributes is through the use of the ``metadist`` decorator (which is covered in the next section).
+Though they can be set manually, the intended way of setting these attributes is through the use of the ``metadist`` decorator (which is covered further below).
 
-**Properties:**
+.. admonition:: Note on 'implements' attributes
 
-- :meth:`~metasyn.distribution.BaseDistribution._params_formatted`: Provides a formatted string of the distribution's parameters for easy readability.
+    The naming convention for the ``implements`` attribute is: 
+    
+    ``<provider_list_prefix>.<distribution_name>``
+    
+    Distributions that are part of the core metasyn distribution provider list should use ``core`` as the prefix, e.g. ``core.multinoulli``.
 
-**Methods:**
+BaseDistribution class has a series of abstract methods that *must be* implemeted by derived classes, these are:
 
-- :meth:`~metasyn.distribution.BaseDistribution.fit`: Class method to fit a distribution to a given series. 
-- :meth:`~metasyn.distribution.BaseDistribution._fit`: Abstract class method intended to contain the fitting logic for the distribution. It does not need to handle N/A values. **It must be implemented by derived classes.**
-- :meth:`~metasyn.distribution.BaseDistribution._to_series`: Static method converting different data types (Polars Series, Pandas Series, or sequences) into a Polars Series, handling null values appropriately.
-- :meth:`~metasyn.distribution.BaseDistribution.draw`: Abstract method, intended to draw a new value from the distribution. **It must be implemented by derived classes.**
-- :meth:`~metasyn.distribution.BaseDistribution.draw_reset`: Method to reset the distribution's drawing mechanism. This should be implemented if the subsequent draws are not independent.
-- :meth:`~metasyn.distribution.BaseDistribution._param_dict`: Abstract method to return a dictionary of the distribution's parameters. **It must be implemented by derived classes.**
-- :meth:`~metasyn.distribution.BaseDistribution.to_dict`: Method to create a dictionary representation of the distribution. 
-- :meth:`~metasyn.distribution.BaseDistribution.from_dict`: Class method to create a distribution from a dictionary. 
-- :meth:`~metasyn.distribution.BaseDistribution._param_schema`: Abstract method intended to return a schema for the distribution's parameters. **It must be implemented by derived classes.**
-- :meth:`~metasyn.distribution.BaseDistribution.schema`: Class method to generate a JSON schema to validate the distribution's structure.
-- :meth:`~metasyn.distribution.BaseDistribution.information_criterion`: Class method to determine which distribution gets selected during the fitting process for a series of values. The distribution with the lowest information criterion with the correct variable type will be selected. For discrete and continuous distributions it is currently implemented as `BIC <https://en.wikipedia.org/wiki/Bayesian_information_criterion>`_). It is recommended to be implemented by derived classes.
-- :meth:`~metasyn.distribution.BaseDistribution.matches_name`: Class method to check if a distribution matches a given name (specified in the ``implements`` field).
-- :meth:`~metasyn.distribution.BaseDistribution.default_distribution`: Abstract class method intended to return a distribution with default parameters. **It must be implemented by derived classes.**
-- ``__str__``: Overridden method to return a formatted string representation of the distribution. 
+- :meth:`~metasyn.distribution.BaseDistribution._fit` to contain the fitting logic for the distribution. It does not need to handle N/A values. 
+- :meth:`~metasyn.distribution.BaseDistribution.draw` to draw a new value from the distribution.
+- :meth:`~metasyn.distribution.BaseDistribution._param_dict` to return a dictionary of the distribution's parameters. 
+- :meth:`~metasyn.distribution.BaseDistribution._param_schema` to return a schema for the distribution's parameters. 
+- :meth:`~metasyn.distribution.BaseDistribution.default_distribution` to return a distribution with default parameters. 
 
-.. warning:: 
-  When implementing a new distribution, the :meth:`~metasyn.distribution.BaseDistribution._fit`, :meth:`~metasyn.distribution.BaseDistribution.draw`, :meth:`~metasyn.distribution.BaseDistribution._param_dict`, :meth:`~metasyn.distribution.BaseDistribution._param_schema` and :meth:`~metasyn.distribution.BaseDistribution.default_distribution` methods *must* be implemented. 
+If the distribution has subsequently draws that are not independent, it is recommended to implement :meth:`~metasyn.distribution.BaseDistribution.draw_reset`. As the name suggests, this method is intended to reset the distribution's drawing mechanism.
+
+Additionally it is recommended to implement :meth:`~metasyn.distribution.BaseDistribution.information_criterion`. This is a class method used to determine which distribution gets selected during the fitting process for a series of values. The distribution with the lowest information criterion of the correct variable type will be selected. For discrete and continuous distributions it is currently implemented as `BIC <https://en.wikipedia.org/wiki/Bayesian_information_criterion>`_). 
+
+There are more methods, but this is a good starting point when implementing a new distribution.
+For an overview of the rest of the methods and implementation details, refer to the :class:`~metasyn.distribution.BaseDistribution` class.
+
+
+Metadist decorator method
+^^^^^^^^^^^^^^^^^^^^^^^^^
+When implementing a new distribution (that inherits from :class:`~metasyn.distribution.BaseDistribution`), the ``metadist`` decorator is intended to be used to set its attributes. 
+
+To use the ``metadist`` decorator, annotate a distribution class with ``@metadist``, passing in the attributes of the target distribution as parameters.
+
+For example, the following distributions use the decorator as follows:
+
+.. code-block:: python
+
+    @metadist(implements="core.multinoulli", var_type=["categorical", "discrete", "string"])
+    class MultinoulliDistribution(BaseDistribution):
+
+.. code-block:: python
+
+    @metadist(implements="core.unique_regex", var_type="string", is_unique=True)
+    class UniqueRegexDistribution(UniqueDistributionMixin, RegexDistribution):
+
+.. code-block:: python
+      
+    @metadist(implements="core.uniform_date", var_type="date")
+    class UniformDateDistribution(BaseUniformDistribution):
+
+
+The ``metadist`` decorator, which is a part of the :mod:`metasyn.distribution.base` submodule, is directly accessible when importing the main metasyn package, as it's explicitly and relatively imported upon importing the main metasyn package.
 
 ScipyDistribution class
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -91,31 +131,6 @@ For example, the unique variants of the :class:`metasyn.distribution.regex.Regex
     
     This mixin class has a default implementation that will work for many distributions, but it may not be appropriate for all. Be sure to check the implementation before using it. 
 
-Metadist decorator method
-^^^^^^^^^^^^^^^^^^^^^^^^^
-When implementing a new distribution, the ``metadist`` decorator is intended to be used to set the class attributes of that distribution (e.g. ``implements``, ``var_type``, etc.). Refer to :class:`~metasyn.distribution.BaseDistribution` for an overview of these attributes.
-
-To use the ``metadist`` decorator, annotate a distribution class with ``@metadist``, passing in the attributes of the target distribution as parameters.
-
-For example, the following distributions use the decorator as follows:
-
-.. code-block:: python
-
-    @metadist(implements="core.multinoulli", var_type=["categorical", "discrete", "string"])
-    class MultinoulliDistribution(BaseDistribution):
-
-.. code-block:: python
-
-    @metadist(implements="core.unique_regex", var_type="string", is_unique=True)
-    class UniqueRegexDistribution(UniqueDistributionMixin, RegexDistribution):
-
-.. code-block:: python
-      
-    @metadist(implements="core.uniform_date", var_type="date")
-    class UniformDateDistribution(BaseUniformDistribution):
-
-
-The ``metadist`` decorator, which is a part of the :mod:`metasyn.distribution.base` submodule, is directly accessible when importing the main metasyn package, as it's explicitly and relatively imported upon importing the main metasyn package.
 
 Categorical submodule
 ~~~~~~~~~~~~~~~~~~~~~

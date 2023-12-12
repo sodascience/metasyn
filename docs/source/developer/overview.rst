@@ -12,27 +12,11 @@ MetaFrame class
 
 The :class:`~metasyn.MetaFrame` class is a core component of the ``metasyn`` package. It represents a metadata frame, which is a structure that holds statistical metadata about a dataset. The data contained in a :obj:`~metasyn.MetaFrame` is in line with the :doc:`/developer/GMF`.
 
-**Attributes:**
+Essentially, a :obj:`~metasyn.MetaFrame` is a collection of :obj:`~metasyn.MetaVar` objects, each representing a column in a dataset. It contains methods that allow for the following:
 
-- ``meta_vars``: A list of :obj:`~metasyn.MetaVar` objects, each representing a column in a DataFrame.
-- ``n_rows``: The number of rows in the original DataFrame.
-
-**Properties:**
-
-- :obj:`~metasyn.MetaFrame.n_columns`: Returns the number of columns in the original DataFrame.
-- :obj:`~metasyn.MetaFrame.descriptions`: Returns a dictionary of column descriptions. Can also be set to update the descriptions.
-
-**Methods:**
-
-- :meth:`~metasyn.MetaFrame.fit_dataframe`: Creates a :obj:`~metasyn.MetaFrame` object from a Polars DataFrame. It takes several parameters including the DataFrame, column specifications, distribution providers, privacy level, and a progress bar flag.
-- :meth:`~metasyn.MetaFrame.to_dict`: Returns a dictionary with the properties of the :obj:`~metasyn.MetaFrame` for recreation.
-- :meth:`~metasyn.MetaFrame.__getitem__`: Returns a :obj:`~metasyn.MetaVar` either by variable name or index.
-- :meth:`~metasyn.MetaFrame.__str__`: Returns a formatted string representation of the :obj:`~metasyn.MetaFrame`.
-- :meth:`~metasyn.MetaFrame.export`: Serializes and exports the :obj:`~metasyn.MetaFrame` to a JSON file, following the GMF format.
-- :meth:`~metasyn.MetaFrame.to_json`: A wrapper for the `export` method.
-- :meth:`~metasyn.MetaFrame.from_json`: Reads a :obj:`~metasyn.MetaFrame` from a JSON file.
-- :meth:`~metasyn.MetaFrame.synthesize`: Creates a synthetic Polars DataFrame based on the :obj:`~metasyn.MetaFrame`.
-- :meth:`~metasyn.MetaFrame.__repr__`: Returns the :obj:`~metasyn.MetaFrame` as it would be output to JSON.
+- **Fitting to a DataFrame**: The :meth:`~metasyn.MetaFrame.fit_dataframe` method allows for fitting a Polars DataFrame to create a :obj:`~metasyn.MetaFrame` object. This method takes several parameters including the DataFrame, column specifications, distribution providers, privacy level, and a progress bar flag.
+- **Exporting and importing**: The :meth:`~metasyn.MetaFrame.export` method serializes and exports the :obj:`~metasyn.MetaFrame` to a JSON file, following the GMF format. The :meth:`~metasyn.MetaFrame.from_json` method reads a :obj:`~metasyn.MetaFrame` from a JSON file.
+- **Synthesizing to a DataFrame**: The :meth:`~metasyn.MetaFrame.synthesize` method creates a synthetic Polars DataFrame based on the :obj:`~metasyn.MetaFrame`.
 
 
 MetaVar class
@@ -40,27 +24,15 @@ MetaVar class
 
 The :class:`~metasyn.MetaVar` represents a metadata variable, and is a structure that holds all metadata needed to generate a synthetic column for it. This is the variable level building block for the MetaFrame. It contains the methods to convert a polars `Series` into a variable with an appropriate distribution. The :obj:`~metasyn.MetaVar` class is to the :obj:`~metasyn.MetaFrame` what a polars `Series` is to a `DataFrame`.
 
-**Attributes:**
+A :obj:`~metasyn.MetaVar` contains information on the variable type (``var_type``), the series from which the variable is created (``series``), the name of the variable (``name``), the distribution from which random values are drawn (``distribution``), the proportion of the series that are missing/NA (``prop_missing``), the type of the original values (``dtype``), and a user-provided description of the variable (``description``). 
 
-- ``var_type``: The type of the variable (e.g., continuous, string, etc.).
-- ``series``: The (Polars) series from which the variable is created.
-- ``name``: The name of the variable/column.
-- ``distribution``: The distribution from which random values are drawn.
-- ``prop_missing``: The proportion of the series that are missing/NA.
-- ``dtype``: The type of the original values (e.g., int64, float, etc.). Used for type-casting back.
-- ``description``: A user-provided description of the variable.
+The :obj:`~metasyn.MetaVar` class contains functionality for:
 
-**Methods:**
+- **Detecting variable types**: The :meth:`~metasyn.MetaVar.detect` method detects the variable class(es) of a series or dataframe. This method does not fit any distribution, but it does infer the correct types for the :obj:`~metasyn.MetaVar` and saves the ``Series`` for later fitting.
+- **Fitting distributions**: The :meth:`~metasyn.MetaVar.fit` method fits distributions to the data. Here you can set the distribution, privacy package and uniqueness for the variable again.
+- **Drawing values and series**: The :meth:`~metasyn.MetaVar.draw` method draws a random item for the variable in whatever type is required. The :meth:`~metasyn.MetaVar.draw_series` method draws a new synthetic series from the metadata. For this to work, the variable has to be fitted.
+- **Converting to and from a dictionary**: The :meth:`~metasyn.MetaVar.to_dict` method creates a dictionary from the variable. The :meth:`~metasyn.MetaVar.from_dict` method restores a variable from a dictionary.
 
-- :meth:`~metasyn.MetaVar.__init__`: Initializes a new instance of the :obj:`~metasyn.MetaVar` class. 
-- :meth:`~metasyn.MetaVar.detect`: Detects the variable class(es) of a series or dataframe. This method does not fit any distribution, but it does infer the correct types for the :obj:`~metasyn.MetaVar` and saves the ``Series`` for later fitting.
-- :meth:`~metasyn.MetaVar.get_var_type`: Converts a polars ``dtype`` to a ``metasyn`` variable type.
-- :meth:`~metasyn.MetaVar.to_dict`: Creates a dictionary from the variable.
-- :meth:`~metasyn.MetaVar.__str__`: Returns an easy-to-read formatted string for the variable.
-- :meth:`~metasyn.MetaVar.fit`: Fits distributions to the data. Here you can set the distribution, privacy package and uniqueness for the variable again.
-- :meth:`~metasyn.MetaVar.draw`: Draws a random item for the variable in whatever type is required.
-- :meth:`~metasyn.MetaVar.draw_series`: Draws a new synthetic series from the metadata. For this to work, the variable has to be fitted.
-- :meth:`~metasyn.MetaVar.from_dict`: Restores a variable from a dictionary.
 
 Subpackages
 -----------
