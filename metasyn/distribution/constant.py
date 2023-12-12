@@ -58,7 +58,7 @@ class ConstantDistribution(BaseConstantDistribution):
 
 
 
-@metadist(implements="core.discrete_constant", var_type="discrete")
+@metadist(implements="core.constant", var_type="discrete")
 class DiscreteConstantDistribution(BaseConstantDistribution):
     """Constant distribution for discrete vars."""
 
@@ -73,7 +73,7 @@ class DiscreteConstantDistribution(BaseConstantDistribution):
         }
 
 
-@metadist(implements="core.string_constant", var_type="string")
+@metadist(implements="core.constant", var_type="string")
 class StringConstantDistribution(ConstantDistribution):
     """Constant distribution for string vars."""
 

@@ -9,7 +9,7 @@ from metasyn.distribution.base import ScipyDistribution, metadist
 from metasyn.distribution.continuous import NormalDistribution, TruncatedNormalDistribution
 
 
-@metadist(implements="core.discrete_uniform", var_type="discrete")
+@metadist(implements="core.uniform", var_type="discrete")
 class DiscreteUniformDistribution(ScipyDistribution):
     """Integer uniform distribution.
 
@@ -49,7 +49,7 @@ class DiscreteUniformDistribution(ScipyDistribution):
             "high": {"type": "integer"},
         }
 
-@metadist(implements="core.discrete_normal", var_type="discrete")
+@metadist(implements="core.normal", var_type="discrete")
 class DiscreteNormalDistribution(NormalDistribution):
     """Normal distribution for integer type.
 
@@ -68,7 +68,7 @@ class DiscreteNormalDistribution(NormalDistribution):
     def draw(self):
         return int(super().draw())
 
-@metadist(implements="core.discrete_truncated_normal", var_type="discrete")
+@metadist(implements="core.truncated_normal", var_type="discrete")
 class DiscreteTruncatedNormalDistribution(TruncatedNormalDistribution):
     """Truncated normal distribution for integer type.
 

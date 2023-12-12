@@ -12,7 +12,7 @@ def test_plist_init(input):
             DistributionProviderList(input)
     else:
         plist = DistributionProviderList(input)
-        assert issubclass(plist.find_distribution("core.regex"), BaseDistribution)
+        assert issubclass(plist.find_distribution("core.regex", var_type="string"), BaseDistribution)
 
 
 @metadist(version="1.0")
@@ -42,18 +42,18 @@ class LegacyOnly(BuiltinDistributionProvider):
 
 def test_legacy():
     plist = DistributionProviderList(TestProvider)
-    assert issubclass(plist.find_distribution("core.uniform"), UniformTest2)
+    assert issubclass(plist.find_distribution("core.uniform", var_type="continuous"), UniformTest2)
     with pytest.warns():
-        assert issubclass(plist.find_distribution("core.uniform", version="1.1"), UniformTest11)
+        assert issubclass(plist.find_distribution("core.uniform", var_type="continuous", version="1.1"), UniformTest11)
     with pytest.warns():
-        assert issubclass(plist.find_distribution("core.uniform", version="1.0"), UniformTest1)
+        assert issubclass(plist.find_distribution("core.uniform", var_type="continuous", version="1.0"), UniformTest1)
     with pytest.warns():
-        assert issubclass(plist.find_distribution("core.uniform", version="1.2"), UniformTest11)
+        assert issubclass(plist.find_distribution("core.uniform", var_type="continuous", version="1.2"), UniformTest11)
     with pytest.raises(ValueError):
-        plist.find_distribution("core.uniform", version="0.9")
+        plist.find_distribution("core.uniform", var_type="continuous", version="0.9")
     with pytest.warns():
-        assert issubclass(plist.find_distribution("core.uniform", version="2.1"), UniformTest2)
+        assert issubclass(plist.find_distribution("core.uniform", var_type="continuous", version="2.1"), UniformTest2)
 
     plist = DistributionProviderList(LegacyOnly)
     with pytest.warns():
-        assert issubclass(plist.find_distribution("core.uniform"), UniformTest2)
+        assert issubclass(plist.find_distribution("core.uniform", var_type="continuous"), UniformTest2)

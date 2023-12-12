@@ -96,6 +96,7 @@ class BaseDistribution(ABC):
             "version": self.version,
             "provenance": self.provenance,
             "class_name": self.__class__.__name__,
+            "is_unique": self.is_unique,
             "parameters": deepcopy(self._param_dict()),
         }
 
@@ -114,6 +115,7 @@ class BaseDistribution(ABC):
                 "version": {"type": "string"},
                 "provenance": {"const": cls.provenance},
                 "class_name": {"const": cls.__name__},
+                "is_unique": {"const": cls.is_unique},
                 "parameters": {
                     "type": "object",
                     "properties": cls._param_schema(),

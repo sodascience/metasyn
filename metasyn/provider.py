@@ -74,6 +74,7 @@ class BaseDistributionProvider(ABC):
         assert len(self.distributions) > 0
 
     def get_dist_list(self, var_type: Optional[str],
+                      unique: bool = False,
                       use_legacy: bool = False) -> List[Type[BaseDistribution]]:
         """Get all distributions for a certain variable type.
 
@@ -81,6 +82,8 @@ class BaseDistributionProvider(ABC):
         ----------
         var_type:
             Variable type to get the distributions for.
+        unique:
+            Whether the distirbutions should be unique.
         use_legacy:
             Whether to find the distributions in the legacy distribution list.
 
@@ -94,6 +97,7 @@ class BaseDistributionProvider(ABC):
             distributions = self.legacy_distributions
         else:
             distributions = self.distributions
+        distributions = [d for d in distributions if d.is_unique == unique]
         if var_type is None:
             return distributions
         for dist_class in distributions:
@@ -204,7 +208,9 @@ class DistributionProviderList():
         if fit_kwargs is None:
             fit_kwargs = {}
         if dist is not None:
-            return self._fit_distribution(series, dist, privacy, **fit_kwargs)
+            unique = unique if unique else False
+            return self._fit_distribution(series, dist, var_type, privacy,
+                                          unique=unique, **fit_kwargs)
         if len(fit_kwargs) > 0:
             raise ValueError(f"Got fit arguments for variable '{series.name}', but no "
                              "distribution. Set the distribution manually to fix.")
@@ -235,33 +241,31 @@ class DistributionProviderList():
         """
         if len(series.drop_nulls()) == 0:
             return NADistribution()
-        dist_list = self.get_distributions(privacy, var_type)
+        try_unique = unique if unique is True else False
+        dist_list = self.get_distributions(privacy, var_type, unique=try_unique)
         if len(dist_list) == 0:
-            raise ValueError(f"No available distributions with variable type: '{var_type}'")
+            raise ValueError(f"No available distributions with variable type: '{var_type}'"
+                             f" and unique={try_unique}")
         dist_instances = [d.fit(series, **privacy.fit_kwargs) for d in dist_list]
-        dist_aic = [d.information_criterion(series) for d in dist_instances]
-        i_best_dist = np.argmin(dist_aic)
-        warnings.simplefilter("always")
-        if dist_instances[i_best_dist].is_unique and unique is None:
-            warnings.warn(f"\nVariable {series.name} seems unique, but not set to be unique.\n"
-                          "Set the variable to be either unique or not unique to remove this "
-                          "warning.\n")
+        dist_bic = [d.information_criterion(series) for d in dist_instances]
         if unique is None:
-            unique = False
-
-        dist_aic = [dist_aic[i] for i in range(len(dist_aic))
-                    if dist_instances[i].is_unique == unique]
-        dist_instances = [d for d in dist_instances if d.is_unique == unique]
-        if len(dist_instances) == 0:
-            raise ValueError(f"No available distributions for variable '{series.name}'"
-                             f" with variable type '{var_type}' "
-                             f"that have unique == {unique}.")
-        return dist_instances[np.argmin(dist_aic)]
+            dist_list_unq = self.get_distributions(privacy, var_type, unique=True)
+            if len(dist_list_unq) > 0:
+                dist_inst_unq = [d.fit(series, **privacy.fit_kwargs) for d in dist_list_unq]
+                dist_bic_unq = [d.information_criterion(series) for d in dist_inst_unq]
+                if np.min(dist_bic_unq) < np.min(dist_bic):
+                    warnings.simplefilter("always")
+                    warnings.warn(
+                        f"\nVariable {series.name} seems unique, but not set to be unique.\n"
+                        "Set the variable to be either unique or not unique to remove this "
+                         "warning.\n")
+        return dist_instances[np.argmin(dist_bic)]
 
     def find_distribution(self,  # pylint: disable=too-many-branches
                           dist_name: str,
+                          var_type: str,
                           privacy: BasePrivacy = BasicPrivacy(),
-                          var_type: Optional[str] = None,
+                          unique: bool = False,
                           version: Optional[str] = None) -> type[BaseDistribution]:
         """Find a distribution and fit keyword arguments from a name.
 
@@ -275,6 +279,8 @@ class DistributionProviderList():
         var_type:
             Type of the variable to find. If var_type is None, then do not check the
             variable type.
+        unique:
+            Whether the distribution to be found is unique.
         version:
             Version of the distribution to get. If necessary get them from legacy.
 
@@ -287,7 +293,8 @@ class DistributionProviderList():
             return NADistribution
 
         versions_found = []
-        for dist_class in self.get_distributions(privacy, var_type=var_type) + [NADistribution]:
+        for dist_class in self.get_distributions(
+            privacy, var_type=var_type, unique=unique) + [NADistribution]:
             if dist_class.matches_name(dist_name):
                 if version is None or version == dist_class.version:
                     return dist_class
@@ -297,7 +304,8 @@ class DistributionProviderList():
         warnings.simplefilter("always")
         legacy_distribs = [
             dist_class
-            for dist_class in self.get_distributions(privacy, use_legacy=True, var_type=var_type)
+            for dist_class in self.get_distributions(privacy, use_legacy=True,
+                                                     var_type=var_type, unique=unique)
             if dist_class.matches_name(dist_name)]
 
         if len(legacy_distribs+versions_found) == 0:
@@ -341,7 +349,9 @@ class DistributionProviderList():
 
     def _fit_distribution(self, series: pl.Series,
                           dist: Union[str, Type[BaseDistribution], BaseDistribution],
+                          var_type: str,
                           privacy: BasePrivacy,
+                          unique: bool = False,
                           **fit_kwargs) -> BaseDistribution:
         """Fit a specific distribution to a series.
 
@@ -351,10 +361,14 @@ class DistributionProviderList():
         ----------
         dist:
             Distribution to fit (if it is not already fitted).
+        var_type:
+            Type of variable to fit the distribution for.
         series:
             Series to fit the distribution to.
         privacy:
             Privacy level to fit the distribution with.
+        unique:
+            Whether the distribution to be fit is unique.
         fit_kwargs:
             Extra keyword arguments to modify the way the distribution is fit.
 
@@ -368,7 +382,7 @@ class DistributionProviderList():
             return dist
 
         if isinstance(dist, str):
-            dist_class = self.find_distribution(dist, privacy=privacy)
+            dist_class = self.find_distribution(dist, var_type, privacy=privacy, unique=unique)
         elif inspect.isclass(dist) and issubclass(dist, BaseDistribution):
             dist_class = dist
         else:
@@ -382,6 +396,7 @@ class DistributionProviderList():
 
     def get_distributions(self, privacy: Optional[BasePrivacy] = None,
                           var_type: Optional[str] = None,
+                          unique: bool = False,
                           use_legacy: bool = False) -> list[type[BaseDistribution]]:
         """Get the available distributions with constraints.
 
@@ -391,6 +406,8 @@ class DistributionProviderList():
             Privacy level/type to filter the distributions.
         var_type:
             Variable type to filter for, e.g. 'string'.
+        unique:
+            Whether the distributions to be gotten are unique.
         use_legacy:
             Whether to use legacy distributions or not.
 
@@ -401,7 +418,8 @@ class DistributionProviderList():
         """
         dist_list = []
         for dist_provider in self.dist_packages:
-            dist_list.extend(dist_provider.get_dist_list(var_type, use_legacy=use_legacy))
+            dist_list.extend(dist_provider.get_dist_list(
+                var_type, use_legacy=use_legacy, unique=unique))
 
         if privacy is None:
             return dist_list
@@ -424,7 +442,9 @@ class DistributionProviderList():
         dist_name = var_dict["distribution"]["implements"]
         version = var_dict["distribution"].get("version", "1.0")
         var_type = var_dict["type"]
-        dist_class = self.find_distribution(dist_name, version=version, var_type=var_type)
+        unique = var_dict["distribution"]["is_unique"]
+        dist_class = self.find_distribution(dist_name, version=version,
+                                            var_type=var_type, unique=unique)
         return dist_class.from_dict(var_dict["distribution"])
 
 

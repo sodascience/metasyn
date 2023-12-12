@@ -112,7 +112,7 @@ class BaseUniformDistribution(ScipyDistribution):
         }
 
 
-@metadist(implements="core.uniform_datetime", var_type="datetime")
+@metadist(implements="core.uniform", var_type="datetime")
 class UniformDateTimeDistribution(BaseUniformDistribution):
     """Uniform DateTime distribution."""
 
@@ -132,7 +132,7 @@ class UniformDateTimeDistribution(BaseUniformDistribution):
         }
 
 
-@metadist(implements="core.uniform_time", var_type="time")
+@metadist(implements="core.uniform", var_type="time")
 class UniformTimeDistribution(BaseUniformDistribution):
     """Uniform time distribution."""
 
@@ -158,7 +158,7 @@ class UniformTimeDistribution(BaseUniformDistribution):
         }
 
 
-@metadist(implements="core.uniform_date", var_type="date")
+@metadist(implements="core.uniform", var_type="date")
 class UniformDateDistribution(BaseUniformDistribution):
     """Uniform date distribution."""
 
