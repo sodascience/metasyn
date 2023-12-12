@@ -24,8 +24,11 @@ from metasyn.distribution.base import BaseDistribution
 from metasyn.distribution.categorical import MultinoulliDistribution
 from metasyn.distribution.constant import (
     ConstantDistribution,
+    DateConstantDistribution,
+    DateTimeConstantDistribution,
     DiscreteConstantDistribution,
     StringConstantDistribution,
+    TimeConstantDistribution,
 )
 from metasyn.distribution.continuous import (
     ExponentialDistribution,
@@ -35,9 +38,9 @@ from metasyn.distribution.continuous import (
     UniformDistribution,
 )
 from metasyn.distribution.datetime import (
-    UniformDateDistribution,
-    UniformDateTimeDistribution,
-    UniformTimeDistribution,
+    DateTimeUniformDistribution,
+    DateUniformDistribution,
+    TimeUniformDistribution,
 )
 from metasyn.distribution.discrete import (
     DiscreteNormalDistribution,
@@ -132,12 +135,15 @@ class BuiltinDistributionProvider(BaseDistributionProvider):
         MultinoulliDistribution,
         RegexDistribution, UniqueRegexDistribution, FakerDistribution, UniqueFakerDistribution,
         FreeTextDistribution,
-        UniformDateDistribution,
-        UniformTimeDistribution,
-        UniformDateTimeDistribution,
+        DateUniformDistribution,
+        TimeUniformDistribution,
+        DateTimeUniformDistribution,
         ConstantDistribution,
         DiscreteConstantDistribution,
         StringConstantDistribution,
+        DateTimeConstantDistribution,
+        DateConstantDistribution,
+        TimeConstantDistribution,
     ]
     legacy_distributions = [
         legacy.RegexDistribution, legacy.UniqueRegexDistribution

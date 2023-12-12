@@ -113,7 +113,7 @@ class BaseUniformDistribution(ScipyDistribution):
 
 
 @metadist(implements="core.uniform", var_type="datetime")
-class UniformDateTimeDistribution(BaseUniformDistribution):
+class DateTimeUniformDistribution(BaseUniformDistribution):
     """Uniform DateTime distribution."""
 
     def fromisoformat(self, dt_obj: str) -> dt.datetime:
@@ -133,7 +133,7 @@ class UniformDateTimeDistribution(BaseUniformDistribution):
 
 
 @metadist(implements="core.uniform", var_type="time")
-class UniformTimeDistribution(BaseUniformDistribution):
+class TimeUniformDistribution(BaseUniformDistribution):
     """Uniform time distribution."""
 
     def fromisoformat(self, dt_obj: str) -> dt.time:
@@ -159,7 +159,7 @@ class UniformTimeDistribution(BaseUniformDistribution):
 
 
 @metadist(implements="core.uniform", var_type="date")
-class UniformDateDistribution(BaseUniformDistribution):
+class DateUniformDistribution(BaseUniformDistribution):
     """Uniform date distribution."""
 
     precision_possibilities = ["days"]

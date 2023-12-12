@@ -8,8 +8,11 @@ numerical data, but also for generating strings for example.
 from metasyn.distribution.categorical import MultinoulliDistribution
 from metasyn.distribution.constant import (
     ConstantDistribution,
+    DateConstantDistribution,
+    DateTimeConstantDistribution,
     DiscreteConstantDistribution,
     StringConstantDistribution,
+    TimeConstantDistribution,
 )
 from metasyn.distribution.continuous import (
     ExponentialDistribution,
@@ -19,9 +22,9 @@ from metasyn.distribution.continuous import (
     UniformDistribution,
 )
 from metasyn.distribution.datetime import (
-    UniformDateDistribution,
-    UniformDateTimeDistribution,
-    UniformTimeDistribution,
+    DateTimeUniformDistribution,
+    DateUniformDistribution,
+    TimeUniformDistribution,
 )
 from metasyn.distribution.discrete import (
     DiscreteNormalDistribution,
@@ -45,9 +48,9 @@ __all__ = [
     "NormalDistribution",
     "TruncatedNormalDistribution",
     "UniformDistribution",
-    "UniformDateDistribution",
-    "UniformDateTimeDistribution",
-    "UniformTimeDistribution",
+    "DateUniformDistribution",
+    "DateTimeUniformDistribution",
+    "TimeUniformDistribution",
     "DiscreteNormalDistribution",
     "DiscreteTruncatedNormalDistribution",
     "DiscreteUniformDistribution",
@@ -62,4 +65,7 @@ __all__ = [
     "ConstantDistribution",
     "DiscreteConstantDistribution",
     "StringConstantDistribution",
+    "DateConstantDistribution",
+    "TimeConstantDistribution",
+    "DateTimeConstantDistribution",
 ]

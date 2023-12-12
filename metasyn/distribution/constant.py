@@ -1,9 +1,13 @@
 """Module containing the class with constant distributions."""
 
+import datetime as dt
+
+import numpy as np
 import polars as pl
 from numpy import Inf
 
 from metasyn.distribution.base import BaseDistribution, metadist
+from metasyn.distribution.datetime import convert_numpy_datetime
 
 
 class BaseConstantDistribution(BaseDistribution):
@@ -80,6 +84,77 @@ class StringConstantDistribution(ConstantDistribution):
     @classmethod
     def default_distribution(cls) -> BaseDistribution:
         return cls("text")
+
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "value": {"type": "string"}
+        }
+
+
+@metadist(implements="core.constant", var_type="datetime")
+class DateTimeConstantDistribution(ConstantDistribution):
+    """Constant distribution for datetime series."""
+
+    def __init__(self, value):
+        if isinstance(value, str):
+            value = dt.datetime.fromisoformat(value)
+        elif isinstance(value, np.datetime64):
+            value = convert_numpy_datetime(value)
+        super().__init__(value)
+
+    def _param_dict(self):
+        return {"value": self.value.isoformat()}
+
+    @classmethod
+    def default_distribution(cls) -> BaseDistribution:
+        return cls("2022-07-15T10:39:36")
+
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "value": {"type": "string"}
+        }
+
+
+@metadist(implements="core.constant", var_type="time")
+class TimeConstantDistribution(ConstantDistribution):
+    """Constant distribution for time series."""
+
+    def __init__(self, value):
+        if isinstance(value, str):
+            value = dt.time.fromisoformat(value)
+        super().__init__(value)
+
+    def _param_dict(self):
+        return {"value": self.value.isoformat()}
+
+    @classmethod
+    def default_distribution(cls) -> BaseDistribution:
+        return cls("10:39:36")
+
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "value": {"type": "string"}
+        }
+
+
+@metadist(implements="core.constant", var_type="date")
+class DateConstantDistribution(ConstantDistribution):
+    """Constant distribution for date series."""
+
+    def __init__(self, value):
+        if isinstance(value, str):
+            value = dt.date.fromisoformat(value)
+        super().__init__(value)
+
+    def _param_dict(self):
+        return {"value": self.value.isoformat()}
+
+    @classmethod
+    def default_distribution(cls) -> BaseDistribution:
+        return cls("1903-07-15")
 
     @classmethod
     def _param_schema(cls):
