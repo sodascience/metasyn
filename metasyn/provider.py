@@ -126,7 +126,7 @@ class BuiltinDistributionProvider(BaseDistributionProvider):
     """Distribution tree that includes the builtin distributions."""
 
     name = "builtin"
-    version = "1.1"
+    version = "1.2"
     distributions = [
         DiscreteNormalDistribution, DiscreteTruncatedNormalDistribution,
         DiscreteUniformDistribution, PoissonDistribution, UniqueKeyDistribution,
