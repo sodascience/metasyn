@@ -5,8 +5,8 @@ import pandas as pd
 import polars as pl
 import numpy as np
 
-from metasyn.distribution.datetime import UniformDateDistribution, UniformDateTimeDistribution
-from metasyn.distribution.datetime import UniformTimeDistribution
+from metasyn.distribution.datetime import DateUniformDistribution, DateTimeUniformDistribution
+from metasyn.distribution.datetime import TimeUniformDistribution
 
 all_precision = ["microseconds", "seconds", "minutes", "hours"]
 start = ["10", ""]
@@ -23,7 +23,7 @@ start = ["10", ""]
 @mark.parametrize("series_type", [pl.Series, pd.Series])
 def test_time(start, end, precision, series_type):
     begin_iso, end_iso = dt.time.fromisoformat(start), dt.time.fromisoformat(end)
-    dist = UniformTimeDistribution(start, end, precision)
+    dist = TimeUniformDistribution(start, end, precision)
     all_times = []
     for _ in range(100):
         new_time = dist.draw()
@@ -36,7 +36,7 @@ def test_time(start, end, precision, series_type):
             assert getattr(new_time, prec[:-1]) == 0
         all_times.append(new_time)
     series = series_type(all_times)
-    new_dist = UniformTimeDistribution.fit(series)
+    new_dist = TimeUniformDistribution.fit(series)
     assert new_dist.start >= dist.start
     assert new_dist.end <= dist.end
     assert new_dist.precision == dist.precision
@@ -47,7 +47,7 @@ def test_date(series_type):
     begin_date, end_date = "2020-07-09", "2023-08-19"
     begin_iso, end_iso = dt.date.fromisoformat(begin_date), dt.date.fromisoformat(end_date)
 
-    dist = UniformDateDistribution(begin_date, end_date)
+    dist = DateUniformDistribution(begin_date, end_date)
     all_dates = []
     for _ in range(100):
         new_date = dist.draw()
@@ -56,7 +56,7 @@ def test_date(series_type):
         assert new_date <= end_iso
         all_dates.append(new_date)
     series = series_type(all_dates)
-    new_dist = UniformDateDistribution.fit(series)
+    new_dist = DateUniformDistribution.fit(series)
     assert new_dist.start >= dist.start
     assert new_dist.end <= dist.end
     assert new_dist.precision == dist.precision
@@ -78,7 +78,7 @@ def test_datetime(start, end, precision, series_type):
     else:
         begin_iso = start
         end_iso = end
-    dist = UniformDateTimeDistribution(start, end, precision)
+    dist = DateTimeUniformDistribution(start, end, precision)
     all_datetimes = []
     for _ in range(100):
         new_time = dist.draw()
@@ -92,7 +92,7 @@ def test_datetime(start, end, precision, series_type):
         all_datetimes.append(new_time)
 
     series = series_type(all_datetimes)
-    new_dist = UniformDateTimeDistribution.fit(series)
+    new_dist = DateTimeUniformDistribution.fit(series)
     assert new_dist.start >= dist.start
     assert new_dist.end <= dist.end
     assert new_dist.precision == dist.precision
