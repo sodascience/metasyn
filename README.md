@@ -2,6 +2,7 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sodascience/metasyn/HEAD?labpath=examples%2Fgetting_started.ipynb)
 [![Google Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sodascience/metasyn/blob/main/examples/getting_started.ipynb)
 [![docs](https://readthedocs.org/projects/metasyn/badge/?version=latest)](https://metasyn.readthedocs.io/en/latest/index.html)
+![Docker Image Version (latest semver)](https://img.shields.io/docker/v/sodateam/metasyn?logo=docker&label=docker&color=blue)
 
 ![Metasyn Logo](docs/source/images/logos/blue.svg)
 
