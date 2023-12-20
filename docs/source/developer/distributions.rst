@@ -8,32 +8,21 @@ For a detailed overview of classes, methods and attributes mentioned on this pag
 Distribution subpackage
 ------------------------
 
-:mod:`~metasyn.distribution` is an essential subpackage that contains (submodules with) classes used to represent and handle various distributions. 
-
-The modules are :mod:`~metasyn.distribution.base`, :mod:`~metasyn.distribution.categorical`, :mod:`~metasyn.distribution.continuous`, :mod:`~metasyn.distribution.datetime`, :mod:`~metasyn.distribution.discrete`, :mod:`~metasyn.distribution.faker`, :mod:`~metasyn.distribution.na` and :mod:`~metasyn.distribution.regex`. 
-
-:mod:`~metasyn.distribution.base` contains the base classes for all distributions, while the other modules implement distributions for their respective variable types.
-
-An overview of the distributions each module implements, and from which it inherits, is shown below:
-
-
-.. image:: /images/distributions.svg
-   :alt: Metasyn distributions
-   :scale: 100%
+Classes used to represent and handle distributions are located in the :mod:`~metasyn.distribution` subpackage. This subpackage contains modules used to represent different types of distributions, as well as a :mod:`~metasyn.distribution.base`  module that contains the base classes for all distributions.
 
 Base submodule
 ~~~~~~~~~~~~~~
-The base module contains the :class:`~metasyn.distribution.BaseDistribution` class, which is the base class for all distributions. It also contains the :class:`~metasyn.distribution.ScipyDistribution` class, which is a specialized base class for distributions that are built on top of SciPy's statistical distributions. 
+The :mod:`~metasyn.distribution.base` module contains the :class:`~metasyn.distribution.base.BaseDistribution` class, which is the base class for all distributions. It also contains the :class:`~metasyn.distribution.base.ScipyDistribution` class, which is a specialized base class for distributions that are built on top of SciPy's statistical distributions. 
 
-Additionally it contains the :class:`~metasyn.distribution.UniqueDistributionMixin` class, which is a mixin class that can be used to make a distribution unique (i.e., one that does not contain duplicate values).
+Additionally it contains the :class:`~metasyn.distribution.base.UniqueDistributionMixin` class, which is a mixin class that can be used to make a distribution unique (i.e., one that does not contain duplicate values).
 
-Finally it contains the :func:`~metasyn.distribution.metadist` decorator, which is used to set the attributes of a distribution.
+Finally it contains the :func:`~metasyn.distribution.base.metadist` decorator, which is used to set the attributes of a distribution.
 
 BaseDistribution class
 ^^^^^^^^^^^^^^^^^^^^^^
 This is the base class providing the basic structure for all distributions. It is not intended to be used directly, but rather to be derived from when implementing a new distribution.
 
-:class:`~metasyn.distribution.BaseDistribution` has the following attributes:
+:class:`~metasyn.distribution.base.BaseDistribution` has the following attributes:
 
 +------------+-------------------------------------------------------------------------+---------------------------------------------+
 | Attribute  | Description                                                             | Example(s)                                  |
@@ -51,7 +40,7 @@ This is the base class providing the basic structure for all distributions. It i
 | version    | The version of the distribution.                                        | ``"1.0"``, ``"2.3"``, etc.                  |
 +------------+-------------------------------------------------------------------------+---------------------------------------------+
 
-Though they can be set manually, the intended way of setting these attributes is through the use of the ``metadist`` decorator (which is covered further below).
+Though they can be set manually, the intended way of setting these attributes is through the use of the :func:`~metasyn.distribution.base.metadist` decorator (which is covered further below).
 
 .. admonition:: Note on 'implements' attributes
 
@@ -63,25 +52,30 @@ Though they can be set manually, the intended way of setting these attributes is
 
 BaseDistribution class has a series of abstract methods that *must be* implemeted by derived classes, these are:
 
-- :meth:`~metasyn.distribution.BaseDistribution._fit` to contain the fitting logic for the distribution. It does not need to handle N/A values. 
-- :meth:`~metasyn.distribution.BaseDistribution.draw` to draw a new value from the distribution.
-- :meth:`~metasyn.distribution.BaseDistribution._param_dict` to return a dictionary of the distribution's parameters. 
-- :meth:`~metasyn.distribution.BaseDistribution._param_schema` to return a schema for the distribution's parameters. 
-- :meth:`~metasyn.distribution.BaseDistribution.default_distribution` to return a distribution with default parameters. 
+- :meth:`~metasyn.distribution.base.BaseDistribution._fit` to contain the fitting logic for the distribution. It does not need to handle N/A values. 
+- :meth:`~metasyn.distribution.base.BaseDistribution.draw` to draw a new value from the distribution.
+- :meth:`~metasyn.distribution.base.BaseDistribution._param_dict` to return a dictionary of the distribution's parameters. 
+- :meth:`~metasyn.distribution.base.BaseDistribution._param_schema` to return a schema for the distribution's parameters. 
+- :meth:`~metasyn.distribution.base.BaseDistribution.default_distribution` to return a distribution with default parameters.
 
-If the distribution has subsequently draws that are not independent, it is recommended to implement :meth:`~metasyn.distribution.BaseDistribution.draw_reset`. As the name suggests, this method is intended to reset the distribution's drawing mechanism.
+If the distribution has subsequently draws that are not independent, it is recommended to implement :meth:`~metasyn.distribution.base.BaseDistribution.draw_reset`. As the name suggests, this method is intended to reset the distribution's drawing mechanism.
 
-Additionally it is recommended to implement :meth:`~metasyn.distribution.BaseDistribution.information_criterion`. This is a class method used to determine which distribution gets selected during the fitting process for a series of values. The distribution with the lowest information criterion of the correct variable type will be selected. For discrete and continuous distributions it is currently implemented as `BIC <https://en.wikipedia.org/wiki/Bayesian_information_criterion>`_). 
+It is recommended to also implement :meth:`~metasyn.distribution.base.BaseDistribution.information_criterion`. This is a class method used to determine which distribution gets selected during the fitting process for a series of values. The distribution with the lowest information criterion of the correct variable type will be selected. For discrete and continuous distributions it is currently implemented as `BIC <https://en.wikipedia.org/wiki/Bayesian_information_criterion>`_). 
+
+.. warning:: 
+
+    Despite not being an abstract method in :class:`~metasyn.distribution.base.BaseDistribution`, it is recommended to implement a constructor (``__init__``) method in derived classes to initialize a distribution with a set of (distribution specific) parameters. 
 
 There are more methods, but this is a good starting point when implementing a new distribution.
-For an overview of the rest of the methods and implementation details, refer to the :class:`~metasyn.distribution.BaseDistribution` class.
+For an overview of the rest of the methods and implementation details, refer to the :class:`~metasyn.distribution.base.BaseDistribution` class.
+
 
 
 Metadist decorator method
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-When implementing a new distribution (that inherits from :class:`~metasyn.distribution.BaseDistribution`), the ``metadist`` decorator is intended to be used to set its attributes. 
+When implementing a new distribution (that inherits from :class:`~metasyn.distribution.base.BaseDistribution`), the :func:`~metasyn.distribution.base.metadist` decorator is intended to be used to set its attributes. 
 
-To use the ``metadist`` decorator, annotate a distribution class with ``@metadist``, passing in the attributes of the target distribution as parameters.
+To use the decorator, annotate a distribution class with ``@metadist``, passing in the attributes of the target distribution as parameters.
 
 For example, the following distributions use the decorator as follows:
 
@@ -101,11 +95,11 @@ For example, the following distributions use the decorator as follows:
     class UniformDateDistribution(BaseUniformDistribution):
 
 
-The ``metadist`` decorator, which is a part of the :mod:`metasyn.distribution.base` submodule, is directly accessible when importing the main metasyn package, as it's explicitly and relatively imported upon importing the main metasyn package.
+The :func:`~metasyn.distribution.base.metadist` decorator, which is a part of the :mod:`metasyn.distribution.base` submodule, is directly accessible when importing the main metasyn package, as it's explicitly and relatively imported upon importing the main metasyn package.
 
 ScipyDistribution class
 ^^^^^^^^^^^^^^^^^^^^^^^
-The :class:`~metasyn.distribution.ScipyDistribution` is a specialized base class for distributions that are based on
+The :class:`~metasyn.distribution.base.ScipyDistribution` is a specialized base class for distributions that are based on
 `SciPy <https://docs.scipy.org/doc/scipy/index.html>`_ statistical distributions. 
 
 All the current :mod:`~metasyn.distribution.discrete` and :mod:`~metasyn.distribution.continuous` distributions are derived from this class.
@@ -113,9 +107,9 @@ All the current :mod:`~metasyn.distribution.discrete` and :mod:`~metasyn.distrib
 
 UniqueDistributionMixin class
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The :class:`~metasyn.distribution.UniqueDistributionMixin` is a mixin class that can be combined with other distribution classes to create distributions that generate unique values.
+The :class:`~metasyn.distribution.base.UniqueDistributionMixin` is a mixin class that can be combined with other distribution classes to create distributions that generate unique values.
 
-For example, the unique variants of the :class:`metasyn.distribution.regex.RegexDistribution` and the :class:`metasyn.distribution.faker.UniqueFakerDistribution` are implemented using this mixin as follows:
+For example, the unique variants of the :class:`~metasyn.distribution.regex.RegexDistribution` and the :class:`~metasyn.distribution.faker.UniqueFakerDistribution` are implemented using this mixin as follows:
 
 .. code-block:: python
 
@@ -132,48 +126,42 @@ For example, the unique variants of the :class:`metasyn.distribution.regex.Regex
     This mixin class has a default implementation that will work for many distributions, but it may not be appropriate for all. Be sure to check the implementation before using it. 
 
 
-Categorical submodule
-~~~~~~~~~~~~~~~~~~~~~
-The :mod:`~metasyn.distribution.categorical` module contains the :class:`metasyn.distribution.categorical.MultinoulliDistribution` class, which is used for categorical distributions.
+Other modules
+~~~~~~~~~~~~~
+The rest of the modules in the :mod:`~metasyn.distribution` subpackage contain the classes used to represent different types of distributions.
 
-Continuous submodule
-~~~~~~~~~~~~~~~~~~~~
-The :mod:`~metasyn.distribution.continuous` module contains the classes used for continuous distributions.
++------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Module                                   | Description                                                                                                                                                       |
++==========================================+===================================================================================================================================================================+
+| :mod:`~metasyn.distribution.categorical` | Implements categorical distributions                                                                                                                              |
++------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| :mod:`~metasyn.distribution.constant`    | Implements constant distributions                                                                                                                                 |
++------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| :mod:`~metasyn.distribution.continuous`  | Implements continuous distributions                                                                                                                               |
++------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| :mod:`~metasyn.distribution.datetime`    | ``time``, ``date`` and ``datetime`` distributions.                                                                                                                |
++------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| :mod:`~metasyn.distribution.discrete`    | Implements discrete distributions.                                                                                                                                |
++------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| :mod:`~metasyn.distribution.faker`       | Implements distributions that are based on the `Faker <https://faker.readthedocs.io/en/master/>`_ package.                                                        |
++------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| :mod:`~metasyn.distribution.na`          | Implements a distribution which generates *only* NA values.                                                                                                       |
++------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| :mod:`~metasyn.distribution.regex`       | Implements distributions that are based on regular expressions. It implements the open source `regexmodel <https://github.com/sodascience/regexmodel>`_ package.  |
++------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
-DateTime submodule
-~~~~~~~~~~~~~~~~~~
-The :mod:`~metasyn.distribution.datetime` module contains the classes used for the ``time``, ``date`` and ``datetime`` distributions.
-
-Discrete submodule
-~~~~~~~~~~~~~~~~~~
-The :mod:`~metasyn.distribution.discrete` module contains the classes used to for discrete distributions.
-
-Faker submodule
-~~~~~~~~~~~~~~~
-The :mod:`~metasyn.distribution.faker` module contains the classes used for distributions that are based on the `Faker <https://faker.readthedocs.io/en/master/>`_ package.
-
-NA submodule
-~~~~~~~~~~~~
-The :mod:`~metasyn.distribution.na` module contains the :class:`metasyn.distribution.NADistribution` class, a distribution which generates *only* NA values.
-
-Regex submodule
-~~~~~~~~~~~~~~~
-The :mod:`~metasyn.distribution.regex` module contains the classes for distributions that are based on regular expressions. It implements the open source `regexmodel <https://github.com/sodascience/regexmodel>`_ package. 
 
 Creating a new distribution
 ---------------------------
-The first step to creating a new distribution is to inherit from a distribution class. This can be a base class (e.g. :class:`~metasyn.distribution.BaseDistribution`, :class:`~metasyn.distribution.ScipyDistribution`), or an existing distribution.```
+The first step to creating a new distribution is to inherit from a distribution class. This can be a base class (e.g. :class:`~metasyn.distribution.base.BaseDistribution`, :class:`~metasyn.distribution.base.ScipyDistribution`), or an existing distribution.```
 
-I think actually it might not work in some ways, since there might be some type checking that goes wrong.
-
-The next step is to set the attributes of the distribution using the ``metadist`` decorator. Refer to :class:`~metasyn.distribution.BaseDistribution` for an overview of these attributes.
+The next step is to set the attributes of the distribution using the :func:`~metasyn.distribution.base.metadist` decorator. Refer to :class:`~metasyn.distribution.base.BaseDistribution` for an overview of these attributes.
 
 .. admonition:: Important
 
-    In cases where there are multiple variations of a distribution for different data types, for example as is the case with the ``core.uniform`` distributions in ``metasyn``, the convention is to put the data type **after** the distribution name. For example: ``core.uniform_discrete``, ``core.uniform_datetime``, ``core.uniform_date``, etc.
+    In is posible to have different variations of the same distribution, for various data types. As is the case with the ``core.uniform`` distributions in ``metasyn``. 
 
-
-Then, implement the required methods (:meth:`~metasyn.distribution.BaseDistribution._fit`, :meth:`~metasyn.distribution.BaseDistribution.draw`, :meth:`~metasyn.distribution.BaseDistribution._param_dict`, :meth:`~metasyn.distribution.BaseDistribution._param_schema` and :meth:`~metasyn.distribution.BaseDistribution.default_distribution`), as well as any other applicable methods.
+Then, implement the required methods (:meth:`~metasyn.distribution.base.BaseDistribution._fit`, :meth:`~metasyn.distribution.base.BaseDistribution.draw`, :meth:`~metasyn.distribution.base.BaseDistribution._param_dict`, :meth:`~metasyn.distribution.base.BaseDistribution._param_schema`, :meth:`~metasyn.distribution.base.BaseDistribution.default_distribution` and ``__init__``), as well as any other applicable methods. 
 
 Finally the distribution has to be added to a provider list, so that it can be used by ``metasyn`` for fitting.
 
@@ -184,27 +172,35 @@ For example, let's say we want to create a new distribution for unique continuou
     @metadist(implements="core.new_distribution", var_type="continuous", is_unique=True, version="1.0")
     class NewDistribution(BaseDistribution, UniqueDistributionMixin):
         """New custom distribution."""
+
+        def __init__(self, lower=0, upper=1):
+            self.lower = lower
+            self.upper = upper
+
         @classmethod
-        def default_distribution(cls) -> BaseDistribution:
-            return cls(0.0)
+        def default_distribution(cls): 
+            return cls(0, 1) # default distribution with lower=0 and upper=1
 
         @classmethod
         def _param_schema(cls):
             return {
-                "value": {"type": "number"}
+                "lower": {"type": "number"},
+                "upper": {"type": "number"},
             }
 
-        def _fit(self, data):
-            # Implement your fitting logic here
-            pass
+        @classmethod
+        def _fit(cls, values):
+            lower = min(values)
+            upper = max(values)
+            return cls(lower, upper)
 
         def draw(self):
-            # Implement your drawing logic here
-            pass
+            return random.uniform(self.lower, self.upper)
 
         def _param_dict(self):
-            # Implement your parameter dictionary logic here
-            pass
+            return {"lower": self.lower, "upper": self.upper}
+
+
 
 And then add it to the BuiltinDistributionProvider list in the :mod:`~metasyn.distribution.provider` module:
 
@@ -223,4 +219,4 @@ And then add it to the BuiltinDistributionProvider list in the :mod:`~metasyn.di
     ]
 
 
-
+Note that this is a barebones example and that the implementation of the distribution will vary depending on the type of distribution being implemented. 

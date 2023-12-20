@@ -13,7 +13,7 @@ At any point, you can also use the help command to get more information about th
 
 .. code-block:: console
 
-   ``metasyn`` --help
+   metasyn --help
 
 
 Accessing the CLI

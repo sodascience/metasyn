@@ -14,8 +14,8 @@ import polars as pl
 class BaseDistribution(ABC):
     """Abstract base class to define a distribution.
 
-    All distributions should be derived from this class, and the following
-    methods need to be implemented: _fit, draw, _param_dict, _param_schema, and default_distribution.
+    All distributions should be derived from this class, and should implement the following methods:
+    _fit, draw, _param_dict, _param_schema, default_distribution and __init__.
     """
 
     implements: str = "unknown"

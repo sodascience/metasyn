@@ -26,7 +26,7 @@ The :class:`~metasyn.MetaVar` represents a metadata variable, and is a structure
 
 A :obj:`~metasyn.MetaVar` contains information on the variable type (``var_type``), the series from which the variable is created (``series``), the name of the variable (``name``), the distribution from which random values are drawn (``distribution``), the proportion of the series that are missing/NA (``prop_missing``), the type of the original values (``dtype``), and a user-provided description of the variable (``description``). 
 
-The :obj:`~metasyn.MetaVar` class contains functionality for:
+This class is considered a passthrough class used by the :obj:`~metasyn.MetaFrame` class, and is not intended to be used directly by the user. It contains the following functionality:
 
 - **Detecting variable types**: The :meth:`~metasyn.MetaVar.detect` method detects the variable class(es) of a series or dataframe. This method does not fit any distribution, but it does infer the correct types for the :obj:`~metasyn.MetaVar` and saves the ``Series`` for later fitting.
 - **Fitting distributions**: The :meth:`~metasyn.MetaVar.fit` method fits distributions to the data. Here you can set the distribution, privacy package and uniqueness for the variable again.
@@ -38,17 +38,9 @@ Subpackages
 -----------
 There are currently three subpackages in the ``metasyn`` package. These are the :mod:`~metasyn.distribution`, :mod:`~metasyn.schema`, and :mod:`~metasyn.demo` packages.
 
-Distribution subpackage
-^^^^^^^^^^^^^^^^^^^^^^^
-The :mod:`~metasyn.distribution` package contains (submodules with) the classes that are used to fit distributions to the data and draw random values from them. More information on distributions and how to implement them can be found in the :doc:`/developer/distributions` documentation page.
-
-Schema subpackage
-^^^^^^^^^^^^^^^^^
-The :mod:`~metasyn.schema` package simply contains the JSON-schema used to validate metadata, and ensure that it is in line with the :doc:`/developer/GMF`.
-
-Demo subpackage
-^^^^^^^^^^^^^^^
-The :mod:`~metasyn.demo` package is meant for demo and tutorial purposes. It contains only two functions, :meth:`~metasyn.demo.create_titanic_demo`, which can be used to create a demo dataset based on the `Titanic dataset <https://github.com/datasciencedojo/datasets/blob/master/titanic.csv>`_, and :meth:`~metasyn.demo.demo_file`, which retrieves the filepath to this demo dataset allowing users to quickly access it. 
+* the :mod:`~metasyn.distribution` subpackage contains (submodules with) the classes that are used to fit distributions to the data and draw random values from them. More information on distributions and how to implement them can be found in the :doc:`/developer/distributions` documentation page.
+* The :mod:`~metasyn.schema` package simply contains the JSON-schema used to validate metadata, and ensure that it is in line with the :doc:`/developer/GMF`.
+* The :mod:`~metasyn.demo` package is meant for demo and tutorial purposes. It contains only two functions, :meth:`~metasyn.demo.create_titanic_demo`, which can be used to create a demo dataset based on the `Titanic dataset <https://github.com/datasciencedojo/datasets/blob/master/titanic.csv>`_, and :meth:`~metasyn.demo.demo_file`, which retrieves the filepath to this demo dataset allowing users to quickly access it. 
 
 :meth:`~metasyn.demo.demo_file` is imported automatically as part of the main ``metasyn`` package, as such it can be accessed through :meth:`metasyn.demo_file`, as opposed to :meth:`metasyn.demo.demo_file`. 
 
@@ -56,29 +48,10 @@ Submodules
 ----------
 The ``metasyn`` package is organized into several submodules, each focusing on different aspects of synthetic data generation and privacy. Here's an overview of some key submodules:
 
-var module
-^^^^^^^^^^
-The :mod:`metasyn.var` module contains the :class:`~metasyn.var.MetaVar` class and its methods, as described above.
-
-metaframe module
-^^^^^^^^^^^^^^^^
-The :mod:`metasyn.metaframe` module contains the :class:`~metasyn.metaframe.MetaFrame` class and its methods, as described above. 
-
-provider module
-^^^^^^^^^^^^^^^
-The :mod:`metasyn.provider` module contains the :class:`~metasyn.provider.BaseDistributionProvider` class, which encapsulates a set of distributions, the :class:`~metasyn.provider.BuiltinDistributionProvider` class, which includes the builtin distributions and the :class:`~metasyn.provider.DistributionProviderList` class to allow for multiple distribution providers.
-
-testutils module
-^^^^^^^^^^^^^^^^
-The :mod:`metasyn.testutils` module provides testing utilities for plugins. It includes functions for checking distributions and distribution providers.
-
-validation module
-^^^^^^^^^^^^^^^^^
-The :mod:`metasyn.validation` module contains tools for validating distribution outputs and GMF file formats.
-
-privacy module
-^^^^^^^^^^^^^^
-The :mod:`metasyn.privacy` module contains the basis for implementing privacy features.
-
-A system to incorporate privacy features such as differential privacy or other forms of disclosure control is still being implemented.
+* The :mod:`metasyn.var` module contains the :class:`~metasyn.var.MetaVar` class and its methods, as described above.
+* The :mod:`metasyn.metaframe` module contains the :class:`~metasyn.metaframe.MetaFrame` class and its methods, as described above. 
+* The :mod:`metasyn.provider` module contains the :class:`~metasyn.provider.BaseDistributionProvider` class, which encapsulates a set of distributions, the :class:`~metasyn.provider.BuiltinDistributionProvider` class, which includes the builtin distributions and the :class:`~metasyn.provider.DistributionProviderList` class to allow for multiple distribution providers.
+* The :mod:`metasyn.testutils` module provides testing utilities for plugins. It includes functions for checking distributions and distribution providers.
+* The :mod:`metasyn.validation` module contains tools for validating distribution outputs and GMF file formats.
+* The :mod:`metasyn.privacy` module contains the basis for implementing privacy features. A system to incorporate privacy features such as differential privacy or other forms of disclosure control is still being implemented.
 
