@@ -57,7 +57,7 @@ Though they can be set manually, the intended way of setting these attributes is
 
     The naming convention for the ``implements`` attribute is: 
     
-    ``<provider_list_prefix>.<distribution_name>``
+    ``<prefix>.<distribution_name>``
     
     Distributions that are part of the core metasyn distribution provider list should use ``core`` as the prefix, e.g. ``core.multinoulli``.
 
@@ -92,12 +92,12 @@ For example, the following distributions use the decorator as follows:
 
 .. code-block:: python
 
-    @metadist(implements="core.unique_regex", var_type="string", is_unique=True)
+    @metadist(implements="core.regex", var_type="string", is_unique=True)
     class UniqueRegexDistribution(UniqueDistributionMixin, RegexDistribution):
 
 .. code-block:: python
       
-    @metadist(implements="core.uniform_date", var_type="date")
+    @metadist(implements="core.uniform", var_type="date")
     class UniformDateDistribution(BaseUniformDistribution):
 
 
@@ -119,12 +119,12 @@ For example, the unique variants of the :class:`metasyn.distribution.regex.Regex
 
 .. code-block:: python
 
-    @metadist(implements="core.unique_regex", var_type="string", is_unique=True)
+    @metadist(implements="core.regex", var_type="string", is_unique=True)
     class UniqueRegexDistribution(UniqueDistributionMixin, RegexDistribution):
 
 .. code-block:: python
 
-    @metadist(implements="core.unique_faker", var_type="string")
+    @metadist(implements="core.faker", var_type="string")
     class UniqueFakerDistribution(UniqueDistributionMixin, FakerDistribution):
 
 .. warning:: 
@@ -162,7 +162,9 @@ The :mod:`~metasyn.distribution.regex` module contains the classes for distribut
 
 Creating a new distribution
 ---------------------------
-The first step to creating a new distribution is to inherit from a distribution class. This can be a base class (e.g. :class:`~metasyn.distribution.BaseDistribution`, :class:`~metasyn.distribution.ScipyDistribution`), or an existing distribution. It is also possible to create a new base class and inherit from there, though this is not recommended.
+The first step to creating a new distribution is to inherit from a distribution class. This can be a base class (e.g. :class:`~metasyn.distribution.BaseDistribution`, :class:`~metasyn.distribution.ScipyDistribution`), or an existing distribution.```
+
+I think actually it might not work in some ways, since there might be some type checking that goes wrong.
 
 The next step is to set the attributes of the distribution using the ``metadist`` decorator. Refer to :class:`~metasyn.distribution.BaseDistribution` for an overview of these attributes.
 
