@@ -219,4 +219,4 @@ And then add it to the BuiltinDistributionProvider list in the :mod:`~metasyn.di
     ]
 
 
-Note that this is a barebones example and that the implementation of the distribution will vary depending on the type of distribution being implemented. 
+Note that this is a bare-bones example and that the implementation of the distribution will vary depending on the type of distribution being implemented. 
