@@ -143,3 +143,5 @@ dmypy.json
 .DS_Store
 .DS_Store
 docs/source/images/pipeline.afphoto~lock~
+docs/source/images/.$ClassDiagram.drawio.bkp
+docs/source/images/.$distributions.drawio.bkp
