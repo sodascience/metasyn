@@ -5,7 +5,7 @@
 Exporting and importing MetaFrames
 ===================================
 
-Metasyn can serialize and **export a MetaFrame** into a GMF file. GMF files are JSON files that follow the  `Generative Metadata Format (GMF) <https://github.com/sodascience/generative_metadata_format>`__ and have been designed to be easy to read and understand. This allows users to audit, understand, modify and share their data generation model with ease. 
+Metasyn can serialize and **export a MetaFrame** into a GMF file. GMF files are JSON files that follow the :doc:`/developer/GMF` and have been designed to be easy to read and understand. This allows users to audit, understand, modify and share their data generation model with ease. 
 
 .. image:: /images/pipeline_serialization_simple.png
    :alt: MetaFrame Serialization Flow

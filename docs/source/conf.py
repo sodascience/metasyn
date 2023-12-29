@@ -53,6 +53,10 @@ html_theme = 'sphinx_rtd_theme'
 html_logo = 'images/logos/white_med.png'
 html_theme_options = {
     'logo_only': True, 
+    'navigation_depth': -1,
+    'display_version': True,
+    'style_external_links': True,
+    
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

@@ -7,7 +7,7 @@ from typing import Any, Dict
 
 import numpy as np
 
-from metasyn.distribution.base import ScipyDistribution, metadist
+from metasyn.distribution.base import BaseDistribution, metadist
 
 
 def convert_numpy_datetime(time_obj: np.datetime64) -> dt.datetime:
@@ -29,7 +29,7 @@ def convert_numpy_datetime(time_obj: np.datetime64) -> dt.datetime:
     return dt.datetime.utcfromtimestamp(float(seconds_since_epoch))
 
 
-class BaseUniformDistribution(ScipyDistribution):
+class BaseUniformDistribution(BaseDistribution):
     """Base class for all time/date/datetime uniform distributions."""
 
     precision_possibilities = ["microseconds", "seconds", "minutes", "hours", "days"]
@@ -43,11 +43,7 @@ class BaseUniformDistribution(ScipyDistribution):
             end = self.fromisoformat(end)
         elif isinstance(end, np.datetime64):
             end = convert_numpy_datetime(end)
-        self.par = {
-            "start": start,
-            "end": end,
-            "precision": precision,
-        }
+        self.precision = precision
         self.start = self.round(start)
         self.end = self.round(end)
 
@@ -112,8 +108,8 @@ class BaseUniformDistribution(ScipyDistribution):
         }
 
 
-@metadist(implements="core.uniform_datetime", var_type="datetime")
-class UniformDateTimeDistribution(BaseUniformDistribution):
+@metadist(implements="core.uniform", var_type="datetime")
+class DateTimeUniformDistribution(BaseUniformDistribution):
     """Uniform DateTime distribution."""
 
     def fromisoformat(self, dt_obj: str) -> dt.datetime:
@@ -132,8 +128,8 @@ class UniformDateTimeDistribution(BaseUniformDistribution):
         }
 
 
-@metadist(implements="core.uniform_time", var_type="time")
-class UniformTimeDistribution(BaseUniformDistribution):
+@metadist(implements="core.uniform", var_type="time")
+class TimeUniformDistribution(BaseUniformDistribution):
     """Uniform time distribution."""
 
     def fromisoformat(self, dt_obj: str) -> dt.time:
@@ -158,8 +154,8 @@ class UniformTimeDistribution(BaseUniformDistribution):
         }
 
 
-@metadist(implements="core.uniform_date", var_type="date")
-class UniformDateDistribution(BaseUniformDistribution):
+@metadist(implements="core.uniform", var_type="date")
+class DateUniformDistribution(BaseUniformDistribution):
     """Uniform date distribution."""
 
     precision_possibilities = ["days"]

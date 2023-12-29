@@ -18,21 +18,21 @@ At any point, you can also use the help command to get more information about th
 
 Accessing the CLI
 -----------------
-If you have installed the main metasyn package, the CLI should be available automatically. You can find instructions on how to install metasyn in the :doc:`installation` section of the documentation.
+If you have installed the main ``metasyn`` package, the CLI should be available automatically. You can find instructions on how to install ``metasyn`` in the :doc:`installation` section of the documentation.
 
-Alternatively, the CLI can be accessed through a Docker container, allowing you to run metasyn in an isolated environment without installing the package on your system. This can be useful, for example, when trying out metasyn without affecting your existing Python environment.
+Alternatively, the CLI can be accessed through a Docker container, allowing you to run ``metasyn`` in an isolated environment without installing the package on your system. This can be useful, for example, when trying out ``metasyn`` without affecting your existing Python environment.
 
 Here's how you can use Docker to access Metasyn's CLI:
 
 1. **Install Docker:** If Docker isn't already set up on your machine, please follow the instructions on `Docker's official website <https://docs.docker.com/get-docker/>`_.
 
-2. **Pull the metasyn Docker Image:** After successfully installing Docker, you can download the metasyn Docker image from Docker Hub using the following command.
+2. **Pull the ``metasyn`` Docker Image:** After successfully installing Docker, you can download the ``metasyn`` Docker image from Docker Hub using the following command.
 
    .. code-block:: console
 
       docker pull sodateam/metasyn
 
-3. **Run metasyn's CLI via Docker:** Once the Docker image is downloaded, you can use the following command to run a metasyn CLI command within a Docker container (in this case ``--help``), and simultaneously set the working directory (which we denote as `wd` in this case).
+3. **Run metasyn's CLI via Docker:** Once the Docker image is downloaded, you can use the following command to run a ``metasyn`` CLI command within a Docker container (in this case ``--help``), and simultaneously set the working directory (which we denote as `wd` in this case).
 
    .. tab:: Windows
 
@@ -47,10 +47,10 @@ Here's how you can use Docker to access Metasyn's CLI:
          docker run -v $(pwd):/wd sodateam/metasyn --help
 
 
-The Metasyn CLI should now be up and running within the Docker container and ready for use!
+The ``metasyn`` CLI should now be up and running within the Docker container and ready for use!
 
 .. note:: 
-   You can also specify which metasyn version to use in docker, by adding a tag to the docker image. For example, to use version 0.6, you can use the following command:
+   You can also specify which ``metasyn`` version to use in docker, by adding a tag to the docker image. For example, to use version 0.6, you can use the following command:
 
    .. tab:: Installing a specific version
       

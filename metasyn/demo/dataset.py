@@ -13,9 +13,9 @@ import pandas as pd
 import wget
 
 from metasyn.distribution.datetime import (
-    UniformDateDistribution,
-    UniformDateTimeDistribution,
-    UniformTimeDistribution,
+    DateTimeUniformDistribution,
+    DateUniformDistribution,
+    TimeUniformDistribution,
 )
 
 
@@ -45,18 +45,18 @@ def create_titanic_demo(output_fp: Path) -> Path:
     dframe["Age"] = dframe["Age"].round().astype("Int64")
 
     # Add a date column.
-    date_dist = UniformDateDistribution.default_distribution()
+    date_dist = DateUniformDistribution.default_distribution()
     dframe["Birthday"] = [date_dist.draw() if np.random.rand() < 0.9 else pd.NA
                           for _ in range(len(dframe))]
 
     # Add a time column.
 
-    time_dist = UniformTimeDistribution.default_distribution()
+    time_dist = TimeUniformDistribution.default_distribution()
     dframe["Board time"] = [time_dist.draw() if np.random.rand() < 0.9 else pd.NA
                             for _ in range(len(dframe))]
 
     # Add a datetime column
-    time_dist = UniformDateTimeDistribution.default_distribution()
+    time_dist = DateTimeUniformDistribution.default_distribution()
     dframe["Married since"] = [time_dist.draw() if np.random.rand() < 0.9 else pd.NA
                                for _ in range(len(dframe))]
 

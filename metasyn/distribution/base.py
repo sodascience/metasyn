@@ -14,8 +14,8 @@ import polars as pl
 class BaseDistribution(ABC):
     """Abstract base class to define a distribution.
 
-    All distributions should be derived from this class, and the following
-    methods need to be implemented: _fit, draw, _param_dict, _param_schema and default_distribution.
+    All distributions should be derived from this class, and should implement the following methods:
+    _fit, draw, _param_dict, _param_schema, default_distribution and __init__.
     """
 
     implements: str = "unknown"
@@ -96,6 +96,7 @@ class BaseDistribution(ABC):
             "version": self.version,
             "provenance": self.provenance,
             "class_name": self.__class__.__name__,
+            "is_unique": self.is_unique,
             "parameters": deepcopy(self._param_dict()),
         }
 
@@ -114,6 +115,7 @@ class BaseDistribution(ABC):
                 "version": {"type": "string"},
                 "provenance": {"const": cls.provenance},
                 "class_name": {"const": cls.__name__},
+                "is_unique": {"const": cls.is_unique},
                 "parameters": {
                     "type": "object",
                     "properties": cls._param_schema(),

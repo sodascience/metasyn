@@ -109,6 +109,6 @@ class RegexDistribution(BaseDistribution):
         return cls(r"[ABC][0-9]{3,4}")
 
 
-@metadist(implements="core.unique_regex", var_type="string", is_unique=True)
+@metadist(implements="core.regex", var_type="string")
 class UniqueRegexDistribution(UniqueDistributionMixin, RegexDistribution):
     """Unique variant of the regex distribution."""
