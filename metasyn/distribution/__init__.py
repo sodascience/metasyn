@@ -1,8 +1,6 @@
-"""Distributions for variables.
+"""Package providing classes for different types of distributions used in the metasyn package.
 
-These distributions can be fit to datasets/series so that the synthesis is
-somewhat realistic. The concept of distributions here is not only for
-numerical data, but also for generating strings for example.
+Each distribution class provides methods for fitting the distribution to data, generating synthetic data, and other functionality specific to the type of distribution.
 """  # pylint: disable=invalid-name
 
 from metasyn.distribution.categorical import MultinoulliDistribution

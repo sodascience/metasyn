@@ -1,4 +1,4 @@
-"""Package including demo datasets for tutorials."""
+"""Package to create and retrieve demo datasets, based on the Titanic dataset, for demo and tutorial purposes."""
 
 from metasyn.demo.dataset import demo_file
 

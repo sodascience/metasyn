@@ -1,1 +1,1 @@
-"""Package containing the JSON-schemas for validation."""
+"""Package containing the JSON-schema that can be used for validating metadata."""
