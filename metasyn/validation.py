@@ -1,4 +1,4 @@
-"""Tools for validating distribution/GMF file output."""
+"""The validation module contains functionality for checking the output of distribution and Generative Metadata Format (GMF) files.""" # pylint: disable=line-too-long
 
 from __future__ import annotations
 

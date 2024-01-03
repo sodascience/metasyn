@@ -1,6 +1,8 @@
-"""Package providing classes for different types of distributions used in the metasyn package.
+"""Package providing different distributions used in metasyn.
 
-Each distribution class provides methods for fitting the distribution to data, generating synthetic data, and other functionality specific to the type of distribution.
+Each distribution class provides methods for fitting the distribution to data,
+generating synthetic data, and other functionality specific to the type of
+distribution.
 """  # pylint: disable=invalid-name
 
 from metasyn.distribution.categorical import MultinoulliDistribution

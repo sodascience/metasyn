@@ -1,4 +1,4 @@
-"""Module defining the MetaVar class, which represents a metadata variable."""  # pylint: disable=invalid-name
+"""Module defining the MetaVar class, which represents a metadata variable."""
 
 from __future__ import annotations
 
@@ -16,9 +16,14 @@ from metasyn.provider import BaseDistributionProvider, DistributionProviderList
 class MetaVar():
     """Metadata variable.
 
-    MetaVar is a structure that holds all metadata needed to generate a synthetic column for it. This is the variable level building block for the MetaFrame. It contains the methods to convert a polars Series into a variable with an appropriate distribution. The MetaVar class is to the MetaFrame what a polars Series is to a DataFrame.
+    MetaVar is a structure that holds all metadata needed to generate a 
+    synthetic column for it. This is the variable level building block for the
+    MetaFrame. It contains the methods to convert a polars Series into a
+    variable with an appropriate distribution. The MetaVar class is to the
+    MetaFrame what a polars Series is to a DataFrame.
 
-    This class is considered a passthrough class used by the MetaFrame class, and is not intended to be used directly by the user.
+    This class is considered a passthrough class used by the MetaFrame class,
+    and is not intended to be used directly by the user.
 
     Parameters
     ----------
@@ -86,7 +91,8 @@ class MetaVar():
                prop_missing: Optional[float] = None):
         """Detect variable class(es) of series or dataframe.
         
-        This method does not fit any distribution, but it does infer the correct types for the MetaVar and saves the Series for later fitting.
+        This method does not fit any distribution, but it does infer the 
+        correct types for the MetaVar and saves the Series for later fitting.
 
         Parameters
         ----------

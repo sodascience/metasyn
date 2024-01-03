@@ -1,4 +1,4 @@
-"""Module defining the MetaFrame class, used for the conversion of DataFrames to MetaFrames."""  # pylint: disable=invalid-name
+"""Module defining the MetaFrame class, used for the conversion of DataFrames to MetaFrames."""  # pylint: disable=line-too-long
 
 from __future__ import annotations
 
