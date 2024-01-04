@@ -1,4 +1,4 @@
-"""Module with discrete distributions."""
+"""Module implementing discrete distributions."""
 
 from typing import Set
 

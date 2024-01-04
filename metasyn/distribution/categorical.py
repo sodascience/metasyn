@@ -1,4 +1,4 @@
-"""Module containing categorical distributions."""
+"""Module implementing categorical distributions."""
 
 from __future__ import annotations
 

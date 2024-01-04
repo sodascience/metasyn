@@ -1,4 +1,4 @@
-"""Distributions for date and time types."""
+"""Module implementing distributions for date and time types."""
 
 import datetime as dt
 from abc import abstractmethod

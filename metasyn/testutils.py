@@ -1,4 +1,4 @@
-"""module for testing the functionality of distributions and providers.
+"""Module for testing the functionality of distributions and providers.
 
 The testultils module provides a set of utilities for testing the functionality
 and internal consistency of individual distributions and providers.
