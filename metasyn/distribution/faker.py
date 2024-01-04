@@ -2,7 +2,7 @@
 Module implementing Faker based distributions.
 
 This module acts as an interface to the Faker package and can be used to
-create distributions that can generate fake names, addresses, e-mails, etc. 
+create distributions that can generate fake names, addresses, e-mails, etc.
 
 Faker can be found here: https://github.com/joke2k/faker/tree/master
 """

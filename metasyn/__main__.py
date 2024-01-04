@@ -1,4 +1,8 @@
-"""Module providing a Command Line Interface (CLI) for generating synthetic data frames from a metasyn GMF (.json) file.""" # pylint: disable=line-too-long
+"""Module providing a Command Line Interface (CLI) for metasyn.
+
+It provides functionality to generate GMF (.json) metadata files,
+synthetic data from GMF files and creating a json schema.
+"""
 import argparse
 import json
 import pathlib

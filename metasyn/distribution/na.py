@@ -1,6 +1,6 @@
 """Module implementing NA distributions.
 
-This module contains a single class for creating distributions that only 
+This module contains a single class for creating distributions that only
 return NA.
 """
 

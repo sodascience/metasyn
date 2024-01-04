@@ -2,18 +2,18 @@
 
 Metasyn has three main functionalities:
 
-1. Estimation: Metasyn can create a MetaFrame from a dataset. 
-A MetaFrame is essentially a fitted model that characterizes the structure of 
+1. Estimation: Metasyn can create a MetaFrame from a dataset.
+A MetaFrame is essentially a fitted model that characterizes the structure of
 the original dataset without storing actual values.
-It captures individual distributions and features and enables generation of 
-synthetic data based on it. 
+It captures individual distributions and features and enables generation of
+synthetic data based on it.
 
 2. Serialization: Metasyn can export a MetaFrame into an easy to read GMF file.
 This allows users to audit, understand, and modify their data generation model.
 
-3. Generation: Metasyn can generate synthetic data based on a MetaFrame. 
-The synthetic data produced solely depends on the MetaFrame, thereby 
-maintaining a critical separation between the original sensitive data and the 
+3. Generation: Metasyn can generate synthetic data based on a MetaFrame.
+The synthetic data produced solely depends on the MetaFrame, thereby
+maintaining a critical separation between the original sensitive data and the
 synthetic data generated.
 """
 

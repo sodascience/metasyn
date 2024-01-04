@@ -16,7 +16,7 @@ from metasyn.provider import BaseDistributionProvider, DistributionProviderList
 class MetaVar():
     """Metadata variable.
 
-    MetaVar is a structure that holds all metadata needed to generate a 
+    MetaVar is a structure that holds all metadata needed to generate a
     synthetic column for it. This is the variable level building block for the
     MetaFrame. It contains the methods to convert a polars Series into a
     variable with an appropriate distribution. The MetaVar class is to the
@@ -90,8 +90,8 @@ class MetaVar():
                description: Optional[str] = None,
                prop_missing: Optional[float] = None):
         """Detect variable class(es) of series or dataframe.
-        
-        This method does not fit any distribution, but it does infer the 
+
+        This method does not fit any distribution, but it does infer the
         correct types for the MetaVar and saves the Series for later fitting.
 
         Parameters

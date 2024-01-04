@@ -1,6 +1,6 @@
 """Module implementing distribution providers.
 
-Distribution providers are used to find/fit distributions that are available. 
+Distribution providers are used to find/fit distributions that are available.
 See pyproject.toml on how the builtin distribution provider is registered.
 """
 

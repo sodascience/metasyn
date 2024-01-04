@@ -1,4 +1,7 @@
-"""The validation module contains functionality for checking the output of distribution and Generative Metadata Format (GMF) files.""" # pylint: disable=line-too-long
+"""This module is used to validate the serialized output of distributions.
+
+This ensures that the Generative Metadata Format (GMF) files are interoperable.
+"""
 
 from __future__ import annotations
 

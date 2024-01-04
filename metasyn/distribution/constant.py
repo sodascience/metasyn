@@ -1,7 +1,7 @@
 """
 Module implementing constant distributions.
 
-The module contains a base class for constant distributions, and subclasses 
+The module contains a base class for constant distributions, and subclasses
 that implement constant distributions for different variable types.
 """
 
