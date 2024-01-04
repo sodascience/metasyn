@@ -24,6 +24,7 @@ except ImportError:
 import polars as pl
 
 from metasyn import MetaFrame
+from metasyn.privacy import BasicPrivacy, get_privacy
 from metasyn.validation import create_schema
 
 MAIN_HELP_MESSAGE = f"""
@@ -70,7 +71,8 @@ def main() -> None:
 def _parse_config(config_fp):
     with open(config_fp, "rb") as handle:
         spec = tomllib.load(handle)
-    return spec["var"]
+    return spec
+    # return spec["var"]
 
 
 def create_metadata():
@@ -97,12 +99,19 @@ def create_metadata():
     )
 
     args, _ = parser.parse_known_args()
+    kwargs = {}
     if args.config is not None:
-        spec = _parse_config(args.config)
-    else:
-        spec = {}
+        all_spec = _parse_config(args.config)
+        if "var" in all_spec:
+            kwargs["spec"] = all_spec["var"]
+        if "general" in all_spec:
+            kwargs.update(all_spec["general"])
+        # privacy = get_privacy(**all_spec["privacy"])
+    # else:
+        # spec = {}
+        # privacy = BasicPrivacy()
     data_frame = pl.read_csv(args.input, try_parse_dates=True)
-    meta_frame = MetaFrame.fit_dataframe(data_frame, spec=spec)
+    meta_frame = MetaFrame.fit_dataframe(data_frame, **kwargs)
     meta_frame.export(args.output)
 
 

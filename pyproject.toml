@@ -63,6 +63,9 @@ metasyn = "metasyn.__main__:main"
 [project.entry-points."metasyn.distribution_provider"]
 builtin = "metasyn.provider:BuiltinDistributionProvider"
 
+[project.entry-points."metasyn.privacy"]
+none = "metayn.privacy:BasicPrivacy"
+
 [tool.setuptools]
 packages = ["metasyn"]
 obsoletes = ["metasynth"]

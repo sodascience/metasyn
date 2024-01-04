@@ -3,6 +3,11 @@
 from abc import ABC, abstractmethod
 from typing import Type, Union
 
+try:
+    from importlib_metadata import EntryPoint, entry_points
+except ImportError:
+    from importlib.metadata import EntryPoint, entry_points  # type: ignore
+
 from metasyn.distribution.base import BaseDistribution
 
 
@@ -52,3 +57,11 @@ class BasicPrivacy(BasePrivacy):
 
     def to_dict(self) -> dict:
         return BasePrivacy.to_dict(self)
+
+
+def get_privacy(name: str, parameters: dict):
+    for entry in entry_points(group="metasyn.privacy"):
+        if name == entry.name:
+            return entry.load()(**parameters)
+    raise KeyError(f"Unknown privacy type with name '{name}'."
+                    "Ensure that you have installed the privacy package.")

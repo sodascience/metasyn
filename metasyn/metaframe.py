@@ -13,7 +13,7 @@ import numpy as np
 import polars as pl
 from tqdm import tqdm
 
-from metasyn.privacy import BasePrivacy, BasicPrivacy
+from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
 from metasyn.provider import BaseDistributionProvider
 from metasyn.validation import validate_gmf_dict
 from metasyn.var import MetaVar
@@ -122,6 +122,8 @@ class MetaFrame():
         """
         if privacy is None:
             privacy = BasicPrivacy()
+        elif isinstance(privacy, dict):
+            privacy = get_privacy(**privacy)
         if spec is None:
             spec = {}
         else:

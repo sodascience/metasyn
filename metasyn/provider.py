@@ -396,6 +396,8 @@ class DistributionProviderList():
             if "implements" not in dist:
                 raise ValueError("Cannot create distribution with dictionary that does not contain"
                                  " an 'implements' key, have '{dist}'")
+            if "parameters" in dist:
+                privacy = None
             dist_class = self.find_distribution(dist["implements"], var_type, privacy=privacy,
                                                 unique=unique)
             if "parameters" in dist:
