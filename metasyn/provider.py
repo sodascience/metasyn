@@ -392,6 +392,14 @@ class DistributionProviderList():
             dist_class = self.find_distribution(dist, var_type, privacy=privacy, unique=unique)
         elif inspect.isclass(dist) and issubclass(dist, BaseDistribution):
             dist_class = dist
+        elif isinstance(dist, dict):
+            if "implements" not in dist:
+                raise ValueError("Cannot create distribution with dictionary that does not contain"
+                                 " an 'implements' key, have '{dist}'")
+            dist_class = self.find_distribution(dist["implements"], var_type, privacy=privacy,
+                                                unique=unique)
+            if "parameters" in dist:
+                return dist_class(**dist["parameters"])
         else:
             raise TypeError(
                 f"Distribution {dist} with type {type(dist)} is not a BaseDistribution")

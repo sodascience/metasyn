@@ -15,6 +15,12 @@ try:  # Python < 3.10 (backport)
 except ImportError:
     from importlib.metadata import entry_points, version  # type: ignore [assignment]
 
+
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib  # noqa
+
 import polars as pl
 
 from metasyn import MetaFrame
@@ -56,36 +62,15 @@ def main() -> None:
 
     elif subcommand == "create-meta":
         create_metadata()
-
     else:
         print(f"Invalid subcommand ({subcommand}). For help see metasyn --help")
         sys.exit(1)
 
 
 def _parse_config(config_fp):
-    config = ConfigParser()
-    config.read(config_fp)
-    spec = {}
-    for section in config.sections():
-        if section.startswith("var."):
-            new_dict = {}
-            for key, val in dict(config[section]).items():
-                try:
-                    new_dict[key] = config.getboolean(section, key)
-                except ValueError:
-                    pass
-                try:
-                    new_dict[key] = config.getfloat(section, key)
-                except ValueError:
-                    pass
-                try:
-                    new_dict[key] = config.getint(section, key)
-                except ValueError:
-                    pass
-                if key not in new_dict:
-                    new_dict[key] = val
-            spec[section[4:]] = new_dict
-    return spec
+    with open(config_fp, "rb") as handle:
+        spec = tomllib.load(handle)
+    return spec["var"]
 
 
 def create_metadata():
@@ -106,10 +91,11 @@ def create_metadata():
     )
     parser.add_argument(
         "--config",
-        help="Configuration file to specify distribution behavior.",
+        help="Configuration file (*.toml) to specify distribution behavior.",
         type=pathlib.Path,
         default=None,
     )
+
     args, _ = parser.parse_known_args()
     if args.config is not None:
         spec = _parse_config(args.config)
@@ -148,6 +134,10 @@ def synthesize() -> None:
         "-p", "--preview",
         help="preview six-row synthesized data frame in console and exit",
         action="store_true",
+    )
+    parser.add_argument(
+        "-s", "--settings",
+        help="settings file (*.toml) that contains directives on how to synthesize."
     )
 
     # parse the args without the subcommand

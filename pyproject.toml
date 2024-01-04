@@ -38,6 +38,7 @@ dependencies = [
     "jsonschema",
     "importlib-metadata;python_version<'3.10'",
     "importlib-resources;python_version<'3.9'",
+    "tomli;python_version<'3.11'",
     "wget",
     "regexmodel>=0.2.1"
 ]
