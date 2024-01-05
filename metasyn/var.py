@@ -47,40 +47,35 @@ class MetaVar():
         User-provided description of the variable.
     """
 
-    dtype = "unknown"
-
     def __init__(self,  # pylint: disable=too-many-arguments
+                 name: str,
                  var_type: str,
-                 series: Optional[Union[pl.Series, pd.Series]] = None,
-                 name: Optional[str] = None,
-                 distribution: Optional[BaseDistribution] = None,
-                 prop_missing: Optional[float] = None,
-                 dtype: Optional[str] = None,
+                 distribution: BaseDistribution,
+                 prop_missing: float,
+                 dtype: str = "unknown",
                  description: Optional[str] = None):
+        self.name = name
         self.var_type = var_type
-        self.prop_missing = prop_missing
-        if series is None:
-            self.name = name
-            if dtype is not None:
-                self.dtype = dtype
-        else:
-            series = _to_polars(series)
-            self.name = series.name
-            if prop_missing is None:
-                self.prop_missing = (
-                    len(series) - len(series.drop_nulls())) / len(series)
-            self.dtype = str(series.dtype)
-
-        self.series = series
         self.distribution = distribution
+        self.prop_missing = prop_missing
+        self.dtype = dtype
         self.description = description
+            # series = _to_polars(series)
+            # self.name = series.name
+            # if prop_missing is None:
+            #     self.prop_missing = (
+            #         len(series) - len(series.drop_nulls())) / len(series)
+            # self.dtype = str(series.dtype)
 
-        if self.prop_missing is None:
-            raise ValueError(f"Error while initializing variable {self.name}."
-                             " prop_missing is None.")
-        if self.prop_missing < -1e-8 or self.prop_missing > 1+1e-8:
-            raise ValueError(f"Cannot create variable '{self.name}' with proportion missing "
-                             "outside range [0, 1]")
+        # self.series = series
+        # self.description = description
+
+        # if self.prop_missing is None:
+        #     raise ValueError(f"Error while initializing variable {self.name}."
+        #                      " prop_missing is None.")
+        # if self.prop_missing < -1e-8 or self.prop_missing > 1+1e-8:
+        #     raise ValueError(f"Cannot create variable '{self.name}' with proportion missing "
+        #                      "outside range [0, 1]")
 
     @classmethod
     def detect(cls,
@@ -198,6 +193,7 @@ class MetaVar():
         )
 
     def fit(self,  # pylint: disable=too-many-arguments
+            series: pl.Series,
             dist: Optional[Union[str, BaseDistribution, type]] = None,
             dist_providers: Union[str, type,
                                   BaseDistributionProvider] = "builtin",

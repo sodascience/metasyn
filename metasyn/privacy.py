@@ -61,7 +61,8 @@ class BasicPrivacy(BasePrivacy):
 
 def get_privacy(name: str, parameters: dict):
     for entry in entry_points(group="metasyn.privacy"):
+        print(entry.name)
         if name == entry.name:
             return entry.load()(**parameters)
-    raise KeyError(f"Unknown privacy type with name '{name}'."
+    raise KeyError(f"Unknown privacy type with name '{name}'. "
                     "Ensure that you have installed the privacy package.")

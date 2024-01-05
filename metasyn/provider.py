@@ -223,6 +223,11 @@ class DistributionProviderList():
                              "distribution. Set the distribution manually to fix.")
         return self._find_best_fit(series, var_type, unique, privacy)
 
+    def create(self, var_type: str, dist: dict, unique: bool = False):
+        dist_class = self.find_distribution(dist["implements"], var_type, privacy=None,
+                                            unique=unique)
+        return dist_class(**dist["parameters"])
+
     def _find_best_fit(self, series: pl.Series, var_type: str,
                        unique: Optional[bool],
                        privacy: BasePrivacy) -> BaseDistribution:
