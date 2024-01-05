@@ -5,7 +5,6 @@ This module provides a RegexDistribution class that fits a regular expression
 to structured strings such as email addresses, IDs, telephone numbers, and IP
 addresses.  It is based on the regexmodel package found here:
 https://github.com/sodascience/regexmodel.
-
 """
 
 from __future__ import annotations

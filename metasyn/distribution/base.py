@@ -11,7 +11,7 @@ which is a mixin class that can be used to make a distribution unique
 (i.e., one that does not contain duplicate values).
 
 Finally it contains the metadist() decorator, which is used to set the
-attributes of a distribution.
+class attributes of a distribution.
 """
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 """Metasyn: a package for creating synthetic datasets.
 
-Metasyn has three main functionalities:
+Metasyn has three main purposes:
 
 1. Estimation: Metasyn can create a MetaFrame from a dataset.
 A MetaFrame is essentially a fitted model that characterizes the structure of
@@ -14,7 +14,7 @@ This allows users to audit, understand, and modify their data generation model.
 3. Generation: Metasyn can generate synthetic data based on a MetaFrame.
 The synthetic data produced solely depends on the MetaFrame, thereby
 maintaining a critical separation between the original sensitive data and the
-synthetic data generated.
+generated synthetic data.
 """
 
 from importlib.metadata import version

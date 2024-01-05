@@ -1,7 +1,7 @@
 """Module providing a Command Line Interface (CLI) for metasyn.
 
 It provides functionality to generate GMF (.json) metadata files,
-synthetic data from GMF files and creating a json schema.
+synthetic data from GMF files and creating json schemas for GMF files.
 """
 import argparse
 import json
