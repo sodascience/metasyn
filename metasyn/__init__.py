@@ -3,13 +3,14 @@
 Metasyn has three main purposes:
 
 1. Estimation: Metasyn can create a MetaFrame from a dataset.
-A MetaFrame is essentially a fitted model that characterizes the structure of
-the original dataset without storing actual values.
-It captures individual distributions and features and enables generation of
-synthetic data based on it.
+A MetaFrame is metadata describing a table, augmented with statistical
+information on the columns. It captures individual distributions and
+features and enables generation of synthetic data based on it.
 
-2. Serialization: Metasyn can export a MetaFrame into an easy to read GMF file.
-This allows users to audit, understand, and modify their data generation model.
+2. Serialization and deserialization: Metasyn can export a
+MetaFrame into an easy to read GMF file. This allows users to audit,
+understand, and modify their data generation model. These GMF files
+can also be imported back into Metasyn to generate synthetic data.
 
 3. Generation: Metasyn can generate synthetic data based on a MetaFrame.
 The synthetic data produced solely depends on the MetaFrame, thereby
