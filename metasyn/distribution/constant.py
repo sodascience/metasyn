@@ -1,4 +1,9 @@
-"""Module containing the class with constant distributions."""
+"""
+Module implementing constant distributions.
+
+The module contains a base class for constant distributions, and subclasses
+that implement constant distributions for different variable types.
+"""
 
 import datetime as dt
 

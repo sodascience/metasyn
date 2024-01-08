@@ -1,4 +1,8 @@
-"""CLI for generating synthetic data frames from a metasyn .json file."""
+"""Module providing a Command Line Interface (CLI) for metasyn.
+
+It provides functionality to generate GMF (.json) metadata files,
+synthetic data from GMF files and creating json schemas for GMF files.
+"""
 import argparse
 import json
 import pathlib

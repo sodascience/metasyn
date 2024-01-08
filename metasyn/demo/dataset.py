@@ -1,4 +1,4 @@
-"""Load/create different demo datasets."""
+"""Create and retrieve demo datasets."""
 
 import random
 from pathlib import Path

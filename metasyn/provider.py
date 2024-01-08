@@ -1,7 +1,7 @@
-"""Module for distribution providers.
+"""Module implementing distribution providers.
 
-These are used to find/fit distributions that are available. See pyproject.toml on how the
-builtin distribution provider is registered.
+Distribution providers are used to find/fit distributions that are available.
+See pyproject.toml on how the builtin distribution provider is registered.
 """
 
 from __future__ import annotations

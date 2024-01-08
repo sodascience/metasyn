@@ -1,4 +1,4 @@
-"""Package including demo datasets for tutorials."""
+"""Package to create and retrieve demo datasets used in tutorials."""
 
 from metasyn.demo.dataset import demo_file
 

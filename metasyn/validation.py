@@ -1,4 +1,7 @@
-"""Tools for validating distribution/GMF file output."""
+"""The validation module contains functions to validate the serialized output of distributions.
+
+This ensures that the Generative Metadata Format (GMF) files are interoperable and well formed.
+"""
 
 from __future__ import annotations
 

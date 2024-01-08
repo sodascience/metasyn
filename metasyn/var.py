@@ -1,4 +1,4 @@
-"""Variable module that creates metadata variables."""  # pylint: disable=invalid-name
+"""Module defining the MetaVar class, which represents a metadata variable."""
 
 from __future__ import annotations
 
@@ -14,15 +14,21 @@ from metasyn.provider import BaseDistributionProvider, DistributionProviderList
 
 
 class MetaVar():
-    """Meta data variable.
+    """Metadata variable.
 
-    Acts as a base class for specific types of variables, but also as a
-    launching pad for detecting its type.
+    MetaVar is a structure that holds all metadata needed to generate a
+    synthetic column for it. This is the variable level building block for the
+    MetaFrame. It contains the methods to convert a polars Series into a
+    variable with an appropriate distribution. The MetaVar class is to the
+    MetaFrame what a polars Series is to a DataFrame.
+
+    This class is considered a passthrough class used by the MetaFrame class,
+    and is not intended to be used directly by the user.
 
     Parameters
     ----------
     var_type:
-        Variable type as a string, e.g. continuous, string, etc.
+        String containing the variable type, e.g. continuous, string, etc.
     series:
         Series to create the variable from. Series is None by default and in
         this case the value is ignored. If it is not supplied, then the
@@ -38,7 +44,7 @@ class MetaVar():
         Type of the original values, e.g. int64, float, etc. Used for type-casting
         back.
     description:
-        User provided description of the variable.
+        User-provided description of the variable.
     """
 
     dtype = "unknown"
@@ -84,6 +90,9 @@ class MetaVar():
                description: Optional[str] = None,
                prop_missing: Optional[float] = None):
         """Detect variable class(es) of series or dataframe.
+
+        This method does not fit any distribution, but it does infer the
+        correct types for the MetaVar and saves the Series for later fitting.
 
         Parameters
         ----------

@@ -1,4 +1,4 @@
-"""Implemented floating point distributions."""
+"""Module implementing continuous (floating point) distributions."""
 
 import numpy as np
 from scipy.optimize import minimize

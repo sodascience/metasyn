@@ -1,4 +1,18 @@
-"""Module for the base distribution and the scipy distribution."""
+"""
+Module serving as the basis for all metasyn distributions.
+
+The base module contains the BaseDistribution class, which is the base class
+for all distributions. It also contains the ScipyDistribution class,
+which is a specialized base class for distributions that are built on top of
+SciPy's statistical distributions.
+
+Additionally it contains the UniqueDistributionMixin class,
+which is a mixin class that can be used to make a distribution unique
+(i.e., one that does not contain duplicate values).
+
+Finally it contains the metadist() decorator, which is used to set the
+class attributes of a distribution.
+"""
 
 from __future__ import annotations
 

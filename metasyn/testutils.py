@@ -1,4 +1,8 @@
-"""Testing utilities for plugins."""
+"""Module for testing the functionality of distributions and providers.
+
+The testutils module provides a set of utilities for testing the functionality
+and internal consistency of individual distributions and providers.
+"""
 
 
 from __future__ import annotations
