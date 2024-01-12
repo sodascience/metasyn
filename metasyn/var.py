@@ -14,7 +14,7 @@ from metasyn.provider import BaseDistributionProvider, DistributionProviderList
 
 
 class MetaVar():
-    """Metadata variable.
+    """Metadata variable describing a column in a MetaFrame.
 
     MetaVar is a structure that holds all metadata needed to generate a
     synthetic column for it. This is the variable level building block for the
@@ -45,6 +45,11 @@ class MetaVar():
         back.
     description:
         User-provided description of the variable.
+
+    Attributes
+    ----------
+    dtype : str
+        The data type of the original values. Default is "unknown".
     """
 
     dtype = "unknown"

@@ -60,9 +60,24 @@ from metasyn.privacy import BasePrivacy, BasicPrivacy
 
 
 class BaseDistributionProvider(ABC):
-    """Class that encapsulates a set of distributions.
+    """Base class for all distribution providers.
 
-    It has a property {var_type}_distributions for every var_type.
+    A distribution provider is a class that provides a set of distributions
+    that can be used by metasyn to generate synthetic data.
+    This class acts as a base class for creating specific distribution
+    providers. It encapsulates a set of distributions and has a property
+    {var_type}_distributions for every var_type.
+
+    Attributes
+    ----------
+    name : str
+        The name of the distribution provider.
+    version : str
+        The version of the distribution provider.
+    distributions : list[type[BaseDistribution]]
+        The list of distributions provided.
+    legacy_distributions : list[type[BaseDistribution]]
+        The list of legacy distributions provided.
     """
 
     name = ""
@@ -123,7 +138,11 @@ class BaseDistributionProvider(ABC):
 
 
 class BuiltinDistributionProvider(BaseDistributionProvider):
-    """Distribution tree that includes the builtin distributions."""
+    """Distribution tree that includes the builtin distributions.
+
+    This class inherits from BaseDistributionProvider and provides
+    the built-in metasyn distributions.
+    """
 
     name = "builtin"
     version = "1.2"
@@ -153,15 +172,20 @@ class BuiltinDistributionProvider(BaseDistributionProvider):
 class DistributionProviderList():
     """List of DistributionProviders with functionality to fit distributions.
 
-    Arguments
-    ---------
+    This class is responsible for managing and providing access to
+    different distribution providers. It allows for fitting distributions,
+    as well as retrieving distributions based on certain constraints
+    such as privacy level, variable type, and uniqueness.
+
+    Parameters
+    ----------
     dist_providers:
-        One or more distribution providers, that are denoted either with a string ("builtin")
-        , DistributionProvider (BuiltinDistributionProvider()) or DistributionProvider type
-        (BuiltinDistributionProvider).
-        The order in which distribution providers are included matters. If a provider implements
-        the same distribution at the same privacy level, then only the first will be taken into
-        account.
+        One or more distribution providers, that are denoted either with a string ("builtin"),
+        DistributionProvider (BuiltinDistributionProvider())
+        or DistributionProvider type (BuiltinDistributionProvider).
+        The order in which distribution providers are included matters.
+        If a provider implements the same distribution at the same privacy level,
+        then only the first will be taken into account.
     """
 
     def __init__(
