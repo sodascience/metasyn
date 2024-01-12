@@ -159,7 +159,8 @@ class FreeTextDistribution(BaseDistribution):
     def information_criterion(self, values) -> float:
         series = self._to_series(values)
         # Check the average number of characters
-        if series.str.len_chars().mean() >= 25:
+        avg_chars = series.str.len_chars().mean()
+        if avg_chars is not None and avg_chars >= 25:
             lang = self.detect_language(series)
             if lang is not None:
                 return -1.0

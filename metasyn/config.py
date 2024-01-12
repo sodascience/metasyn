@@ -14,12 +14,25 @@ from metasyn.provider import DistributionProviderList
 from metasyn.var import MetaVar
 
 
+class VarConfig():
+    def __init__(self, name: str, var_type: Optional[str] = None,
+                 distribution: Optional[dict] = None,
+                 prop_missing: Optional[float] = None,
+                 description: Optional[str] = None,
+                 data_free: Optional[bool] = None):
+        self.name = name
+        self.var_type = var_type
+        self.distribution = distribution
+        self.prop_missing = prop_missing
+        self.description = description
+        self.data_free = data_free
+
 class MetaConfig():
-    def __init__(self, var_dict: dict,
+    def __init__(self, var_configs: list,
                  dist_providers: list,
                  privacy: dict,
                  n_rows: Optional[int] = None):
-        self.var = var_dict
+        self.var_configs = var_configs
         self.dist_providers = dist_providers
         self.privacy = privacy
         self.n_rows = n_rows
