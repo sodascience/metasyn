@@ -29,7 +29,23 @@ class BaseDistribution(ABC):
     """Abstract base class to define a distribution.
 
     All distributions should be derived from this class, and should implement the following methods:
-    _fit, draw, _param_dict, _param_schema, default_distribution and __init__.
+    `_fit`, `draw`, `_param_dict`, `_param_schema`, `default_distribution` and `__init__`.
+
+    Attributes
+    ----------
+    implements : str
+        Describes the type of distribution. Default is "unknown".
+    var_type : str
+        Describes the type of variable. Default is "unknown".
+    provenance : str
+        Describes the origin of the distribution. Default is "builtin".
+    privacy : str
+        Describes the privacy level of the distribution. Default is "none".
+    is_unique : bool
+        Indicates whether the distribution is unique (does not contain duplicate
+        values). Default is False.
+    version : str
+        Version of the distribution. Default is "1.0".
     """
 
     implements: str = "unknown"
@@ -229,12 +245,16 @@ def metadist(
 
 
 class ScipyDistribution(BaseDistribution):
-    """Base class for numerical Scipy distributions.
+    """Base class for numerical distributions using Scipy.
 
     This base class makes it easy to implement new numerical
-    distributions. One could also use this base class for non-scipy
-    distributions, in which case the distribution class should implement
-    logpdf, rvs and fit methods.
+    distributions. It could also be used for non-Scipy distributions,
+    provided the distribution implements `logpdf`, `rvs` and `fit` methods.
+
+    Attributes
+    ----------
+    n_par : int
+        Number of parameters for the distribution.
     """
 
     @property
@@ -286,7 +306,17 @@ class ScipyDistribution(BaseDistribution):
 
 @metadist(is_unique=True)
 class UniqueDistributionMixin(BaseDistribution):
-    """Mixin class to make unique version of base distribution."""
+    """Mixin class to make unique version of base distributions.
+
+    This mixin class can be used to extend base distribution classes, adding
+    functionality that ensures generated values are unique. It overrides
+    the `draw` method of the base class, adding a check to prevent duplicate
+    values from being drawn. If a duplicate value is drawn, it retries up to
+    1e5 times before raising a ValueError.
+
+    The `UniqueDistributionMixin` is used in various unique metasyn distribution
+    variations, such as `UniqueFakerDistribution` and `UniqueRegexDistribution`.
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
