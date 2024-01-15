@@ -1,137 +1,38 @@
-from typing import Optional
-
-import polars as pl
-from tqdm import tqdm
+from typing import Optional, Union
 
 try:
     import tomllib
 except ImportError:
-    import tomli as tomllib  # noqa
+    import tomli as tomllib  # type: ignore  # noqa  
 
-from metasyn.metaframe import MetaFrame
-from metasyn.privacy import get_privacy
+from metasyn.privacy import BasePrivacy, get_privacy
 from metasyn.provider import DistributionProviderList
-from metasyn.var import MetaVar
 
-
-class VarConfig():
-    def __init__(self, name: str, var_type: Optional[str] = None,
-                 distribution: Optional[dict] = None,
-                 prop_missing: Optional[float] = None,
-                 description: Optional[str] = None,
-                 data_free: Optional[bool] = None):
-        self.name = name
-        self.var_type = var_type
-        self.distribution = distribution
-        self.prop_missing = prop_missing
-        self.description = description
-        self.data_free = data_free
 
 class MetaConfig():
-    def __init__(self, var_configs: list,
-                 dist_providers: list,
-                 privacy: dict,
-                 n_rows: Optional[int] = None):
-        self.var_configs = var_configs
-        self.dist_providers = dist_providers
-        self.privacy = privacy
+    def __init__(
+            self,
+            var_configs: list[dict],
+            dist_providers: Union[DistributionProviderList, list[str], str],
+            privacy: Union[BasePrivacy, dict],
+            n_rows: Optional[int] = None):
+        self.var_configs = [self._parse_var_config(v) for v in var_configs]
+        if isinstance(dist_providers, DistributionProviderList):
+            self.dist_providers = dist_providers
+        else:
+            self.dist_providers = DistributionProviderList(dist_providers)
+        if isinstance(privacy, BasePrivacy):
+            self.privacy = privacy
+        else:
+            self.privacy = get_privacy(**privacy)
         self.n_rows = n_rows
 
     @staticmethod
-    def get_var_type(series: pl.Series) -> str:
-        """Convert polars dtype to metasyn variable type.
-
-        This method uses internal polars methods, so this might break at some
-        point.
-
-        Parameters
-        ----------
-        series:
-            Series to get the metasyn variable type for.
-
-        Returns
-        -------
-        var_type:
-            The variable type that is found.
-        """
-        try:
-            polars_dtype = pl.datatypes.dtype_to_py_type(series.dtype).__name__
-        except NotImplementedError:
-            polars_dtype = pl.datatypes.dtype_to_ffiname(series.dtype)
-
-        convert_dict = {
-            "int": "discrete",
-            "float": "continuous",
-            "date": "date",
-            "datetime": "datetime",
-            "time": "time",
-            "str": "string",
-            "categorical": "categorical"
-        }
-        try:
-            return convert_dict[polars_dtype]
-        except KeyError as exc:
-            raise ValueError(
-                f"Unsupported polars type '{polars_dtype}") from exc
-
-    def fit_var(self, series, provider_list, default_privacy):
-        name = series.name
-        var_config = self.var.get(name, {})
-        dist_spec = var_config.get("distribution", None)
-
-        if "privacy" in var_config:
-            default_privacy = get_privacy(**var_config["privacy"])
-
-        var_type = self.get_var_type(series)
-        privacy = var_config.get("privacy", default_privacy)
-        unique = var_config.get("unique", None)
-        fit_kwargs = None if dist_spec is None else dist_spec.get("fit_kwargs", None)
-        description = var_config.get("description", None)
-        distribution = provider_list.fit(series, var_type, dist_spec, privacy, unique, fit_kwargs)
-        prop_missing = (len(series) - len(series.drop_nulls())) / len(series)
-
-        if var_config.get("data_free", False):
-            raise ValueError(f"Variable '{name}' was found in the dataframe, but was assumed to be"
-                             " data free in the configuration (file). Either remove the column from"
-                             " the dataset or set the variable not to be data free.")
-
-        return MetaVar(name, var_type, distribution, prop_missing, str(series.dtype), description)
-
-    def data_free_var(self, col_name, provider_list):
-        var_spec = self.var[col_name]
-        if not var_spec.get("data_free", False):
-            raise ValueError(f"Column with name '{var_spec}' not found and not declared as "
-                             "data_free.")
-        unique = var_spec.get("unique", False)
-        distribution = provider_list.create(var_spec["var_type"], var_spec["distribution"], unique)
-        prop_missing = var_spec.get("prop_missing", 0.0)
-        description = var_spec.get("description", None)
-        return MetaVar(col_name, var_spec["var_type"], distribution, prop_missing,
-                       description=description)
-
-    def generate_metaframe(self, df: Optional[pl.DataFrame] = None, progress_bar: bool = True):
-        provider_list =  DistributionProviderList(self.dist_providers)
-        default_privacy = get_privacy(**self.privacy)
-        all_vars = []
-
-        # First generate variables that exist in the dataframe
-        if df is not None:
-            self.n_rows = len(df) if self.n_rows is None else self.n_rows
-            for col_name in tqdm(df.columns, disable=not progress_bar):
-                new_var = self.fit_var(df[col_name], provider_list, default_privacy)
-                all_vars.append(new_var)
-            data_free_cols = set(self.var) - set(df.columns)
-
-        else:
-            if self.n_rows is None:
-                raise ValueError("Error generating metaframe without dataframe: set the number of "
-                                 "rows with the n_rows variable under the 'general' section.")
-            data_free_cols = set(self.var)
-
-        for col_name in data_free_cols:
-            new_var = self.data_free_var(col_name, provider_list)
-            all_vars.append(new_var)
-        return MetaFrame(all_vars, self.n_rows)
+    def _parse_var_config(var_cfg):
+        if "privacy" in var_cfg:
+            if not isinstance(var_cfg["privacy"], BasePrivacy):
+                var_cfg["privacy"] = get_privacy(**var_cfg["privacy"])
+        return var_cfg
 
     @classmethod
     def from_toml(cls, config_fp):
@@ -155,3 +56,54 @@ class MetaConfig():
             },
             "var": self.var
         }
+
+    def __getitem__(self, name):
+        return VarConfigAccess(name, self)
+
+    def get(self, name):
+        for var_dict in self.var_configs:
+            if var_dict["name"] == name:
+                return var_dict
+        return {}
+
+    def iter_var(self, exclude: Optional[list[str]] = None):
+        exclude = exclude if exclude is not None else []
+        for var_spec in self.var_configs:
+            if var_spec["name"] not in exclude:
+                yield self[var_spec["name"]]
+
+
+class VarConfigAccess():
+    def __init__(self, name:str, meta_config: MetaConfig):
+        self.name = name
+        self.meta_config = meta_config
+
+    @property
+    def spec(self) -> dict:
+        return self.meta_config.get(self.name)
+
+    @property
+    def dist_spec(self) -> dict:
+        return self.spec.get("distribution", {})
+
+    @property
+    def privacy(self) -> BasePrivacy:
+        if "privacy" in self.spec:
+            return self.spec["privacy"]
+        return self.meta_config.privacy
+
+    @property
+    def prop_missing(self) -> Optional[float]:
+        return self.spec.get("prop_missing", None)
+
+    @property
+    def description(self) -> Optional[str]:
+        return self.spec.get("description", None)
+
+    @property
+    def data_free(self) -> bool:
+        return self.spec.get("data_free", False)
+
+    @property
+    def var_type(self) -> str:
+        return self.spec.get("var_type", None)

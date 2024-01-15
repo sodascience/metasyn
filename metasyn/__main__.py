@@ -8,23 +8,16 @@ import json
 import pathlib
 import pickle
 import sys
-from configparser import ConfigParser
 
 try:  # Python < 3.10 (backport)
     from importlib_metadata import entry_points, version
 except ImportError:
     from importlib.metadata import entry_points, version  # type: ignore [assignment]
 
-
-try:
-    import tomllib
-except ImportError:
-    import tomli as tomllib  # noqa
-
 import polars as pl
 
 from metasyn import MetaFrame
-from metasyn.privacy import BasicPrivacy, get_privacy
+from metasyn.config import MetaConfig
 from metasyn.validation import create_schema
 
 MAIN_HELP_MESSAGE = f"""
@@ -68,13 +61,6 @@ def main() -> None:
         sys.exit(1)
 
 
-def _parse_config(config_fp):
-    with open(config_fp, "rb") as handle:
-        spec = tomllib.load(handle)
-    return spec
-    # return spec["var"]
-
-
 def create_metadata():
     """Program to create and export metadata from a DataFrame to a GMF file (.json)."""
     parser = argparse.ArgumentParser(
@@ -82,12 +68,12 @@ def create_metadata():
         description="Create a Generative Metadata Format file from a CSV file.",
     )
     parser.add_argument(
-        "input",
+        "--input",
         help="input file; a CSV file that you want to synthesize later.",
         type=pathlib.Path,
     )
     parser.add_argument(
-        "output",
+        "--output",
         help="output file: .json",
         type=pathlib.Path,
     )
@@ -99,19 +85,16 @@ def create_metadata():
     )
 
     args, _ = parser.parse_known_args()
-    kwargs = {}
     if args.config is not None:
-        all_spec = _parse_config(args.config)
-        if "var" in all_spec:
-            kwargs["spec"] = all_spec["var"]
-        if "general" in all_spec:
-            kwargs.update(all_spec["general"])
-        # privacy = get_privacy(**all_spec["privacy"])
-    # else:
-        # spec = {}
-        # privacy = BasicPrivacy()
-    data_frame = pl.read_csv(args.input, try_parse_dates=True)
-    meta_frame = MetaFrame.fit_dataframe(data_frame, **kwargs)
+        meta_config = MetaConfig.from_toml(args.config)
+    else:
+        meta_config = None
+
+    if args.input is None:
+        meta_frame = MetaFrame.from_config(meta_config)
+    else:
+        data_frame = pl.read_csv(args.input, try_parse_dates=True)
+        meta_frame = MetaFrame.fit_dataframe(data_frame, meta_config)
     meta_frame.export(args.output)
 
 

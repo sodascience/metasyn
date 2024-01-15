@@ -167,6 +167,7 @@ class DistributionProviderList():
     def __init__(
             self,
             dist_providers: Union[
+                list[str],
                 None, str, type[BaseDistributionProvider], BaseDistributionProvider,
                 list[Union[str, type[BaseDistributionProvider], BaseDistributionProvider]]]):
         if dist_providers is None:
@@ -220,7 +221,8 @@ class DistributionProviderList():
         unique = dist_spec.get("unique", False)
         return self._find_best_fit(series, var_type, unique, privacy)
 
-    def create(self, var_type: str, dist: dict, unique: bool = False):
+    def create(self, dist: dict, var_type: str):
+        unique = dist.get("unique", False)
         dist_class = self.find_distribution(dist["implements"], var_type, privacy=BasicPrivacy(),
                                             unique=unique)
         return dist_class(**dist["parameters"])

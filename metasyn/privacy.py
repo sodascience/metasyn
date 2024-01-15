@@ -1,7 +1,7 @@
 """Module with privacy classes to be used for creating GMF files."""
 
 from abc import ABC, abstractmethod
-from typing import Type, Union
+from typing import Optional, Type, Union
 
 try:
     from importlib_metadata import EntryPoint, entry_points
@@ -59,9 +59,9 @@ class BasicPrivacy(BasePrivacy):
         return BasePrivacy.to_dict(self)
 
 
-def get_privacy(name: str, parameters: dict):
+def get_privacy(name: str, parameters: Optional[dict] = None):
+    parameters = parameters if parameters is not None else {}
     for entry in entry_points(group="metasyn.privacy"):
-        print(entry.name)
         if name == entry.name:
             return entry.load()(**parameters)
     raise KeyError(f"Unknown privacy type with name '{name}'. "

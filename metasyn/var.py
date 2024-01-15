@@ -210,11 +210,10 @@ class MetaVar():
     @classmethod
     def fit(cls,  # pylint: disable=too-many-arguments
             series: pl.Series,
-            dist_spec: Optional[Union[str, BaseDistribution, type[BaseDistribution], dict]] = None,
-            dist_providers: Union[str, type,
-                                  BaseDistributionProvider] = "builtin",
+            dist_spec: Optional[dict] = None,
+            provider_list: DistributionProviderList = DistributionProviderList("builtin"),
             privacy: BasePrivacy = BasicPrivacy(),
-            prop_missing: float = 0.0,
+            prop_missing: Optional[float] = None,
             description: Optional[str] = None):
         """Fit distributions to the data.
 
@@ -243,7 +242,6 @@ class MetaVar():
             Extra options for distributions during the fitting stage.
         """
         var_type = cls.get_var_type(series)
-        provider_list = DistributionProviderList(dist_providers)
         if isinstance(dist_spec, BaseDistribution):
             dist_spec = dist_spec.to_dict()
         elif isinstance(dist_spec, type):
