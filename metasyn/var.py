@@ -60,78 +60,9 @@ class MetaVar():
         self.dtype = dtype
         self.description = description
         self.prop_missing = prop_missing
-            # series = _to_polars(series)
-            # self.name = series.name
-            # if prop_missing is None:
-            #     self.prop_missing = (
-            #         len(series) - len(series.drop_nulls())) / len(series)
-            # self.dtype = str(series.dtype)
-
-        # self.series = series
-        # self.description = description
-
-        # if self.prop_missing is None:
-        #     raise ValueError(f"Error while initializing variable {self.name}."
-        #                      " prop_missing is None.")
         if self.prop_missing < -1e-8 or self.prop_missing > 1+1e-8:
             raise ValueError(f"Cannot create variable '{self.name}' with proportion missing "
                              "outside range [0, 1]")
-
-    # @classmethod
-    # def detect(cls,
-    #            series_or_dataframe: Union[pd.Series,
-    #                                       pl.Series,
-    #                                       pl.DataFrame],
-    #            description: Optional[str] = None,
-    #            prop_missing: Optional[float] = None):
-    #     """Detect variable class(es) of series or dataframe.
-
-<<<<<<< HEAD
-        This method does not fit any distribution, but it does infer the
-        correct types for the MetaVar and saves the Series for later fitting.
-
-        Parameters
-        ----------
-        series_or_dataframe: pd.Series or pd.Dataframe
-            If the variable is a pandas Series, then find the correct
-            variable type and create an instance of that variable.
-            If a Dataframe is supplied instead, a list of of variables is
-            returned: one for each column in the dataframe.
-        description:
-            User description of the variable.
-        prop_missing:
-            Proportion of the values missing. If None, detect it from the series.
-            Otherwise prop_missing should be a float between 0 and 1.
-=======
-    #     Parameters
-    #     ----------
-    #     series_or_dataframe: pd.Series or pd.Dataframe
-    #         If the variable is a pandas Series, then find the correct
-    #         variable type and create an instance of that variable.
-    #         If a Dataframe is supplied instead, a list of of variables is
-    #         returned: one for each column in the dataframe.
-    #     description:
-    #         User description of the variable.
-    #     prop_missing:
-    #         Proportion of the values missing. If None, detect it from the series.
-    #         Otherwise prop_missing should be a float between 0 and 1.
->>>>>>> 2ce6998 (Update according to discussion)
-
-    #     Returns
-    #     -------
-    #     MetaVar:
-    #         It returns a meta data variable of the correct type.
-    #     """
-    #     if isinstance(series_or_dataframe, (pl.DataFrame, pd.DataFrame)):
-    #         if isinstance(series_or_dataframe, pd.DataFrame):
-    #             return [MetaVar.detect(series_or_dataframe[col])
-    #                     for col in series_or_dataframe]
-    #         return [MetaVar.detect(series) for series in series_or_dataframe]
-
-    #     series = _to_polars(series_or_dataframe)
-    #     var_type = cls.get_var_type(series)
-
-    #     return cls(var_type, series, description=description, prop_missing=prop_missing)
 
     @staticmethod
     def get_var_type(series: pl.Series) -> str:
@@ -259,8 +190,6 @@ class MetaVar():
 
     def draw(self) -> Any:
         """Draw a random item for the variable in whatever type is required."""
-        # if self.distribution is None:
-            # raise ValueError("Cannot draw without distribution")
 
         # Return NA's -> None
         if self.prop_missing is not None and np.random.rand() < self.prop_missing:
@@ -280,8 +209,6 @@ class MetaVar():
         pandas.Series:
             Pandas series with the synthetic data.
         """
-        # if not isinstance(self.distribution, BaseDistribution):
-            # raise ValueError("Cannot draw without distribution.")
         self.distribution.draw_reset()
         value_list = [self.draw() for _ in range(n)]
         if "Categorical" in self.dtype:
