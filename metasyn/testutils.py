@@ -30,7 +30,6 @@ def check_distribution_provider(provider_name: str):
         Name of the provider to be tested.
     """
     provider = get_distribution_provider(provider_name)
-    print(type(provider))
     assert isinstance(provider, BaseDistributionProvider)
     assert len(provider.distributions) > 0
     assert all(issubclass(dist, BaseDistribution) for dist in provider.distributions)

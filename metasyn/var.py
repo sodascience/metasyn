@@ -11,6 +11,7 @@ import polars as pl
 from metasyn.distribution.base import BaseDistribution
 from metasyn.privacy import BasePrivacy, BasicPrivacy
 from metasyn.provider import BaseDistributionProvider, DistributionProviderList
+from metasyn.util import DistributionSpec
 
 
 class MetaVar():
@@ -141,7 +142,7 @@ class MetaVar():
     @classmethod
     def fit(cls,  # pylint: disable=too-many-arguments
             series: Union[pl.Series, pd.Series],
-            dist_spec: Optional[dict, type, BaseDistribution] = None,
+            dist_spec: Optional[Union[dict, type, BaseDistribution, DistributionSpec]] = None,
             provider_list: DistributionProviderList = DistributionProviderList("builtin"),
             privacy: BasePrivacy = BasicPrivacy(),
             prop_missing: Optional[float] = None,
@@ -174,15 +175,7 @@ class MetaVar():
         """
         series = _to_polars(series)
         var_type = cls.get_var_type(series)
-        if isinstance(dist_spec, BaseDistribution):
-            dist_spec = dist_spec.to_dict()
-        elif isinstance(dist_spec, type):
-            dist_spec = {"implements": dist_spec.implements, "unique": dist_spec.is_unique}
-        elif isinstance(dist_spec, str):
-            dist_spec = {"implements": dist_spec}
-        elif dist_spec is None:
-            dist_spec = {}
-
+        dist_spec = DistributionSpec.parse(dist_spec)
         distribution = provider_list.fit(series, var_type, dist_spec, privacy)
         if prop_missing is None:
             prop_missing = (len(series) - len(series.drop_nulls())) / len(series)

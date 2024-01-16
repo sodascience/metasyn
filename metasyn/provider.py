@@ -56,6 +56,7 @@ from metasyn.distribution.faker import (
 from metasyn.distribution.na import NADistribution
 from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistribution
 from metasyn.privacy import BasePrivacy, BasicPrivacy
+from metasyn.util import DistributionSpec
 
 
 class BaseDistributionProvider(ABC):
@@ -188,7 +189,7 @@ class DistributionProviderList():
 
     def fit(self, series: pl.Series,
             var_type: str,
-            dist_spec: dict,
+            dist_spec: DistributionSpec,
             privacy: BasePrivacy = BasicPrivacy()):
         """Fit a distribution to a column/series.
 
@@ -210,9 +211,9 @@ class DistributionProviderList():
         fit_kwargs:
             Extra options for distributions during the fitting stage.
         """
-        if "implements" in dist_spec:
+        if dist_spec.implements is not None:
             return self._fit_distribution(series, dist_spec, var_type, privacy)
-        unique = dist_spec.get("unique", False)
+        unique = dist_spec.unique if dist_spec.unique is True else False
         return self._find_best_fit(series, var_type, unique, privacy)
 
     def create(self, dist: dict, var_type: str):
@@ -353,7 +354,7 @@ class DistributionProviderList():
         return all_dist[i_max]
 
     def _fit_distribution(self, series: pl.Series,
-                          dist_spec: dict,
+                          dist_spec: DistributionSpec,
                           var_type: str,
                           privacy: BasePrivacy) -> BaseDistribution:
         """Fit a specific distribution to a series.
@@ -380,19 +381,20 @@ class DistributionProviderList():
         BaseDistribution:
             Fitted distribution.
         """
-        if "parameters" in dist_spec:
-            privacy = BasicPrivacy()
-        unique = dist_spec.get("unique", False)
+        # if "parameters" in dist_spec:
+        # privacy = dist_spec.privacy
+        unique = dist_spec.unique
         unique = unique if unique else False
-        dist_class = self.find_distribution(dist_spec["implements"], var_type, privacy=privacy,
+        assert dist_spec.implements is not None
+        dist_class = self.find_distribution(dist_spec.implements, var_type, privacy=privacy,
                                             unique=unique)
-        if "parameters" in dist_spec:
-            return dist_class(**dist_spec["parameters"])
+        if dist_spec.parameters is not None:
+            return dist_class(**dist_spec.parameters)
 
         if issubclass(dist_class, NADistribution):
             dist_instance = dist_class.default_distribution()
         else:
-            fit_kwargs = dist_spec.get("fit_kwargs", {})
+            fit_kwargs = dist_spec.fit_kwargs
             dist_instance = dist_class.fit(series, **privacy.fit_kwargs, **fit_kwargs)
         return dist_instance
 

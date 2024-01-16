@@ -10,7 +10,7 @@ parameters = {n_avg = 11}
 
 [[var]]
 name = "PassengerId"
-unique = true  # Notice lower capitalization for .toml files.
+distribution = {unique = true}  # Notice lower capitalization for .toml files.
 
 [[var]]
 name = "Name"
@@ -20,7 +20,7 @@ distribution = {implements = "core.faker", parameters = {faker_type = "name", lo
 
 [[var]]
 name = "Fare"
-implements = "core.exponential"
+distribution = {implements = "core.exponential"}
 
 [[var]]
 name = "Age"

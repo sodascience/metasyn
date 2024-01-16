@@ -53,7 +53,7 @@ class MetaFrame():
     @classmethod
     def fit_dataframe(
             cls,
-            df: Optional[pl.DataFrame, pd.DataFrame],
+            df: Optional[Union[pl.DataFrame, pd.DataFrame]],
             meta_config: Optional[MetaConfig] = None,
             var_specs: Optional[list[dict]] = None,
             dist_providers: list[str] = ["builtin"],
@@ -128,13 +128,14 @@ class MetaFrame():
             var_specs = [] if var_specs is None else var_specs
             meta_config = MetaConfig(var_specs, dist_providers, privacy)
 
+        print(meta_config.privacy)
+        if isinstance(df, pd.DataFrame):
+            df = pl.DataFrame(df)
         all_vars = []
         columns = df.columns if df is not None else []
         if df is not None:
-            if isinstance(df, pd.DataFrame):
-                df = pl.DataFrame(df)
             for col_name in tqdm(columns, disable=not progress_bar):
-                var_spec = meta_config[col_name]
+                var_spec = meta_config.get(col_name)
                 var = MetaVar.fit(
                     df[col_name],
                     var_spec.dist_spec,
