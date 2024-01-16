@@ -9,6 +9,7 @@ from importlib.metadata import version
 from typing import Any, Dict, List, Optional, Sequence, Union
 
 import numpy as np
+import pandas as pd
 import polars as pl
 from tqdm import tqdm
 
@@ -52,7 +53,7 @@ class MetaFrame():
     @classmethod
     def fit_dataframe(
             cls,
-            df: Optional[pl.DataFrame],
+            df: Optional[pl.DataFrame, pd.DataFrame],
             meta_config: Optional[MetaConfig] = None,
             var_specs: Optional[list[dict]] = None,
             dist_providers: list[str] = ["builtin"],
@@ -130,6 +131,8 @@ class MetaFrame():
         all_vars = []
         columns = df.columns if df is not None else []
         if df is not None:
+            if isinstance(df, pd.DataFrame):
+                df = pl.DataFrame(df)
             for col_name in tqdm(columns, disable=not progress_bar):
                 var_spec = meta_config[col_name]
                 var = MetaVar.fit(

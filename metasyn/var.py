@@ -140,8 +140,8 @@ class MetaVar():
 
     @classmethod
     def fit(cls,  # pylint: disable=too-many-arguments
-            series: pl.Series,
-            dist_spec: Optional[dict] = None,
+            series: Union[pl.Series, pd.Series],
+            dist_spec: Optional[dict, type, BaseDistribution] = None,
             provider_list: DistributionProviderList = DistributionProviderList("builtin"),
             privacy: BasePrivacy = BasicPrivacy(),
             prop_missing: Optional[float] = None,
@@ -172,6 +172,7 @@ class MetaVar():
         fit_kwargs:
             Extra options for distributions during the fitting stage.
         """
+        series = _to_polars(series)
         var_type = cls.get_var_type(series)
         if isinstance(dist_spec, BaseDistribution):
             dist_spec = dist_spec.to_dict()

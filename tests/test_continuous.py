@@ -23,8 +23,8 @@ def test_uniform(lower_bound, upper_bound):
     scale = upper_bound-lower_bound
     values = stats.uniform(loc=lower_bound, scale=scale).rvs(100)
     dist = UniformDistribution.fit(values)
-    assert dist.min_val <= values.min()
-    assert dist.max_val >= values.max()
+    assert dist.low <= values.min()
+    assert dist.high >= values.max()
     assert dist.information_criterion(values) < 2*np.log(len(values)) - 200*np.log((upper_bound-lower_bound)**-1)
     assert isinstance(dist.draw(), float)
 
