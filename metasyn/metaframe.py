@@ -161,7 +161,9 @@ class MetaFrame():
             )
             all_vars.append(var)
         if df is None:
-            assert meta_config.n_rows is not None, "Please provide the number of rows in the configuration."
+            if meta_config.n_rows is not None:
+                raise ValueError("Please provide the number of rows in the configuration, "
+                                 "or supply a DataFrame.")
             return cls(all_vars, meta_config.n_rows)
         return cls(all_vars, len(df))
 

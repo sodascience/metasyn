@@ -4,9 +4,9 @@ from abc import ABC, abstractmethod
 from typing import Optional, Type, Union
 
 try:
-    from importlib_metadata import EntryPoint, entry_points
+    from importlib_metadata import entry_points
 except ImportError:
-    from importlib.metadata import EntryPoint, entry_points  # type: ignore
+    from importlib.metadata import entry_points  # type: ignore
 
 from metasyn.distribution.base import BaseDistribution
 

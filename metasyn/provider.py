@@ -6,7 +6,6 @@ See pyproject.toml on how the builtin distribution provider is registered.
 
 from __future__ import annotations
 
-import inspect
 import warnings
 from abc import ABC
 from typing import Any, List, Optional, Type, Union
@@ -211,13 +210,8 @@ class DistributionProviderList():
         fit_kwargs:
             Extra options for distributions during the fitting stage.
         """
-        # if fit_kwargs is None:
-            # fit_kwargs = {}
         if "implements" in dist_spec:
             return self._fit_distribution(series, dist_spec, var_type, privacy)
-        # if len(fit_kwargs) > 0:
-            # raise ValueError(f"Got fit arguments for variable '{series.name}', but no "
-                            #  "distribution. Set the distribution manually to fix.")
         unique = dist_spec.get("unique", False)
         return self._find_best_fit(series, var_type, unique, privacy)
 
@@ -386,18 +380,6 @@ class DistributionProviderList():
         BaseDistribution:
             Fitted distribution.
         """
-        # dist_instance = None
-        # if isinstance(dist, BaseDistribution):
-            # return dist
-
-        # if isinstance(dist, str):
-            # dist_class = self.find_distribution(dist, var_type, privacy=privacy, unique=unique)
-        # elif inspect.isclass(dist) and issubclass(dist, BaseDistribution):
-            # dist_class = dist
-        # elif isinstance(dist, dict):
-            # if "implements" not in dist:
-                # raise ValueError("Cannot create distribution with dictionary that does not contain"
-                                #  " an 'implements' key, have '{dist}'")
         if "parameters" in dist_spec:
             privacy = BasicPrivacy()
         unique = dist_spec.get("unique", False)
@@ -406,9 +388,7 @@ class DistributionProviderList():
                                             unique=unique)
         if "parameters" in dist_spec:
             return dist_class(**dist_spec["parameters"])
-        # else:
-        #     raise TypeError(
-        #         f"Distribution {dist} with type {type(dist)} is not a BaseDistribution")
+
         if issubclass(dist_class, NADistribution):
             dist_instance = dist_class.default_distribution()
         else:
