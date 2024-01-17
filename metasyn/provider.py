@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import warnings
 from abc import ABC
-from typing import Any, List, Optional, Type, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Type, Union
 
 try:
     from importlib_metadata import EntryPoint, entry_points
@@ -18,7 +18,6 @@ except ImportError:
 import numpy as np
 import polars as pl
 
-from metasyn.config import VarConfig, VarConfigAccess
 from metasyn.distribution import legacy
 from metasyn.distribution.base import BaseDistribution
 from metasyn.distribution.categorical import MultinoulliDistribution
@@ -59,6 +58,8 @@ from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistributio
 from metasyn.privacy import BasePrivacy, BasicPrivacy
 from metasyn.util import DistributionSpec
 
+if TYPE_CHECKING:
+    from metasyn.config import VarConfig, VarConfigAccess
 
 class BaseDistributionProvider(ABC):
     """Class that encapsulates a set of distributions.
