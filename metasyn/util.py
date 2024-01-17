@@ -41,7 +41,7 @@ class DistributionSpec():
 
     @classmethod
     def parse(cls, dist_spec: Optional[Union[dict, type[BaseDistribution], BaseDistribution,
-                                             DistributionSpec]]
+                                             DistributionSpec, str]]
               ) -> DistributionSpec:
         """Create a DistributionSpec instance from a variety of inputs.
 
@@ -77,6 +77,17 @@ class DistributionSpec():
         raise TypeError("Error parsing distribution specification of unknown type "
                         f"'{type(dist_spec)}' with value '{dist_spec}'")
 
+    @property
+    def fully_specified(self) -> bool:
+        """Indicate whether the distribution is suitable for datafree creation.
+
+        Returns
+        -------
+            A flag that indicates whether a distribution can be generated from the values
+            that are specified (not None).
+        """
+        return self.implements is not None and self.parameters is not None
+
 @dataclass
 class VarConfig():
     """Data class for storing the configurations for variables.
@@ -102,6 +113,9 @@ class VarConfig():
         # Convert the the privacy attribute if it is a dictionary.
         if isinstance(self.privacy, dict):
             self.privacy = get_privacy(**self.privacy)
+        if self.data_free and not self.dist_spec.fully_specified:
+            raise ValueError("Error creating variable specification: data free variable should have"
+                            f" 'implements' and 'parameters'. {self}")
 
     @classmethod
     def from_dict(cls, var_dict: dict) -> VarConfig:
@@ -119,4 +133,4 @@ class VarConfig():
         dist_spec = var_dict.pop("distribution", None)
         if dist_spec is None:
             return cls(**var_dict)
-        return cls(**var_dict, dist_spec=DistributionSpec(**dist_spec))
+        return cls(**var_dict, dist_spec=DistributionSpec.parse(dist_spec))

@@ -99,7 +99,7 @@ class MetaConfig():
                 "privacy": self.privacy,
                 "dist_providers": self.dist_providers,
             },
-            "var_configs": self.var_configs
+            "var": self.var_configs
         }
 
     def get(self, name: str) -> VarConfigAccess:
