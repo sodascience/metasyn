@@ -56,7 +56,7 @@ class MetaFrame():
             df: Optional[Union[pl.DataFrame, pd.DataFrame]],
             meta_config: Optional[MetaConfig] = None,
             var_specs: Optional[list[dict]] = None,
-            dist_providers: list[str] = ["builtin"],
+            dist_providers: Optional[list[str]] = None,
             privacy: Optional[Union[BasePrivacy, dict]] = None,
             progress_bar: bool = True):
         """Create a metasyn object from a polars (or pandas) dataframe.
@@ -126,6 +126,7 @@ class MetaFrame():
             elif isinstance(privacy, BasePrivacy):
                 privacy = privacy.to_dict()
             var_specs = [] if var_specs is None else var_specs
+            dist_providers = dist_providers if dist_providers is not None else ["builtin"]
             meta_config = MetaConfig(var_specs, dist_providers, privacy)
 
         print(meta_config.privacy)
@@ -169,7 +170,18 @@ class MetaFrame():
         return cls(all_vars, len(df))
 
     @classmethod
-    def from_config(cls, meta_config):
+    def from_config(cls, meta_config: MetaConfig) -> MetaFrame:
+        """Create a MetaFrame using a configuration, but without a DataFrame.
+
+        Parameters
+        ----------
+        meta_config
+            Configuration to be used for creating the new MetaFrame.
+
+        Returns
+        -------
+            A created MetaFrame.
+        """
         return cls.fit_dataframe(None, meta_config)
 
     def to_dict(self) -> Dict[str, Any]:

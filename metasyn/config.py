@@ -1,6 +1,8 @@
 "Configuration classes for creating metaframes."
-from dataclasses import dataclass, field
-from typing import Optional, Union
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Iterable, Optional, Union
 
 try:
     import tomllib
@@ -58,42 +60,101 @@ class MetaConfig():
         return VarConfig.from_dict(var_cfg)
 
     @classmethod
-    def from_toml(cls, config_fp):
+    def from_toml(cls, config_fp: Union[str, Path]) -> MetaConfig:
+        """Create a MetaConfig class from a .toml file.
+
+        Parameters
+        ----------
+        config_fp:
+            Path to the file containing the configuration.
+
+        Returns
+        -------
+        meta_config:
+            A fully initialized MetaConfig instance.
+        """
         with open(config_fp, "rb") as handle:
             config_dict = tomllib.load(handle)
         general = config_dict.get("general", {})
-        var_dict = config_dict.pop("var", {})
+        var_list = config_dict.pop("var", [])
         n_rows = general.pop("n_rows", None)
         dist_providers = general.pop("dist_providers", ["builtin"])
         privacy = general.pop("privacy", {"name": "none", "parameters": {}})
         if len(general) > 0:
             raise ValueError(f"Error parsing configuration file '{config_fp}'."
                              f" Unknown keys detected: '{list(general)}'")
-        return cls(var_dict, dist_providers, privacy, n_rows=n_rows)
+        return cls(var_list, dist_providers, privacy, n_rows=n_rows)
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
+        """Convert the configuration to a dictionary.
+
+        Returns
+        -------
+        config_dict:
+            Configuration in dictionary form.
+        """
         return {
             "general": {
                 "privacy": self.privacy,
                 "dist_providers": self.dist_providers,
             },
-            "var": self.var
+            "var_configs": self.var_configs
         }
 
-    def get(self, name):
+    def get(self, name: str) -> VarConfigAccess:
+        """Create a VarConfigAccess object pointing to a var with that name.
+
+        If the variable does not exist, then a new variable config is created that
+        has the default values.
+
+        Parameters
+        ----------
+        name:
+            Name of the variable configuration to retrieve.
+
+        Returns
+        -------
+        var_cfg:
+            A variable config access object.
+        """
         for var_cfg in self.var_configs:
             if var_cfg.name == name:
                 return VarConfigAccess(var_cfg, self)
         return VarConfigAccess(VarConfig(name=name), self)
 
-    def iter_var(self, exclude: Optional[list[str]] = None):
+    def iter_var(self, exclude: Optional[list[str]] = None) -> Iterable[VarConfigAccess]:
+        """Iterate over all variables in the configuration.
+
+        Parameters
+        ----------
+        exclude:
+            Exclude variables with names in that list.
+
+        Returns
+        -------
+        var_cfg:
+            VarConfigAccess class for each of the available variable configurations.
+        """
         exclude = exclude if exclude is not None else []
         for var_spec in self.var_configs:
             if var_spec.name not in exclude:
                 yield VarConfigAccess(var_spec, self)
 
 
-class VarConfigAccess():
+class VarConfigAccess():  # pylint: disable=too-few-public-methods
+    """Access for variable configuration object.
+
+    They take into account what the defaults are from the MetaConfig object.
+    Otherwise they pass through all the attributes as normal and thus behave
+    exactly as a variable config object themselves.
+
+    Parameters
+    ----------
+    var_config
+        The variable configuration to access.
+    meta_config
+        The meta configuration instance to get default values from.
+    """
     def __init__(self, var_config: VarConfig, meta_config: MetaConfig):
         self.var_config = var_config
         self.meta_config = meta_config
@@ -106,33 +167,3 @@ class VarConfigAccess():
         if attr not in ("var_config", "meta_config") and hasattr(self.var_config, attr):
             return getattr(self.var_config, attr)
         return super().__getattribute__(attr)
-
-    # @property
-    # def spec(self) -> dict:
-    #     return self.meta_config.get(self.name)
-
-    # @property
-    # def dist_spec(self) -> dict:
-    #     return self.spec.get("distribution", {})
-
-    # @property
-    # def privacy(self) -> BasePrivacy:
-    #     if "privacy" in self.spec:
-    #         return self.spec["privacy"]
-    #     return self.meta_config.privacy
-
-    # @property
-    # def prop_missing(self) -> Optional[float]:
-    #     return self.spec.get("prop_missing", None)
-
-    # @property
-    # def description(self) -> Optional[str]:
-    #     return self.spec.get("description", None)
-
-    # @property
-    # def data_free(self) -> bool:
-    #     return self.spec.get("data_free", False)
-
-    # @property
-    # def var_type(self) -> str:
-    #     return self.spec.get("var_type", None)

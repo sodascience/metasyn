@@ -216,11 +216,24 @@ class DistributionProviderList():
         unique = dist_spec.unique if dist_spec.unique is True else False
         return self._find_best_fit(series, var_type, unique, privacy)
 
-    def create(self, dist: dict, var_type: str):
-        unique = dist.get("unique", False)
-        dist_class = self.find_distribution(dist["implements"], var_type, privacy=BasicPrivacy(),
-                                            unique=unique)
-        return dist_class(**dist["parameters"])
+    # def create(self, dist: dict, var_type: str):
+    #     """Create a distribution without any
+
+    #     Parameters
+    #     ----------
+    #     dist
+    #         _description_
+    #     var_type
+    #         _description_
+
+    #     Returns
+    #     -------
+    #         _description_
+    #     """
+    #     unique = dist.get("unique", False)
+    #     dist_class = self.find_distribution(dist["implements"], var_type, privacy=BasicPrivacy(),
+    #                                         unique=unique)
+    #     return dist_class(**dist["parameters"])
 
     def _find_best_fit(self, series: pl.Series, var_type: str,
                        unique: Optional[bool],
