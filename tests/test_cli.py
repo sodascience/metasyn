@@ -131,3 +131,31 @@ def test_schema_gen(tmp_dir):
     cmd.append("non-existent-plugin")
     result = subprocess.run(cmd, check=False, capture_output=True)
     assert result.returncode != 0
+
+
+def test_datafree(tmp_dir):
+    gmf_fp = tmp_dir / "gmf_out.json"
+    syn_fp = tmp_dir / "test_out.csv"
+    cmd = [
+        Path(sys.executable).resolve(),     # the python executable
+        Path("metasyn", "__main__.py"),     # the cli script
+        "create-meta",                      # the subcommand
+        "--output", gmf_fp,              # the output file
+        "--config", Path("tests", "data", "no_data_config.toml")
+    ]
+    result = subprocess.run(cmd, check=False, capture_output=True)
+    assert result.returncode == 0
+    meta_frame = MetaFrame.from_json(gmf_fp)
+    assert meta_frame.n_rows == 100
+    assert len(meta_frame.meta_vars) == 3
+    cmd2 = [
+        Path(sys.executable).resolve(),     # the python executable
+        Path("metasyn", "__main__.py"),     # the cli script
+        "synthesize",
+        gmf_fp, syn_fp
+    ]
+    result = subprocess.run(cmd2, check=False, capture_output=True)
+    assert result.returncode == 0
+    df = pl.read_csv(syn_fp)
+    assert list(df.columns) == ["PassengerId", "Name", "Cabin"]
+    assert len(df) == 100

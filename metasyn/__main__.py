@@ -71,11 +71,13 @@ def create_metadata():
         "--input",
         help="input file; a CSV file that you want to synthesize later.",
         type=pathlib.Path,
+        default=None,
     )
     parser.add_argument(
         "--output",
         help="output file: .json",
         type=pathlib.Path,
+        default=None,
     )
     parser.add_argument(
         "--config",
