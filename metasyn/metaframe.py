@@ -129,7 +129,6 @@ class MetaFrame():
             dist_providers = dist_providers if dist_providers is not None else ["builtin"]
             meta_config = MetaConfig(var_specs, dist_providers, privacy)
 
-        print(meta_config.privacy)
         if isinstance(df, pd.DataFrame):
             df = pl.DataFrame(df)
         all_vars = []
