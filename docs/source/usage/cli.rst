@@ -4,7 +4,7 @@ Metasyn provides a command-line interface (CLI) for accessing core functionality
 
 The CLI currently has three subcommands:
 
-* The ``create-meta`` subcommand, which allows you to **create generative metadata** from a ``CSV file``
+* The ``create-meta`` subcommand, which allows you to **create generative metadata** from a ``CSV file`` and/or configuration file.
 * The ``synthesize`` subcommand, which allows you to **generate synthetic data** from a ``GMF file``
 * The ``schema`` subcommand, which allows you to **create validation schemas** for GMF files.
 
@@ -85,7 +85,7 @@ The ``create-meta`` command can be used as follows:
 
 .. code-block:: bash
 
-   metasyn create-meta [input] [output]
+   metasyn create-meta --input [input] --output [output]
 
 This will:
 
@@ -126,17 +126,43 @@ The ``create-meta`` command also takes one optional argument:
 
 .. note::
 
-   The configuration file must be in the `.ini` format. For more information on the format, please refer to the `Python documentation <https://docs.python.org/3/library/configparser.html>`_.
+   The configuration file must be in the `.toml` format. For more information on the format, please refer to the `Python documentation <https://docs.python.org/3/library/configparser.html>`_.
 
    An example of a configuration file that specifies the ``PassengerId`` column to be unique and the ``Fare`` column to have a log-normal distribution is as follows:
 
-   .. code-block:: ini
+   .. code-block:: toml
 
-      [var.PassengerId]
-      unique = True
+      [[var]]
+      name = "PassengerId"
+      distribution = {unique = true}  # Notice lower capitalization for .toml files.
 
-      [var.Fare]
-      distribution=LogNormalDistribution
+
+      [[var]]
+      name = "Fare"
+      distribution = {implements = "core.log_normal"}
+
+It is also possible to create a GMF file without any input CSV. For this to work, you need to supply a configuration
+file that fully specifies all wanted columns. You will need to tell ``metasyn`` in the configuration file that the
+column is ``data_free``. It is also required to set the number of rows under the `general` section, for example:
+
+   .. code-block:: toml
+
+      [general]
+      n_rows = 100
+
+
+      [[var]]
+
+      name = "PassengerId"
+      data_free = true
+      unique = true
+      prop_missing = 0.0
+      description = "ID of the unfortunate passenger."
+      var_type = "discrete"
+      distribution = {implements = "core.unique_key", unique = true, parameters = {consecutive = 1, low = 0}}
+
+The example will generate a GMF file that can be used to generate new synthetic data with the ``synthesize``
+subcommand described below.
 
 
 Generating Synthetic Data
