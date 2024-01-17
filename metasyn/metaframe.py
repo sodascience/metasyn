@@ -68,7 +68,9 @@ class MetaFrame():
         ----------
         df:
             Polars dataframe with the correct column dtypes.
-        spec:
+        meta_config:
+            Column specification in MetaConfig format.
+        var_specs:
             Column specifications to modify the defaults. For each of the columns additional
             directives can be supplied here. There are 3 different directives currently supported:
 

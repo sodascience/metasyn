@@ -146,7 +146,7 @@ class MetaVar():
             provider_list: DistributionProviderList = DistributionProviderList("builtin"),
             privacy: BasePrivacy = BasicPrivacy(),
             prop_missing: Optional[float] = None,
-            description: Optional[str] = None):
+            description: Optional[str] = None) -> MetaVar:
         """Fit distributions to the data.
 
         If multiple distributions are available for the current data type,
@@ -157,21 +157,22 @@ class MetaVar():
 
         Parameters
         ----------
-        dist:
+        series:
+            Data series to fit a distribution to.
+        dist_spec:
             The distribution to fit. In case of a string, search for it
             using the aliases of all distributions. Otherwise use the
             supplied distribution (class). Examples of allowed strings are:
             "normal", "uniform", "faker.city.nl_NL". If not supplied, fit
             the best available distribution for the variable type.
-        dist_providers:
+        provider_list:
             Distribution providers that are used for fitting.
         privacy:
             Privacy level to use for fitting the series.
-        unique:
-            Whether the variable should be unique. If not supplied, it will be
-            inferred from the data.
-        fit_kwargs:
-            Extra options for distributions during the fitting stage.
+        prop_missing:
+            Proportion of the values missing, default None.
+        description:
+            Description for the variable.
         """
         series = _to_polars(series)
         var_type = cls.get_var_type(series)
@@ -184,7 +185,6 @@ class MetaVar():
 
     def draw(self) -> Any:
         """Draw a random item for the variable in whatever type is required."""
-
         # Return NA's -> None
         if self.prop_missing is not None and np.random.rand() < self.prop_missing:
             return None

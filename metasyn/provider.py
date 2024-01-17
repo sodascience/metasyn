@@ -199,17 +199,13 @@ class DistributionProviderList():
             The data to fit the distributions to.
         var_type:
             The variable type of the data.
-        dist:
+        dist_spec:
             Distribution to fit. If not supplied or None, the information
             criterion will be used to determine which distribution is the most
             suitable. For most variable types, the information criterion is based on
             the BIC (Bayesian Information Criterion).
         privacy:
             Level of privacy that will be used in the fit.
-        unique:
-            Whether the distribution should be unique or not.
-        fit_kwargs:
-            Extra options for distributions during the fitting stage.
         """
         if dist_spec.implements is not None:
             return self._fit_distribution(series, dist_spec, var_type, privacy)
@@ -376,18 +372,14 @@ class DistributionProviderList():
 
         Parameters
         ----------
-        dist:
+        series:
+            Series to fit the distribution to.
+        dist_spec:
             Distribution to fit (if it is not already fitted).
         var_type:
             Type of variable to fit the distribution for.
-        series:
-            Series to fit the distribution to.
         privacy:
             Privacy level to fit the distribution with.
-        unique:
-            Whether the distribution to be fit is unique.
-        fit_kwargs:
-            Extra keyword arguments to modify the way the distribution is fit.
 
         Returns
         -------

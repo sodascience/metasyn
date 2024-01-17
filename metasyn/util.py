@@ -1,4 +1,4 @@
-"Configuration classes for creating metaframes."
+"""Configuration classes for creating metaframes."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -19,6 +19,7 @@ class DistributionSpec():
     - fit_kwargs: Fitting keyword arguments to be used while fitting the distribution.
     - version: Version of the distribution to fit.
     """
+
     implements: Optional[str] = None
     unique: Optional[bool] = None
     parameters: Optional[dict] = None
@@ -88,6 +89,7 @@ class VarConfig():
     - description: Description of the variable.
     - var_type: Type of the variable in question.
     """
+
     name: str
     dist_spec: DistributionSpec = field(default_factory=DistributionSpec)
     privacy: Optional[BasePrivacy] = None

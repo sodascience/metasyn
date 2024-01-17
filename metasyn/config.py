@@ -1,4 +1,4 @@
-"Configuration classes for creating metaframes."
+"""Configuration classes for creating metaframes."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -35,6 +35,7 @@ class MetaConfig():
         Number of rows for synthesization at a later stage. Can be unspecified by
         leaving the value at None.
     """
+
     def __init__(
             self,
             var_configs: Union[list[dict], list[VarConfig]],
@@ -155,6 +156,7 @@ class VarConfigAccess():  # pylint: disable=too-few-public-methods
     meta_config
         The meta configuration instance to get default values from.
     """
+
     def __init__(self, var_config: VarConfig, meta_config: MetaConfig):
         self.var_config = var_config
         self.meta_config = meta_config
