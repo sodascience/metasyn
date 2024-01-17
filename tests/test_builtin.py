@@ -1,9 +1,9 @@
 from pytest import mark, raises
 
+from metasyn.distribution import UniformDistribution
+from metasyn.privacy import BasicPrivacy
 from metasyn.provider import get_distribution_provider
 from metasyn.testutils import check_distribution, check_distribution_provider
-from metasyn.privacy import BasicPrivacy
-from metasyn.distribution import UniformDistribution
 
 
 def test_builtin_provider():
