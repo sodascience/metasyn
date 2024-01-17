@@ -70,7 +70,7 @@ class DistributionSpec():
             return cls()
         if isinstance(dist_spec, dict):
             return cls(**dist_spec)
-        if isinstance(dist_spec, cls):
+        if isinstance(dist_spec, DistributionSpec):
             return dist_spec
         if issubclass(dist_spec, BaseDistribution):
             return cls(implements=dist_spec.implements, unique=dist_spec.is_unique)

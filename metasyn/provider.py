@@ -18,6 +18,7 @@ except ImportError:
 import numpy as np
 import polars as pl
 
+from metasyn.config import VarConfig, VarConfigAccess
 from metasyn.distribution import legacy
 from metasyn.distribution.base import BaseDistribution
 from metasyn.distribution.categorical import MultinoulliDistribution
@@ -212,24 +213,25 @@ class DistributionProviderList():
         unique = dist_spec.unique if dist_spec.unique is True else False
         return self._find_best_fit(series, var_type, unique, privacy)
 
-    # def create(self, dist: dict, var_type: str):
-    #     """Create a distribution without any
+    def create(self, var_cfg: Union[VarConfig, VarConfigAccess]) -> BaseDistribution:
+        """Create a distribution without any data.
 
-    #     Parameters
-    #     ----------
-    #     dist
-    #         _description_
-    #     var_type
-    #         _description_
+        Parameters
+        ----------
+        var_cfg
+            A variable configuration that provides all the qinformation to create the distribution.
 
-    #     Returns
-    #     -------
-    #         _description_
-    #     """
-    #     unique = dist.get("unique", False)
-    #     dist_class = self.find_distribution(dist["implements"], var_type, privacy=BasicPrivacy(),
-    #                                         unique=unique)
-    #     return dist_class(**dist["parameters"])
+        Returns
+        -------
+            A distribution according to the variable specifications.
+        """
+        dist_spec = var_cfg.dist_spec
+        unique = dist_spec.unique if dist_spec.unique else False
+        assert dist_spec.implements is not None and var_cfg.var_type is not None
+        dist_class = self.find_distribution(
+            dist_spec.implements, var_cfg.var_type,
+            privacy=BasicPrivacy(), unique=unique)
+        return dist_class(**dist_spec.parameters)
 
     def _find_best_fit(self, series: pl.Series, var_type: str,
                        unique: Optional[bool],
@@ -386,8 +388,6 @@ class DistributionProviderList():
         BaseDistribution:
             Fitted distribution.
         """
-        # if "parameters" in dist_spec:
-        # privacy = dist_spec.privacy
         unique = dist_spec.unique
         unique = unique if unique else False
         assert dist_spec.implements is not None

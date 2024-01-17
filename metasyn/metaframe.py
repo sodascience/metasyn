@@ -153,8 +153,7 @@ class MetaFrame():
                 raise ValueError(
                     f"Column with name '{var_spec.name}' not found and not declared as "
                      "data_free.")
-            distribution = meta_config.dist_providers.create(
-                var_spec.dist_spec, var_spec.var_type)
+            distribution = meta_config.dist_providers.create(var_spec)
             var = MetaVar(
                 var_spec.name,
                 var_spec.var_type,
