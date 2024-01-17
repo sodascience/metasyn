@@ -33,7 +33,7 @@ class DistributionSpec():
             if self.parameters is not None:
                 raise ValueError("Cannot create DistributionSpec with attribute 'parameters' but "
                                  "without attribute 'implements'.")
-            if len(self.fit_kwargs) is not None:
+            if len(self.fit_kwargs) > 0:
                 raise ValueError("Cannot create DistributionSpec with attribute 'fit_kwargs' that"
                                  " is not empty but without attribute 'implements'.")
 
