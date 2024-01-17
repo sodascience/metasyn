@@ -8,7 +8,6 @@ n_rows = 100
 
 name = "PassengerId"
 data_free = true
-unique = true
 prop_missing = 0.0
 description = "ID of the unfortunate passenger."
 var_type = "discrete"
