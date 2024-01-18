@@ -16,7 +16,7 @@ distribution = {implements = "core.faker", parameters = {faker_type = "name", lo
 
 [[var]]
 name = "Fare"
-distribution = {implements = "core.exponential"}
+distribution = {implements = "core.log_normal"}
 
 [[var]]
 name = "Age"

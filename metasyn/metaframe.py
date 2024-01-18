@@ -130,6 +130,8 @@ class MetaFrame():
             var_specs = [] if var_specs is None else var_specs
             dist_providers = dist_providers if dist_providers is not None else ["builtin"]
             meta_config = MetaConfig(var_specs, dist_providers, privacy)
+        else:
+            assert privacy is None
 
         if isinstance(df, pd.DataFrame):
             df = pl.DataFrame(df)
