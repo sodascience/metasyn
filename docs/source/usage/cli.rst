@@ -4,7 +4,7 @@ Metasyn provides a command-line interface (CLI) for accessing core functionality
 
 The CLI currently has three subcommands:
 
-* The ``create-meta`` subcommand, which allows you to **create generative metadata** from a ``CSV file`` and/or configuration file.
+* The ``create-meta`` subcommand, which allows you to **create generative metadata** from a ``.csv file`` and/or a ``.toml`` configuration file.
 * The ``synthesize`` subcommand, which allows you to **generate synthetic data** from a ``GMF file``
 * The ``schema`` subcommand, which allows you to **create validation schemas** for GMF files.
 
