@@ -17,6 +17,10 @@ from metasyn.util import VarConfig
 class MetaConfig():
     """Configuration class for creating MetaFrames.
 
+    This class is used to create, manipulate, and retrieve configurations for
+    individual variables in a MetaFrame. It also provides methods for loading
+    configurations from .toml files and converting them to dictionaries.
+
     Parameters
     ----------
     var_configs:
