@@ -1,4 +1,9 @@
-"""Configuration classes for creating metaframes."""
+"""Utility module for metasyn.
+
+This module provides utility classes that are used across metasyn,
+including classes for specifying distributions and storing variable
+configurations.
+"""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
