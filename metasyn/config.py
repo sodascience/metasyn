@@ -1,4 +1,4 @@
-"""Configuration classes for creating metaframes."""
+"""Module defining configuration classes for creating MetaFrames."""
 from __future__ import annotations
 
 from pathlib import Path
