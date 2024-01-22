@@ -5,16 +5,30 @@ Metasyn is developed with a strong focus on extensibility, allowing developers t
 .. note:: 
     Refer to our :doc:`/developer/developer` for more information on how to develop (additional functionality) for metasyn.
 
+
+Privacy plug-ins
+----------------
+
 Disclosure control
-------------------
+~~~~~~~~~~~~~~~~~~
 `Disclosure Control <https://github.com/sodascience/metasyn-disclosure-control>`_ is a plugin developed in-house for metasyn.
 
 While the base ``metasyn`` package is generally good at protecting privacy, it doesn't adhere to any standard level of privacy. For example, the uniform distributions in the base package will simply find the lowest and highest values in the dataset, and use those as the boundaries for the uniform distribution. In some cases the minimum and maximum values can be disclosive. That is why we have built this plugin that implements the disclosure control standard.
 
 
-Additional distributions
-------------------------
-It is possible to add additional distribution types. Unfortunately, at this moment, no additional packages with distributions are publicly available. However, we encourage developers and users to explore the possibilities and contribute their custom distributions to enrich the ``metasyn`` ecosystem further. 
+Custom privacy plug-ins
+~~~~~~~~~~~~~~~~~~~~~~~
+If you wish to create a custom privacy plugin, please refer to the :ref:`Privacy <privacy_plugin>` page of the :doc:`/developer/developer` section.
+
+
+
+Distribution Plug-ins
+---------------------
+It is possible to add additional distribution types through plug-ins. Unfortunately, at this moment, no additional packages with distributions are publicly available. However, we encourage developers and users to explore the possibilities and contribute their custom distributions to enrich the ``metasyn`` ecosystem further. 
+
+Custom distribution plug-ins
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If you wish to create a custom distribution plugin, please refer to the :ref:`Distributions <dist_plugin>` page of the :doc:`/developer/developer` section.
 
 
 
