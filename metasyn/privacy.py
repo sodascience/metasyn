@@ -1,7 +1,12 @@
 """Module with privacy classes to be used for creating GMF files."""
 
 from abc import ABC, abstractmethod
-from typing import Type, Union
+from typing import Optional, Type, Union
+
+try:
+    from importlib_metadata import entry_points
+except ImportError:
+    from importlib.metadata import entry_points  # type: ignore
 
 from metasyn.distribution.base import BaseDistribution
 
@@ -63,3 +68,33 @@ class BasicPrivacy(BasePrivacy):
 
     def to_dict(self) -> dict:
         return BasePrivacy.to_dict(self)
+
+
+def get_privacy(name: str, parameters: Optional[dict] = None) -> BasePrivacy:
+    """Create a new privacy object using a name and parameters.
+
+    Parameters
+    ----------
+    name
+        Name of the privacy type, use "none" for no specific type of privacy.
+    parameters, optional
+        The parameters for the privacy type. This could be the epsilon for differential
+        privacy or n_avg for disclosure control, by default None.
+
+    Returns
+    -------
+        A new instantiated object for privacy.
+
+    Raises
+    ------
+    KeyError
+        If the name of the privacy type cannot be found.
+    """
+    parameters = parameters if parameters is not None else {}
+    for entry in entry_points(group="metasyn.privacy"):
+        if name == entry.name:
+            return entry.load()(**parameters)
+    privacy_names = [entry.name for entry in entry_points(group="metasyn.privacy")]
+    raise KeyError(f"Unknown privacy type with name '{name}'. "
+                    "Ensure that you have installed the privacy package."
+                    f"Available privacy names: {privacy_names}.")

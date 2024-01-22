@@ -1,15 +1,14 @@
-from random import random
 from pathlib import Path
+from random import random
 
-import pytest
 import pandas as pd
 import polars as pl
+import pytest
 from pytest import mark
 
 from metasyn.metaframe import MetaFrame
-from metasyn.var import MetaVar
 from metasyn.provider import get_distribution_provider
-
+from metasyn.var import MetaVar
 
 dtypes = {
     "PassengerId": "int",
@@ -43,12 +42,12 @@ def test_dataset(tmp_path, dataframe_lib):
     df = _read_csv(titanic_fp, dataframe_lib)
     dataset = MetaFrame.fit_dataframe(
         df,
-        spec={
-                "Name": {"prop_missing": 0.5},
-                "Ticket": {"description": "test_description"},
-                "Fare": {"distribution": "normal"},
-                "PassengerId": {"unique": True},
-             })
+        var_specs=[
+                {"name": "Name", "prop_missing": 0.5},
+                {"name": "Ticket", "description": "test_description"},
+                {"name": "Fare", "distribution": {"implements": "normal"}},
+                {"name": "PassengerId", "distribution": {"unique": True}},
+             ])
 
     def check_dataset(dataset):
         assert dataset.n_columns == 12
@@ -102,7 +101,7 @@ def test_dataset(tmp_path, dataframe_lib):
 
     # Check whether non-columns raise an error
     with pytest.raises(ValueError):
-        dataset = MetaFrame.fit_dataframe(df, spec={"unicorn": {"prop_missing": 0.5}})
+        dataset = MetaFrame.fit_dataframe(df, var_specs=[{"name": "unicorn", "prop_missing": 0.5}])
 
 
 def test_distributions(tmp_path):
@@ -111,7 +110,7 @@ def test_distributions(tmp_path):
     provider = get_distribution_provider()
     for var_type in provider.all_var_types:
         for dist in provider.get_dist_list(var_type):
-            var = MetaVar(var_type, name="None", distribution=dist.default_distribution(),
+            var = MetaVar(name="None", var_type=var_type, distribution=dist.default_distribution(),
                           prop_missing=random())
             dataset = MetaFrame([var], n_rows=10)
             dataset.to_json(tmp_fp)

@@ -1,4 +1,5 @@
 import polars as pl
+
 from metasyn import MetaFrame
 
 # example dataframe from polars website

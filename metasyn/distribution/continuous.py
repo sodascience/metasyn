@@ -17,29 +17,29 @@ class UniformDistribution(ScipyDistribution):
 
     Parameters
     ----------
-    min_val: float
+    low: float
         Lower bound for uniform distribution.
-    max_val: float
+    high: float
         Upper bound for uniform distribution.
     """
 
     dist_class = uniform
 
-    def __init__(self, min_val: float, max_val: float):
-        self.par = {"min_val": min_val, "max_val": max_val}
-        self.dist = uniform(loc=self.min_val, scale=max(self.max_val-self.min_val, 1e-8))
+    def __init__(self, low: float, high: float):
+        self.par = {"low": low, "high": high}
+        self.dist = uniform(loc=self.low, scale=max(self.high-self.low, 1e-8))
 
     @classmethod
     def _fit(cls, values):
         return cls(values.min(), values.max())
 
     def _information_criterion(self, values):
-        if np.any(np.array(values) < self.min_val) or np.any(np.array(values) > self.max_val):
+        if np.any(np.array(values) < self.low) or np.any(np.array(values) > self.high):
             return np.log(len(values))*self.n_par + 100*len(values)
-        if np.fabs(self.max_val-self.min_val) < 1e-8:
+        if np.fabs(self.high-self.low) < 1e-8:
             return np.log(len(values))*self.n_par - 100*len(values)
         return (np.log(len(values))*self.n_par
-                - 2*len(values)*np.log((self.max_val-self.min_val)**-1))
+                - 2*len(values)*np.log((self.high-self.low)**-1))
 
     @classmethod
     def default_distribution(cls):
@@ -48,8 +48,8 @@ class UniformDistribution(ScipyDistribution):
     @classmethod
     def _param_schema(cls):
         return {
-            "min_val": {"type": "number"},
-            "max_val": {"type": "number"},
+            "low": {"type": "number"},
+            "high": {"type": "number"},
         }
 
 

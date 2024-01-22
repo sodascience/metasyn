@@ -1,8 +1,10 @@
-from pytest import mark
 import pytest
-from metasyn.provider import DistributionProviderList, BuiltinDistributionProvider
+from pytest import mark
+
+from metasyn.distribution import MultinoulliDistribution, UniformDistribution
 from metasyn.distribution.base import BaseDistribution, metadist
-from metasyn.distribution import UniformDistribution, MultinoulliDistribution
+from metasyn.provider import BuiltinDistributionProvider, DistributionProviderList
+
 
 @mark.parametrize("input", ["builtin", "fake-name", BuiltinDistributionProvider,
                             BuiltinDistributionProvider()])
@@ -30,7 +32,7 @@ class UniformTest2(UniformDistribution):
     pass
 
 
-class TestProvider(BuiltinDistributionProvider):
+class CheckProvider(BuiltinDistributionProvider):
     distributions = [UniformTest2]
     legacy_distributions = [UniformTest1, UniformTest11]
 
@@ -41,7 +43,7 @@ class LegacyOnly(BuiltinDistributionProvider):
 
 
 def test_legacy():
-    plist = DistributionProviderList(TestProvider)
+    plist = DistributionProviderList(CheckProvider)
     assert issubclass(plist.find_distribution("core.uniform", var_type="continuous"), UniformTest2)
     with pytest.warns():
         assert issubclass(plist.find_distribution("core.uniform", var_type="continuous", version="1.1"), UniformTest11)

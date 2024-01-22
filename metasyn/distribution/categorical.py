@@ -72,7 +72,7 @@ class MultinoulliDistribution(BaseDistribution):
         return np.random.choice(self.labels, p=self.probs)
 
     def information_criterion(self,
-                              values: Union[pd.Series, pl.Series, npt.NDArray[np.str_]]
+                              values: Union[pd.Series, pl.Series, npt.NDArray]
                               ) -> float:
         series = self._to_series(values)
         labels, counts = np.unique(series, return_counts=True)

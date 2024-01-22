@@ -4,17 +4,17 @@ from __future__ import annotations
 
 import json
 import pathlib
-from copy import deepcopy
 from datetime import datetime
 from importlib.metadata import version
 from typing import Any, Dict, List, Optional, Sequence, Union
 
 import numpy as np
+import pandas as pd
 import polars as pl
 from tqdm import tqdm
 
-from metasyn.privacy import BasePrivacy, BasicPrivacy
-from metasyn.provider import BaseDistributionProvider
+from metasyn.config import MetaConfig
+from metasyn.privacy import BasePrivacy
 from metasyn.validation import validate_gmf_dict
 from metasyn.var import MetaVar
 
@@ -67,11 +67,11 @@ class MetaFrame():
     @classmethod
     def fit_dataframe(
             cls,
-            df: pl.DataFrame,
-            spec: Optional[dict[str, dict]] = None,
-            dist_providers: Union[str, list[str], BaseDistributionProvider,
-                                  list[BaseDistributionProvider]] = "builtin",
-            privacy: Optional[BasePrivacy] = None,
+            df: Optional[Union[pl.DataFrame, pd.DataFrame]],
+            meta_config: Optional[MetaConfig] = None,
+            var_specs: Optional[list[dict]] = None,
+            dist_providers: Optional[list[str]] = None,
+            privacy: Optional[Union[BasePrivacy, dict]] = None,
             progress_bar: bool = True):
         """Create a metasyn object from a polars (or pandas) dataframe.
 
@@ -82,7 +82,9 @@ class MetaFrame():
         ----------
         df:
             Polars dataframe with the correct column dtypes.
-        spec:
+        meta_config:
+            Column specification in MetaConfig format.
+        var_specs:
             Column specifications to modify the defaults. For each of the columns additional
             directives can be supplied here. There are 3 different directives currently supported:
 
@@ -134,45 +136,69 @@ class MetaFrame():
         MetaFrame:
             Initialized metasyn metaframe.
         """
-        if privacy is None:
-            privacy = BasicPrivacy()
-        if spec is None:
-            spec = {}
+        if meta_config is None:
+            if privacy is None:
+                privacy = {"name": "none"}
+            elif isinstance(privacy, BasePrivacy):
+                privacy = privacy.to_dict()
+            var_specs = [] if var_specs is None else var_specs
+            dist_providers = dist_providers if dist_providers is not None else ["builtin"]
+            meta_config = MetaConfig(var_specs, dist_providers, privacy)
         else:
-            spec = deepcopy(spec)
+            assert privacy is None
 
-        if set(list(spec)) - set(df.columns):
-            raise ValueError(
-                "Argument 'spec' includes the specifications for column names that do "
-                "not exist in the supplied dataframe:"
-                f" '{set(list(spec)) - set(df.columns)}'")
+        if isinstance(df, pd.DataFrame):
+            df = pl.DataFrame(df)
         all_vars = []
-        for col_name in tqdm(df.columns, disable=not progress_bar):
-            series = df[col_name]
-            col_spec = spec.get(col_name, {})
-            dist = col_spec.pop("distribution", None)
-            unq = col_spec.pop("unique", None)
-            description = col_spec.pop("description", None)
-            prop_missing = col_spec.pop("prop_missing", None)
-            cur_privacy = col_spec.pop("privacy", privacy)
-            fit_kwargs = col_spec.pop("fit_kwargs", {})
-            if len(col_spec) != 0:
+        columns = df.columns if df is not None else []
+        if df is not None:
+            for col_name in tqdm(columns, disable=not progress_bar):
+                var_spec = meta_config.get(col_name)
+                var = MetaVar.fit(
+                    df[col_name],
+                    var_spec.dist_spec,
+                    meta_config.dist_providers,
+                    var_spec.privacy,
+                    var_spec.prop_missing,
+                    var_spec.description)
+                all_vars.append(var)
+
+        # Data free columns to be appended
+        for var_spec in meta_config.iter_var(exclude=columns):
+            if not var_spec.data_free:
                 raise ValueError(
-                    f"Unknown spec items '{col_spec}' for variable '{col_name}'.")
-            var = MetaVar.detect(
-                series,
-                description=description,
-                prop_missing=prop_missing)
-            var.fit(
-                dist=dist,
-                dist_providers=dist_providers,
-                unique=unq,
-                privacy=cur_privacy,
-                fit_kwargs=fit_kwargs)
-
+                    f"Column with name '{var_spec.name}' not found and not declared as "
+                     "data_free.")
+            distribution = meta_config.dist_providers.create(var_spec)
+            var = MetaVar(
+                var_spec.name,
+                var_spec.var_type,
+                distribution,
+                description=var_spec.description,
+                prop_missing=var_spec.prop_missing,
+            )
             all_vars.append(var)
-
+        if df is None:
+            if meta_config.n_rows is None:
+                raise ValueError("Please provide the number of rows in the configuration, "
+                                 "or supply a DataFrame.")
+            return cls(all_vars, meta_config.n_rows)
         return cls(all_vars, len(df))
+
+    @classmethod
+    def from_config(cls, meta_config: MetaConfig) -> MetaFrame:
+        """Create a MetaFrame using a configuration, but without a DataFrame.
+
+        Parameters
+        ----------
+        meta_config
+            Configuration to be used for creating the new MetaFrame.
+
+        Returns
+        -------
+            A created MetaFrame.
+        """
+        return cls.fit_dataframe(None, meta_config)
 
     def to_dict(self) -> Dict[str, Any]:
         """Create dictionary with the properties for recreation."""
@@ -233,7 +259,7 @@ class MetaFrame():
             for i_desc, new_desc in enumerate(new_descriptions):
                 self[i_desc].description = new_desc
 
-    def export(self, fp: Union[pathlib.Path, str],
+    def export(self, fp: Optional[Union[pathlib.Path, str]],
                validate: bool = True) -> None:
         """Serialize and export the MetaFrame to a JSON file, following the GMF format.
 
@@ -250,8 +276,11 @@ class MetaFrame():
         self_dict = _jsonify(self.to_dict())
         if validate:
             validate_gmf_dict(self_dict)
-        with open(fp, "w", encoding="utf-8") as f:
-            json.dump(self_dict, f, indent=4)
+        if fp is None:
+            print(json.dumps(self_dict, indent=4))
+        else:
+            with open(fp, "w", encoding="utf-8") as f:
+                json.dump(self_dict, f, indent=4)
 
     def to_json(self, fp: Union[pathlib.Path, str],
                 validate: bool = True) -> None:

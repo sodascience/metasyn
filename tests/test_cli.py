@@ -1,11 +1,12 @@
 import json
-import sys
 import subprocess
+import sys
 from pathlib import Path
 
 import jsonschema
-from pytest import mark, fixture
 import polars as pl
+from pytest import fixture, mark
+
 from metasyn import MetaFrame
 from metasyn.validation import validate_gmf_dict
 
@@ -35,17 +36,20 @@ def tmp_dir(tmp_path_factory) -> Path:
             "Fare": float
         }
         data_frame = pl.read_csv(csv_fp, dtypes=csv_dt)[:100]
-        meta_frame = MetaFrame.fit_dataframe(data_frame, spec={"PassengerId": {"unique": True}})
+        meta_frame = MetaFrame.fit_dataframe(data_frame, var_specs=[{"name": "PassengerId", "distribution": {"unique": True}}])
         meta_frame.to_json(json_path)
         config_fp = TMP_DIR_PATH / "config.ini"
         with open(config_fp, "w") as handle:
             handle.write("""
-[var.PassengerId]
-unique = True
+[[var]]
+name = "PassengerId"
+distribution = {unique = true}
 
-[var.Fare]
-distribution=LogNormalDistribution
-prop_missing=0.2""")
+[[var]]
+name = "Fare"
+prop_missing = 0.2
+distribution = {implements = "lognormal"}
+""")
     return TMP_DIR_PATH
 
 
@@ -82,8 +86,10 @@ def test_create_meta(tmp_dir, config):
         Path(sys.executable).resolve(),     # the python executable
         Path("metasyn", "__main__.py"),     # the cli script
         "create-meta",                      # the subcommand
-        Path("tests", "data", "titanic.csv"),         # the input file
-        out_file                        # the output file
+        "--input",
+        Path("tests", "data", "titanic.csv"),  # the input file
+        "--output",
+        out_file                            # the output file
     ]
     if config:
         cmd.extend(["--config", Path(tmp_dir) / 'config.ini'])
@@ -125,3 +131,31 @@ def test_schema_gen(tmp_dir):
     cmd.append("non-existent-plugin")
     result = subprocess.run(cmd, check=False, capture_output=True)
     assert result.returncode != 0
+
+
+def test_datafree(tmp_dir):
+    gmf_fp = tmp_dir / "gmf_out.json"
+    syn_fp = tmp_dir / "test_out.csv"
+    cmd = [
+        Path(sys.executable).resolve(),     # the python executable
+        Path("metasyn", "__main__.py"),     # the cli script
+        "create-meta",                      # the subcommand
+        "--output", gmf_fp,              # the output file
+        "--config", Path("tests", "data", "no_data_config.toml")
+    ]
+    result = subprocess.run(cmd, check=False, capture_output=True)
+    assert result.returncode == 0
+    meta_frame = MetaFrame.from_json(gmf_fp)
+    assert meta_frame.n_rows == 100
+    assert len(meta_frame.meta_vars) == 3
+    cmd2 = [
+        Path(sys.executable).resolve(),     # the python executable
+        Path("metasyn", "__main__.py"),     # the cli script
+        "synthesize",
+        gmf_fp, syn_fp
+    ]
+    result = subprocess.run(cmd2, check=False, capture_output=True)
+    assert result.returncode == 0
+    df = pl.read_csv(syn_fp)
+    assert list(df.columns) == ["PassengerId", "Name", "Cabin"]
+    assert len(df) == 100

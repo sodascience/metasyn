@@ -1,7 +1,9 @@
 from pathlib import Path
-from pytest import mark, raises
-from metasyn.demo.dataset import demo_file, create_titanic_demo
+
 import polars as pl
+from pytest import mark, raises
+
+from metasyn.demo.dataset import create_titanic_demo, demo_file
 
 
 @mark.parametrize("dataset", ["titanic"])
