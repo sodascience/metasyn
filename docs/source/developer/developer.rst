@@ -16,7 +16,7 @@ more control over the workings of the ``metasyn`` package.
    overview
    GMF
    distributions
-   privacy
+   plugins
 
 
 

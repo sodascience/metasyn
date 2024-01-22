@@ -221,9 +221,8 @@ And then add it to the BuiltinDistributionProvider list in the :mod:`~metasyn.di
 
 Note that this is a bare-bones example and that the implementation of the distribution will vary depending on the type of distribution being implemented. 
 
-
-.. _dist_plugin:
-
 Creating a distribution plugin
 ------------------------------
 In case you want to create a new distribution as part of an add-on, as opposed to it being implemented in the core package, you can easily do so by following the available `distribution plugin template <https://github.com/sodascience/metasyn-distribution-template>`_.
+
+More information on creating plug-ins can be found in the :doc:`developer/plugins` section of the documentation.

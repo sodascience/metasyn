@@ -18,7 +18,7 @@ While the base ``metasyn`` package is generally good at protecting privacy, it d
 
 Custom privacy plug-ins
 ~~~~~~~~~~~~~~~~~~~~~~~
-If you wish to create a custom privacy plugin, please refer to the :ref:`Privacy <privacy_plugin>` page of the :doc:`/developer/developer` section.
+If you wish to create a custom distribution plugin, please refer to the :ref:`privacy_plugin` section on the :doc:`/developer/plugins` developer documentation page.
 
 
 
@@ -28,7 +28,7 @@ It is possible to add additional distribution types through plug-ins. Unfortunat
 
 Custom distribution plug-ins
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-If you wish to create a custom distribution plugin, please refer to the :ref:`Distributions <dist_plugin>` page of the :doc:`/developer/developer` section.
+If you wish to create a custom distribution plugin, please refer to the :ref:`dist_plugin` section on the :doc:`/developer/plugins` developer documentation page.
 
 
 
