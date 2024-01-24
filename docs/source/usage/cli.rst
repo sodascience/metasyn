@@ -126,7 +126,7 @@ The ``create-meta`` command also takes one optional argument:
 
 .. note::
 
-   The configuration file must be in the `.toml` format. For more information on the format, please refer to the `Python documentation <https://docs.python.org/3/library/configparser.html>`_.
+   The configuration file must be in the `.toml` format. For more information on the format, please refer to the `TOML documentation <https://toml.io/en/>`_.
 
    An example of a configuration file that specifies the ``PassengerId`` column to be unique and the ``Fare`` column to have a log-normal distribution is as follows:
 

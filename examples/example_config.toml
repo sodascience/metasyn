@@ -26,7 +26,6 @@ distribution = {implements = "core.exponential"}
 name = "Age"
 distribution = {implements = "core.uniform", parameters = {low = 20, high = 40}}
 
-
 [[var]]
 name = "Cabin"
 distribution = {implements = "core.regex", parameters = {regex_data = "[A-F][0-9]{2,3}"}}
