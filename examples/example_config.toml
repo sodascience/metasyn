@@ -10,7 +10,7 @@ parameters = {n_avg = 11}
 
 [[var]]
 name = "PassengerId"
-distribution = {unique = true}  # Notice lower capitalization for .toml files.
+distribution = {unique = true}  # Notice booleans are lower case in .toml files.
 
 [[var]]
 name = "Name"
