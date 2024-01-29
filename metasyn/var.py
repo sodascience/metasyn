@@ -59,7 +59,7 @@ class MetaVar():
                  distribution: BaseDistribution,
                  dtype: str = "unknown",
                  description: Optional[str] = None,
-                 prop_missing: float = 1.0):
+                 prop_missing: float = 0.0):
         self.name = name
         self.var_type = var_type
         self.distribution = distribution
