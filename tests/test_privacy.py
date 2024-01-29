@@ -1,6 +1,6 @@
-from metasyn.privacy import BasicPrivacy
 from metasyn.distribution import MultinoulliDistribution
 from metasyn.distribution.base import metadist
+from metasyn.privacy import BasicPrivacy
 
 
 @metadist(privacy="test")

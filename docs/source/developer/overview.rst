@@ -28,8 +28,7 @@ A :obj:`~metasyn.MetaVar` contains information on the variable type (``var_type`
 
 This class is considered a passthrough class used by the :obj:`~metasyn.MetaFrame` class, and is not intended to be used directly by the user. It contains the following functionality:
 
-- **Detecting variable types**: The :meth:`~metasyn.MetaVar.detect` method detects the variable class(es) of a series or dataframe. This method does not fit any distribution, but it does infer the correct types for the :obj:`~metasyn.MetaVar` and saves the ``Series`` for later fitting.
-- **Fitting distributions**: The :meth:`~metasyn.MetaVar.fit` method fits distributions to the data. Here you can set the distribution, privacy package and uniqueness for the variable again.
+- **Fitting distributions**: The :meth:`~metasyn.MetaVar.fit` method fits distributions to the data. Here you can set the distribution, privacy package and uniqueness for the variable.
 - **Drawing values and series**: The :meth:`~metasyn.MetaVar.draw` method draws a random item for the variable in whatever type is required. The :meth:`~metasyn.MetaVar.draw_series` method draws a new synthetic series from the metadata. For this to work, the variable has to be fitted.
 - **Converting to and from a dictionary**: The :meth:`~metasyn.MetaVar.to_dict` method creates a dictionary from the variable. The :meth:`~metasyn.MetaVar.from_dict` method restores a variable from a dictionary.
 
@@ -54,4 +53,5 @@ The ``metasyn`` package is organized into several submodules, each focusing on d
 * The :mod:`metasyn.testutils` module provides testing utilities for plugins. It includes functions for checking distributions and distribution providers.
 * The :mod:`metasyn.validation` module contains tools for validating distribution outputs and GMF file formats.
 * The :mod:`metasyn.privacy` module contains the basis for implementing privacy features. A system to incorporate privacy features such as differential privacy or other forms of disclosure control is still being implemented.
-
+* The :mod:`metasyn.util` module contains utility classes :class:`~metasyn.util.DistributionSpec` and :class:`~metasyn.util.VarConfig`.
+* The :mod:`metasyn.config` module contains the :class:`~metasyn.config.MetaConfig` class that can read .toml configuration files.

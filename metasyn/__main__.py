@@ -8,7 +8,6 @@ import json
 import pathlib
 import pickle
 import sys
-from configparser import ConfigParser
 
 try:  # Python < 3.10 (backport)
     from importlib_metadata import entry_points, version
@@ -18,6 +17,7 @@ except ImportError:
 import polars as pl
 
 from metasyn import MetaFrame
+from metasyn.config import MetaConfig
 from metasyn.validation import create_schema
 
 MAIN_HELP_MESSAGE = f"""
@@ -56,36 +56,9 @@ def main() -> None:
 
     elif subcommand == "create-meta":
         create_metadata()
-
     else:
         print(f"Invalid subcommand ({subcommand}). For help see metasyn --help")
         sys.exit(1)
-
-
-def _parse_config(config_fp):
-    config = ConfigParser()
-    config.read(config_fp)
-    spec = {}
-    for section in config.sections():
-        if section.startswith("var."):
-            new_dict = {}
-            for key, val in dict(config[section]).items():
-                try:
-                    new_dict[key] = config.getboolean(section, key)
-                except ValueError:
-                    pass
-                try:
-                    new_dict[key] = config.getfloat(section, key)
-                except ValueError:
-                    pass
-                try:
-                    new_dict[key] = config.getint(section, key)
-                except ValueError:
-                    pass
-                if key not in new_dict:
-                    new_dict[key] = val
-            spec[section[4:]] = new_dict
-    return spec
 
 
 def create_metadata():
@@ -95,28 +68,35 @@ def create_metadata():
         description="Create a Generative Metadata Format file from a CSV file.",
     )
     parser.add_argument(
-        "input",
+        "--input",
         help="input file; a CSV file that you want to synthesize later.",
-        type=pathlib.Path,
-    )
-    parser.add_argument(
-        "output",
-        help="output file: .json",
-        type=pathlib.Path,
-    )
-    parser.add_argument(
-        "--config",
-        help="Configuration file to specify distribution behavior.",
         type=pathlib.Path,
         default=None,
     )
+    parser.add_argument(
+        "--output",
+        help="output file: .json",
+        type=pathlib.Path,
+        default=None,
+    )
+    parser.add_argument(
+        "--config",
+        help="Configuration file (*.toml) to specify distribution behavior.",
+        type=pathlib.Path,
+        default=None,
+    )
+
     args, _ = parser.parse_known_args()
     if args.config is not None:
-        spec = _parse_config(args.config)
+        meta_config = MetaConfig.from_toml(args.config)
     else:
-        spec = {}
-    data_frame = pl.read_csv(args.input, try_parse_dates=True)
-    meta_frame = MetaFrame.fit_dataframe(data_frame, spec=spec)
+        meta_config = None
+
+    if args.input is None:
+        meta_frame = MetaFrame.from_config(meta_config)
+    else:
+        data_frame = pl.read_csv(args.input, try_parse_dates=True)
+        meta_frame = MetaFrame.fit_dataframe(data_frame, meta_config)
     meta_frame.export(args.output)
 
 

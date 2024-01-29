@@ -11,6 +11,7 @@ import polars as pl
 from metasyn.distribution.base import BaseDistribution
 from metasyn.privacy import BasePrivacy, BasicPrivacy
 from metasyn.provider import BaseDistributionProvider, DistributionProviderList
+from metasyn.util import DistributionSpec
 
 
 class MetaVar():
@@ -47,81 +48,22 @@ class MetaVar():
         User-provided description of the variable.
     """
 
-    dtype = "unknown"
-
     def __init__(self,  # pylint: disable=too-many-arguments
+                 name: str,
                  var_type: str,
-                 series: Optional[Union[pl.Series, pd.Series]] = None,
-                 name: Optional[str] = None,
-                 distribution: Optional[BaseDistribution] = None,
-                 prop_missing: Optional[float] = None,
-                 dtype: Optional[str] = None,
-                 description: Optional[str] = None):
+                 distribution: BaseDistribution,
+                 dtype: str = "unknown",
+                 description: Optional[str] = None,
+                 prop_missing: float = 0.0):
+        self.name = name
         self.var_type = var_type
-        self.prop_missing = prop_missing
-        if series is None:
-            self.name = name
-            if dtype is not None:
-                self.dtype = dtype
-        else:
-            series = _to_polars(series)
-            self.name = series.name
-            if prop_missing is None:
-                self.prop_missing = (
-                    len(series) - len(series.drop_nulls())) / len(series)
-            self.dtype = str(series.dtype)
-
-        self.series = series
         self.distribution = distribution
+        self.dtype = dtype
         self.description = description
-
-        if self.prop_missing is None:
-            raise ValueError(f"Error while initializing variable {self.name}."
-                             " prop_missing is None.")
+        self.prop_missing = prop_missing
         if self.prop_missing < -1e-8 or self.prop_missing > 1+1e-8:
             raise ValueError(f"Cannot create variable '{self.name}' with proportion missing "
                              "outside range [0, 1]")
-
-    @classmethod
-    def detect(cls,
-               series_or_dataframe: Union[pd.Series,
-                                          pl.Series,
-                                          pl.DataFrame],
-               description: Optional[str] = None,
-               prop_missing: Optional[float] = None):
-        """Detect variable class(es) of series or dataframe.
-
-        This method does not fit any distribution, but it does infer the
-        correct types for the MetaVar and saves the Series for later fitting.
-
-        Parameters
-        ----------
-        series_or_dataframe: pd.Series or pd.Dataframe
-            If the variable is a pandas Series, then find the correct
-            variable type and create an instance of that variable.
-            If a Dataframe is supplied instead, a list of of variables is
-            returned: one for each column in the dataframe.
-        description:
-            User description of the variable.
-        prop_missing:
-            Proportion of the values missing. If None, detect it from the series.
-            Otherwise prop_missing should be a float between 0 and 1.
-
-        Returns
-        -------
-        MetaVar:
-            It returns a meta data variable of the correct type.
-        """
-        if isinstance(series_or_dataframe, (pl.DataFrame, pd.DataFrame)):
-            if isinstance(series_or_dataframe, pd.DataFrame):
-                return [MetaVar.detect(series_or_dataframe[col])
-                        for col in series_or_dataframe]
-            return [MetaVar.detect(series) for series in series_or_dataframe]
-
-        series = _to_polars(series_or_dataframe)
-        var_type = cls.get_var_type(series)
-
-        return cls(var_type, series, description=description, prop_missing=prop_missing)
 
     @staticmethod
     def get_var_type(series: pl.Series) -> str:
@@ -197,13 +139,14 @@ class MetaVar():
             f'- Distribution:\n{distribution_formatted}\n'
         )
 
-    def fit(self,  # pylint: disable=too-many-arguments
-            dist: Optional[Union[str, BaseDistribution, type]] = None,
-            dist_providers: Union[str, type,
-                                  BaseDistributionProvider] = "builtin",
+    @classmethod
+    def fit(cls,  # pylint: disable=too-many-arguments
+            series: Union[pl.Series, pd.Series],
+            dist_spec: Optional[Union[dict, type, BaseDistribution, DistributionSpec]] = None,
+            provider_list: DistributionProviderList = DistributionProviderList("builtin"),
             privacy: BasePrivacy = BasicPrivacy(),
-            unique: Optional[bool] = None,
-            fit_kwargs: Optional[dict] = None):
+            prop_missing: Optional[float] = None,
+            description: Optional[str] = None) -> MetaVar:
         """Fit distributions to the data.
 
         If multiple distributions are available for the current data type,
@@ -214,35 +157,34 @@ class MetaVar():
 
         Parameters
         ----------
-        dist:
+        series:
+            Data series to fit a distribution to.
+        dist_spec:
             The distribution to fit. In case of a string, search for it
             using the aliases of all distributions. Otherwise use the
             supplied distribution (class). Examples of allowed strings are:
             "normal", "uniform", "faker.city.nl_NL". If not supplied, fit
             the best available distribution for the variable type.
-        dist_providers:
+        provider_list:
             Distribution providers that are used for fitting.
         privacy:
             Privacy level to use for fitting the series.
-        unique:
-            Whether the variable should be unique. If not supplied, it will be
-            inferred from the data.
-        fit_kwargs:
-            Extra options for distributions during the fitting stage.
+        prop_missing:
+            Proportion of the values missing, default None.
+        description:
+            Description for the variable.
         """
-        if self.series is None:
-            raise ValueError("Cannot fit distribution if we don't have the"
-                             "original data.")
-
-        provider_list = DistributionProviderList(dist_providers)
-        self.distribution = provider_list.fit(
-            self.series, self.var_type, dist, privacy, unique, fit_kwargs)
+        series = _to_polars(series)
+        var_type = cls.get_var_type(series)
+        dist_spec = DistributionSpec.parse(dist_spec)
+        distribution = provider_list.fit(series, var_type, dist_spec, privacy)
+        if prop_missing is None:
+            prop_missing = (len(series) - len(series.drop_nulls())) / len(series)
+        return cls(series.name, var_type, distribution=distribution, dtype=str(series.dtype),
+                   description=description, prop_missing=prop_missing)
 
     def draw(self) -> Any:
         """Draw a random item for the variable in whatever type is required."""
-        if self.distribution is None:
-            raise ValueError("Cannot draw without distribution")
-
         # Return NA's -> None
         if self.prop_missing is not None and np.random.rand() < self.prop_missing:
             return None
@@ -261,8 +203,6 @@ class MetaVar():
         pandas.Series:
             Pandas series with the synthetic data.
         """
-        if not isinstance(self.distribution, BaseDistribution):
-            raise ValueError("Cannot draw without distribution.")
         self.distribution.draw_reset()
         value_list = [self.draw() for _ in range(n)]
         if "Categorical" in self.dtype:
@@ -294,10 +234,11 @@ class MetaVar():
         provider_list = DistributionProviderList(distribution_providers)
         dist = provider_list.from_dict(var_dict)
         return cls(
-            var_dict["type"],
             name=var_dict["name"],
+            var_type=var_dict["type"],
             distribution=dist,
-            prop_missing=var_dict["prop_missing"], dtype=var_dict["dtype"],
+            prop_missing=var_dict["prop_missing"],
+            dtype=var_dict["dtype"],
             description=var_dict.get("description", None)
         )
 

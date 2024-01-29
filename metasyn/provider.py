@@ -6,10 +6,9 @@ See pyproject.toml on how the builtin distribution provider is registered.
 
 from __future__ import annotations
 
-import inspect
 import warnings
 from abc import ABC
-from typing import Any, List, Optional, Type, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Type, Union
 
 try:
     from importlib_metadata import EntryPoint, entry_points
@@ -57,7 +56,10 @@ from metasyn.distribution.faker import (
 from metasyn.distribution.na import NADistribution
 from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistribution
 from metasyn.privacy import BasePrivacy, BasicPrivacy
+from metasyn.util import DistributionSpec
 
+if TYPE_CHECKING:
+    from metasyn.config import VarConfig, VarConfigAccess
 
 class BaseDistributionProvider(ABC):
     """Class that encapsulates a set of distributions.
@@ -167,6 +169,7 @@ class DistributionProviderList():
     def __init__(
             self,
             dist_providers: Union[
+                list[str],
                 None, str, type[BaseDistributionProvider], BaseDistributionProvider,
                 list[Union[str, type[BaseDistributionProvider], BaseDistributionProvider]]]):
         if dist_providers is None:
@@ -188,10 +191,8 @@ class DistributionProviderList():
 
     def fit(self, series: pl.Series,
             var_type: str,
-            dist: Optional[Union[str, BaseDistribution, type]] = None,
-            privacy: BasePrivacy = BasicPrivacy(),
-            unique: Optional[bool] = None,
-            fit_kwargs: Optional[dict] = None):
+            dist_spec: DistributionSpec,
+            privacy: BasePrivacy = BasicPrivacy()):
         """Fit a distribution to a column/series.
 
         Parameters
@@ -200,28 +201,38 @@ class DistributionProviderList():
             The data to fit the distributions to.
         var_type:
             The variable type of the data.
-        dist:
+        dist_spec:
             Distribution to fit. If not supplied or None, the information
             criterion will be used to determine which distribution is the most
             suitable. For most variable types, the information criterion is based on
             the BIC (Bayesian Information Criterion).
         privacy:
             Level of privacy that will be used in the fit.
-        unique:
-            Whether the distribution should be unique or not.
-        fit_kwargs:
-            Extra options for distributions during the fitting stage.
         """
-        if fit_kwargs is None:
-            fit_kwargs = {}
-        if dist is not None:
-            unique = unique if unique else False
-            return self._fit_distribution(series, dist, var_type, privacy,
-                                          unique=unique, **fit_kwargs)
-        if len(fit_kwargs) > 0:
-            raise ValueError(f"Got fit arguments for variable '{series.name}', but no "
-                             "distribution. Set the distribution manually to fix.")
+        if dist_spec.implements is not None:
+            return self._fit_distribution(series, dist_spec, var_type, privacy)
+        unique = dist_spec.unique if dist_spec.unique is True else False
         return self._find_best_fit(series, var_type, unique, privacy)
+
+    def create(self, var_cfg: Union[VarConfig, VarConfigAccess]) -> BaseDistribution:
+        """Create a distribution without any data.
+
+        Parameters
+        ----------
+        var_cfg
+            A variable configuration that provides all the qinformation to create the distribution.
+
+        Returns
+        -------
+            A distribution according to the variable specifications.
+        """
+        dist_spec = var_cfg.dist_spec
+        unique = dist_spec.unique if dist_spec.unique else False
+        assert dist_spec.implements is not None and var_cfg.var_type is not None
+        dist_class = self.find_distribution(
+            dist_spec.implements, var_cfg.var_type,
+            privacy=BasicPrivacy(), unique=unique)
+        return dist_class(**dist_spec.parameters)
 
     def _find_best_fit(self, series: pl.Series, var_type: str,
                        unique: Optional[bool],
@@ -355,49 +366,41 @@ class DistributionProviderList():
         return all_dist[i_max]
 
     def _fit_distribution(self, series: pl.Series,
-                          dist: Union[str, Type[BaseDistribution], BaseDistribution],
+                          dist_spec: DistributionSpec,
                           var_type: str,
-                          privacy: BasePrivacy,
-                          unique: bool = False,
-                          **fit_kwargs) -> BaseDistribution:
+                          privacy: BasePrivacy) -> BaseDistribution:
         """Fit a specific distribution to a series.
 
         In contrast the fit method, this needs a supplied distribution(type).
 
         Parameters
         ----------
-        dist:
+        series:
+            Series to fit the distribution to.
+        dist_spec:
             Distribution to fit (if it is not already fitted).
         var_type:
             Type of variable to fit the distribution for.
-        series:
-            Series to fit the distribution to.
         privacy:
             Privacy level to fit the distribution with.
-        unique:
-            Whether the distribution to be fit is unique.
-        fit_kwargs:
-            Extra keyword arguments to modify the way the distribution is fit.
 
         Returns
         -------
         BaseDistribution:
             Fitted distribution.
         """
-        dist_instance = None
-        if isinstance(dist, BaseDistribution):
-            return dist
+        unique = dist_spec.unique
+        unique = unique if unique else False
+        assert dist_spec.implements is not None
+        dist_class = self.find_distribution(dist_spec.implements, var_type, privacy=privacy,
+                                            unique=unique)
+        if dist_spec.parameters is not None:
+            return dist_class(**dist_spec.parameters)
 
-        if isinstance(dist, str):
-            dist_class = self.find_distribution(dist, var_type, privacy=privacy, unique=unique)
-        elif inspect.isclass(dist) and issubclass(dist, BaseDistribution):
-            dist_class = dist
-        else:
-            raise TypeError(
-                f"Distribution {dist} with type {type(dist)} is not a BaseDistribution")
         if issubclass(dist_class, NADistribution):
             dist_instance = dist_class.default_distribution()
         else:
+            fit_kwargs = dist_spec.fit_kwargs
             dist_instance = dist_class.fit(series, **privacy.fit_kwargs, **fit_kwargs)
         return dist_instance
 

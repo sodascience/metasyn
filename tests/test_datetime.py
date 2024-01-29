@@ -1,12 +1,15 @@
 import datetime as dt
 
-from pytest import mark
+import numpy as np
 import pandas as pd
 import polars as pl
-import numpy as np
+from pytest import mark
 
-from metasyn.distribution.datetime import DateUniformDistribution, DateTimeUniformDistribution
-from metasyn.distribution.datetime import TimeUniformDistribution
+from metasyn.distribution.datetime import (
+    DateTimeUniformDistribution,
+    DateUniformDistribution,
+    TimeUniformDistribution,
+)
 
 all_precision = ["microseconds", "seconds", "minutes", "hours"]
 start = ["10", ""]
