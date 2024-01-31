@@ -21,8 +21,8 @@
                 "class_name": "DiscreteUniformDistribution",
                 "is_unique": false,
                 "parameters": {
-                    "low": 1,
-                    "high": 892
+                    "lower": 1,
+                    "upper": 892
                 }
             }
         },
@@ -79,10 +79,10 @@
                 "class_name": "DiscreteTruncatedNormalDistribution",
                 "is_unique": false,
                 "parameters": {
-                    "lower_bound": -1e-08,
-                    "upper_bound": 80.00000001,
-                    "mu": 28.403638823278087,
-                    "sigma": 15.862325051407092
+                    "lower": -1e-08,
+                    "upper": 80.00000001,
+                    "mean": 28.403638823278087,
+                    "sd": 15.862325051407092
                 }
             }
         },
@@ -98,10 +98,10 @@
                 "class_name": "DiscreteTruncatedNormalDistribution",
                 "is_unique": false,
                 "parameters": {
-                    "lower_bound": -1e-08,
-                    "upper_bound": 6.00000001,
-                    "mu": -380.6440825743838,
-                    "sigma": 12.066012048277289
+                    "lower": -1e-08,
+                    "upper": 6.00000001,
+                    "mean": -380.6440825743838,
+                    "sd": 12.066012048277289
                 }
             }
         },
@@ -260,8 +260,8 @@
                 "class_name": "DateUniformDistribution",
                 "is_unique": false,
                 "parameters": {
-                    "start": "1903-07-28",
-                    "end": "1940-05-27"
+                    "lower": "1903-07-28",
+                    "upper": "1940-05-27"
                 }
             }
         },
@@ -277,8 +277,8 @@
                 "class_name": "TimeUniformDistribution",
                 "is_unique": false,
                 "parameters": {
-                    "start": "10:39:40",
-                    "end": "18:39:28",
+                    "lower": "10:39:40",
+                    "upper": "18:39:28",
                     "precision": "seconds"
                 }
             }
@@ -295,8 +295,8 @@
                 "class_name": "DateTimeUniformDistribution",
                 "is_unique": false,
                 "parameters": {
-                    "start": "2022-07-15T12:21:15",
-                    "end": "2022-08-15T10:32:05",
+                    "lower": "2022-07-15T12:21:15",
+                    "upper": "2022-08-15T10:32:05",
                     "precision": "seconds"
                 }
             }

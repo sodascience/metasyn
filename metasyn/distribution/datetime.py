@@ -34,18 +34,18 @@ class BaseUniformDistribution(BaseDistribution):
 
     precision_possibilities = ["microseconds", "seconds", "minutes", "hours", "days"]
 
-    def __init__(self, start: Any, end: Any, precision: str = "microseconds"):
-        if isinstance(start, str):
-            start = self.fromisoformat(start)
-        elif isinstance(start, np.datetime64):
-            start = convert_numpy_datetime(start)
-        if isinstance(end, str):
-            end = self.fromisoformat(end)
-        elif isinstance(end, np.datetime64):
-            end = convert_numpy_datetime(end)
+    def __init__(self, lower: Any, upper: Any, precision: str = "microseconds"):
+        if isinstance(lower, str):
+            lower = self.fromisoformat(lower)
+        elif isinstance(lower, np.datetime64):
+            lower = convert_numpy_datetime(lower)
+        if isinstance(upper, str):
+            upper = self.fromisoformat(upper)
+        elif isinstance(upper, np.datetime64):
+            upper = convert_numpy_datetime(upper)
         self.precision = precision
-        self.start = self.round(start)
-        self.end = self.round(end)
+        self.lower = self.round(lower)
+        self.upper = self.round(upper)
 
     @classmethod
     def _fit(cls, values):
@@ -84,8 +84,8 @@ class BaseUniformDistribution(BaseDistribution):
         return time_obj
 
     def draw(self) -> dt.datetime:
-        delta = self.end-self.start + self.minimum_delta
-        new_time = random()*delta + self.start
+        delta = self.upper-self.lower + self.minimum_delta
+        new_time = random()*delta + self.lower
         return self.round(new_time)
 
     @abstractmethod
@@ -102,8 +102,8 @@ class BaseUniformDistribution(BaseDistribution):
 
     def _param_dict(self):
         return {
-            "start": self.start.isoformat(),
-            "end": self.end.isoformat(),
+            "lower": self.lower.isoformat(),
+            "upper": self.upper.isoformat(),
             "precision": self.precision,
         }
 
@@ -122,8 +122,8 @@ class DateTimeUniformDistribution(BaseUniformDistribution):
     @classmethod
     def _param_schema(cls):
         return {
-            "start": {"type": "string"},
-            "end": {"type": "string"},
+            "lower": {"type": "string"},
+            "upper": {"type": "string"},
             "precision": {"type": "string"},
         }
 
@@ -140,16 +140,16 @@ class TimeUniformDistribution(BaseUniformDistribution):
         return cls("10:39:36", "18:39:36", precision="seconds")
 
     def draw(self):
-        dt_begin = dt.datetime.combine(dt.datetime.today(), self.start)
-        dt_end = dt.datetime.combine(dt.datetime.today(), self.end)
-        delta = dt_end-dt_begin + self.minimum_delta
-        return self.round((random()*delta + dt_begin).time())
+        dt_lower = dt.datetime.combine(dt.datetime.today(), self.lower)
+        dt_upper = dt.datetime.combine(dt.datetime.today(), self.upper)
+        delta = dt_upper-dt_lower + self.minimum_delta
+        return self.round((random()*delta + dt_lower).time())
 
     @classmethod
     def _param_schema(cls):
         return {
-            "start": {"type": "string"},
-            "end": {"type": "string"},
+            "lower": {"type": "string"},
+            "upper": {"type": "string"},
             "precision": {"type": "string"},
         }
 
@@ -160,8 +160,8 @@ class DateUniformDistribution(BaseUniformDistribution):
 
     precision_possibilities = ["days"]
 
-    def __init__(self, start: Any, end: Any):
-        super().__init__(start, end, precision="days")
+    def __init__(self, lower: Any, upper: Any):
+        super().__init__(lower, upper, precision="days")
 
     def fromisoformat(self, dt_obj: str) -> dt.date:
         return dt.date.fromisoformat(dt_obj)
@@ -185,6 +185,6 @@ class DateUniformDistribution(BaseUniformDistribution):
     @classmethod
     def _param_schema(cls):
         return {
-            "start": {"type": "string"},
-            "end": {"type": "string"},
+            "lower": {"type": "string"},
+            "upper": {"type": "string"},
         }
