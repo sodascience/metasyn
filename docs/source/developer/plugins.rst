@@ -7,7 +7,7 @@ As seen on the :doc:`/usage/extensions` page, metasyn can be extended by plug-in
 
 Creating a privacy plugin
 ------------------------------
-In case you want to create a new distribution as part of an add-on, you can easily do so by following the available `privacy plugin template <https://github.com/sodascience/metasyn-plugin-template>`_.
+In case you want to create a new distribution as part of an add-on, you can easily do so by following the available `privacy plugin template <https://github.com/sodascience/metasyn-privacy-template>`_.
 
 .. _dist_plugin:
 
