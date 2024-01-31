@@ -10,4 +10,5 @@ from metasyn.distribution.na import NADistribution
 def test_na(dtype):
     df = pl.DataFrame({"data": pl.Series([None, None, None], dtype=dtype)})
     metadata = MetaFrame.fit_dataframe(df)
+    print(metadata.to_dict())
     assert isinstance(metadata["data"].distribution, NADistribution)

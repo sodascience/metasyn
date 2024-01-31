@@ -81,6 +81,8 @@ class MetaVar():
         var_type:
             The variable type that is found.
         """
+        if not isinstance(series, pl.Series):
+            series = pl.Series(series)
         try:
             polars_dtype = pl.datatypes.dtype_to_py_type(series.dtype).__name__
         except NotImplementedError:
@@ -93,13 +95,14 @@ class MetaVar():
             "datetime": "datetime",
             "time": "time",
             "str": "string",
-            "categorical": "categorical"
+            "categorical": "categorical",
+            "NoneType": "continuous",
         }
         try:
             return convert_dict[polars_dtype]
         except KeyError as exc:
             raise ValueError(
-                f"Unsupported polars type '{polars_dtype}") from exc
+                f"Unsupported polars type '{polars_dtype}'") from exc
 
     def to_dict(self) -> Dict[str, Any]:
         """Create a dictionary from the variable."""
@@ -173,7 +176,8 @@ class MetaVar():
         description:
             Description for the variable.
         """
-        series = pl.Series(series)
+        if not isinstance(series, pl.Series):
+            series = pl.Series(series)
         var_type = cls.get_var_type(series)
         dist_spec = DistributionSpec.parse(dist_spec)
         distribution = provider_list.fit(series, var_type, dist_spec, privacy)

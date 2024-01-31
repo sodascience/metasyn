@@ -132,7 +132,7 @@ class MetaFrame():
         else:
             assert privacy is None
 
-        if not isinstance(df, pl.DataFrame):
+        if df is not None and not isinstance(df, pl.DataFrame):
             df = pl.DataFrame(df)
         all_vars = []
         columns = df.columns if df is not None else []
