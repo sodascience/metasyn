@@ -18,24 +18,24 @@ class DiscreteUniformDistribution(ScipyDistribution):
 
     Parameters
     ----------
-    low: int
+    lower: int
         Lower bound (inclusive) of the uniform distribution.
-    high: int
+    upper: int
         Upper bound (exclusive) of the uniform distribution.
     """
 
     dist_class = randint
 
-    def __init__(self, low: int, high: int):
-        self.par = {"low": low, "high": high}
-        self.dist = self.dist_class(low=low, high=high)
+    def __init__(self, lower: int, upper: int):
+        self.par = {"lower": lower, "upper": upper}
+        self.dist = self.dist_class(lower=lower, upper=upper)
 
     def _information_criterion(self, values):
         return np.log(len(values))*self.n_par - 2*np.sum(self.dist.logpmf(values))
 
     @classmethod
     def _fit(cls, values):
-        param = {"low": values.min(), "high": values.max()+1}
+        param = {"lower": values.min(), "upper": values.max()+1}
         return cls(**param)
 
     @classmethod
@@ -45,8 +45,8 @@ class DiscreteUniformDistribution(ScipyDistribution):
     @classmethod
     def _param_schema(cls):
         return {
-            "low": {"type": "integer"},
-            "high": {"type": "integer"},
+            "lower": {"type": "integer"},
+            "upper": {"type": "integer"},
         }
 
 @metadist(implements="core.normal", var_type="discrete")
@@ -61,7 +61,7 @@ class DiscreteNormalDistribution(NormalDistribution):
     mean: float
         Mean of the normal distribution.
 
-    std_dev: float
+    sd: float
         Standard deviation of the normal distribution.
     """
 
@@ -74,13 +74,13 @@ class DiscreteTruncatedNormalDistribution(TruncatedNormalDistribution):
 
     Parameters
     ----------
-    lower_bound: float
+    lower: float
         Lower bound of the truncated normal distribution.
-    upper_bound: float
+    upper: float
         Upper bound of the truncated normal distribution.
-    mu: float
+    mean: float
         Mean of the non-truncated normal distribution.
-    sigma: float
+    sd: float
         Standard deviation of the non-truncated normal distribution.
     """
 
@@ -90,13 +90,19 @@ class DiscreteTruncatedNormalDistribution(TruncatedNormalDistribution):
 
 @metadist(implements="core.poisson", var_type="discrete")
 class PoissonDistribution(ScipyDistribution):
-    """Poisson distribution."""
+    """Poisson distribution.
+
+    Parameters
+    ----------
+    rate: float
+        Rate (mean) of the poisson distribution.
+    """
 
     dist_class = poisson
 
-    def __init__(self, mu: float):
-        self.par = {"mu": mu}
-        self.dist = self.dist_class(mu=mu)
+    def __init__(self, rate: float):
+        self.par = {"rate": rate}
+        self.dist = self.dist_class(rate=rate)
 
     def _information_criterion(self, values):
         return np.log(len(values))*self.n_par - 2*np.sum(self.dist.logpmf(values))
@@ -112,7 +118,7 @@ class PoissonDistribution(ScipyDistribution):
     @classmethod
     def _param_schema(cls):
         return {
-            "mu": {"type": "number"},
+            "rate": {"type": "number"},
         }
 
 
@@ -124,27 +130,27 @@ class UniqueKeyDistribution(ScipyDistribution):
 
     Parameters
     ----------
-    low: int
+    lower: int
         Minimum value for the keys.
     consecutive: int
         1 if keys are consecutive and increasing, 0 otherwise.
     """
 
-    def __init__(self, low: int, consecutive: int):
-        self.par = {"low": low, "consecutive": consecutive}
-        self.last_key = low - 1
+    def __init__(self, lower: int, consecutive: int):
+        self.par = {"lower": lower, "consecutive": consecutive}
+        self.last_key = lower - 1
         self.key_set: Set[int] = set()
 
     @classmethod
     def _fit(cls, values):
-        low = values.min()
+        lower = values.min()
         high = values.max() + 1
-        if len(values) == high-low and np.all(values.to_numpy() == np.arange(low, high)):
-            return cls(low, 1)
-        return cls(low, 0)
+        if len(values) == high-lower and np.all(values.to_numpy() == np.arange(lower, high)):
+            return cls(lower, 1)
+        return cls(lower, 0)
 
     def draw_reset(self):
-        self.last_key = self.low - 1
+        self.last_key = self.lower - 1
         self.key_set = set()
 
     def draw(self):
@@ -153,29 +159,29 @@ class UniqueKeyDistribution(ScipyDistribution):
             return self.last_key
 
         while True:
-            random_number = np.random.randint(self.low, self.low+2*len(self.key_set)+2)
+            random_number = np.random.randint(self.lower, self.lower+2*len(self.key_set)+2)
             if random_number not in self.key_set:
                 self.key_set.add(random_number)
                 return random_number
 
     def _information_criterion(self, values):
-        if values.min() < self.low:
+        if values.min() < self.lower:
             return 2*np.log(len(values))+999*len(values)
 
         # If the values are not unique the fit is extremely bad.
         if len(set(values)) != len(values):
             return 2*np.log(len(values))+999*len(values)
 
-        low = values.min()
+        lower = values.min()
         high = values.max()+1
 
         if self.consecutive == 1:
             # Check if the values are truly consecutive
-            if len(values) == high-low and np.all(values.to_numpy() == np.arange(low, high)):
+            if len(values) == high-lower and np.all(values.to_numpy() == np.arange(lower, high)):
                 return 2*np.log(len(values))
             return 2*np.log(len(values))+999*len(values)
 
-        n_choice = high - low
+        n_choice = high - lower
 
         # Probabilities go up like 1/n, 1/(n-1), 1/(n-2), ..., 1/2, 1
         return (3*np.log(len(values))
@@ -188,6 +194,6 @@ class UniqueKeyDistribution(ScipyDistribution):
     @classmethod
     def _param_schema(cls):
         return {
-            "low": {"type": "integer"},
-            "high": {"type": "integer"},
+            "lower": {"type": "integer"},
+            "consecutive": {"type": "integer"},
         }
