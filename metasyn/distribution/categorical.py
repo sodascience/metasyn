@@ -7,7 +7,6 @@ from typing import Union
 
 import numpy as np
 import numpy.typing as npt
-import pandas as pd
 import polars as pl
 
 from metasyn.distribution.base import BaseDistribution, metadist
@@ -59,7 +58,7 @@ class MultinoulliDistribution(BaseDistribution):
         return np.random.choice(self.labels, p=self.probs)
 
     def information_criterion(self,
-                              values: Union[pd.Series, pl.Series, npt.NDArray]
+                              values: Union[pl.Series, npt.NDArray]
                               ) -> float:
         series = self._to_series(values)
         labels, counts = np.unique(series, return_counts=True)

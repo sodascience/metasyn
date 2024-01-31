@@ -9,7 +9,6 @@ from importlib.metadata import version
 from typing import Any, Dict, List, Optional, Sequence, Union
 
 import numpy as np
-import pandas as pd
 import polars as pl
 from tqdm import tqdm
 
@@ -53,7 +52,7 @@ class MetaFrame():
     @classmethod
     def fit_dataframe(
             cls,
-            df: Optional[Union[pl.DataFrame, pd.DataFrame]],
+            df: Optional[pl.DataFrame],
             meta_config: Optional[MetaConfig] = None,
             var_specs: Optional[list[dict]] = None,
             dist_providers: Optional[list[str]] = None,
@@ -133,7 +132,7 @@ class MetaFrame():
         else:
             assert privacy is None
 
-        if isinstance(df, pd.DataFrame):
+        if not isinstance(df, pl.DataFrame):
             df = pl.DataFrame(df)
         all_vars = []
         columns = df.columns if df is not None else []
