@@ -61,7 +61,7 @@ class BaseDistribution(ABC):
 
     @staticmethod
     def _to_series(values: Union[npt.NDArray, pl.Series]) -> pl.Series:
-        if not isinstance(values, (pl.Series, np.NDArray)):
+        if not isinstance(values, (pl.Series, np.ndarray)):
             values = pl.Series(values)
         if isinstance(values, pl.Series):
             series = values.drop_nulls()
