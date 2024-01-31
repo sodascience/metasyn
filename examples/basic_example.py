@@ -27,11 +27,6 @@ specs = [
     VarConfig(name="B", dist_spec=DistributionSpec(unique=True))
 ]
 
-# specs = {
-#     "ID": {"unique": True},
-#     "B": {"unique": False}
-# }
-
 # create MetaFrame
 mf = MetaFrame.fit_dataframe(df, var_specs=specs)
 
