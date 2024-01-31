@@ -4,9 +4,9 @@
     "provenance": {
         "created by": {
             "name": "metasyn",
-            "version": "0.6.0"
+            "version": "0.6.1.dev45+g6cfcb6d.d20240131"
         },
-        "creation time": "2023-10-05T11:15:51.631727"
+        "creation time": "2024-01-31T11:52:33.761957"
     },
     "vars": [
         {
@@ -19,8 +19,9 @@
                 "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "UniqueKeyDistribution",
+                "is_unique": true,
                 "parameters": {
-                    "low": 1,
+                    "lower": 1,
                     "consecutive": 1
                 }
             }
@@ -35,6 +36,7 @@
                 "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "MultinoulliDistribution",
+                "is_unique": false,
                 "parameters": {
                     "labels": [
                         "apple",
@@ -53,12 +55,14 @@
             "dtype": "Int64",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.poisson",
+                "implements": "core.unique_key",
                 "version": "1.0",
                 "provenance": "builtin",
-                "class_name": "PoissonDistribution",
+                "class_name": "UniqueKeyDistribution",
+                "is_unique": true,
                 "parameters": {
-                    "mu": 3.0
+                    "lower": 1,
+                    "consecutive": 0
                 }
             }
         },
@@ -72,6 +76,7 @@
                 "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "MultinoulliDistribution",
+                "is_unique": false,
                 "parameters": {
                     "labels": [
                         "audi",
@@ -90,13 +95,24 @@
             "dtype": "Int64",
             "prop_missing": 0.2,
             "distribution": {
-                "implements": "core.discrete_uniform",
+                "implements": "core.multinoulli",
                 "version": "1.0",
                 "provenance": "builtin",
-                "class_name": "DiscreteUniformDistribution",
+                "class_name": "MultinoulliDistribution",
+                "is_unique": false,
                 "parameters": {
-                    "low": -30,
-                    "high": 301
+                    "labels": [
+                        -30,
+                        2,
+                        28,
+                        300
+                    ],
+                    "probs": [
+                        0.25,
+                        0.25,
+                        0.25,
+                        0.25
+                    ]
                 }
             }
         }

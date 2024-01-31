@@ -12,61 +12,61 @@ from metasyn.distribution.continuous import (
 
 
 @mark.parametrize(
-    "lower_bound,upper_bound",
+    "lower,upper",
     [
         (0, 1),
         (-10, 2),
         (0.01, 0.02),
     ]
 )
-def test_uniform(lower_bound, upper_bound):
-    scale = upper_bound-lower_bound
-    values = stats.uniform(loc=lower_bound, scale=scale).rvs(100)
+def test_uniform(lower, upper):
+    scale = upper-lower
+    values = stats.uniform(loc=lower, scale=scale).rvs(100)
     dist = UniformDistribution.fit(values)
-    assert dist.low <= values.min()
-    assert dist.high >= values.max()
-    assert dist.information_criterion(values) < 2*np.log(len(values)) - 200*np.log((upper_bound-lower_bound)**-1)
+    assert dist.lower <= values.min()
+    assert dist.upper >= values.max()
+    assert dist.information_criterion(values) < 2*np.log(len(values)) - 200*np.log((upper-lower)**-1)
     assert isinstance(dist.draw(), float)
 
 
 @mark.parametrize(
-    "mean,std_dev",
+    "mean,sd",
     [
         (0, 1),
         (-10, 2),
         (0.01, 0.02),
     ]
 )
-def test_normal(mean, std_dev):
-    values = stats.norm(loc=mean, scale=std_dev).rvs(1000)
+def test_normal(mean, sd):
+    values = stats.norm(loc=mean, scale=sd).rvs(1000)
     dist = NormalDistribution.fit(values)
     dist_uniform = UniformDistribution.fit(values)
     assert dist.information_criterion(values) < dist_uniform.information_criterion(values)
-    assert (dist.mean - mean)/std_dev < 0.5
-    assert (dist.std_dev - std_dev)/std_dev < 0.5
+    assert (dist.mean - mean)/sd < 0.5
+    assert (dist.sd - sd)/sd < 0.5
     assert isinstance(dist.draw(), float)
 
 
 @mark.parametrize(
-    "mu,sigma",
+    "mean,sd",
     [
         (0, 1),
         (-10, 2),
         (0.01, 0.02),
     ]
 )
-def test_log_normal(mu, sigma):
-    values = stats.lognorm(s=sigma, loc=0, scale=np.exp(mu)).rvs(1000)
+def test_log_normal(mean, sd):
+    values = stats.lognorm(s=sd, loc=0, scale=np.exp(mean)).rvs(1000)
     dist = LogNormalDistribution.fit(values)
     dist_uniform = UniformDistribution.fit(values)
     assert dist.information_criterion(values) < dist_uniform.information_criterion(values)
-    assert (dist.mu-mu)/sigma < 1
-    assert (dist.sigma-sigma)/sigma < 1
+    assert (dist.mean-mean)/sd < 1
+    assert (dist.sd-sd)/sd < 1
     assert isinstance(dist.draw(), float)
 
 
 @mark.parametrize(
-    "lower_bound,upper_bound,mu,sigma",
+    "lower,upper,mean,sd",
     [
         (-0.5, 0.5, 0, 0.5),
         (-10, -8, 0, 5),
@@ -74,9 +74,9 @@ def test_log_normal(mu, sigma):
         (-0.01, 0.01, 0.01, 0.01),
     ]
 )
-def test_trunc_normal(lower_bound, upper_bound, mu, sigma):
-    a, b = (lower_bound-mu)/sigma, (upper_bound-mu)/sigma
-    values = stats.truncnorm(a=a, b=b, loc=mu, scale=sigma).rvs(5000)
+def test_trunc_normal(lower, upper, mean, sd):
+    a, b = (lower-mean)/sd, (upper-mean)/sd
+    values = stats.truncnorm(a=a, b=b, loc=mean, scale=sd).rvs(5000)
     dist = TruncatedNormalDistribution.fit(values)
     dist_uniform = UniformDistribution.fit(values)
     assert dist.information_criterion(values) < dist_uniform.information_criterion(values)
