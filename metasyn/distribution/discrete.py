@@ -28,7 +28,7 @@ class DiscreteUniformDistribution(ScipyDistribution):
 
     def __init__(self, lower: int, upper: int):
         self.par = {"lower": lower, "upper": upper}
-        self.dist = self.dist_class(lower=lower, upper=upper)
+        self.dist = self.dist_class(low=lower, high=upper)
 
     def _information_criterion(self, values):
         return np.log(len(values))*self.n_par - 2*np.sum(self.dist.logpmf(values))
@@ -102,7 +102,7 @@ class PoissonDistribution(ScipyDistribution):
 
     def __init__(self, rate: float):
         self.par = {"rate": rate}
-        self.dist = self.dist_class(rate=rate)
+        self.dist = self.dist_class(mu=rate)
 
     def _information_criterion(self, values):
         return np.log(len(values))*self.n_par - 2*np.sum(self.dist.logpmf(values))
