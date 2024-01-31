@@ -129,10 +129,6 @@ def synthesize() -> None:
         help="preview six-row synthesized data frame in console and exit",
         action="store_true",
     )
-    parser.add_argument(
-        "-s", "--settings",
-        help="settings file (*.toml) that contains directives on how to synthesize."
-    )
 
     # parse the args without the subcommand
     args, _ = parser.parse_known_args()
