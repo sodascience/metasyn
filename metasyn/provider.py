@@ -101,7 +101,7 @@ class BaseDistributionProvider(ABC):
             distributions = self.legacy_distributions
         else:
             distributions = self.distributions
-        distributions = [d for d in distributions if d.is_unique == unique]
+        distributions = [d for d in distributions if d.unique == unique]
         if var_type is None:
             return distributions
         for dist_class in distributions:
@@ -449,7 +449,7 @@ class DistributionProviderList():
         dist_name = var_dict["distribution"]["implements"]
         version = var_dict["distribution"].get("version", "1.0")
         var_type = var_dict["type"]
-        unique = var_dict["distribution"]["is_unique"]
+        unique = var_dict["distribution"]["unique"]
         dist_class = self.find_distribution(dist_name, version=version,
                                             var_type=var_type, unique=unique)
         return dist_class.from_dict(var_dict["distribution"])

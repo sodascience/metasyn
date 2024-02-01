@@ -66,8 +66,8 @@ class DistributionSpec():
         """
         if isinstance(dist_spec, BaseDistribution):
             dist_dict = {key: value for key, value in dist_spec.to_dict().items()
-                         if key in ["implements", "version", "is_unique", "parameters"]}
-            dist_dict["unique"] = dist_dict.pop("is_unique")
+                         if key in ["implements", "version", "unique", "parameters"]}
+            dist_dict["unique"] = dist_dict.pop("unique")
             return cls(**dist_dict)
         if isinstance(dist_spec, str):
             return cls(implements=dist_spec)
@@ -78,7 +78,7 @@ class DistributionSpec():
         if isinstance(dist_spec, DistributionSpec):
             return dist_spec
         if issubclass(dist_spec, BaseDistribution):
-            return cls(implements=dist_spec.implements, unique=dist_spec.is_unique)
+            return cls(implements=dist_spec.implements, unique=dist_spec.unique)
         raise TypeError("Error parsing distribution specification of unknown type "
                         f"'{type(dist_spec)}' with value '{dist_spec}'")
 

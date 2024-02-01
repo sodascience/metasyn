@@ -70,7 +70,7 @@ def check_distribution(distribution: type[BaseDistribution], privacy: BasePrivac
     for vt in var_types:
         DistributionProviderList(provenance).find_distribution(
             distribution.implements, var_type=vt, privacy=privacy,
-            unique=distribution.is_unique)
+            unique=distribution.unique)
 
     assert len(distribution.implements.split(".")) == 2
     assert distribution.provenance == provenance
