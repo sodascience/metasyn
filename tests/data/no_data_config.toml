@@ -11,7 +11,7 @@ data_free = true
 prop_missing = 0.0
 description = "ID of the unfortunate passenger."
 var_type = "discrete"
-distribution = {implements = "core.unique_key", unique = true, parameters = {consecutive = 1, lower = 0}}
+distribution = {implements = "core.unique_key", unique = true, parameters = {consecutive = true, lower = 0}}
 
 
 [[var]]

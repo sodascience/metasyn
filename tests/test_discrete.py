@@ -41,12 +41,12 @@ def test_uniform(data, series_type):
 @mark.parametrize(
     "data,better_than_uniform,consecutive",
     [
-        ([1, 2, 3, 4, 5], True, 1),
-        ([5, 4, 3, 2, 1], True, 0),
-        ([2, 4, 5, 7, 10, 6], True, 0),
-        ([-3, 1, -5, 3, -2, 0], True, 0),
-        ([-129384, 2198384, 293, 1293840], False, 0),
-        ([1, 1, 2, 2, 3, 3], False, 0)
+        ([1, 2, 3, 4, 5], True, True),
+        ([5, 4, 3, 2, 1], True, False),
+        ([2, 4, 5, 7, 10, 6], True, False),
+        ([-3, 1, -5, 3, -2, 0], True, False),
+        ([-129384, 2198384, 293, 1293840], False, False),
+        ([1, 1, 2, 2, 3, 3], False, False)
     ]
 )
 @mark.parametrize("series_type", [pd.Series, pl.Series])

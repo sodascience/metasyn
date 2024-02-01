@@ -136,7 +136,7 @@ class UniqueKeyDistribution(ScipyDistribution):
         1 if keys are consecutive and increasing, 0 otherwise.
     """
 
-    def __init__(self, lower: int, consecutive: int):
+    def __init__(self, lower: int, consecutive: bool):
         self.par = {"lower": lower, "consecutive": consecutive}
         self.last_key = lower - 1
         self.key_set: Set[int] = set()
@@ -146,8 +146,8 @@ class UniqueKeyDistribution(ScipyDistribution):
         lower = values.min()
         high = values.max() + 1
         if len(values) == high-lower and np.all(values.to_numpy() == np.arange(lower, high)):
-            return cls(lower, 1)
-        return cls(lower, 0)
+            return cls(lower, True)
+        return cls(lower, False)
 
     def draw_reset(self):
         self.last_key = self.lower - 1
@@ -189,11 +189,11 @@ class UniqueKeyDistribution(ScipyDistribution):
 
     @classmethod
     def default_distribution(cls):
-        return cls(0, 0)
+        return cls(0, False)
 
     @classmethod
     def _param_schema(cls):
         return {
             "lower": {"type": "integer"},
-            "consecutive": {"type": "integer"},
+            "consecutive": {"type": "boolean"},
         }
