@@ -18,7 +18,6 @@ except ImportError:
 import numpy as np
 import polars as pl
 
-from metasyn.distribution import legacy
 from metasyn.distribution.base import BaseDistribution
 from metasyn.distribution.categorical import MultinoulliDistribution
 from metasyn.distribution.constant import (
@@ -147,9 +146,7 @@ class BuiltinDistributionProvider(BaseDistributionProvider):
         DateConstantDistribution,
         TimeConstantDistribution,
     ]
-    legacy_distributions = [
-        legacy.RegexDistribution, legacy.UniqueRegexDistribution
-    ]
+    legacy_distributions = []
 
 
 class DistributionProviderList():

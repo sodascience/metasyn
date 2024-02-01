@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import Any, Dict, Optional, Union
 
 import numpy as np
-import pandas as pd
 import polars as pl
 
 from metasyn.distribution.base import BaseDistribution
@@ -82,6 +81,8 @@ class MetaVar():
         var_type:
             The variable type that is found.
         """
+        if not isinstance(series, pl.Series):
+            series = pl.Series(series)
         try:
             polars_dtype = pl.datatypes.dtype_to_py_type(series.dtype).__name__
         except NotImplementedError:
@@ -94,13 +95,14 @@ class MetaVar():
             "datetime": "datetime",
             "time": "time",
             "str": "string",
-            "categorical": "categorical"
+            "categorical": "categorical",
+            "NoneType": "continuous",
         }
         try:
             return convert_dict[polars_dtype]
         except KeyError as exc:
             raise ValueError(
-                f"Unsupported polars type '{polars_dtype}") from exc
+                f"Unsupported polars type '{polars_dtype}'") from exc
 
     def to_dict(self) -> Dict[str, Any]:
         """Create a dictionary from the variable."""
@@ -141,7 +143,7 @@ class MetaVar():
 
     @classmethod
     def fit(cls,  # pylint: disable=too-many-arguments
-            series: Union[pl.Series, pd.Series],
+            series: pl.Series,
             dist_spec: Optional[Union[dict, type, BaseDistribution, DistributionSpec]] = None,
             provider_list: DistributionProviderList = DistributionProviderList("builtin"),
             privacy: BasePrivacy = BasicPrivacy(),
@@ -174,7 +176,8 @@ class MetaVar():
         description:
             Description for the variable.
         """
-        series = _to_polars(series)
+        if not isinstance(series, pl.Series):
+            series = pl.Series(series)
         var_type = cls.get_var_type(series)
         dist_spec = DistributionSpec.parse(dist_spec)
         distribution = provider_list.fit(series, var_type, dist_spec, privacy)
@@ -200,8 +203,8 @@ class MetaVar():
 
         Returns
         -------
-        pandas.Series:
-            Pandas series with the synthetic data.
+        polars.Series:
+            Polars series with the synthetic data.
         """
         self.distribution.draw_reset()
         value_list = [self.draw() for _ in range(n)]
@@ -241,14 +244,3 @@ class MetaVar():
             dtype=var_dict["dtype"],
             description=var_dict.get("description", None)
         )
-
-
-def _to_polars(series: Union[pd.Series, pl.Series]) -> pl.Series:
-    if isinstance(series, pl.Series):
-        return series
-    if len(series.dropna()) == 0:
-        series = pl.Series(name=series.name,
-                           values=[None for _ in range(len(series))])
-    else:
-        series = pl.Series(series)
-    return series
