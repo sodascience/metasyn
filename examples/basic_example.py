@@ -1,6 +1,8 @@
 import polars as pl
 
 from metasyn import MetaFrame
+from metasyn.config import VarConfig
+from metasyn.util import DistributionSpec
 
 # example dataframe from polars website
 df = pl.DataFrame(
@@ -20,13 +22,13 @@ df = df.with_columns([
 ])
 
 # set A to unique and B to not unique
-spec_dict = {
-    "ID": {"unique": True},
-    "B": {"unique": False}
-}
+specs = [
+    VarConfig(name="ID", dist_spec=DistributionSpec(unique=True)),
+    VarConfig(name="B", dist_spec=DistributionSpec(unique=True))
+]
 
 # create MetaFrame
-mf = MetaFrame.fit_dataframe(df, spec=spec_dict)
+mf = MetaFrame.fit_dataframe(df, var_specs=specs)
 
 # write to json
 mf.export("example_gmf_simple.json")

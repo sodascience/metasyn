@@ -21,7 +21,6 @@ from copy import deepcopy
 from typing import Optional, Union
 
 import numpy as np
-import pandas as pd
 import polars as pl
 from numpy import typing as npt
 
@@ -57,13 +56,13 @@ class BaseDistribution(ABC):
     version: str = "1.0"
 
     @classmethod
-    def fit(cls, series: Union[pd.Series, pl.Series, npt.NDArray],
+    def fit(cls, series: Union[pl.Series, npt.NDArray],
             *args, **kwargs) -> BaseDistribution:
         """Fit the distribution to the series.
 
         Parameters
         ----------
-        series: pandas.Series
+        series: polars.Series
             Data to fit the distribution to.
 
         Returns
@@ -77,11 +76,11 @@ class BaseDistribution(ABC):
         return cls._fit(pl_series, *args, **kwargs)
 
     @staticmethod
-    def _to_series(values: Union[npt.NDArray, pl.Series, pd.Series]) -> pl.Series:
+    def _to_series(values: Union[npt.NDArray, pl.Series]) -> pl.Series:
+        if not isinstance(values, (pl.Series, np.ndarray)):
+            values = pl.Series(values)
         if isinstance(values, pl.Series):
             series = values.drop_nulls()
-        elif isinstance(values, pd.Series):
-            series = pl.Series(values).drop_nulls()  # pylint: disable=assignment-from-no-return
         else:
             series_array = np.array(values)
             series_array = series_array[~np.isnan(series_array)]
@@ -161,7 +160,7 @@ class BaseDistribution(ABC):
         """Create a distribution from a dictionary."""
         return cls(**dist_dict["parameters"])
 
-    def information_criterion(self, values: Union[pd.Series, pl.Series, npt.NDArray]) -> float:  # pylint: disable=unused-argument
+    def information_criterion(self, values: Union[pl.Series, npt.NDArray]) -> float:  # pylint: disable=unused-argument
         """Get the BIC value for a particular set of values.
 
         Parameters

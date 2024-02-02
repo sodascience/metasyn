@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'metasyn'
-copyright = '2023, SODA Team'
+copyright = '2024, SODA Team'
 author = 'SODA Team'
 
 

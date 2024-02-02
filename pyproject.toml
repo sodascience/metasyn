@@ -24,7 +24,6 @@ classifiers = [
 ]
 
 dependencies = [
-    "pandas",
     "polars>=0.19.8, <0.20",
     "tqdm",
     "numpy>=1.20",
@@ -34,12 +33,10 @@ dependencies = [
     "faker",
     "lingua-language-detector",
     "regex",
-    "scikit-learn",
     "jsonschema",
     "importlib-metadata;python_version<'3.10'",
     "importlib-resources;python_version<'3.9'",
     "tomli;python_version<'3.11'",
-    "wget",
     "regexmodel>=0.2.1"
 ]
 
@@ -54,7 +51,7 @@ test = [
     "ruff", "pytest", "pylint", "pydocstyle", "mypy", "flake8", "nbval",
     "sphinx", "sphinx-rtd-theme", "sphinxcontrib-napoleon",
     "sphinx-autodoc-typehints", "sphinx_inline_tabs", "sphinx_copybutton",
-    "XlsxWriter", "types-tqdm", "types-regex",
+    "XlsxWriter", "types-tqdm", "types-regex", "pandas"
 ]
 
 [project.scripts]

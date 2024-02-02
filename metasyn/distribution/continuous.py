@@ -17,29 +17,29 @@ class UniformDistribution(ScipyDistribution):
 
     Parameters
     ----------
-    low: float
+    lower: float
         Lower bound for uniform distribution.
-    high: float
+    upper: float
         Upper bound for uniform distribution.
     """
 
     dist_class = uniform
 
-    def __init__(self, low: float, high: float):
-        self.par = {"low": low, "high": high}
-        self.dist = uniform(loc=self.low, scale=max(self.high-self.low, 1e-8))
+    def __init__(self, lower: float, upper: float):
+        self.par = {"lower": lower, "upper": upper}
+        self.dist = uniform(loc=self.lower, scale=max(self.upper-self.lower, 1e-8))
 
     @classmethod
     def _fit(cls, values):
         return cls(values.min(), values.max())
 
     def _information_criterion(self, values):
-        if np.any(np.array(values) < self.low) or np.any(np.array(values) > self.high):
+        if np.any(np.array(values) < self.lower) or np.any(np.array(values) > self.upper):
             return np.log(len(values))*self.n_par + 100*len(values)
-        if np.fabs(self.high-self.low) < 1e-8:
+        if np.fabs(self.upper-self.lower) < 1e-8:
             return np.log(len(values))*self.n_par - 100*len(values)
         return (np.log(len(values))*self.n_par
-                - 2*len(values)*np.log((self.high-self.low)**-1))
+                - 2*len(values)*np.log((self.upper-self.lower)**-1))
 
     @classmethod
     def default_distribution(cls):
@@ -48,8 +48,8 @@ class UniformDistribution(ScipyDistribution):
     @classmethod
     def _param_schema(cls):
         return {
-            "low": {"type": "number"},
-            "high": {"type": "number"},
+            "lower": {"type": "number"},
+            "upper": {"type": "number"},
         }
 
 
@@ -65,16 +65,16 @@ class NormalDistribution(ScipyDistribution):
     mean: float
         Mean of the normal distribution.
 
-    std_dev: float
+    sd: float
         Standard deviation of the normal distribution.
     """
 
     implements = "core.normal"
     dist_class = norm
 
-    def __init__(self, mean: float, std_dev: float):
-        self.par = {"mean": mean, "std_dev": std_dev}
-        self.dist = norm(loc=mean, scale=max(std_dev, 1e-8))
+    def __init__(self, mean: float, sd: float):
+        self.par = {"mean": mean, "sd": sd}
+        self.dist = norm(loc=mean, scale=max(sd, 1e-8))
 
     @classmethod
     def default_distribution(cls):
@@ -84,7 +84,7 @@ class NormalDistribution(ScipyDistribution):
     def _param_schema(cls):
         return {
             "mean": {"type": "number"},
-            "std_dev": {"type": "number"},
+            "sd": {"type": "number"},
         }
 
 
@@ -96,25 +96,25 @@ class LogNormalDistribution(ScipyDistribution):
 
     Parameters
     ----------
-    sigma: float
-        Controls the width of the distribution.
-    mu: float
+    mean: float
         Controls the mean of the distribution.
+    sd: float
+        Controls the width of the distribution.
     """
 
     dist_class = lognorm
 
-    def __init__(self, mu: float, sigma: float):  # pylint: disable=invalid-name
-        self.par = {"mu": mu, "sigma": sigma}
-        self.dist = lognorm(s=max(sigma, 1e-8), scale=np.exp(mu))
+    def __init__(self, mean: float, sd: float):  # pylint: disable=invalid-name
+        self.par = {"mean": mean, "sd": sd}
+        self.dist = lognorm(s=max(sd, 1e-8), scale=np.exp(mean))
 
     @classmethod
     def _fit(cls, values):
         try:
-            sigma, _, scale = cls.dist_class.fit(values, floc=0)
+            sd, _, scale = cls.dist_class.fit(values, floc=0)
         except FitDataError:
             return cls(0, 1)
-        return cls(np.log(scale), sigma)
+        return cls(np.log(scale), sd)
 
     @classmethod
     def default_distribution(cls):
@@ -123,8 +123,8 @@ class LogNormalDistribution(ScipyDistribution):
     @classmethod
     def _param_schema(cls):
         return {
-            "mu": {"type": "number"},
-            "sigma": {"type": "number"},
+            "mean": {"type": "number"},
+            "sd": {"type": "number"},
         }
 
 
@@ -134,44 +134,44 @@ class TruncatedNormalDistribution(ScipyDistribution):
 
     Parameters
     ----------
-    lower_bound: float
+    lower: float
         Lower bound of the truncated normal distribution.
-    upper_bound: float
+    upper: float
         Upper bound of the truncated normal distribution.
-    mu: float
+    mean: float
         Mean of the non-truncated normal distribution.
-    sigma: float
+    sd: float
         Standard deviation of the non-truncated normal distribution.
     """
 
     dist_class = truncnorm
 
-    def __init__(self, lower_bound: float, upper_bound: float,
-                 mu: float, sigma: float):
-        self.par = {"lower_bound": lower_bound, "upper_bound": upper_bound,
-                    "mu": mu, "sigma": sigma}
-        a, b = (lower_bound-mu)/sigma, (upper_bound-mu)/sigma
-        self.dist = truncnorm(a=a, b=b, loc=mu, scale=max(sigma, 1e-8))
+    def __init__(self, lower: float, upper: float,
+                 mean: float, sd: float):
+        self.par = {"lower": lower, "upper": upper,
+                    "mean": mean, "sd": sd}
+        a, b = (lower-mean)/sd, (upper-mean)/sd
+        self.dist = truncnorm(a=a, b=b, loc=mean, scale=max(sd, 1e-8))
 
     @classmethod
     def _fit(cls, values):
-        lower_bound = values.min() - 1e-8
-        upper_bound = values.max() + 1e-8
-        return cls._fit_with_bounds(values, lower_bound, upper_bound)
+        lower = values.min() - 1e-8
+        upper = values.max() + 1e-8
+        return cls._fit_with_bounds(values, lower, upper)
 
     @classmethod
-    def _fit_with_bounds(cls, values, lower_bound, upper_bound):
+    def _fit_with_bounds(cls, values, lower, upper):
         def minimizer(param):
-            mu, sigma = param
-            a, b = (lower_bound-mu)/sigma, (upper_bound-mu)/sigma
-            dist = truncnorm(a=a, b=b, loc=mu, scale=sigma)
+            mean, sd = param
+            a, b = (lower-mean)/sd, (upper-mean)/sd
+            dist = truncnorm(a=a, b=b, loc=mean, scale=sd)
             return -np.sum(dist.logpdf(values))
 
-        x_start = [(lower_bound+upper_bound)/2, (upper_bound-lower_bound)/4]
-        mu, sigma = minimize(minimizer, x_start,
+        x_start = [(lower+upper)/2, (upper-lower)/4]
+        mean, sd = minimize(minimizer, x_start,
                              bounds=[(None, None),
-                                     ((upper_bound-lower_bound)/100, None)]).x
-        return cls(lower_bound, upper_bound, mu, sigma)
+                                     ((upper-lower)/100, None)]).x
+        return cls(lower, upper, mean, sd)
 
     @classmethod
     def default_distribution(cls):
@@ -180,10 +180,10 @@ class TruncatedNormalDistribution(ScipyDistribution):
     @classmethod
     def _param_schema(cls):
         return {
-            "lower_bound": {"type": "number"},
-            "upper_bound": {"type": "number"},
-            "mu": {"type": "number"},
-            "sigma": {"type": "number"},
+            "lower": {"type": "number"},
+            "upper": {"type": "number"},
+            "mean": {"type": "number"},
+            "sd": {"type": "number"},
         }
 
 
