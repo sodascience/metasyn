@@ -35,7 +35,7 @@ This is the base class providing the basic structure for all distributions. It i
 +------------+-------------------------------------------------------------------------+---------------------------------------------+
 | privacy    | The privacy class or implementation associated with the distribution.   | ``"none"``, ``"customPrivacyClass"``, etc.  |
 +------------+-------------------------------------------------------------------------+---------------------------------------------+
-| is_unique  | A boolean indicating whether the values in the distribution are unique. | ``True``, ``False``                         |
+| unique     | A boolean indicating whether the values in the distribution are unique. | ``True``, ``False``                         |
 +------------+-------------------------------------------------------------------------+---------------------------------------------+
 | version    | The version of the distribution.                                        | ``"1.0"``, ``"2.3"``, etc.                  |
 +------------+-------------------------------------------------------------------------+---------------------------------------------+
@@ -86,7 +86,7 @@ For example, the following distributions use the decorator as follows:
 
 .. code-block:: python
 
-    @metadist(implements="core.regex", var_type="string", is_unique=True)
+    @metadist(implements="core.regex", var_type="string", unique=True)
     class UniqueRegexDistribution(UniqueDistributionMixin, RegexDistribution):
 
 .. code-block:: python
@@ -113,7 +113,7 @@ For example, the unique variants of the :class:`~metasyn.distribution.regex.Rege
 
 .. code-block:: python
 
-    @metadist(implements="core.regex", var_type="string", is_unique=True)
+    @metadist(implements="core.regex", var_type="string", unique=True)
     class UniqueRegexDistribution(UniqueDistributionMixin, RegexDistribution):
 
 .. code-block:: python
@@ -169,7 +169,7 @@ For example, let's say we want to create a new distribution for unique continuou
 
 .. code-block:: python
 
-    @metadist(implements="core.new_distribution", var_type="continuous", is_unique=True, version="1.0")
+    @metadist(implements="core.new_distribution", var_type="continuous", unique=True, version="1.0")
     class NewDistribution(BaseDistribution, UniqueDistributionMixin):
         """New custom distribution."""
 
