@@ -28,7 +28,7 @@ Usage: metasyn [subcommand] [options]
 Available subcommands:
     create-meta - generate a GMF (.json) file.
     synthesize - generate synthetic data from a GMF (.json) file
-    jsonschema - generate json schema from distribution providers
+    schema - generate json schema from distribution providers
 
 Program information:
     -v, --version - display CLI version and exit
