@@ -68,6 +68,17 @@ class BaseDistributionProvider(ABC):
     This class acts as a base class for creating specific distribution
     providers. It encapsulates a set of distributions and has a property
     {var_type}_distributions for every var_type.
+
+    Attributes
+    ----------
+    name : str
+        The name of the distribution provider.
+    version : str
+        The version of the distribution provider.
+    distributions : list[type[BaseDistribution]]
+        The list of distributions provided.
+    legacy_distributions : list[type[BaseDistribution]]
+        The list of legacy distributions provided.
     """
 
     name = ""

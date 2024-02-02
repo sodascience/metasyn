@@ -18,6 +18,11 @@ class BasePrivacy(ABC):
     should at least set the class variable `name` and implement the `to_dict`
     method, which should return a dictionary that gives the privacy type and
     its parameters.
+
+    Attributes
+    ----------
+    name : str
+        The name of the privacy level. Default is "unknown_privacy".
     """
 
     name = "unknown_privacy"

@@ -33,6 +33,24 @@ class MetaFrame():
 
     A MetaFrame can easily be created using the 'fit_dataframe()' method,
     which takes a Polars DataFrame and fits a MetaFrame to it.
+
+    Parameters
+    ----------
+    meta_vars : list of MetaVar
+        Variables representing columns in a DataFrame.
+    n_rows : int, optional
+        Number of rows in the original DataFrame.
+
+    Attributes
+    ----------
+    meta_vars : list of MetaVar
+        Variables representing columns in a DataFrame.
+    n_rows : int, optional
+        Number of rows in the original DataFrame.
+    n_columns : int
+        Number of columns in the original dataframe.
+    descriptions: dict[str, str]
+        Returns the descriptions of the columns.
     """
 
     def __init__(self, meta_vars: List[MetaVar],
