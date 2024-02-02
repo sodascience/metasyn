@@ -30,22 +30,6 @@ class BaseDistribution(ABC):
 
     All distributions should be derived from this class, and should implement the following methods:
     `_fit`, `draw`, `_param_dict`, `_param_schema`, `default_distribution` and `__init__`.
-
-    Attributes
-    ----------
-    implements : str
-        Describes the type of distribution. Default is "unknown".
-    var_type : str
-        Describes the type of variable. Default is "unknown".
-    provenance : str
-        Describes the origin of the distribution. Default is "builtin".
-    privacy : str
-        Describes the privacy level of the distribution. Default is "none".
-    is_unique : bool
-        Indicates whether the distribution is unique (does not contain duplicate
-        values). Default is False.
-    version : str
-        Version of the distribution. Default is "1.0".
     """
 
     implements: str = "unknown"
@@ -250,11 +234,6 @@ class ScipyDistribution(BaseDistribution):
     This base class makes it easy to implement new numerical
     distributions. It could also be used for non-Scipy distributions,
     provided the distribution implements `logpdf`, `rvs` and `fit` methods.
-
-    Attributes
-    ----------
-    n_par : int
-        Number of parameters for the distribution.
     """
 
     @property
