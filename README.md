@@ -7,35 +7,23 @@
 ![Metasyn Logo](docs/source/images/logos/blue.svg)
 
 # Metasyn
-Metasyn is a Python package designed to generate tabular synthetic data for rigorous code testing and reproducibility.
-Researchers and data owners can use metasyn to generate and share synthetic versions of their sensitive datasets, mitigating privacy concerns. Additionally, metasyn facilitates transparency and reproducibility, by allowing the underlying MetaFrames to be exported and shared. Other researchers can use these to regenerate consistent synthetic datasets, validating published work without requiring sensitive data.
+Metasyn is a Python package for generating synthetic tabular data with a focus on privacy. It is designed for owners of sensitive datasets who want to share approximations of their data so that others can perform exploratory analysis and testing without disclosing real values.
 
-The package has three main functionalities:
+Metasyn has three main functionalities:
 
-1. **Estimation**: Metasyn can create a MetaFrame, from a dataset. A MetaFrame is essentially a fitted model that characterizes the structure of the original dataset without storing actual values. It captures individual distributions and features, enabling generation of synthetic data based on these MetaFrames and can be seen as (statistical) metadata.
-2. **Serialization**: Metasyn can export a MetaFrame into an easy to read GMF file, allowing users to audit, understand, and modify their data generation model.
-3. **Generation**: Metasyn can generate synthetic data based on a MetaFrame. The synthetic data produced solely depends on the MetaFrame, thereby maintaining a critical separation between the original sensitive data and the synthetic data generated. The generated synthetic data, emulates the original data's format and plausibility at the individual record level and attempts to reproduce marginal (univariate) distributions where possible. Generated values are based on the observed distributions while adding a degree of variance and smoothing. The generated data does **not** aim to preserve the relationships between variables. The frequency of missing values and their codes are maintained in the synthetically-augmented dataset. 
+1. **[Estimation](https://metasynth.readthedocs.io/en/latest/usage/generating_metaframes.html)**: Metasyn can fit a MetaFrame to a dataset. This is a metadata object that describes the structure of individual columns in the dataset without storing actual values. It captures individual distributions and features and enables the generation of synthetic data based on it.
+2. **[Generation](https://metasynth.readthedocs.io/en/latest/usage/generating_synthetic_data.html)**: Metasyn can generate synthetic data based on a MetaFrame. The generated data depends solely on the MetaFrame that was used as input, thereby effectively separating the original (sensitive) data from the generated synthetic data.
+3. **[Serialization](https://metasynth.readthedocs.io/en/latest/usage/exporting_metaframes.html)**: Metasyn can import and export MetaFrams to and from easy-to-read [Generative Metadata Format (GMF)](https://metasyn.readthedocs.io/en/latest/developer/GMF.html) files. This allows users to audit, understand, and modify their data generation model.
 
 ![Metasyn Pipeline](docs/source/images/pipeline_basic.png)
 
 **Features:**
-Create MetaFrames from Pandas/Polars DataFrames
-Exports/imports MetaFrames to GMF for sharing
-Metasyn fits distributions automatically or manually
-Metasyn supports diverse data types like numeric, categorical, strings, dates
-Metasyn integrates with Faker for realistic synthetic data
-Metasyn supports structured strings and unique values
-
-<!-- -   **MetaFrame Generation**: Metasyn allows the creation of a MetaFrame from a dataset provided as a Polars or Pandas DataFrame.
-    MetaFrames includes key characteristics such as *variable names*, *data types*, *the percentage of missing values*, and *distribution parameters*.
--   **Exporting MetaFrames**: Metasyn can export and import MetaFrames to GMF files. These are JSON files that follow the easy to read and understand [Generative Metadata Format (GMF)](https://github.com/sodascience/generative_metadata_format).
--   **Synthetic Data Generation**: Metasyn allows for the generation of a polars DataFrame with synthetic data that resembles the original data.
--   **Distribution Fitting**: Metasyn allows for manual and automatic distribution fitting.
--   **Data Type Support**: Metasyn supports generating synthetic data for a variety of common data types including `categorical`, `string`, `integer`, `float`, `date`, `time`, and `datetime`.
--   **Integration with Faker**: Metasyn integrates with the [faker](https://github.com/joke2k/faker) package, a Python library for generating fake data such as names and emails. Allowing for synthetic data that is formatted realistically, while retaining privacy.
--   **Structured String Detection**: Metasyn identifies structured strings within your dataset, which can include formatted text,
-    codes, identifiers, or any string that follows a specific pattern.
--   **Handling Unique Values**: Metasyn can identify and process variables with unique values or keys in the data, preserving their uniqueness in the synthetic dataset, which is crucial for generating synthetic data that maintains the characteristics of the original dataset. -->
+- MetaFrames can be fitted to either [Pandas](https://pandas.pydata.org/) and [Polars](https://pola.rs/) DataFrames
+- Exported MetaFrames follow the [Generative Metadata Format (GMF)](https://metasyn.readthedocs.io/en/latest/developer/GMF.html) for easy reading and understanding
+- Metasyn supports diverse data types like numeric, categorical, strings, dates, and more.
+- Metasyn supports and automatically fits to a variety of distribution types in the data. It also supports and detects columns with unique values, or columns containing structured strings.
+- Metasyn integrates with the [Faker](https://faker.readthedocs.io/en/master/) plugin to generate real-sounding entries for names, emails, phone numbers, etc. 
+- Metasyn is built with extensibility in mind, allowing for easy integration of custom distribution types and data types.
 
 Curious and want to learn more? Check out our [documentation](https://metasyn.readthedocs.io/en/latest/index.html)!
 
@@ -57,21 +45,21 @@ A [quick start guide](https://metasyn.readthedocs.io/en/latest/usage/quick_start
 ### Tutorial
 Additionally, the documentation offers an [interactive tutorial](https://metasyn.readthedocs.io/en/latest/usage/interactive_tutorials.html) (Jupyter Notebook) which follows and expands on the quick start guide, providing a step-by-step walkthrough and example to get you started. 
 
-This tutorial can be followed without having to install metasyn locally, by running it in Google Colab or Binder.  
+This tutorial can be followed without having to install metasyn locally by running it in Google Colab or Binder.
 
 ### Documentation
-For a detailed overview of how metasyn, refer to the [documentation](https://metasyn.readthedocs.io/en/latest/index.html). The documentation covers everything you need to know to get started with metasyn, including installation, usage, and examples.
+For a detailed overview of metasyn, refer to the [documentation](https://metasyn.readthedocs.io/en/latest/index.html). The documentation covers everything you need to know to get started with metasyn, including installation, usage, and examples.
 
 <!-- CONTRIBUTING -->
 ## Contributing
-Contributions are what make the open source community an amazing place to learn, inspire, and create.
+Contributions are what make the open-source community an great place to learn, inspire, and create.
 
 Any contributions you make are greatly appreciated.
 
 To contribute:
 1. Fork the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
