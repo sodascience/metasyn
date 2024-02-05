@@ -122,7 +122,7 @@ class PoissonDistribution(ScipyDistribution):
         }
 
 
-@metadist(implements="core.unique_key", var_type="discrete", is_unique=True)
+@metadist(implements="core.unique_key", var_type="discrete", unique=True)
 class UniqueKeyDistribution(ScipyDistribution):
     """Integer distribution with unique keys.
 

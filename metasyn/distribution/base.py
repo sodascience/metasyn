@@ -36,7 +36,7 @@ class BaseDistribution(ABC):
     var_type: str = "unknown"
     provenance: str = "builtin"
     privacy: str = "none"
-    is_unique: bool = False
+    unique: bool = False
     version: str = "1.0"
 
     @classmethod
@@ -110,7 +110,7 @@ class BaseDistribution(ABC):
             "version": self.version,
             "provenance": self.provenance,
             "class_name": self.__class__.__name__,
-            "is_unique": self.is_unique,
+            "unique": self.unique,
             "parameters": deepcopy(self._param_dict()),
         }
 
@@ -129,7 +129,7 @@ class BaseDistribution(ABC):
                 "version": {"type": "string"},
                 "provenance": {"const": cls.provenance},
                 "class_name": {"const": cls.__name__},
-                "is_unique": {"const": cls.is_unique},
+                "unique": {"const": cls.unique},
                 "parameters": {
                     "type": "object",
                     "properties": cls._param_schema(),
@@ -185,7 +185,7 @@ def metadist(
         implements: Optional[str] = None,
         provenance: Optional[str] = None,
         var_type: Optional[Union[str, list[str]]] = None,
-        is_unique: Optional[bool] = None,
+        unique: Optional[bool] = None,
         version: Optional[str] = None,
         privacy: Optional[str] = None):
     """Decorate class to create a distribution with the right properties.
@@ -198,7 +198,7 @@ def metadist(
         Where the distribution came from, which package/plugin implemented it.
     var_type:
         Variable type of the distribution, e.g. continuous, categorical, string.
-    is_unique:
+    unique:
         Whether the distribution is unique or not.
     privacy:
         Privacy class/implementation of the distribution.
@@ -218,8 +218,8 @@ def metadist(
             cls.provenance = provenance
         if var_type is not None:
             cls.var_type = var_type
-        if is_unique is not None:
-            cls.is_unique = is_unique
+        if unique is not None:
+            cls.unique = unique
         if privacy is not None:
             cls.privacy = privacy
         if version is not None:
@@ -284,7 +284,7 @@ class ScipyDistribution(BaseDistribution):
         return np.log(len(values)) * self.n_par - 2 * np.sum(self.dist.logpdf(values))
 
 
-@metadist(is_unique=True)
+@metadist(unique=True)
 class UniqueDistributionMixin(BaseDistribution):
     """Mixin class to make unique version of base distribution."""
 

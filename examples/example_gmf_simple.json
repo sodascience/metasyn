@@ -19,7 +19,7 @@
                 "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "UniqueKeyDistribution",
-                "is_unique": true,
+                "unique": true,
                 "parameters": {
                     "lower": 1,
                     "consecutive": 1
@@ -36,7 +36,7 @@
                 "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "MultinoulliDistribution",
-                "is_unique": false,
+                "unique": false,
                 "parameters": {
                     "labels": [
                         "apple",
@@ -59,7 +59,7 @@
                 "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "UniqueKeyDistribution",
-                "is_unique": true,
+                "unique": true,
                 "parameters": {
                     "lower": 1,
                     "consecutive": 0
@@ -76,7 +76,7 @@
                 "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "MultinoulliDistribution",
-                "is_unique": false,
+                "unique": false,
                 "parameters": {
                     "labels": [
                         "audi",
@@ -99,7 +99,7 @@
                 "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "MultinoulliDistribution",
-                "is_unique": false,
+                "unique": false,
                 "parameters": {
                     "labels": [
                         -30,
