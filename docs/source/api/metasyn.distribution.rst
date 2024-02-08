@@ -1,13 +1,8 @@
 metasyn.distribution package
-==============================
+============================
 
-.. automodule:: metasyn.distribution
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Submodules
-----------
+The :mod:`metasyn.distribution` package consists of several distribution modules. 
+It also includes :mod:`metasyn.distribution.base` module, which forms the basis of all distributions.
 
 metasyn.distribution.base module
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -21,6 +16,14 @@ metasyn.distribution.categorical module
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: metasyn.distribution.categorical
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+metasyn.distribution.constant module
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: metasyn.distribution.constant
    :members:
    :undoc-members:
    :show-inheritance:
@@ -53,6 +56,14 @@ metasyn.distribution.faker module
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: metasyn.distribution.faker
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+metasyn.distribution.na module
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: metasyn.distribution.na
    :members:
    :undoc-members:
    :show-inheritance:

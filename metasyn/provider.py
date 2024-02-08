@@ -66,8 +66,9 @@ class BaseDistributionProvider(ABC):
     A distribution provider is a class that provides a set of distributions
     that can be used by metasyn to generate synthetic data.
     This class acts as a base class for creating specific distribution
-    providers. It encapsulates a set of distributions and has a property
-    {var_type}_distributions for every var_type.
+    providers. It also contains a list of the available distributions and
+    legacy distributions. A list of distributions for a specific type can be
+    accessed with ``get_dist_list``.
     """
 
     name = ""

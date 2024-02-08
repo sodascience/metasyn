@@ -42,14 +42,9 @@ class MetaVar():
         Proportion of the series that are missing/NA.
     dtype:
         Type of the original values, e.g. int64, float, etc. Used for type-casting
-        back.
+        back. The default value is "unknown".
     description:
         User-provided description of the variable.
-
-    Attributes
-    ----------
-    dtype : str
-        The data type of the original values. Default is "unknown".
     """
 
     def __init__(self,  # pylint: disable=too-many-arguments

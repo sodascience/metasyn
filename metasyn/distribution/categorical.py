@@ -29,13 +29,6 @@ class MultinoulliDistribution(BaseDistribution):
     probs : list of int
         The probabilities or frequencies of each category. These will be
         normalized internally.
-
-    Attributes
-    ----------
-    labels : list of str
-        The labels for each category in the distribution.
-    probs : list of int
-        The normalized probabilities of each category.
     """
 
     def __init__(self, labels: Union[npt.NDArray[np.str_], list[str]],

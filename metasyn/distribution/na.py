@@ -11,7 +11,7 @@ from metasyn.distribution.base import BaseDistribution, metadist
 
 @metadist(implements="core.na", var_type="string")
 class NADistribution(BaseDistribution):
-    """Distribution that will only consist of NA values (None)."""
+    """Distribution that always returns NA values (None)."""
 
     @classmethod
     def _fit(cls, values: pl.Series) -> BaseDistribution:

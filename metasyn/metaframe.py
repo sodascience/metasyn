@@ -1,4 +1,4 @@
-"""Conversion of DataFrames to MetaFrames."""  # pylint: disable=invalid-name
+"""Module defining MetaFrames, used for creating MetaFrames from DataFrames."""  # pylint: disable=invalid-name
 
 from __future__ import annotations
 
@@ -31,8 +31,18 @@ class MetaFrame():
     The metadata is contained in a collection of MetaVar objects,
     with each MetaVar representing a column (variable).
 
-    A MetaFrame can easily be created using the 'fit_dataframe()' method,
-    which takes a Polars DataFrame and fits a MetaFrame to it.
+    A MetaFrame can easily be created using the
+    ``fit_dataframe`` method, which takes a Polars DataFrame and fits a
+    MetaFrame to it.
+
+    Parameters
+    ----------
+    meta_vars:
+        List of variables representing columns in a DataFrame.
+    n_rows:
+        Number of rows in the original DataFrame.
+    privacy_package:
+        Package that supplies the distributions.
     """
 
     def __init__(self, meta_vars: List[MetaVar],
