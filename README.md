@@ -17,6 +17,8 @@ Metasyn has three main functionalities:
 
 ![Metasyn Pipeline](docs/source/images/pipeline_basic.png)
 
+![Metasyn Pipeline](docs/source/images/expanded_example.png)
+
 **Features:**
 - MetaFrames can be fitted to either [Pandas](https://pandas.pydata.org/) and [Polars](https://pola.rs/) DataFrames
 - Exported MetaFrames follow the [Generative Metadata Format (GMF)](https://metasyn.readthedocs.io/en/latest/developer/GMF.html) for easy reading and understanding
