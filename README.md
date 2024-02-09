@@ -11,13 +11,20 @@ Metasyn is a Python package for generating synthetic tabular data with a focus o
 
 Metasyn has three main functionalities:
 
-1. **[Estimation](https://metasynth.readthedocs.io/en/latest/usage/generating_metaframes.html)**: Metasyn can fit a MetaFrame to a dataset. This is a metadata object that describes the structure of individual columns in the dataset without storing actual values. It captures individual distributions and features and enables the generation of synthetic data based on it.
-2. **[Generation](https://metasynth.readthedocs.io/en/latest/usage/generating_synthetic_data.html)**: Metasyn can generate synthetic data based on a MetaFrame. The generated data depends solely on the MetaFrame that was used as input, thereby effectively separating the original (sensitive) data from the generated synthetic data.
-3. **[Serialization](https://metasynth.readthedocs.io/en/latest/usage/exporting_metaframes.html)**: Metasyn can import and export MetaFrams to and from easy-to-read [Generative Metadata Format (GMF)](https://metasyn.readthedocs.io/en/latest/developer/GMF.html) files. This allows users to audit, understand, and modify their data generation model.
-
-![Metasyn Pipeline](docs/source/images/pipeline_basic.png)
+<!-- ![Metasyn Pipeline](docs/source/images/pipeline_basic.png) -->
 
 ![Metasyn Pipeline](docs/source/images/expanded_example.png)
+
+
+1. **[Estimation](https://metasynth.readthedocs.io/en/latest/usage/generating_metaframes.html)**: Metasyn can fit a MetaFrame to a dataset. This is a metadata object that describes the structure of individual columns in the dataset without storing actual values. It captures individual distributions and features and enables the generation of synthetic data based on it.
+2. **[Generation](https://metasynth.readthedocs.io/en/latest/usage/generating_synthetic_data.html)**: Metasyn can generate synthetic data based on a MetaFrame. The generated data depends solely on the MetaFrame that was used as input, thereby effectively separating the original (sensitive) data from the generated synthetic data.
+
+<!-- ![Metasyn Estimation + Generation](docs/source/images/expanded_example_estimation_generation.png) -->
+
+3. **[Serialization](https://metasynth.readthedocs.io/en/latest/usage/exporting_metaframes.html)**: Metasyn can import and export MetaFrams to and from easy-to-read [Generative Metadata Format (GMF)](https://metasyn.readthedocs.io/en/latest/developer/GMF.html) files. This allows users to audit, understand, and modify their data generation model.
+
+<!-- ![Metasyn Serialization](docs/source/images/expanded_example_serialization.png) -->
+
 
 **Features:**
 - MetaFrames can be fitted to either [Pandas](https://pandas.pydata.org/) and [Polars](https://pola.rs/) DataFrames
