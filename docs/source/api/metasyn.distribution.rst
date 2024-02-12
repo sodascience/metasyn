@@ -74,7 +74,7 @@ Faker module
    :private-members:
    :show-inheritance:
 
-Na module
+NA module
 ^^^^^^^^^
 
 .. automodule:: metasyn.distribution.na
