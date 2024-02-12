@@ -1,4 +1,4 @@
-"""Module defining the MetaFrame class, used for the conversion of DataFrames to MetaFrames."""
+"""Module defining MetaFrames, used for creating MetaFrames from DataFrames."""  # pylint: disable=invalid-name
 
 from __future__ import annotations
 
@@ -19,22 +19,28 @@ from metasyn.var import MetaVar
 
 
 class MetaFrame():
-    """Metasyn metaframe consisting of variables.
+    """Container for statistical metadata describing a dataset.
 
-    A MetaFrame, short for metadata frame, is a structure that holds statistical metadata
-    about a dataset. The data contained in a MetaFrame is in line with the
-    Generative Metadata Format (GMF). It is essentially, a collection of MetaVar objects,
-    each representing a column in a dataset.
+    This class is used to fit a MetaFrame to a Polars DataFrame, serialize and
+    export the MetaFrame to a file, read a MetaFrame from a file, and create
+    a synthetic Polars DataFrame.
 
-    The metaframe is most easily created from a polars dataset with the from_dataframe()
-    class method.
+    A MetaFrame represents a metadata frame, which is a structure that holds
+    statistical metadata about a dataset. The data contained in a MetaFrame
+    follows the Generative Metadata Format (GMF).
+    The metadata is contained in a collection of MetaVar objects,
+    with each MetaVar representing a column (variable).
+
+    A MetaFrame can easily be created using the
+    ``fit_dataframe`` method, which takes a Polars DataFrame and fits a
+    MetaFrame to it.
 
     Parameters
     ----------
     meta_vars:
-        List of variables representing columns in a dataframe.
+        List of variables representing columns in a DataFrame.
     n_rows:
-        Number of rows in the original dataframe.
+        Number of rows in the original DataFrame.
     privacy_package:
         Package that supplies the distributions.
     """

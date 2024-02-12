@@ -14,7 +14,7 @@ from metasyn.util import DistributionSpec
 
 
 class MetaVar():
-    """Metadata variable.
+    """Metadata variable describing a column in a MetaFrame.
 
     MetaVar is a structure that holds all metadata needed to generate a
     synthetic column for it. This is the variable level building block for the
@@ -42,7 +42,7 @@ class MetaVar():
         Proportion of the series that are missing/NA.
     dtype:
         Type of the original values, e.g. int64, float, etc. Used for type-casting
-        back.
+        back. The default value is "unknown".
     description:
         User-provided description of the variable.
     """

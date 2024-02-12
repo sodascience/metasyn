@@ -1,17 +1,18 @@
 """
 Module serving as the basis for all metasyn distributions.
 
-The base module contains the BaseDistribution class, which is the base class
-for all distributions. It also contains the ScipyDistribution class,
+The base module contains the ``BaseDistribution`` class,
+which is the base class for all distributions.
+It also contains the ``ScipyDistribution`` class,
 which is a specialized base class for distributions that are built on top of
 SciPy's statistical distributions.
 
-Additionally it contains the UniqueDistributionMixin class,
+Additionally it contains the ``UniqueDistributionMixin`` class,
 which is a mixin class that can be used to make a distribution unique
 (i.e., one that does not contain duplicate values).
 
-Finally it contains the metadist() decorator, which is used to set the
-class attributes of a distribution.
+Finally it contains the ``metadist()`` decorator,
+which is used to set the class attributes of a distribution.
 """
 
 from __future__ import annotations
@@ -28,8 +29,14 @@ from numpy import typing as npt
 class BaseDistribution(ABC):
     """Abstract base class to define a distribution.
 
-    All distributions should be derived from this class, and should implement the following methods:
-    _fit, draw, _param_dict, _param_schema, default_distribution and __init__.
+    All distributions should be derived from this class, and should implement
+    the following methods:
+    :meth:`~_fit`,
+    :meth:`~draw`,
+    :meth:`~_param_dict`,
+    :meth:`~_param_schema`,
+    :meth:`~default_distribution`
+    and ``__init__``.
     """
 
     implements: str = "unknown"
@@ -229,12 +236,11 @@ def metadist(
 
 
 class ScipyDistribution(BaseDistribution):
-    """Base class for numerical Scipy distributions.
+    """Base class for numerical distributions using Scipy.
 
     This base class makes it easy to implement new numerical
-    distributions. One could also use this base class for non-scipy
-    distributions, in which case the distribution class should implement
-    logpdf, rvs and fit methods.
+    distributions. It can also be used for non-Scipy distributions,
+    provided the distribution implements `logpdf`, `rvs` and `fit` methods.
     """
 
     @property
@@ -286,7 +292,17 @@ class ScipyDistribution(BaseDistribution):
 
 @metadist(unique=True)
 class UniqueDistributionMixin(BaseDistribution):
-    """Mixin class to make unique version of base distribution."""
+    """Mixin class to make unique version of base distributions.
+
+    This mixin class can be used to extend base distribution classes, adding
+    functionality that ensures generated values are unique. It overrides
+    the `draw` method of the base class, adding a check to prevent duplicate
+    values from being drawn. If a duplicate value is drawn, it retries up to
+    1e5 times before raising a ValueError.
+
+    The `UniqueDistributionMixin` is used in various unique metasyn distribution
+    variations, such as `UniqueFakerDistribution` and `UniqueRegexDistribution`.
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

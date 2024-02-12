@@ -12,10 +12,12 @@ from metasyn.distribution.base import BaseDistribution
 
 
 class BasePrivacy(ABC):
-    """Base class for privacy level.
+    """Abstract base class for privacy levels.
 
-    Derived classes should at least set the class variable
-    name and implement the to_dict method.
+    This class serves as a blueprint for privacy classes. Derived classes
+    should at least set the class variable `name` and implement the `to_dict`
+    method, which should return a dictionary that gives the privacy type and
+    its parameters.
     """
 
     name = "unknown_privacy"
@@ -51,7 +53,11 @@ class BasePrivacy(ABC):
 
 
 class BasicPrivacy(BasePrivacy):
-    """No privacy class, which uses statistically optimal distributions."""
+    """Class representing no privacy level.
+
+    This class uses statistically optimal distributions. It inherits from the
+    `BasePrivacy` class and sets the `name` attribute to "none".
+    """
 
     name = "none"
 

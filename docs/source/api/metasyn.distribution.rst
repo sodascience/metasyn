@@ -1,70 +1,97 @@
-metasyn.distribution package
-==============================
+Distribution package
+====================
 
-.. automodule:: metasyn.distribution
-   :members:
-   :undoc-members:
-   :show-inheritance:
+This package consists of several distribution modules. 
+It also includes :mod:`metasyn.distribution.base` module, which forms the basis of all distributions.
 
-Submodules
-----------
-
-metasyn.distribution.base module
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Base module
+^^^^^^^^^^^
 
 .. automodule:: metasyn.distribution.base
    :members:
    :undoc-members:
+   :inherited-members:
+   :private-members:
    :show-inheritance:
 
-metasyn.distribution.categorical module
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Categorical module
+^^^^^^^^^^^^^^^^^^
 
 .. automodule:: metasyn.distribution.categorical
    :members:
    :undoc-members:
+   :inherited-members:
+   :private-members:
    :show-inheritance:
 
-metasyn.distribution.continuous module
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Constant module
+^^^^^^^^^^^^^^^
+
+.. automodule:: metasyn.distribution.constant
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :private-members:
+   :show-inheritance:
+
+Continuous module
+^^^^^^^^^^^^^^^^^
 
 .. automodule:: metasyn.distribution.continuous
    :members:
    :undoc-members:
+   :inherited-members:
+   :private-members:
    :show-inheritance:
 
-metasyn.distribution.datetime module
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Datetime module
+^^^^^^^^^^^^^^^
 
 .. automodule:: metasyn.distribution.datetime
    :members:
    :undoc-members:
+   :inherited-members:
+   :private-members:
    :show-inheritance:
 
-metasyn.distribution.discrete module
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Discrete module
+^^^^^^^^^^^^^^^
 
 .. automodule:: metasyn.distribution.discrete
    :members:
    :undoc-members:
+   :inherited-members:
+   :private-members:
    :show-inheritance:
 
-metasyn.distribution.faker module
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Faker module
+^^^^^^^^^^^^
 
 .. automodule:: metasyn.distribution.faker
    :members:
    :undoc-members:
+   :inherited-members:
+   :private-members:
    :show-inheritance:
 
-metasyn.distribution.regex module
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NA module
+^^^^^^^^^
+
+.. automodule:: metasyn.distribution.na
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :private-members:
+   :show-inheritance:
+
+Regex module
+^^^^^^^^^^^^
 
 .. automodule:: metasyn.distribution.regex
    :members:
    :undoc-members:
+   :inherited-members:
+   :private-members:
    :show-inheritance:
-
-
 
 
