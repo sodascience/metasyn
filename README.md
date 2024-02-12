@@ -11,45 +11,43 @@ Metasyn is a Python package for generating synthetic tabular data with a focus o
 
 Metasyn has three main functionalities:
 
-<!-- ![Metasyn Pipeline](docs/source/images/pipeline_basic.png) -->
+![Metasyn Pipeline](docs/source/images/pipeline_basic.png)
 
-![Metasyn Pipeline](docs/source/images/expanded_example.png)
-
-
-1. **[Estimation](https://metasynth.readthedocs.io/en/latest/usage/generating_metaframes.html)**: Metasyn can fit a MetaFrame to a dataset. This is a metadata object that describes the structure of individual columns in the dataset without storing actual values. It captures individual distributions and features and enables the generation of synthetic data based on it.
+1. **[Estimation](https://metasynth.readthedocs.io/en/latest/usage/generating_metaframes.html)**: Metasyn can create and fit a MetaFrame to a dataset. 
+   - A MetaFrame is metadata that describes the structure of columns, without storing any entries. It captures individual distributions and features and enables the generation of synthetic data based on it. 
+   - MetaFrames can be fitted to both [Pandas](https://pandas.pydata.org/) and [Polars](https://pola.rs/) DataFrames. 
+   - Metasyn supports a variety of distribution and data types and can automatically select and fit to them. It also supports and detects columns with unique values or structured strings. 
+   - Metasyn integrates with the [Faker](https://faker.readthedocs.io/en/master/) plugin to generate real-sounding entries for names, emails, phone numbers, etc. 
 2. **[Generation](https://metasynth.readthedocs.io/en/latest/usage/generating_synthetic_data.html)**: Metasyn can generate synthetic data based on a MetaFrame. The generated data depends solely on the MetaFrame that was used as input, thereby effectively separating the original (sensitive) data from the generated synthetic data.
+3. **[Serialization](https://metasynth.readthedocs.io/en/latest/usage/exporting_metaframes.html)**: Metasyn can import and export MetaFrames to and from easy-to-read [Generative Metadata Format (GMF)](https://metasyn.readthedocs.io/en/latest/developer/GMF.html) files. This allows users to audit, understand, and modify their data generation model.
 
-<!-- ![Metasyn Estimation + Generation](docs/source/images/expanded_example_estimation_generation.png) -->
-
-3. **[Serialization](https://metasynth.readthedocs.io/en/latest/usage/exporting_metaframes.html)**: Metasyn can import and export MetaFrams to and from easy-to-read [Generative Metadata Format (GMF)](https://metasyn.readthedocs.io/en/latest/developer/GMF.html) files. This allows users to audit, understand, and modify their data generation model.
-
-<!-- ![Metasyn Serialization](docs/source/images/expanded_example_serialization.png) -->
+  
+Metasyn is built with extensibility in mind, allowing for easy integration of custom distribution types or privacy extensions.
 
 
-**Features:**
-- MetaFrames can be fitted to either [Pandas](https://pandas.pydata.org/) and [Polars](https://pola.rs/) DataFrames
-- Exported MetaFrames follow the [Generative Metadata Format (GMF)](https://metasyn.readthedocs.io/en/latest/developer/GMF.html) for easy reading and understanding
-- Metasyn supports diverse data types like numeric, categorical, strings, dates, and more.
-- Metasyn supports and automatically fits to a variety of distribution types in the data. It also supports and detects columns with unique values, or columns containing structured strings.
-- Metasyn integrates with the [Faker](https://faker.readthedocs.io/en/master/) plugin to generate real-sounding entries for names, emails, phone numbers, etc. 
-- Metasyn is built with extensibility in mind, allowing for easy integration of custom distribution types and data types.
+ **Example**: 
 
-Curious and want to learn more? Check out our [documentation](https://metasyn.readthedocs.io/en/latest/index.html)!
+ ![Metasyn Example](docs/source/images/expanded_example_estimation_generation.png)
+ 
+
 
 ## Getting started
 ### Installing metasyn
-Metasyn can be installed directly from PyPI using the following command in the terminal (not Python):
+Metasyn can be installed directly from PyPI using the following command in the terminal:
 
 ```sh
 pip install metasyn
 ```
 
+After that metasyn is available to use in your Python scripts and notebooks. It will also be accessible through its [command-line interface](https://metasyn.readthedocs.io/en/latest/usage/cli.html).
+
 For more information on installing metasyn, refer to the [installation guide](https://metasyn.readthedocs.io/en/latest/usage/installation.html).
 
-Alternatively, it is possible to run metasyn's CLI through a Docker container available on [Docker Hub](https://hub.docker.com/r/sodateam/metasyn). More information on how to use the metasyn CLI can be found in the [CLI documentation](https://metasyn.readthedocs.io/en/latest/usage/cli.html).
+It is also possible to run and access metasyn's CLI through a Docker container available on [Docker Hub](https://hub.docker.com/r/sodateam/metasyn).  
+
 
 ### Quick start guide
-A [quick start guide](https://metasyn.readthedocs.io/en/latest/usage/quick_start.html) is also available, which provides a concise demonstration of the basic functionality of metasyn. 
+The [quick start guide](https://metasyn.readthedocs.io/en/latest/usage/quick_start.html) on our documentation provides an introduction on the functionality and workflow of metasyn. 
 
 ### Tutorial
 Additionally, the documentation offers an [interactive tutorial](https://metasyn.readthedocs.io/en/latest/usage/interactive_tutorials.html) (Jupyter Notebook) which follows and expands on the quick start guide, providing a step-by-step walkthrough and example to get you started. 
