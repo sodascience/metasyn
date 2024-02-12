@@ -1,5 +1,8 @@
 """Package providing different distributions used in metasyn.
 
+The package consists of several distribution modules, it also includes
+``base`` module which forms the basis of all distributions.
+
 Each distribution class provides methods for fitting the distribution to a
 a series of values, and for generating synthetic data based on the fitted
 distribution. Each distribution class also provides a way to calculate the

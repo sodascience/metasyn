@@ -31,11 +31,11 @@ class BaseDistribution(ABC):
 
     All distributions should be derived from this class, and should implement
     the following methods:
-    :meth:`~metasyn.distribution.base.BaseDistribution._fit`,
-    :meth:`~metasyn.distribution.base.BaseDistribution.draw`,
-    :meth:`~metasyn.distribution.base.BaseDistribution._param_dict`,
-    :meth:`~metasyn.distribution.base.BaseDistribution._param_schema`,
-    :meth:`~metasyn.distribution.base.BaseDistribution.default_distribution`
+    :meth:`~_fit`,
+    :meth:`~draw`,
+    :meth:`~_param_dict`,
+    :meth:`~_param_schema`,
+    :meth:`~default_distribution`
     and ``__init__``.
     """
 

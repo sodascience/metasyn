@@ -1,5 +1,5 @@
-metasyn.schema package
-========================
+Schema package
+==============
 
 .. automodule:: metasyn.schema
    :members:
