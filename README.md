@@ -7,7 +7,9 @@
 ![Metasyn Logo](docs/source/images/logos/blue.svg)
 
 # Metasyn
-Metasyn is a Python package for generating synthetic tabular data with a focus on privacy. It is designed for owners of sensitive datasets who want to share approximations of their data so that others can perform exploratory analysis and testing without disclosing real values.
+Metasyn is a Python package for **generating synthetic tabular** data, with a focus on **privacy**. 
+
+
 
 Metasyn has three main functionalities:
 
@@ -24,11 +26,7 @@ Metasyn has three main functionalities:
   
 Metasyn is built with extensibility in mind, allowing for easy integration of custom distribution types or privacy extensions.
 
-
- **Example**: 
-
- ![Metasyn Example](docs/source/images/expanded_example_estimation_generation.png)
- 
+  It is designed for owners of sensitive datasets who want to share approximations of their data so that others can perform exploratory analysis and testing without disclosing real values.
 
 
 ## Getting started
