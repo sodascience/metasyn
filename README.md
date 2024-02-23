@@ -7,27 +7,28 @@
 ![Metasyn Logo](docs/source/images/logos/blue.svg)
 
 # Metasyn
-Metasyn is a Python package for **generating synthetic tabular** data, with a focus on **privacy**. 
 
+## What is metasyn?
 
+Metasyn is a Python package that **generates synthetic data**, and allows **sharing of the data generation model**, to facilitate collaboration and testing on sensitive data without exposing the original data.
 
-Metasyn has three main functionalities:
+It has three main functionalities:
+
+1. **[Estimation](https://metasynth.readthedocs.io/en/latest/usage/generating_metaframes.html)**: Metasyn analyzes your dataset and creates a 'MetaFrame' for it. This is essentially a blueprint that captures the structure and distributions of the columns without storing any entries.
+2. **[Generation](https://metasynth.readthedocs.io/en/latest/usage/generating_synthetic_data.html)**: Metasyn uses the MetaFrame to produce new, synthetic data that resembles the original, on a column-by-column basis. 
+3. **[Serialization](https://metasynth.readthedocs.io/en/latest/usage/exporting_metaframes.html)**: Metasyn can export and import MetaFrames to an easy to read format. This allows the modification and sharing of MetaFrames for transparency and tailored data generation.
+
 
 ![Metasyn Pipeline](docs/source/images/pipeline_basic.png)
 
-1. **[Estimation](https://metasynth.readthedocs.io/en/latest/usage/generating_metaframes.html)**: Metasyn can create and fit a MetaFrame to a dataset. 
-   - A MetaFrame is metadata that describes the structure of columns, without storing any entries. It captures individual distributions and features and enables the generation of synthetic data based on it. 
-   - MetaFrames can be fitted to both [Pandas](https://pandas.pydata.org/) and [Polars](https://pola.rs/) DataFrames. 
-   - Metasyn supports a variety of distribution and data types and can automatically select and fit to them. It also supports and detects columns with unique values or structured strings. 
-   - Metasyn integrates with the [Faker](https://faker.readthedocs.io/en/master/) plugin to generate real-sounding entries for names, emails, phone numbers, etc. 
-2. **[Generation](https://metasynth.readthedocs.io/en/latest/usage/generating_synthetic_data.html)**: Metasyn can generate synthetic data based on a MetaFrame. The generated data depends solely on the MetaFrame that was used as input, thereby effectively separating the original (sensitive) data from the generated synthetic data.
-3. **[Serialization](https://metasynth.readthedocs.io/en/latest/usage/exporting_metaframes.html)**: Metasyn can import and export MetaFrames to and from easy-to-read [Generative Metadata Format (GMF)](https://metasyn.readthedocs.io/en/latest/developer/GMF.html) files. This allows users to audit, understand, and modify their data generation model.
+## Why Metasyn?
 
-  
-Metasyn is built with extensibility in mind, allowing for easy integration of custom distribution types or privacy extensions.
-
-  It is designed for owners of sensitive datasets who want to share approximations of their data so that others can perform exploratory analysis and testing without disclosing real values.
-
+- **Privacy**: With metasyn you can share not only synthetic data, but also the model used to create it. This increases transparency and facilitates collaboration and testing on sensitive data without exposing the original data.
+- **Extensible**: Metasyn is designed to be easily extendable and customizable and supports plugins for custom distributions and privacy control.
+- **Faker**: Metasyn integrates with the [Faker](https://faker.readthedocs.io/en/master/) plugin to generate real-sounding entries for names, emails, phone numbers, etc.
+- **DataFrame-based**: Metasyn is built on top of [Polars](https://pola.rs/), and supports both Polars and [Pandas](https://pandas.pydata.org/) DataFrames as input.
+- **Flexibility**: Metasyn supports a variety of distribution and data types and can automatically select and fit to them. It also supports and detects columns with unique values or structured strings.
+- **Ease of use**: Metasyn is designed to be easy to use and understand.
 
 ## Getting started
 ### Installing metasyn
@@ -37,23 +38,67 @@ Metasyn can be installed directly from PyPI using the following command in the t
 pip install metasyn
 ```
 
-After that metasyn is available to use in your Python scripts and notebooks. It will also be accessible through its [command-line interface](https://metasyn.readthedocs.io/en/latest/usage/cli.html).
+After that metasyn is available to use in your Python scripts and notebooks. It will also be accessible through its [command-line interface](https://metasyn.readthedocs.io/en/latest/usage/cli.html). It is also possible to run and access metasyn's CLI through a Docker container available on [Docker Hub](https://hub.docker.com/r/sodateam/metasyn).  
 
 For more information on installing metasyn, refer to the [installation guide](https://metasyn.readthedocs.io/en/latest/usage/installation.html).
 
-It is also possible to run and access metasyn's CLI through a Docker container available on [Docker Hub](https://hub.docker.com/r/sodateam/metasyn).  
 
 
-### Quick start guide
-The [quick start guide](https://metasyn.readthedocs.io/en/latest/usage/quick_start.html) on our documentation provides an introduction on the functionality and workflow of metasyn. 
 
-### Tutorial
-Additionally, the documentation offers an [interactive tutorial](https://metasyn.readthedocs.io/en/latest/usage/interactive_tutorials.html) (Jupyter Notebook) which follows and expands on the quick start guide, providing a step-by-step walkthrough and example to get you started. 
+### Using metasyn
+The following code shows how to use metasyn to generate synthetic data, as shown in the diagram below.
+
+![Example input and output](docs/source/images/example_input_output_concise.png)
+
+```python
+import polars as pl
+from metasyn import MetaFrame
+from metasyn.config import VarConfig
+from metasyn.util import DistributionSpec
+
+#### Polars Setup ####
+# Metasyn relies on Polars (or Pandas) DataFrames. 
+# For this example we'll create a simple Polars DataFrame.
+df = pl.DataFrame(
+    {
+        "ID": [1, 2, 3, 4, 5],
+        "fruits": ["banana", "banana", "apple", "apple", "banana"],
+        "B": [5, 4, 3, 2, 1],
+        "cars": ["beetle", "audi", "beetle", "beetle", "beetle"],
+        "optional": [28, 300, None, 2, -30],
+    }
+)
+
+# Categorical columns need to be casted to the Categorical type,
+# so that metasyn can detect and fit to them.
+df = df.with_columns([
+    pl.col("fruits").cast(pl.Categorical),
+    pl.col("cars").cast(pl.Categorical),
+])
+
+#### Metasyn ####
+# We'll create a variable specification for the MetaFrame. 
+# This specification allows us to direct how metasyn should fit to the data. In this case, we want columns "ID" and "B" to be unique.
+
+variable_specification = [
+    VarConfig(name="ID", dist_spec=DistributionSpec(unique=True)),
+    VarConfig(name="B", dist_spec=DistributionSpec(unique=True))
+]
+
+# We'll create a MetaFrame based on the DataFrame and the variable specification.
+mf = MetaFrame.fit_dataframe(df, var_specs=variable_specification)
+
+# We can now synthesize new data based on the MetaFrame.
+mf_out.synthesize(5)
+```
+
+For a detailed overview of metasyn, refer to the [documentation](https://metasyn.readthedocs.io/en/latest/index.html). 
+
+The documentation includes a [quick start guide](https://metasyn.readthedocs.io/en/latest/usage/quick_start.html) which acts as a crash-course on the functionality and workflow of metasyn.
+
+The documentation also includes an [interactive tutorial](https://metasyn.readthedocs.io/en/latest/usage/interactive_tutorials.html) (Jupyter Notebook) which follows and expands on the quick start guide, providing a step-by-step walkthrough and example to get you started.
 
 This tutorial can be followed without having to install metasyn locally by running it in Google Colab or Binder.
-
-### Documentation
-For a detailed overview of metasyn, refer to the [documentation](https://metasyn.readthedocs.io/en/latest/index.html). The documentation covers everything you need to know to get started with metasyn, including installation, usage, and examples.
 
 <!-- CONTRIBUTING -->
 ## Contributing
