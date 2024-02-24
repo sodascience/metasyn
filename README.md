@@ -6,7 +6,7 @@
 
 ![Metasyn Logo](docs/source/images/logos/blue.svg)
 
-# Metasyn
+# Metasyn: 
 
 ## What is metasyn?
 
@@ -14,15 +14,14 @@ Metasyn is a Python package that **generates synthetic data**, and allows **shar
 
 It has three main functionalities:
 
-1. **[Estimation](https://metasynth.readthedocs.io/en/latest/usage/generating_metaframes.html)**: Metasyn analyzes your dataset and creates a 'MetaFrame' for it. This is essentially a blueprint that captures the structure and distributions of the columns without storing any entries.
-2. **[Generation](https://metasynth.readthedocs.io/en/latest/usage/generating_synthetic_data.html)**: Metasyn uses the MetaFrame to produce new, synthetic data that resembles the original, on a column-by-column basis. 
-3. **[Serialization](https://metasynth.readthedocs.io/en/latest/usage/exporting_metaframes.html)**: Metasyn can export and import MetaFrames to an easy to read format. This allows the modification and sharing of MetaFrames for transparency and tailored data generation.
+1. **[Estimation](https://metasynth.readthedocs.io/en/latest/usage/generating_metaframes.html)**: Metasyn can analyze a dataset and create a *MetaFrame* for it. This is essentially a blueprint (or data generation model) that captures the structure and distributions of the columns without storing any entries.
+2. **[Generation](https://metasynth.readthedocs.io/en/latest/usage/generating_synthetic_data.html)**: From a *MetaFrame*, metasyn can generate new synthetic data that resembles the original, on a column-by-column basis. 
+3. **[Serialization](https://metasynth.readthedocs.io/en/latest/usage/exporting_metaframes.html)**: Metasyn can export and import *MetaFrames* to an easy-to-read format. This allows for easy modification and sharing of the model.
 
 
 ![Metasyn Pipeline](docs/source/images/pipeline_basic.png)
 
 ## Why Metasyn?
-
 - **Privacy**: With metasyn you can share not only synthetic data, but also the model used to create it. This increases transparency and facilitates collaboration and testing on sensitive data without exposing the original data.
 - **Extensible**: Metasyn is designed to be easily extendable and customizable and supports plugins for custom distributions and privacy control.
 - **Faker**: Metasyn integrates with the [Faker](https://faker.readthedocs.io/en/master/) plugin to generate real-sounding entries for names, emails, phone numbers, etc.
@@ -30,25 +29,12 @@ It has three main functionalities:
 - **Flexibility**: Metasyn supports a variety of distribution and data types and can automatically select and fit to them. It also supports and detects columns with unique values or structured strings.
 - **Ease of use**: Metasyn is designed to be easy to use and understand.
 
-## Getting started
-### Installing metasyn
-Metasyn can be installed directly from PyPI using the following command in the terminal:
-
-```sh
-pip install metasyn
-```
-
-After that metasyn is available to use in your Python scripts and notebooks. It will also be accessible through its [command-line interface](https://metasyn.readthedocs.io/en/latest/usage/cli.html). It is also possible to run and access metasyn's CLI through a Docker container available on [Docker Hub](https://hub.docker.com/r/sodateam/metasyn).  
-
-For more information on installing metasyn, refer to the [installation guide](https://metasyn.readthedocs.io/en/latest/usage/installation.html).
-
-
-
-
-### Using metasyn
-The following code shows how to use metasyn to generate synthetic data, as shown in the diagram below.
-
+## Example
+The following diagram shows how metasyn can generate synthetic data from an input dataset:
 ![Example input and output](docs/source/images/example_input_output_concise.png)
+
+This can be reproduced using the following code:
+
 
 ```python
 import polars as pl
@@ -78,7 +64,8 @@ df = df.with_columns([
 
 #### Metasyn ####
 # We'll create a variable specification for the MetaFrame. 
-# This specification allows us to direct how metasyn should fit to the data. In this case, we want columns "ID" and "B" to be unique.
+# This specification allows us to direct how metasyn should fit to the data. 
+# In this case, we want columns "ID" and "B" to be unique.
 
 variable_specification = [
     VarConfig(name="ID", dist_spec=DistributionSpec(unique=True)),
@@ -92,29 +79,39 @@ mf = MetaFrame.fit_dataframe(df, var_specs=variable_specification)
 mf_out.synthesize(5)
 ```
 
-For a detailed overview of metasyn, refer to the [documentation](https://metasyn.readthedocs.io/en/latest/index.html). 
+This example is the most basic use case, we recommend to check out the [User Guide](https://metasyn.readthedocs.io/en/latest/usage/usage.html) for a more detailed examples.
 
-The documentation includes a [quick start guide](https://metasyn.readthedocs.io/en/latest/usage/quick_start.html) which acts as a crash-course on the functionality and workflow of metasyn.
 
-The documentation also includes an [interactive tutorial](https://metasyn.readthedocs.io/en/latest/usage/interactive_tutorials.html) (Jupyter Notebook) which follows and expands on the quick start guide, providing a step-by-step walkthrough and example to get you started.
+## Installing metasyn
+Metasyn can be installed directly from PyPI using the following command in the terminal:
 
-This tutorial can be followed without having to install metasyn locally by running it in Google Colab or Binder.
+```sh
+pip install metasyn
+```
 
-<!-- CONTRIBUTING -->
+After that metasyn is available to use in your Python scripts and notebooks. It will also be accessible through its [command-line interface](https://metasyn.readthedocs.io/en/latest/usage/cli.html). It is also possible to run and access metasyn's CLI through a Docker container available on [Docker Hub](https://hub.docker.com/r/sodateam/metasyn).  
+
+For more information on installing metasyn, refer to the [installation guide](https://metasyn.readthedocs.io/en/latest/usage/installation.html).
+
+
+## Documentation and help
+- **Documentation**: For a detailed overview of metasyn, refer to the [documentation](https://metasyn.readthedocs.io/en/latest/index.html). 
+- **Quick-start:** Our [quick start guide](https://metasyn.readthedocs.io/en/latest/usage/quick_start.html) acts as a crash-course on the functionality and workflow of metasyn.
+- **Interactive tutorial** Our [interactive tutorial](https://metasyn.readthedocs.io/en/latest/usage/interactive_tutorials.html) (Jupyter Notebook) follows and expands on the quick start guide, providing a step-by-step walkthrough and example to get you started. This tutorial can be followed without having to install metasyn locally by running it in Google Colab or Binder.
+
 ## Contributing
-Contributions are what make the open-source community an great place to learn, inspire, and create.
+Metasyn is an open-source project, and we welcome contributions from the community.
 
-Any contributions you make are greatly appreciated.
-
-To contribute:
+To contribute to the codebase, follow these steps:
 1. Fork the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+More information on contributing can be found in the [contributing](https://metasyn.readthedocs.io/en/latest/developer/contributing.html) section of the documentation.
 
-<!-- CONTACT -->
+
 ## Contact
 **Metasyn** is a project by the [ODISSEI Social Data Science (SoDa)](https://odissei-data.nl/nl/soda/) team.
 Do you have questions, suggestions, or remarks on the technical implementation? File an issue in the issue tracker or feel free to contact [Erik-Jan van Kesteren](https://github.com/vankesteren) or [Raoul Schram](https://github.com/qubixes).
