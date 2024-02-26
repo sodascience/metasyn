@@ -27,31 +27,33 @@ Metasyn Documentation
 =======================
 Welcome to the `metasyn <https://github.com/sodascience/metasyn/>`_ documentation. 
 
-``Metasyn`` is a Python package for generating synthetic tabular data with a focus on privacy. It is designed for owners of sensitive datasets who want to share approximations of their data for so that others can perform exploratory analysis and testing, without disclosing real values.
+``Metasyn`` is a Python package for generating synthetic tabular data with a focus on privacy. It is designed for owners of sensitive datasets who want to share approximations of their data so that others can perform exploratory analysis and testing without disclosing real values.
 
 ``Metasyn`` has three main functionalities:
-
-1. **Estimation**: ``Metasyn`` can **create a MetaFrame**, from a dataset. A MetaFrame is essentially a fitted model that characterizes the structure of the original dataset without storing actual values. It captures individual distributions and features, enabling generation of synthetic data based on these MetaFrames and can be seen as (statistical) metadata. 
-2. **Serialization**: ``Metasyn`` can **export a MetaFrame** into an easy to read JSON file, allowing users to audit, understand, and modify their data generation model. 
-3. **Generation**: ``Metasyn`` can **generate synthetic data** based on a MetaFrame. The synthetic data produced solely depends on the MetaFrame, thereby maintaining a critical separation between the original sensitive data and the synthetic data generated.
-
-Researchers and data owners can use ``metasyn`` to generate and share synthetic versions of their sensitive datasets, mitigating privacy concerns. Additionally, ``metasyn`` facilitates transparency and reproducibility, by allowing the underlying MetaFrames to be exported and shared. Other researchers can use these to regenerate consistent synthetic datasets, validating published work without requiring sensitive data.
 
 .. image:: /images/pipeline_basic.png
    :width: 100%
    :alt: ``Metasyn`` Pipeline
    :align: center
 
+1. **Estimation**: ``Metasyn`` can **create a MetaFrame**, from a dataset. A MetaFrame is metadata describing a table, augmented with statistical information on the columns. It captures individual distributions and features and enables the generation of synthetic data based on it.
+2. **Generation**: ``Metasyn`` can **generate synthetic data** based on a MetaFrame. The synthetic data produced solely depends on the MetaFrame, thereby maintaining a critical separation between the original sensitive data and the generated synthetic data.
+3. **Serialization**: ``Metasyn`` can **export a MetaFrame** into an easy-to-read :doc:`/developer/GMF` file. This allows users to audit, understand, and modify their data generation model. These GMF files can also be imported back into Metasyn to generate synthetic data.
+
+Researchers and data owners can use ``metasyn`` to generate and share synthetic versions of their sensitive datasets, mitigating privacy concerns. Additionally, ``metasyn`` facilitates transparency and reproducibility by allowing the underlying MetaFrames to be exported and shared. Other researchers can use these to regenerate consistent synthetic datasets, validating published work without requiring sensitive data.
+
+
+
 .. admonition:: Key Features
 
-   -  **MetaFrame Generation**: ``Metasyn`` allows the creation of a MetaFrame from a dataset provided as a Polars or Pandas DataFrame. MetaFrames includes key characteristics such as *variable names*, *data types*, *the percentage of missing values*, and *distribution parameters*. 
-   -  **Exporting MetaFrames**: ``Metasyn`` can export and import MetaFrames to GMF files. These are JSON files that follow the easy to read and understand :doc:`/developer/GMF`.
-   -  **Synthetic Data Generation**: ``Metasyn`` allows for the generation of a polars DataFrame with synthetic data that resembles the original data.
+   -  **MetaFrame Generation**: ``Metasyn`` allows the creation of a MetaFrame from a dataset provided as a `Polars <https://pola.rs/>`_ or `Pandas <https://pandas.pydata.org/>`_ DataFrame. MetaFrames include key characteristics such as *variable names*, *data types*, *percentage of missing values*, and *distribution parameters*. 
+   -  **Exporting MetaFrames**: ``Metasyn`` can export and import MetaFrames to GMF files. These are JSON files that follow the easy-to-read and understand :doc:`/developer/GMF`.
+   -  **Synthetic Data Generation**: ``Metasyn`` allows for the generation of a Polars DataFrame with synthetic data that resembles the original data.
    -  **Distribution Fitting**: ``Metasyn`` allows for manual and automatic distribution fitting.
    -  **Data Type Support**: ``Metasyn`` supports generating synthetic data for a variety of common data types including ``categorical``, ``string``, ``integer``, ``float``, ``date``, ``time``, and ``datetime``.
    -  **Integration with Faker**: ``Metasyn`` integrates with the `faker <https://github.com/joke2k/faker>`__ package, a Python library for generating fake data such as names and emails. Allowing for more realistic synthetic data.
    -  **Structured String Detection**: ``Metasyn`` identifies structured strings within your dataset, which can include formatted text, codes, identifiers, or any string that follows a specific pattern.
-   -  **Handling Unique Values**: ``Metasyn`` can identify and process variables with unique values or keys in the data, preserving their uniqueness in the synthetic dataset, which is crucial for generating synthetic data that maintains the characteristics of the original dataset.
+   -  **Handling Unique Values**: ``Metasyn`` can identify and process variables with unique values or keys in the data, preserving their uniqueness in the synthetic dataset.
 
 .. admonition:: Want to know more?
 
