@@ -63,6 +63,7 @@ df = df.with_columns([
 ])
 
 #### Metasyn ####
+# Now that we have a DataFrame, we can create a MetaFrame from it.
 # We'll create a variable specification for the MetaFrame. 
 # This specification allows us to direct how metasyn should fit to the data. 
 # In this case, we want columns "ID" and "B" to be unique.
@@ -75,11 +76,15 @@ variable_specification = [
 # We'll create a MetaFrame based on the DataFrame and the variable specification.
 mf = MetaFrame.fit_dataframe(df, var_specs=variable_specification)
 
-# We can now synthesize new data based on the MetaFrame.
-mf_out.synthesize(5)
+# We can now synthesize new data based on the MetaFrame, in this case 5 rows. 
+# We'll save it to a new DataFrame called 'output_df'.
+output_df = mf.synthesize(5)
+
+# This DataFrame can easily be exported to csv, parquet, excel and more. E.g. to csv:
+output_df.write_csv("output.csv")
 ```
 
-This example is the most basic use case, we recommend to check out the [User Guide](https://metasyn.readthedocs.io/en/latest/usage/usage.html) for a more detailed examples.
+This example is the most basic use case, we recommend to check out the [User Guide](https://metasyn.readthedocs.io/en/latest/usage/usage.html) for a more detailed examples. For more information on how to use Polars DataFrames, refer to the [Polars documentation](https://pola.rs/).
 
 
 ## Installing metasyn
