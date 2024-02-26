@@ -1,18 +1,14 @@
-<p align="center">
-  <img src="docs/source/images/logos/blue.svg" width="600px" alt="Metasyn logo"></img>
-  <h3 align="center">Transparent and privacy-friendly synthetic data generation</h3>
-  <p align="center">
-    <span>
-        <a href="https://www.repostatus.org/#wip"><img src="https://www.repostatus.org/badges/latest/wip.svg" alt="Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public."/></a>
-        <a href="https://pypi.org/project/metasyn"><img src="https://img.shields.io/pypi/pyversions/metasyn" alt="metasyn on pypi"></img></a>
-        <a href="https://colab.research.google.com/github/sodascience/metasyn/blob/main/examples/getting_started.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="open getting started on colab"></img></a>
-        <a href="https://metasyn.readthedocs.io/en/latest/index.html"><img src="https://readthedocs.org/projects/metasyn/badge/?version=latest" alt="Readthedocs"></img></a>
-        <a href="https://hub.docker.com/r/sodateam/metasyn"><img src="https://img.shields.io/docker/v/sodateam/metasyn?logo=docker&label=docker&color=blue" alt="Docker image version"></img></a>
-    </span>
-  </p>
-</p>
-<br/>
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/metasyn)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sodascience/metasyn/HEAD?labpath=examples%2Fgetting_started.ipynb)
+[![Google Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sodascience/metasyn/blob/main/examples/getting_started.ipynb)
+[![docs](https://readthedocs.org/projects/metasyn/badge/?version=latest)](https://metasyn.readthedocs.io/en/latest/index.html)
+[![Docker Image Version (latest semver)](https://img.shields.io/docker/v/sodateam/metasyn?logo=docker&label=docker&color=blue)](https://hub.docker.com/r/sodateam/metasyn)
 
+![Metasyn Logo](docs/source/images/logos/blue.svg)
+
+# Metasyn: 
+
+## What is metasyn?
 
 Metasyn is a Python package that **generates synthetic data**, and allows **sharing of the data generation model**, to facilitate collaboration and testing on sensitive data without exposing the original data.
 
@@ -35,60 +31,30 @@ It has three main functionalities:
 
 ## Example
 The following diagram shows how metasyn can generate synthetic data from an input dataset:
+
 ![Example input and output](docs/source/images/example_input_output_concise.png)
 
 This can be reproduced using the following code:
 
 
 ```python
-import polars as pl
-from metasyn import MetaFrame
-from metasyn.config import VarConfig
-from metasyn.util import DistributionSpec
+# Create a Polars DataFrame. In this case we load it from a csv file.
+# It is important to specify which categories are categorical, as Polars does not infer this automatically.
+df = pl.read_csv("example.csv", dtypes={"fruits": pl.Categorical, "cars": pl.Categorical})
 
-#### Polars Setup ####
-# Metasyn relies on Polars (or Pandas) DataFrames. 
-# For this example we'll create a simple Polars DataFrame.
-df = pl.DataFrame(
-    {
-        "ID": [1, 2, 3, 4, 5],
-        "fruits": ["banana", "banana", "apple", "apple", "banana"],
-        "B": [5, 4, 3, 2, 1],
-        "cars": ["beetle", "audi", "beetle", "beetle", "beetle"],
-        "optional": [28, 300, None, 2, -30],
-    }
-)
+# Create a MetaFrame from the DataFrame.
+mf = MetaFrame.fit_dataframe(df)
 
-# Categorical columns need to be casted to the Categorical type,
-# so that metasyn can detect and fit to them.
-df = df.with_columns([
-    pl.col("fruits").cast(pl.Categorical),
-    pl.col("cars").cast(pl.Categorical),
-])
-
-#### Metasyn ####
-# Now that we have a DataFrame, we can create a MetaFrame from it.
-# We'll create a variable specification for the MetaFrame. 
-# This specification allows us to direct how metasyn should fit to the data. 
-# In this case, we want columns "ID" and "B" to be unique.
-
-variable_specification = [
-    VarConfig(name="ID", dist_spec=DistributionSpec(unique=True)),
-    VarConfig(name="B", dist_spec=DistributionSpec(unique=True))
-]
-
-# We'll create a MetaFrame based on the DataFrame and the variable specification.
-mf = MetaFrame.fit_dataframe(df, var_specs=variable_specification)
-
-# We can now synthesize new data based on the MetaFrame, in this case 5 rows. 
-# We'll save it to a new DataFrame called 'output_df'.
+# Generate a new DataFrame, with 5 rows data from the MetaFrame.
 output_df = mf.synthesize(5)
 
-# This DataFrame can easily be exported to csv, parquet, excel and more. E.g. to csv:
+# This DataFrame can be exported to csv, parquet, excel and more. E.g., to csv:
 output_df.write_csv("output.csv")
 ```
 
-This example is the most basic use case, we recommend to check out the [User Guide](https://metasyn.readthedocs.io/en/latest/usage/usage.html) for a more detailed examples. For more information on how to use Polars DataFrames, refer to the [Polars documentation](https://pola.rs/).
+This example is the most basic use case, as a next step we recommend to check out the [User Guide](https://metasyn.readthedocs.io/en/latest/usage/usage.html) for more detailed examples or to follow along our [interactive tutorial](https://metasyn.readthedocs.io/en/latest/usage/interactive_tutorials.html). 
+
+For more information on how to use Polars DataFrames, refer to the [Polars documentation](https://pola.rs/).
 
 
 ## Installing metasyn
