@@ -83,7 +83,7 @@ def demo_file(name: str = "titanic") -> Path:
     """
     if name == "titanic":
         return files(__package__) / "demo_titanic.csv"
-    elif name == "spaceship":
+    if name == "spaceship":
         return files(__package__) / "demo_spaceship.csv"
 
     raise ValueError(f"No demonstration dataset with name '{name}'. Options: titanic, spaceship.")
@@ -118,11 +118,11 @@ def demo_data(name: str = "spaceship") -> pl.DataFrame:
             "Transported": pl.Categorical,
         }
         return pl.read_csv(file_path, dtypes=data_types, try_parse_dates=True)
-    elif name == "titanic":
+    if name == "titanic":
         file_path = demo_file(name=name)
         data_types = {"Sex": pl.Categorical, "Embarked": pl.Categorical}
         return pl.read_csv(file_path, dtypes=data_types, try_parse_dates=True)
-    elif name == "fruit":
+    if name == "fruit":
         return pl.DataFrame(
             {
                 "ID": [1, 2, 3, 4, 5],

@@ -21,6 +21,7 @@ generated synthetic data.
 from importlib.metadata import version
 
 from metasyn.demo.dataset import demo_data, demo_file
+from metasyn.distribution.base import metadist
 from metasyn.metaframe import MetaFrame
 from metasyn.var import MetaVar
 
