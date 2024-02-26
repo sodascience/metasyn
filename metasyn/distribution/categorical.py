@@ -31,8 +31,11 @@ class MultinoulliDistribution(BaseDistribution):
         normalized internally.
     """
 
-    def __init__(self, labels: Union[npt.NDArray[np.str_], list[str]],
-                 probs: Union[npt.NDArray[np.float_], list[float]]):
+    def __init__(
+        self,
+        labels: Union[npt.NDArray[Union[np.str_, np.int_]], list[Union[str, int]]],
+        probs: Union[npt.NDArray[np.float_], list[float]]
+    ):
         self.labels = np.array(labels)
         self.probs = np.array(probs)
         if np.any(self.probs < 0):
