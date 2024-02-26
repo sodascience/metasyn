@@ -71,12 +71,12 @@ except ImportError:
 def demo_file(name: str = "titanic") -> Path:
     """Get the path for a demo data file.
 
-    Arguments:
+    Arguments
     ---------
     name:
         Name of the demo dataset.
 
-    Returns:
+    Returns
     -------
         Path to the dataset.
 
@@ -92,17 +92,17 @@ def demo_file(name: str = "titanic") -> Path:
 def demo_data(name: str = "spaceship") -> pl.DataFrame:
     """Get a demonstration dataset as a prepared polars dataframe.
 
-    There are three options: 
+    There are three options:
         - spaceship (CC-BY from https://www.kaggle.com/competitions/spaceship-titanic)
         - fruit (very basic example data from Polars)
         - titanic (Included in pandas, but post-processed to contain more columns)
 
-    Arguments:
+    Arguments
     ---------
     name:
         Name of the demo dataset: spaceship, fruit, or titanic.
 
-    Returns:
+    Returns
     -------
         Polars dataframe with correct column types
 
@@ -117,11 +117,11 @@ def demo_data(name: str = "spaceship") -> pl.DataFrame:
             "Destination": pl.Categorical,
             "Transported": pl.Categorical,
         }
-        return pl.read_csv(file_path, dtypes=data_types)
+        return pl.read_csv(file_path, dtypes=data_types, try_parse_dates=True)
     elif name == "titanic":
         file_path = demo_file(name=name)
         data_types = {"Sex": pl.Categorical, "Embarked": pl.Categorical}
-        return pl.read_csv(file_path, dtypes=data_types)
+        return pl.read_csv(file_path, dtypes=data_types, try_parse_dates=True)
     elif name == "fruit":
         return pl.DataFrame(
             {
