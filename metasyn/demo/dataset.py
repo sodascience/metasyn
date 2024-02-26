@@ -3,6 +3,8 @@
 # import random
 from pathlib import Path
 
+import polars as pl
+
 try:
     from importlib_resources import files
 except ImportError:
@@ -69,19 +71,72 @@ except ImportError:
 def demo_file(name: str = "titanic") -> Path:
     """Get the path for a demo data file.
 
-    Arguments
+    Arguments:
     ---------
     name:
         Name of the demo dataset.
 
-    Returns
+    Returns:
     -------
         Path to the dataset.
-    """
-    file_name = None
-    if name == "titanic":
-        file_name = "demo_titanic.csv"
-    if file_name is None:
-        raise ValueError(f"No demonstration dataset with name '{name}'")
 
-    return files(__package__) / file_name
+    """
+    if name == "titanic":
+        return files(__package__) / "demo_titanic.csv"
+    elif name == "spaceship":
+        return files(__package__) / "demo_spaceship.csv"
+
+    raise ValueError(f"No demonstration dataset with name '{name}'. Options: titanic, spaceship.")
+
+
+def demo_data(name: str = "spaceship") -> pl.DataFrame:
+    """Get a demonstration dataset as a prepared polars dataframe.
+
+    There are three options: 
+        - spaceship (CC-BY from https://www.kaggle.com/competitions/spaceship-titanic)
+        - fruit (very basic example data from Polars)
+        - titanic (Included in pandas, but post-processed to contain more columns)
+
+    Arguments:
+    ---------
+    name:
+        Name of the demo dataset: spaceship, fruit, or titanic.
+
+    Returns:
+    -------
+        Polars dataframe with correct column types
+
+    """
+    if name == "spaceship":
+        # the Kaggle spaceship data (CC-BY)
+        file_path = demo_file(name=name)
+        data_types = {
+            "HomePlanet": pl.Categorical,
+            "CryoSleep": pl.Categorical,
+            "VIP": pl.Categorical,
+            "Destination": pl.Categorical,
+            "Transported": pl.Categorical,
+        }
+        return pl.read_csv(file_path, dtypes=data_types)
+    elif name == "titanic":
+        file_path = demo_file(name=name)
+        data_types = {"Sex": pl.Categorical, "Embarked": pl.Categorical}
+        return pl.read_csv(file_path, dtypes=data_types)
+    elif name == "fruit":
+        return pl.DataFrame(
+            {
+                "ID": [1, 2, 3, 4, 5],
+                "fruits": ["banana", "banana", "apple", "apple", "banana"],
+                "B": [5, 4, 3, 2, 1],
+                "cars": ["beetle", "audi", "beetle", "beetle", "beetle"],
+                "optional": [28, 300, None, 2, -30],
+            }
+        ).with_columns(
+            [
+                pl.col("fruits").cast(pl.Categorical),
+                pl.col("cars").cast(pl.Categorical),
+            ]
+        )
+    raise ValueError(
+        f"No demonstration dataset with name '{name}'. Options: titanic, spaceship, fruit."
+    )
