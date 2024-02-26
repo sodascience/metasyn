@@ -1,14 +1,17 @@
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/metasyn)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sodascience/metasyn/HEAD?labpath=examples%2Fgetting_started.ipynb)
-[![Google Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sodascience/metasyn/blob/main/examples/getting_started.ipynb)
-[![docs](https://readthedocs.org/projects/metasyn/badge/?version=latest)](https://metasyn.readthedocs.io/en/latest/index.html)
-[![Docker Image Version (latest semver)](https://img.shields.io/docker/v/sodateam/metasyn?logo=docker&label=docker&color=blue)](https://hub.docker.com/r/sodateam/metasyn)
-
-![Metasyn Logo](docs/source/images/logos/blue.svg)
-
-# Metasyn: 
-
-## What is metasyn?
+<p align="center">
+  <img src="docs/source/images/logos/blue.svg" width="600px" alt="Metasyn logo"></img>
+  <h3 align="center">Transparent and privacy-friendly synthetic data generation</h3>
+  <p align="center">
+    <span>
+        <a href="https://www.repostatus.org/#wip"><img src="https://www.repostatus.org/badges/latest/wip.svg" alt="Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public."/></a>
+        <a href="https://pypi.org/project/metasyn"><img src="https://img.shields.io/pypi/pyversions/metasyn" alt="metasyn on pypi"></img></a>
+        <a href="https://colab.research.google.com/github/sodascience/metasyn/blob/main/examples/getting_started.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="open getting started on colab"></img></a>
+        <a href="https://metasyn.readthedocs.io/en/latest/index.html"><img src="https://readthedocs.org/projects/metasyn/badge/?version=latest" alt="Readthedocs"></img></a>
+        <a href="https://hub.docker.com/r/sodateam/metasyn"><img src="https://img.shields.io/docker/v/sodateam/metasyn?logo=docker&label=docker&color=blue" alt="Docker image version"></img></a>
+    </span>
+  </p>
+</p>
+<br/>
 
 Metasyn is a Python package that **generates synthetic data**, and allows **sharing of the data generation model**, to facilitate collaboration and testing on sensitive data without exposing the original data.
 
