@@ -21,8 +21,8 @@ from metasyn import MetaFrame
 from metasyn.config import MetaConfig
 from metasyn.validation import create_schema
 
-EXAMPLE_CREATE_META="metasyn create-meta your_dataset.csv your_gmf_file.json --config your_config.toml"  # noqa
-EXAMPLE_SYNTHESIZE="metasyn synthesize your_gmf_file.json your_synthetic_file.csv"
+EXAMPLE_CREATE_META="metasyn create-meta your_dataset.csv -o your_gmf_file.json --config your_config.toml"  # noqa
+EXAMPLE_SYNTHESIZE="metasyn synthesize your_gmf_file.json -o your_synthetic_file.csv"
 
 MAIN_HELP_MESSAGE = f"""
 Metasyn CLI version {version("metasyn")}
@@ -148,10 +148,10 @@ Example: {EXAMPLE_SYNTHESIZE}
         type=pathlib.Path,
     )
     parser.add_argument(
-        "output",
+        "--output", "-o",
         help="output file (.csv, .feather, .parquet, .pkl, or .xlsx)",
-        nargs="?",
         type=pathlib.Path,
+        required=False,
     )
     parser.add_argument(
         "-n", "--num_rows",

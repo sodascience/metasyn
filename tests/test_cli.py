@@ -67,6 +67,7 @@ def test_cli(tmp_dir, ext):
         "synthesize",                     # the subcommand
         "-n 25",                          # only generate 25 samples
         tmp_dir / "titanic.json",         # the input file
+        "-o",
         out_file                          # the output file
     ]
 
@@ -151,7 +152,9 @@ def test_datafree(tmp_dir):
         Path(sys.executable).resolve(),     # the python executable
         Path("metasyn", "__main__.py"),     # the cli script
         "synthesize",
-        gmf_fp, syn_fp
+        gmf_fp,
+        "-o",
+        syn_fp
     ]
     result = subprocess.run(cmd2, check=False, capture_output=True)
     assert result.returncode == 0
