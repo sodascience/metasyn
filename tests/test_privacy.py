@@ -12,7 +12,7 @@ def test_base_privacy():
     privacy = BasicPrivacy()
     priv_dict = privacy.to_dict()
     assert isinstance(priv_dict, dict)
-    assert priv_dict["type"] == "none"
+    assert priv_dict["name"] == "none"
     assert privacy.name == "none"
     assert isinstance(priv_dict["parameters"], dict)
     assert len(priv_dict["parameters"]) == 0
