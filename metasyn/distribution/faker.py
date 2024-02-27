@@ -160,7 +160,7 @@ class FreeTextDistribution(BaseDistribution):
         series = self._to_series(values)
         # Check the average number of characters
         avg_chars = series.str.len_chars().mean()
-        if avg_chars is not None and avg_chars >= 25:
+        if avg_chars is not None and avg_chars >= 25:  # type: ignore  # Seems like a typing bug from
             lang = self.detect_language(series)
             if lang is not None:
                 return -1.0
