@@ -29,7 +29,7 @@ class BasePrivacy(ABC):
     def to_dict(self) -> dict:
         """Create a dictionary that gives the privacy type, and parameters."""
         return {
-            "type": self.name,
+            "name": self.name,
             "parameters": {},
         }
 
