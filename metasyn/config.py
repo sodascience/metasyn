@@ -80,14 +80,14 @@ class MetaConfig():
         """
         with open(config_fp, "rb") as handle:
             config_dict = tomllib.load(handle)
-        general = config_dict.get("general", {})
+        # general = config_dict.get("general", {})
         var_list = config_dict.pop("var", [])
-        n_rows = general.pop("n_rows", None)
-        dist_providers = general.pop("dist_providers", ["builtin"])
-        privacy = general.pop("privacy", {"name": "none", "parameters": {}})
-        if len(general) > 0:
+        n_rows = config_dict.pop("n_rows", None)
+        dist_providers = config_dict.pop("dist_providers", ["builtin"])
+        privacy = config_dict.pop("privacy", {"name": "none", "parameters": {}})
+        if len(config_dict) > 0:
             raise ValueError(f"Error parsing configuration file '{config_fp}'."
-                             f" Unknown keys detected: '{list(general)}'")
+                             f" Unknown keys detected: '{list(config_dict)}'")
         return cls(var_list, dist_providers, privacy, n_rows=n_rows)
 
     def to_dict(self) -> dict:
