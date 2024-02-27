@@ -20,10 +20,10 @@ generated synthetic data.
 
 from importlib.metadata import version
 
-from metasyn.demo.dataset import demo_file
+from metasyn.demo.dataset import demo_dataframe, demo_file
 from metasyn.distribution.base import metadist
 from metasyn.metaframe import MetaFrame
 from metasyn.var import MetaVar
 
-__all__ = ["MetaVar", "MetaFrame", "demo_file", "metadist"]
+__all__ = ["MetaVar", "MetaFrame", "demo_file", "demo_dataframe", "metadist"]
 __version__ = version("metasyn")
