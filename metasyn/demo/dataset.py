@@ -71,6 +71,11 @@ except ImportError:
 def demo_file(name: str = "titanic") -> Path:
     """Get the path for a demo data file.
 
+    There are three options:
+        - titanic (Included in pandas, but post-processed to contain more columns)
+        - spaceship (CC-BY from https://www.kaggle.com/competitions/spaceship-titanic)
+        - fruit (very basic example data from Polars)
+
     Arguments
     ---------
     name:
@@ -85,17 +90,21 @@ def demo_file(name: str = "titanic") -> Path:
         return files(__package__) / "demo_titanic.csv"
     if name == "spaceship":
         return files(__package__) / "demo_spaceship.csv"
+    if name == "fruit":
+        return files(__package__) / "demo_fruit.csv"
 
-    raise ValueError(f"No demonstration dataset with name '{name}'. Options: titanic, spaceship.")
+    raise ValueError(
+        f"No demonstration dataset with name '{name}'. Options: titanic, spaceship, fruit."
+    )
 
 
-def demo_data(name: str = "spaceship") -> pl.DataFrame:
+def demo_dataframe(name: str = "titanic") -> pl.DataFrame:
     """Get a demonstration dataset as a prepared polars dataframe.
 
     There are three options:
+        - titanic (Included in pandas, but post-processed to contain more columns)
         - spaceship (CC-BY from https://www.kaggle.com/competitions/spaceship-titanic)
         - fruit (very basic example data from Polars)
-        - titanic (Included in pandas, but post-processed to contain more columns)
 
     Arguments
     ---------
@@ -107,9 +116,9 @@ def demo_data(name: str = "spaceship") -> pl.DataFrame:
         Polars dataframe with correct column types
 
     """
+    file_path = demo_file(name=name)
     if name == "spaceship":
         # the Kaggle spaceship data (CC-BY)
-        file_path = demo_file(name=name)
         data_types = {
             "HomePlanet": pl.Categorical,
             "CryoSleep": pl.Categorical,
@@ -119,24 +128,14 @@ def demo_data(name: str = "spaceship") -> pl.DataFrame:
         }
         return pl.read_csv(file_path, dtypes=data_types, try_parse_dates=True)
     if name == "titanic":
-        file_path = demo_file(name=name)
+        # our edited titanic data
         data_types = {"Sex": pl.Categorical, "Embarked": pl.Categorical}
         return pl.read_csv(file_path, dtypes=data_types, try_parse_dates=True)
     if name == "fruit":
-        return pl.DataFrame(
-            {
-                "ID": [1, 2, 3, 4, 5],
-                "fruits": ["banana", "banana", "apple", "apple", "banana"],
-                "B": [5, 4, 3, 2, 1],
-                "cars": ["beetle", "audi", "beetle", "beetle", "beetle"],
-                "optional": [28, 300, None, 2, -30],
-            }
-        ).with_columns(
-            [
-                pl.col("fruits").cast(pl.Categorical),
-                pl.col("cars").cast(pl.Categorical),
-            ]
-        )
+        # basic fruit data from polars example
+        data_types = {"fruits": pl.Categorical, "cars": pl.Categorical}
+        return pl.read_csv(file_path, dtypes=data_types)
+
     raise ValueError(
         f"No demonstration dataset with name '{name}'. Options: titanic, spaceship, fruit."
     )
