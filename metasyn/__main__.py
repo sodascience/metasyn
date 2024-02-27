@@ -8,6 +8,7 @@ import json
 import pathlib
 import pickle
 import sys
+from argparse import RawDescriptionHelpFormatter
 
 try:  # Python < 3.10 (backport)
     from importlib_metadata import entry_points, version
@@ -20,22 +21,43 @@ from metasyn import MetaFrame
 from metasyn.config import MetaConfig
 from metasyn.validation import create_schema
 
+EXAMPLE_CREATE_META="metasyn create-meta your_dataset.csv your_gmf_file.json --config your_config.toml"  # noqa
+EXAMPLE_SYNTHESIZE="metasyn synthesize your_gmf_file.json your_synthetic_file.csv"
+
 MAIN_HELP_MESSAGE = f"""
 Metasyn CLI version {version("metasyn")}
 
 Usage: metasyn [subcommand] [options]
 
 Available subcommands:
-    create-meta - generate a GMF (.json) file.
-    synthesize - generate synthetic data from a GMF (.json) file
-    schema - generate json schema from distribution providers
+    create-meta:
+        Create a intermediate metadata file (GMF/.json). This file can later be used to
+        create a new synthetic dataset with the `synthesize` subcommand.
+    synthesize:
+        Create a synthetic dataset from the intermediate metadata file (GMF).
+        To create a metadata file from your original dataset, use the `create-meta` subcommand.
+    schema:
+        Generate json schema from distribution providers.
+
+
+To create a synthetic dataset from your original dataset you have to create a metadata file
+and use this file to create a synthetic dataset.
+
+WARNING: For the best results it is recommended to use the Python API. Things can and will go
+wrong reading your dataset, and during the creation of metadata.
+
+Example usage:
+
+{EXAMPLE_CREATE_META}
+{EXAMPLE_SYNTHESIZE}
+
 
 Program information:
     -v, --version - display CLI version and exit
     -h, --help    - display this help file and exit
 """
 
-ENTRYPOINTS = ["synthesize", "schema"]
+ENTRYPOINTS = ["create-meta", "synthesize", "schema"]
 
 
 def main() -> None:
@@ -65,23 +87,30 @@ def create_metadata():
     """Program to create and export metadata from a DataFrame to a GMF file (.json)."""
     parser = argparse.ArgumentParser(
         prog="metasyn create-meta",
-        description="Create a Generative Metadata Format file from a CSV file.",
+        description=f"""Create a Generative Metadata Format file from a CSV file.
+This metadata file can then be used to create a synthetic dataset with the `synthesize` subcommand.
+
+Example: {EXAMPLE_CREATE_META}
+""",
+        formatter_class=RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        "--input",
+        "input",
         help="input file; a CSV file that you want to synthesize later.",
         type=pathlib.Path,
         default=None,
+        nargs="?",
     )
     parser.add_argument(
-        "--output",
-        help="output file: .json",
+        "--output", "-o",
+        help="Metadata GMF output file: .json. This file can be used to synthesize data.",
         type=pathlib.Path,
         default=None,
+        required=False,
     )
     parser.add_argument(
         "--config",
-        help="Configuration file (*.toml) to specify distribution behavior.",
+        help="Configuration file (*.toml) to improve the quality and/or privacy of the metadata.",
         type=pathlib.Path,
         default=None,
     )
@@ -95,7 +124,9 @@ def create_metadata():
     if args.input is None:
         meta_frame = MetaFrame.from_config(meta_config)
     else:
-        data_frame = pl.read_csv(args.input, try_parse_dates=True)
+        data_frame = pl.read_csv(args.input, try_parse_dates=True, infer_schema_length=10000,
+                                 null_values=["", "na", "NA", "N/A", "Na"],
+                                 ignore_errors=True)
         meta_frame = MetaFrame.fit_dataframe(data_frame, meta_config)
     meta_frame.export(args.output)
 
@@ -104,7 +135,12 @@ def synthesize() -> None:
     """Program to generate synthetic data."""
     parser = argparse.ArgumentParser(
         prog="metasyn synthesize",
-        description="Synthesize data from Generative Metadata Format .json file.",
+        description=f"""Synthesize data from a Generative Metadata Format .json file.
+To create the metadata file from your dataset, use the `create-meta` subcommand.
+
+Example: {EXAMPLE_SYNTHESIZE}
+""",
+        formatter_class=RawDescriptionHelpFormatter,
     )
     parser.add_argument(
         "input",
@@ -134,10 +170,19 @@ def synthesize() -> None:
     args, _ = parser.parse_known_args()
 
     if not args.preview and not args.output:
-        parser.error("Output file is required.")
+        parser.error("Output file is required if you are not using the preview option.")
 
     # Create the metaframe from the json file
-    meta_frame = MetaFrame.from_json(args.input)
+    try:
+        meta_frame = MetaFrame.from_json(args.input)
+    except json.JSONDecodeError as _err:
+        print(f"Error: Unable to parse the file '{args.input}'.\n\n"
+              "Expecting a GMF/.json file as input.\n"
+              "Did you perhaps provide your dataset?\n"
+              "If so, please first create the metadata with the `create-meta` sub command.\n"
+              "Otherwise your GMF file might be corrupted, and you should recreate it.")
+        return
+        # raise ValueError("Unable to ")
 
     if args.preview:
         # only print six rows and exit
