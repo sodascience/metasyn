@@ -80,7 +80,6 @@ class MetaConfig():
         """
         with open(config_fp, "rb") as handle:
             config_dict = tomllib.load(handle)
-        # general = config_dict.get("general", {})
         var_list = config_dict.pop("var", [])
         n_rows = config_dict.pop("n_rows", None)
         dist_providers = config_dict.pop("dist_providers", ["builtin"])
