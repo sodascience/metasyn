@@ -97,10 +97,8 @@ def check_var(series, var_type, temp_path):
     ]
 )
 def test_categorical(tmp_path, series):
-    # series = pd.Series(np.random.choice(["a", "b", "c", None], size=100), dtype="category")
     new_series = check_var(series, "categorical", tmp_path)
     assert set(_series_drop_nans(series)) == set(np.unique(_series_drop_nans(new_series)))
-
 
 @mark.parametrize("dtype", ["int8", "int16", "int32", "int64", "int"])
 def test_integer(dtype, tmp_path):
@@ -150,8 +148,10 @@ def test_string(tmp_path, series_type):
 )
 def test_bool(tmp_path, series_type):
     series = series_type(np.random.choice([True, False], size=100))
-    with raises(ValueError):
-        check_var(series, "categorical", tmp_path)
+    check_var(series, "categorical", tmp_path)
+    var = MetaVar.fit(series)
+    new_series = var.draw_series(10)
+    assert new_series.dtype == pl.Boolean
 
 
 @mark.parametrize(

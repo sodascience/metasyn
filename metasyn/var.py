@@ -96,6 +96,7 @@ class MetaVar():
             "time": "time",
             "str": "string",
             "categorical": "categorical",
+            "bool": "categorical",
             "NoneType": "continuous",
         }
         try:
