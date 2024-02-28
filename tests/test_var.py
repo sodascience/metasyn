@@ -149,6 +149,9 @@ def test_string(tmp_path, series_type):
 def test_bool(tmp_path, series_type):
     series = series_type(np.random.choice([True, False], size=100))
     check_var(series, "categorical", tmp_path)
+    var = MetaVar.fit(series)
+    new_series = var.draw_series(10)
+    assert new_series.dtype == pl.Boolean
 
 
 @mark.parametrize(
