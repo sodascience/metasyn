@@ -1,9 +1,8 @@
 # Example toml file as input for metasyn
 
-[general]
 dist_providers = ["builtin", "metasyn-disclosure"]
 
-[general.privacy]
+[privacy]
 name = "disclosure"
 parameters = {n_avg = 11}
 

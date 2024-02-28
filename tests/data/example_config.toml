@@ -1,6 +1,4 @@
 # Example toml file as input for metasyn
-
-[general]
 dist_providers = ["builtin"]
 
 

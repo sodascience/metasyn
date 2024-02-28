@@ -147,7 +147,6 @@ column is ``data_free``. It is also required to set the number of rows under the
 
    .. code-block:: toml
 
-      [general]
       n_rows = 100
 
 
