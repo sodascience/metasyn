@@ -182,7 +182,6 @@ Example: {EXAMPLE_SYNTHESIZE}
               "If so, please first create the metadata with the `create-meta` sub command.\n"
               "Otherwise your GMF file might be corrupted, and you should recreate it.")
         return
-        # raise ValueError("Unable to ")
 
     if args.preview:
         # only print six rows and exit
