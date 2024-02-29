@@ -70,9 +70,11 @@ df_synth = mf.synthesize(5)
 df_synth.write_csv("output.csv")
 ```
 
-This example is the most basic use case,  for more detailed examples or to follow along our [interactive tutorial](https://metasyn.readthedocs.io/en/latest/usage/interactive_tutorials.html). 
+To explore more options and try this out online, take a look at our interactive tutorial:
 
-For more information on how to use Polars DataFrames, refer to the [Polars documentation](https://pola.rs/).
+[![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sodascience/metasyn/blob/main/examples/getting_started.ipynb)
+
+For more information on how to create dataframes with polars, refer to the [Polars documentation](https://pola.rs/). Metasyn also works with pandas dataframes!
 
 ## Where to go next
 
