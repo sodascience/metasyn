@@ -13,14 +13,14 @@
 </p>
 <br/>
 
-Metasyn is a Python package to __generate synthetic tabular data__ in a transparent, understandable, and privacy-friendly way. Our goal is to make it possible for owners of sensitive data to create test data, do open science, improve code reproducibility, encourage data reuse, and enhance accessibility of their datasets, without worrying about leaking private information.
+__Generate synthetic tabular data__ in a transparent, understandable, and privacy-friendly way. Metasyn makes it possible for owners of sensitive data to create test data, do open science, improve code reproducibility, encourage data reuse, and enhance accessibility of their datasets, without worrying about leaking private information. 
 
-In contrast to most other synthetic data software, we make the explicit choice to strictly limit the statistical information in our model in order to adhere to the highest privacy standards.
+With metasyn you can __fit__ a model to an existing dataframe, __export__ it to a transparent and auditable `.json` file, and __synthesize__ a dataframe that looks a lot like the real one. In contrast to most other synthetic data software, we make the explicit choice to strictly limit the statistical information in our model in order to adhere to the highest privacy standards.
 
-## Why metasyn?
+## Highlights
 - 👋 __Accessible__. Metasyn is designed to be easy to use and understand, and we do our best to be welcoming to newcomers and novice users. [Let us know](https://github.com/sodascience/metasyn/issues/new) if we can improve!
 - ✨ __Fully featured__. Out of the box, metasyn natively handles a wide range of data types, missing values, categorical data, key columns with unique values, and structured strings such as postcodes or identifiers.
-- 🔎 __Transparent__. With metasyn you share not only synthetic data, but also the model and settings used to create it through a traceable metadata format. Everyone can read and understand what the model does; it is crystal clear which information becomes public.
+- 🔎 __Transparent__. With metasyn you share not only synthetic data, but also the model and settings used to create it through a traceable, auditable metadata format. Everyone can read and understand what the model does; it is crystal clear which information becomes public.
 - 🔐 __Private__. By default, metasyn does not incorporate multivariate information, meaning less risk of privacy issues such as identity, attribute, or group disclosure. On top of this, we support privacy plugins such as our own [disclosure control plugin](https://github.com/sodascience/metasyn-disclosure-control) to further enhance privacy in critically sensitive situations.
 - 🔗 __Integrated__. We integrate closely with popular, modern tools in the python ecosystem, building on the wonderful [polars](https://pola.rs/) dataframe library ([pandas](https://pandas.pydata.org/) is supported too), as well as [faker](https://faker.readthedocs.io/en/master/) to generate localized data for names, emails, and phone numbers, and more.
 - 📦 __Extensible__. Are you missing features? Do you have a different definition of privacy? Our plugin system allows you (or your organisation) to create their own extension to adjust metasyn to what you need. Or you can [contribute](https://metasyn.readthedocs.io/en/latest/developer/contributing.html) directly to the project.
