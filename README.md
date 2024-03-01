@@ -13,69 +13,77 @@
 </p>
 <br/>
 
-Metasyn is a Python package that **generates synthetic data**, and allows **sharing of the data generation model**, to facilitate collaboration and testing on sensitive data without exposing the original data.
+__Generate synthetic tabular data__ in a transparent, understandable, and privacy-friendly way. Metasyn makes it possible for owners of sensitive data to create test data, do open science, improve code reproducibility, encourage data reuse, and enhance accessibility of their datasets, without worrying about leaking private information. 
 
-It has three main functionalities:
+With metasyn you can __fit__ a model to an existing dataframe, __export__ it to a transparent and auditable `.json` file, and __synthesize__ a dataframe that looks a lot like the real one. In contrast to most other synthetic data software, we make the explicit choice to strictly limit the statistical information in our model in order to adhere to the highest privacy standards.
 
-1. **[Estimation](https://metasynth.readthedocs.io/en/latest/usage/generating_metaframes.html)**: Metasyn can analyze a dataset and create a *MetaFrame* for it. This is essentially a blueprint (or data generation model) that captures the structure and distributions of the columns without storing any entries.
-2. **[Generation](https://metasynth.readthedocs.io/en/latest/usage/generating_synthetic_data.html)**: From a *MetaFrame*, metasyn can generate new synthetic data that resembles the original, on a column-by-column basis. 
-3. **[Serialization](https://metasynth.readthedocs.io/en/latest/usage/exporting_metaframes.html)**: Metasyn can export and import *MetaFrames* to an easy-to-read format. This allows for easy modification and sharing of the model.
+## Highlights
+- 👋 __Accessible__. Metasyn is designed to be easy to use and understand, and we do our best to be welcoming to newcomers and novice users. [Let us know](https://github.com/sodascience/metasyn/issues/new) if we can improve!
+- ✨ __Fully featured__. Out of the box, metasyn natively handles a wide range of data types, missing values, categorical data, key columns with unique values, and structured strings such as postcodes or identifiers.
+- 🔎 __Transparent__. With metasyn you share not only synthetic data, but also the model and settings used to create it through a traceable, auditable metadata format. Everyone can read and understand what the model does; it is crystal clear which information becomes public.
+- 🔐 __Private__. By default, metasyn does not incorporate multivariate information, meaning less risk of privacy issues such as identity, attribute, or group disclosure. On top of this, we support privacy plugins such as our own [disclosure control plugin](https://github.com/sodascience/metasyn-disclosure-control) to further enhance privacy in critically sensitive situations.
+- 🔗 __Integrated__. We integrate closely with popular, modern tools in the python ecosystem, building on the wonderful [polars](https://pola.rs/) dataframe library ([pandas](https://pandas.pydata.org/) is supported too), as well as [faker](https://faker.readthedocs.io/en/master/) to generate localized data for names, emails, and phone numbers, and more.
+- 📦 __Extensible__. Are you missing features? Do you have a different definition of privacy? Our plugin system allows you (or your organisation) to create their own extension to adjust metasyn to what you need. Or you can [contribute](https://metasyn.readthedocs.io/en/latest/developer/contributing.html) directly to the project.
 
-
-![Metasyn Pipeline](docs/source/images/pipeline_basic.png)
-
-## Why Metasyn?
-- **Privacy**: With metasyn you can share not only synthetic data, but also the model used to create it. This increases transparency and facilitates collaboration and testing on sensitive data without exposing the original data.
-- **Extensible**: Metasyn is designed to be easily extendable and customizable and supports plugins for custom distributions and privacy control.
-- **Faker**: Metasyn integrates with the [Faker](https://faker.readthedocs.io/en/master/) plugin to generate real-sounding entries for names, emails, phone numbers, etc.
-- **DataFrame-based**: Metasyn is built on top of [Polars](https://pola.rs/), and supports both Polars and [Pandas](https://pandas.pydata.org/) DataFrames as input.
-- **Flexibility**: Metasyn supports a variety of distribution and data types and can automatically select and fit to them. It also supports and detects columns with unique values or structured strings.
-- **Ease of use**: Metasyn is designed to be easy to use and understand.
-
-## Example
-The following diagram shows how metasyn can generate synthetic data from an input dataset:
-
-![Example input and output](docs/source/images/example_input_output_concise.png)
-
-This can be reproduced using the following code:
-
-
-```python
-# Create a Polars DataFrame. In this case we load it from a csv file.
-# It is important to specify which categories are categorical, as Polars does not infer this automatically.
-df = pl.read_csv("example.csv", dtypes={"fruits": pl.Categorical, "cars": pl.Categorical})
-
-# Create a MetaFrame from the DataFrame.
-mf = MetaFrame.fit_dataframe(df)
-
-# Generate a new DataFrame, with 5 rows data from the MetaFrame.
-output_df = mf.synthesize(5)
-
-# This DataFrame can be exported to csv, parquet, excel and more. E.g., to csv:
-output_df.write_csv("output.csv")
-```
-
-This example is the most basic use case, as a next step we recommend to check out the [User Guide](https://metasyn.readthedocs.io/en/latest/usage/usage.html) for more detailed examples or to follow along our [interactive tutorial](https://metasyn.readthedocs.io/en/latest/usage/interactive_tutorials.html). 
-
-For more information on how to use Polars DataFrames, refer to the [Polars documentation](https://pola.rs/).
-
-
-## Installing metasyn
+## Installation
 Metasyn can be installed directly from PyPI using the following command in the terminal:
 
 ```sh
 pip install metasyn
 ```
 
-After that metasyn is available to use in your Python scripts and notebooks. It will also be accessible through its [command-line interface](https://metasyn.readthedocs.io/en/latest/usage/cli.html). It is also possible to run and access metasyn's CLI through a Docker container available on [Docker Hub](https://hub.docker.com/r/sodateam/metasyn).  
+The latest (possibly unstable) development version can be installed directly from GitHub like so:
 
-For more information on installing metasyn, refer to the [installation guide](https://metasyn.readthedocs.io/en/latest/usage/installation.html).
+```sh
+pip install git+https://github.com/sodascience/metasyn
+```
+
+## Usage
+To generate synthetic data, `metasyn` first needs to fit a `MetaFrame` to the data which can then be used to produce new synthetic rows:
+
+![Example input and output](docs/source/images/example_input_output_concise.png)
+
+In Python code this happens as follows:
+
+```python
+import polars as pl
+from metasyn import MetaFrame, demo_file
+
+# Get the csv file path for built-in demo dataset
+csv_path = demo_file("fruit")
+
+# Create a polars dataframe from the csv file.
+# It is important to ensure the data types are correct  
+# when creating your dataframe, especially categorical data!
+df = pl.read_csv(csv_path, dtypes={
+  "fruits": pl.Categorical, 
+  "cars": pl.Categorical
+})
+
+# Create a MetaFrame from the DataFrame.
+mf = MetaFrame.fit_dataframe(df)
+
+# Generate a new DataFrame with 5 rows from the MetaFrame.
+df_synth = mf.synthesize(5)
+
+# This DataFrame can be exported to csv, parquet, excel and more.
+df_synth.write_csv("output.csv")
+```
+
+To explore more options and try this out online, take a look at our interactive tutorial:
+
+[![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sodascience/metasyn/blob/main/examples/getting_started.ipynb)
+
+For more information on how to create dataframes with polars, refer to the [Polars documentation](https://pola.rs/). Metasyn also works with pandas dataframes!
+
+## Where to go next
+
+- As a next step to learn more about generating synthetic data with metasyn we recommend to check out the [user guide](https://metasyn.readthedocs.io/en/latest/usage/usage.html).
+- For even more privacy, have a look at our [disclosure control plugin](https://github.com/sodascience/metasyn-disclosure-control).
+- To learn more about how `metasyn` works, go to detailed overview in our [documentation](https://metasyn.readthedocs.io/en/latest/about/metasyn_in_detail.html). 
+- Want to create programs that build on metasyn? Take a look at our versioned [Docker containers](https://hub.docker.com/r/sodateam/metasyn) and our [CLI](https://metasyn.readthedocs.io/en/latest/usage/cli.html).
 
 
-## Documentation and help
-- **Documentation**: For a detailed overview of metasyn, refer to the [documentation](https://metasyn.readthedocs.io/en/latest/index.html). 
-- **Quick-start:** Our [quick start guide](https://metasyn.readthedocs.io/en/latest/usage/quick_start.html) acts as a crash-course on the functionality and workflow of metasyn.
-- **Interactive tutorial** Our [interactive tutorial](https://metasyn.readthedocs.io/en/latest/usage/interactive_tutorials.html) (Jupyter Notebook) follows and expands on the quick start guide, providing a step-by-step walkthrough and example to get you started. This tutorial can be followed without having to install metasyn locally by running it in Google Colab or Binder.
 
 ## Contributing
 Metasyn is an open-source project, and we welcome contributions from the community.
