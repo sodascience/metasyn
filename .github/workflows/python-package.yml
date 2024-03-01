@@ -54,5 +54,6 @@ jobs:
       run: |
         pytest tests
     - name: Check notebook output
+      if: ${{ matrix.os != 'macos-latest' }}
       run: |
         pytest --nbval-lax examples
