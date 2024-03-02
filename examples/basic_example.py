@@ -1,9 +1,9 @@
-from metasyn import MetaFrame, demo_data
+from metasyn import MetaFrame, demo_dataframe
 from metasyn.config import VarConfig
 from metasyn.util import DistributionSpec
 
 # example dataframe from polars website
-df = demo_data("fruit")
+df = demo_dataframe("fruit")
 
 # set A to unique and B to not unique
 specs = [
@@ -23,4 +23,4 @@ mf.export("example_gmf_simple.json")
 mf_out = MetaFrame.from_json("example_gmf_simple.json")
 
 # create a fake dataset
-mf_out.synthesize(10)
+df_syn = mf_out.synthesize(10)
