@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from typing import Optional, Union
 
 from metasyn.distribution.base import BaseDistribution
-from metasyn.privacy import BasePrivacy, get_privacy
+from metasyn.privacy import BasePrivacy, get_privacy, NoPrivacy
 
 
 @dataclass
@@ -95,6 +95,17 @@ class DistributionSpec():
             that are specified (not None).
         """
         return self.implements is not None and self.parameters is not None
+
+    def get_creation_settings(self, privacy: BasePrivacy) -> dict:
+        ret_dict = {"created_by": "metasyn"}
+        for var in ["implements", "unique", "parameters", "version"]:
+            if getattr(self, var) is not None:
+                ret_dict[var] = getattr(self, var)
+        if len(self.fit_kwargs) > 0:
+            ret_dict["fit_kwargs"] = self.fit_kwargs
+        if not isinstance(privacy, NoPrivacy):
+            ret_dict["privacy"] = privacy.to_dict()
+        return ret_dict
 
 
 class VarSpec():  # pylint: disable=too-few-public-methods

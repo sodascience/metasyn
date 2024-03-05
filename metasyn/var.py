@@ -53,13 +53,16 @@ class MetaVar():
                  distribution: BaseDistribution,
                  dtype: str = "unknown",
                  description: Optional[str] = None,
-                 prop_missing: float = 0.0):
+                 prop_missing: float = 0.0,
+                 creation_settings: Optional[dict] = None):
         self.name = name
         self.var_type = var_type
         self.distribution = distribution
         self.dtype = dtype
         self.description = description
         self.prop_missing = prop_missing
+        if creation_settings is None:
+            self.creation_settings = {"created_by": "user"}
         if self.prop_missing < -1e-8 or self.prop_missing > 1+1e-8:
             raise ValueError(f"Cannot create variable '{self.name}' with proportion missing "
                              "outside range [0, 1]")
@@ -117,6 +120,7 @@ class MetaVar():
             "dtype": self.dtype,
             "prop_missing": self.prop_missing,
             "distribution": dist_dict,
+            "creation_settings": self.creation_settings,
         }
         if self.description is not None:
             var_dict["description"] = self.description
@@ -185,7 +189,8 @@ class MetaVar():
         if prop_missing is None:
             prop_missing = (len(series) - len(series.drop_nulls())) / len(series)
         return cls(series.name, var_type, distribution=distribution, dtype=str(series.dtype),
-                   description=description, prop_missing=prop_missing)
+                   description=description, prop_missing=prop_missing,
+                   creation_settings=distribution.get_creation_settings(privacy))
 
     def draw(self) -> Any:
         """Draw a random item for the variable in whatever type is required."""
