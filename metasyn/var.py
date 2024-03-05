@@ -45,6 +45,9 @@ class MetaVar():
         back. The default value is "unknown".
     description:
         User-provided description of the variable.
+    creation_settings:
+        A dictionary that contains information on how the variable was created. If None,
+        it will be assumed to have been created by the user.
     """
 
     def __init__(self,  # pylint: disable=too-many-arguments
