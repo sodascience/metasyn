@@ -61,6 +61,7 @@ class MetaVar():
         self.dtype = dtype
         self.description = description
         self.prop_missing = prop_missing
+        self.creation_settings = creation_settings
         if creation_settings is None:
             self.creation_settings = {"created_by": "user"}
         if self.prop_missing < -1e-8 or self.prop_missing > 1+1e-8:
@@ -190,7 +191,7 @@ class MetaVar():
             prop_missing = (len(series) - len(series.drop_nulls())) / len(series)
         return cls(series.name, var_type, distribution=distribution, dtype=str(series.dtype),
                    description=description, prop_missing=prop_missing,
-                   creation_settings=distribution.get_creation_settings(privacy))
+                   creation_settings=dist_spec.get_creation_settings(privacy))
 
     def draw(self) -> Any:
         """Draw a random item for the variable in whatever type is required."""
@@ -248,5 +249,6 @@ class MetaVar():
             distribution=dist,
             prop_missing=var_dict["prop_missing"],
             dtype=var_dict["dtype"],
-            description=var_dict.get("description", None)
+            description=var_dict.get("description", None),
+            creation_settings=var_dict.get("creation_settings", {"created_by": "unknown"})
         )

@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from typing import Optional, Union
 
 from metasyn.distribution.base import BaseDistribution
-from metasyn.privacy import BasePrivacy, get_privacy, NoPrivacy
+from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
 
 
 @dataclass
@@ -103,7 +103,7 @@ class DistributionSpec():
                 ret_dict[var] = getattr(self, var)
         if len(self.fit_kwargs) > 0:
             ret_dict["fit_kwargs"] = self.fit_kwargs
-        if not isinstance(privacy, NoPrivacy):
+        if not isinstance(privacy, BasicPrivacy):
             ret_dict["privacy"] = privacy.to_dict()
         return ret_dict
 
