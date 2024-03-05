@@ -271,7 +271,7 @@ class ScipyDistribution(BaseDistribution):
     def _fit(cls, values):
         if len(values) == 0:
             return cls.default_distribution()
-        param = cls.dist_class.fit(values)
+        param = cls.dist_class.fit(values)  # type: ignore  # All derived classes should have dist_class.
         return cls(*param)
 
     def _param_dict(self):

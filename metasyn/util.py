@@ -7,7 +7,7 @@ configurations.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional, Union
+from typing import Any, Optional, Union
 
 from metasyn.distribution.base import BaseDistribution
 from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
@@ -97,7 +97,18 @@ class DistributionSpec():
         return self.implements is not None and self.parameters is not None
 
     def get_creation_settings(self, privacy: BasePrivacy) -> dict:
-        ret_dict = {"created_by": "metasyn"}
+        """Create a dictionary on how the distribution was created.
+
+        Parameters
+        ----------
+        privacy
+            Privacy object with which the dictionary is being created.
+
+        Returns
+        -------
+            Dictionary containing all the non-default settings.
+        """
+        ret_dict: dict[str, Any] = {"created_by": "metasyn"}
         for var in ["implements", "unique", "parameters", "version"]:
             if getattr(self, var) is not None:
                 ret_dict[var] = getattr(self, var)

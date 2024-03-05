@@ -68,8 +68,6 @@ def check_var(series, var_type, temp_path):
 
     newer_series = new_var.draw_series(len(series))
     check_similar(newer_series, series)
-    # with raises(ValueError):
-        # new_var.fit()
 
     assert type(new_var) == type(var)
     assert new_var.dtype == var.dtype
