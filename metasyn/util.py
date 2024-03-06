@@ -46,7 +46,8 @@ class DistributionSpec():
 
     @classmethod
     def parse(cls, dist_spec: Optional[Union[dict, type[BaseDistribution], BaseDistribution,
-                                             DistributionSpec, str]]
+                                             DistributionSpec, str]],
+              unique: Optional[bool] = None,
               ) -> DistributionSpec:
         """Create a DistributionSpec instance from a variety of inputs.
 
@@ -67,10 +68,9 @@ class DistributionSpec():
         if isinstance(dist_spec, BaseDistribution):
             dist_dict = {key: value for key, value in dist_spec.to_dict().items()
                          if key in ["implements", "version", "unique", "parameters"]}
-            dist_dict["unique"] = dist_dict.pop("unique")
             return cls(**dist_dict)
         if isinstance(dist_spec, str):
-            return cls(implements=dist_spec)
+            return cls(implements=dist_spec, unique=unique)
         if dist_spec is None:
             return cls()
         if isinstance(dist_spec, dict):
@@ -93,8 +93,9 @@ class DistributionSpec():
         """
         return self.implements is not None and self.parameters is not None
 
-@dataclass
-class VarConfig():
+
+# @dataclass
+class VarSpec():
     """Data class for storing the configurations for variables.
 
     It contains the following attributes:
@@ -106,13 +107,33 @@ class VarConfig():
     - var_type: Type of the variable in question.
     """
 
-    name: str
-    dist_spec: DistributionSpec = field(default_factory=DistributionSpec)
-    privacy: Optional[BasePrivacy] = None
-    prop_missing: Optional[float] = None
-    description: Optional[str] = None
-    data_free: bool = False
-    var_type: Optional[str] = None
+    # name: str
+    # dist_spec: DistributionSpec = field(default_factory=DistributionSpec)
+    # privacy: Optional[BasePrivacy] = None
+    # prop_missing: Optional[float] = None
+    # description: Optional[str] = None
+    # data_free: bool = False
+    # var_type: Optional[str] = None
+
+    def __init__(
+            self,
+            name: str,
+            distribution: Optional[Union[dict, type[BaseDistribution], BaseDistribution,
+                                                DistributionSpec, str]] = None,
+            unique=None,
+            privacy: Optional[BasePrivacy] = None,
+            prop_missing: Optional[float] = None,
+            description: Optional[str] = None,
+            data_free: bool = False,
+            var_type: Optional[str] = None,
+            **kwargs):
+        self.dist_spec = DistributionSpec.parse(distribution, unique)
+        self.privacy = privacy
+        self.prop_missing = prop_missing
+        self.description = description
+        self.data_free = self.data_free
+        self.var_type = self.var_type
+        self.__post_init__()
 
     def __post_init__(self):
         # Convert the the privacy attribute if it is a dictionary.

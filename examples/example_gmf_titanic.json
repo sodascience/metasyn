@@ -4,9 +4,9 @@
     "provenance": {
         "created by": {
             "name": "metasyn",
-            "version": "0.7.1.dev1+g1f601ea.d20240226"
+            "version": "0.7.1.dev16+g679d365"
         },
-        "creation time": "2024-02-27T14:10:08.278961"
+        "creation time": "2024-03-06T16:51:54.996604"
     },
     "vars": [
         {
@@ -24,12 +24,15 @@
                     "lower": 1,
                     "upper": 892
                 }
+            },
+            "creation_settings": {
+                "created_by": "metasyn"
             }
         },
         {
             "name": "Name",
             "type": "string",
-            "dtype": "Utf8",
+            "dtype": "String",
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.freetext",
@@ -42,12 +45,15 @@
                     "avg_sentences": 2.4691358024691357,
                     "avg_words": 4.093153759820426
                 }
+            },
+            "creation_settings": {
+                "created_by": "metasyn"
             }
         },
         {
             "name": "Sex",
             "type": "categorical",
-            "dtype": "Categorical",
+            "dtype": "Categorical(ordering='physical')",
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.multinoulli",
@@ -65,6 +71,9 @@
                         0.6475869809203143
                     ]
                 }
+            },
+            "creation_settings": {
+                "created_by": "metasyn"
             }
         },
         {
@@ -84,6 +93,9 @@
                     "mean": 28.403638823278087,
                     "sd": 15.862325051407092
                 }
+            },
+            "creation_settings": {
+                "created_by": "metasyn"
             }
         },
         {
@@ -103,12 +115,15 @@
                     "mean": -380.6440825743838,
                     "sd": 12.066012048277289
                 }
+            },
+            "creation_settings": {
+                "created_by": "metasyn"
             }
         },
         {
             "name": "Ticket",
             "type": "string",
-            "dtype": "Utf8",
+            "dtype": "String",
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.regex",
@@ -156,6 +171,9 @@
                         ]
                     }
                 }
+            },
+            "creation_settings": {
+                "created_by": "metasyn"
             }
         },
         {
@@ -172,12 +190,15 @@
                 "parameters": {
                     "rate": 0.03052908440177665
                 }
+            },
+            "creation_settings": {
+                "created_by": "metasyn"
             }
         },
         {
             "name": "Cabin",
             "type": "string",
-            "dtype": "Utf8",
+            "dtype": "String",
             "prop_missing": 0.7710437710437711,
             "distribution": {
                 "implements": "core.regex",
@@ -221,12 +242,15 @@
                         ]
                     }
                 }
+            },
+            "creation_settings": {
+                "created_by": "metasyn"
             }
         },
         {
             "name": "Embarked",
             "type": "categorical",
-            "dtype": "Categorical",
+            "dtype": "Categorical(ordering='physical')",
             "prop_missing": 0.002244668911335578,
             "distribution": {
                 "implements": "core.multinoulli",
@@ -246,6 +270,9 @@
                         0.7244094488188977
                     ]
                 }
+            },
+            "creation_settings": {
+                "created_by": "metasyn"
             }
         },
         {
@@ -263,6 +290,9 @@
                     "lower": "1903-07-28",
                     "upper": "1940-05-27"
                 }
+            },
+            "creation_settings": {
+                "created_by": "metasyn"
             }
         },
         {
@@ -281,6 +311,9 @@
                     "upper": "18:39:28",
                     "precision": "seconds"
                 }
+            },
+            "creation_settings": {
+                "created_by": "metasyn"
             }
         },
         {
@@ -299,12 +332,15 @@
                     "upper": "2022-08-15T10:32:05",
                     "precision": "seconds"
                 }
+            },
+            "creation_settings": {
+                "created_by": "metasyn"
             }
         },
         {
             "name": "all_NA",
             "type": "string",
-            "dtype": "Utf8",
+            "dtype": "String",
             "prop_missing": 1.0,
             "distribution": {
                 "implements": "core.na",
@@ -313,6 +349,9 @@
                 "class_name": "NADistribution",
                 "unique": false,
                 "parameters": {}
+            },
+            "creation_settings": {
+                "created_by": "metasyn"
             }
         }
     ]
