@@ -11,7 +11,7 @@ except ImportError:
 
 from metasyn.privacy import BasePrivacy, get_privacy
 from metasyn.provider import DistributionProviderList
-from metasyn.util import VarConfig
+from metasyn.util import VarSpec
 
 
 class MetaConfig():
@@ -27,7 +27,7 @@ class MetaConfig():
         List of configurations for individual variables. The order does not
         matter for variables that are found in the DataFrame, but in the case
         of variables that are data-free, the order is also the order of columns
-        for the eventual synthesized dataframe. See the VarConfigAccess class on
+        for the eventual synthesized dataframe. See the VarSpecAccess class on
         how the dictionary can be constructed.
     dist_providers:
         Distribution providers to use when fitting distributions to variables.
@@ -42,7 +42,7 @@ class MetaConfig():
 
     def __init__(
             self,
-            var_configs: Union[list[dict], list[VarConfig]],
+            var_configs: Union[list[dict], list[VarSpec]],
             dist_providers: Union[DistributionProviderList, list[str], str],
             privacy: Union[BasePrivacy, dict],
             n_rows: Optional[int] = None):
@@ -60,9 +60,9 @@ class MetaConfig():
 
     @staticmethod
     def _parse_var_config(var_cfg):
-        if isinstance(var_cfg, VarConfig):
+        if isinstance(var_cfg, VarSpec):
             return var_cfg
-        return VarConfig.from_dict(var_cfg)
+        return VarSpec.from_dict(var_cfg)
 
     @classmethod
     def from_toml(cls, config_fp: Union[str, Path]) -> MetaConfig:
@@ -105,8 +105,8 @@ class MetaConfig():
             "var": self.var_configs
         }
 
-    def get(self, name: str) -> VarConfigAccess:
-        """Create a VarConfigAccess object pointing to a var with that name.
+    def get(self, name: str) -> VarSpecAccess:
+        """Create a VarSpecAccess object pointing to a var with that name.
 
         If the variable does not exist, then a new variable config is created that
         has the default values.
@@ -123,10 +123,10 @@ class MetaConfig():
         """
         for var_cfg in self.var_configs:
             if var_cfg.name == name:
-                return VarConfigAccess(var_cfg, self)
-        return VarConfigAccess(VarConfig(name=name), self)
+                return VarSpecAccess(var_cfg, self)
+        return VarSpecAccess(VarSpec(name=name), self)
 
-    def iter_var(self, exclude: Optional[list[str]] = None) -> Iterable[VarConfigAccess]:
+    def iter_var(self, exclude: Optional[list[str]] = None) -> Iterable[VarSpecAccess]:
         """Iterate over all variables in the configuration.
 
         Parameters
@@ -137,15 +137,15 @@ class MetaConfig():
         Returns
         -------
         var_cfg:
-            VarConfigAccess class for each of the available variable configurations.
+            VarSpecAccess class for each of the available variable configurations.
         """
         exclude = exclude if exclude is not None else []
         for var_spec in self.var_configs:
             if var_spec.name not in exclude:
-                yield VarConfigAccess(var_spec, self)
+                yield VarSpecAccess(var_spec, self)
 
 
-class VarConfigAccess():  # pylint: disable=too-few-public-methods
+class VarSpecAccess():  # pylint: disable=too-few-public-methods
     """Access for variable configuration object.
 
     They take into account what the defaults are from the MetaConfig object.
@@ -160,7 +160,7 @@ class VarConfigAccess():  # pylint: disable=too-few-public-methods
         The meta configuration instance to get default values from.
     """
 
-    def __init__(self, var_config: VarConfig, meta_config: MetaConfig):
+    def __init__(self, var_config: VarSpec, meta_config: MetaConfig):
         self.var_config = var_config
         self.meta_config = meta_config
 

@@ -4,9 +4,9 @@
     "provenance": {
         "created by": {
             "name": "metasyn",
-            "version": "0.7.1.dev16+g679d365"
+            "version": "0.7.1.dev16+g679d365.d20240306"
         },
-        "creation time": "2024-03-06T16:51:54.996604"
+        "creation time": "2024-03-06T17:13:46.751779"
     },
     "vars": [
         {
@@ -24,9 +24,6 @@
                     "lower": 1,
                     "upper": 892
                 }
-            },
-            "creation_settings": {
-                "created_by": "metasyn"
             }
         },
         {
@@ -45,9 +42,6 @@
                     "avg_sentences": 2.4691358024691357,
                     "avg_words": 4.093153759820426
                 }
-            },
-            "creation_settings": {
-                "created_by": "metasyn"
             }
         },
         {
@@ -71,9 +65,6 @@
                         0.6475869809203143
                     ]
                 }
-            },
-            "creation_settings": {
-                "created_by": "metasyn"
             }
         },
         {
@@ -93,9 +84,6 @@
                     "mean": 28.403638823278087,
                     "sd": 15.862325051407092
                 }
-            },
-            "creation_settings": {
-                "created_by": "metasyn"
             }
         },
         {
@@ -115,9 +103,6 @@
                     "mean": -380.6440825743838,
                     "sd": 12.066012048277289
                 }
-            },
-            "creation_settings": {
-                "created_by": "metasyn"
             }
         },
         {
@@ -171,9 +156,6 @@
                         ]
                     }
                 }
-            },
-            "creation_settings": {
-                "created_by": "metasyn"
             }
         },
         {
@@ -190,9 +172,6 @@
                 "parameters": {
                     "rate": 0.03052908440177665
                 }
-            },
-            "creation_settings": {
-                "created_by": "metasyn"
             }
         },
         {
@@ -242,9 +221,6 @@
                         ]
                     }
                 }
-            },
-            "creation_settings": {
-                "created_by": "metasyn"
             }
         },
         {
@@ -270,9 +246,6 @@
                         0.7244094488188977
                     ]
                 }
-            },
-            "creation_settings": {
-                "created_by": "metasyn"
             }
         },
         {
@@ -290,9 +263,6 @@
                     "lower": "1903-07-28",
                     "upper": "1940-05-27"
                 }
-            },
-            "creation_settings": {
-                "created_by": "metasyn"
             }
         },
         {
@@ -311,9 +281,6 @@
                     "upper": "18:39:28",
                     "precision": "seconds"
                 }
-            },
-            "creation_settings": {
-                "created_by": "metasyn"
             }
         },
         {
@@ -332,9 +299,6 @@
                     "upper": "2022-08-15T10:32:05",
                     "precision": "seconds"
                 }
-            },
-            "creation_settings": {
-                "created_by": "metasyn"
             }
         },
         {
@@ -349,9 +313,6 @@
                 "class_name": "NADistribution",
                 "unique": false,
                 "parameters": {}
-            },
-            "creation_settings": {
-                "created_by": "metasyn"
             }
         }
     ]

@@ -72,7 +72,7 @@ class DistributionSpec():
         if isinstance(dist_spec, str):
             return cls(implements=dist_spec, unique=unique)
         if dist_spec is None:
-            return cls()
+            return cls(unique=unique)
         if isinstance(dist_spec, dict):
             return cls(**dist_spec)
         if isinstance(dist_spec, DistributionSpec):
@@ -127,12 +127,13 @@ class VarSpec():
             data_free: bool = False,
             var_type: Optional[str] = None,
             **kwargs):
+        self.name = name
         self.dist_spec = DistributionSpec.parse(distribution, unique)
         self.privacy = privacy
         self.prop_missing = prop_missing
         self.description = description
-        self.data_free = self.data_free
-        self.var_type = self.var_type
+        self.data_free = data_free
+        self.var_type = var_type
         self.__post_init__()
 
     def __post_init__(self):
