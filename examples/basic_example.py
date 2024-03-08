@@ -23,5 +23,3 @@ mf_out = MetaFrame.from_json("example_gmf_simple.json")
 
 # create a fake dataset
 df_syn = mf_out.synthesize(10)
-
-print(df_syn)
