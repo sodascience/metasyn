@@ -74,52 +74,22 @@ class MetaFrame():
         ----------
         df:
             Polars dataframe with the correct column dtypes.
-        meta_config:
-            Column specification in MetaConfig format.
         var_specs:
-            Column specifications to modify the defaults. For each of the columns additional
-            directives can be supplied here. There are 3 different directives currently supported:
-
-            distribution
-
-            Set the distribution, either with a string that gives one of their
-            aliases or an actually fitted BaseDistribution. For example:
-            {"distribution": "NormalDistribution"} which is the same as
-            {"distribution": NormalDistribution} or
-            {"distribution": NormalDistribution(0, 1)}, which are always to set a variable
-            to a normal distribution. Note that the first two do not set the parameters
-            of the distribution, while the last does.
-
-            unique
-
-            To set a column to be unique/key.
-            This is only available for the integer and string datatypes. Setting a variable
-            to unique ensures that the synthetic values generated for this variable are unique.
-            This is useful for ID or primary key variables, for example. The parameter...
-            is ignored when the distribution is set manually. For example:
-            {"unique": True}, which sets the variable to be unique or {"unique": False} which
-            forces the variable to be not unique. If the uniqueness is not specified, it is
-            assumed to be not unique, but might give a warning if it is detected that it might
-            be.
-
-            description
-
-            Set the description of a variable: {"description": "Some description."}
-
-            privacy
-
-            Set the privacy level for a variable: {"privacy": DifferentialPrivacy(epsilon=10)}
-
-            prop_missing
-
-            Proportion of missing values for a variable: {"prop_missing": 0.3}
-
-            Any number of the above directives may be set for any number of variables.
+            Specifications for each column/variable. These specifications can be supplied as
+            a path or a list of VarSpec instances (one for each column). If it is specified
+            as a path, this has to be a .toml file in the right format, see the MetaConfig class
+            for more details. By default var_specs is None, which will use the default settings
+            for each column.
         dist_providers:
             Distribution providers to use when fitting distributions to variables.
-            Can be a string, provider, or provider type.
+            Can be a string, provider, or provider type. This will overwrite the defaults if they
+            were specified in the varspecs (but not the specifications per column).
         privacy:
-            Privacy level to use by default.
+            Privacy level to use by default. This will overwrite the defaults if they were
+            specified in the varspecs (but not the specifications per column).
+        n_rows:
+            Number of rows in the metaframe. If left at None, it will use the number of rows in
+            the dataframe.
         progress_bar:
             Whether to create a progress bar.
 
@@ -128,6 +98,8 @@ class MetaFrame():
         MetaFrame:
             Initialized metasyn metaframe.
         """
+
+        # Parse the var_specs into a MetaConfig instance.
         if isinstance(var_specs, (pathlib.Path, str)):
             meta_config = MetaConfig.from_toml(var_specs)
         elif isinstance(var_specs, MetaConfig):
