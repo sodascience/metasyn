@@ -40,7 +40,7 @@ jobs:
         pylint metasyn
     - name: Lint with Ruff
       run: |
-        ruff metasyn
+        ruff check metasyn
     - name: Check docstrings with pydocstyle
       run: |
         pydocstyle metasyn --convention=numpy --add-select=D417 --add-ignore="D102,D105"
