@@ -76,7 +76,7 @@ class MetaFrame():
             Polars dataframe with the correct column dtypes.
         var_specs:
             Specifications for each column/variable. These specifications are supplied as
-            a list of VarSpec instances (one for each column). Alternatively, the 
+            a list of VarSpec instances (one for each column). Alternatively, the
             specifications can be entered as a path to a .toml file. For more information
             on this approach, see the MetaConfig class or the examples in the documentation.
             By default var_specs is None, which will use the default settings for each column.
