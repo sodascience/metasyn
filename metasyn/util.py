@@ -46,14 +46,18 @@ class DistributionSpec():
 
     @classmethod
     def parse(cls, dist_spec: Optional[Union[dict, type[BaseDistribution], BaseDistribution,
-                                             DistributionSpec, str]]
+                                             DistributionSpec, str]],
+              unique: Optional[bool] = None,
               ) -> DistributionSpec:
         """Create a DistributionSpec instance from a variety of inputs.
 
         Parameters
         ----------
-        dist_spec
+        dist_spec:
             Specification for the distribution in several types.
+        unique:
+            Whether the distribution is unique. This is only taken into account
+            if dist_spec is None or a string.
 
         Returns
         -------
@@ -67,12 +71,11 @@ class DistributionSpec():
         if isinstance(dist_spec, BaseDistribution):
             dist_dict = {key: value for key, value in dist_spec.to_dict().items()
                          if key in ["implements", "version", "unique", "parameters"]}
-            dist_dict["unique"] = dist_dict.pop("unique")
             return cls(**dist_dict)
         if isinstance(dist_spec, str):
-            return cls(implements=dist_spec)
+            return cls(implements=dist_spec, unique=unique)
         if dist_spec is None:
-            return cls()
+            return cls(unique=unique)
         if isinstance(dist_spec, dict):
             return cls(**dist_spec)
         if isinstance(dist_spec, DistributionSpec):
@@ -93,26 +96,66 @@ class DistributionSpec():
         """
         return self.implements is not None and self.parameters is not None
 
-@dataclass
-class VarConfig():
+
+class VarSpec():  # pylint: disable=too-few-public-methods
     """Data class for storing the configurations for variables.
 
-    It contains the following attributes:
-    - name: Name of the variable/column.
-    - dist_spec: DistributionSpec object that determines the distribution.
-    - privacy: Privacy object that determines which implementation can be used.
-    - prop_missing: Proportion of missing values.
-    - description: Description of the variable.
-    - var_type: Type of the variable in question.
+    Parameters
+    ----------
+    name:
+        Name of the variable/column.
+    distribution, optional:
+        Distribution to use for fitting/finding the distribution.
+        Leave at None to allow metasyn to find the most suitable distribution
+        automatically.
+
+        >>> # Use normal distribution
+        >>> distribution="normal"
+        >>> # Use normal distribution with mean 0, standard deviation 1
+        >>> distribution=NormalDistribution(0, 1)
+
+    unique, optional:
+        To set a column to be unique/key.
+        This is only available for the integer and string datatypes. Setting a variable
+        to unique ensures that the synthetic values generated for this variable are unique.
+        This is useful for ID or primary key variables, for example. The parameter...
+        is ignored when the distribution is set manually. For example:
+        {"unique": True}, which sets the variable to be unique or {"unique": False} which
+        forces the variable to be not unique. If the uniqueness is not specified, it is
+        assumed to be not unique, but gives a warning if metasyn thinks it should be.
+    privacy, optional:
+        Set the privacy level for a variable, e.g.: DifferentialPrivacy(epsilon=10).
+    prop_missing, optional:
+        Proportion of missing values for a variable.
+    description, optional:
+        Set the description of a variable.
+    data_free, optional:
+        Whether this variable/column is to be generated from scratch or from an existing column
+        in the dataframe.
+    var_type, optional:
+        Manually set the variable type of the columns (used mainly for data_free columns).
     """
 
-    name: str
-    dist_spec: DistributionSpec = field(default_factory=DistributionSpec)
-    privacy: Optional[BasePrivacy] = None
-    prop_missing: Optional[float] = None
-    description: Optional[str] = None
-    data_free: bool = False
-    var_type: Optional[str] = None
+    def __init__(
+            self,
+            name: str,
+            distribution: Optional[Union[dict, type[BaseDistribution], BaseDistribution,
+                                                DistributionSpec, str]] = None,
+            unique=None,
+            privacy: Optional[BasePrivacy] = None,
+            prop_missing: Optional[float] = None,
+            description: Optional[str] = None,
+            data_free: bool = False,
+            var_type: Optional[str] = None):
+
+        self.name = name
+        self.dist_spec = DistributionSpec.parse(distribution, unique)
+        self.privacy = privacy
+        self.prop_missing = prop_missing
+        self.description = description
+        self.data_free = data_free
+        self.var_type = var_type
+        self.__post_init__()
 
     def __post_init__(self):
         # Convert the the privacy attribute if it is a dictionary.
@@ -123,7 +166,7 @@ class VarConfig():
                             f" 'implements' and 'parameters'. {self}")
 
     @classmethod
-    def from_dict(cls, var_dict: dict) -> VarConfig:
+    def from_dict(cls, var_dict: dict) -> VarSpec:
         """Create a variable configuration from a dictionary.
 
         Parameters
@@ -135,7 +178,4 @@ class VarConfig():
         -------
             A new VarConfig instance.
         """
-        dist_spec = var_dict.pop("distribution", None)
-        if dist_spec is None:
-            return cls(**var_dict)
-        return cls(**var_dict, dist_spec=DistributionSpec.parse(dist_spec))
+        return cls(**var_dict)

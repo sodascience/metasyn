@@ -1,14 +1,13 @@
 from metasyn import MetaFrame, demo_dataframe
-from metasyn.config import VarConfig
-from metasyn.util import DistributionSpec
+from metasyn.config import VarSpec
 
 # example dataframe from polars website
 df = demo_dataframe("fruit")
 
 # set A to unique and B to not unique
 specs = [
-    VarConfig(name="ID", dist_spec=DistributionSpec(unique=True)),
-    VarConfig(name="B", dist_spec=DistributionSpec(unique=True)),
+    VarSpec("ID", unique=True),
+    VarSpec("B", unique=False),
 ]
 
 # create MetaFrame

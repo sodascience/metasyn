@@ -58,7 +58,7 @@ from metasyn.privacy import BasePrivacy, BasicPrivacy
 from metasyn.util import DistributionSpec
 
 if TYPE_CHECKING:
-    from metasyn.config import VarConfig, VarConfigAccess
+    from metasyn.config import VarSpec, VarSpecAccess
 
 class BaseDistributionProvider(ABC):
     """Base class for all distribution providers.
@@ -222,26 +222,25 @@ class DistributionProviderList():
         """
         if dist_spec.implements is not None:
             return self._fit_distribution(series, dist_spec, var_type, privacy)
-        unique = dist_spec.unique if dist_spec.unique is True else False
-        return self._find_best_fit(series, var_type, unique, privacy)
+        return self._find_best_fit(series, var_type, dist_spec.unique, privacy)
 
-    def create(self, var_cfg: Union[VarConfig, VarConfigAccess]) -> BaseDistribution:
+    def create(self, var_spec: Union[VarSpec, VarSpecAccess]) -> BaseDistribution:
         """Create a distribution without any data.
 
         Parameters
         ----------
-        var_cfg
+        var_spec
             A variable configuration that provides all the qinformation to create the distribution.
 
         Returns
         -------
             A distribution according to the variable specifications.
         """
-        dist_spec = var_cfg.dist_spec
+        dist_spec = var_spec.dist_spec
         unique = dist_spec.unique if dist_spec.unique else False
-        assert dist_spec.implements is not None and var_cfg.var_type is not None
+        assert dist_spec.implements is not None and var_spec.var_type is not None
         dist_class = self.find_distribution(
-            dist_spec.implements, var_cfg.var_type,
+            dist_spec.implements, var_spec.var_type,
             privacy=BasicPrivacy(), unique=unique)
         return dist_class(**dist_spec.parameters)
 

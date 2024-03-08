@@ -4,9 +4,9 @@
     "provenance": {
         "created by": {
             "name": "metasyn",
-            "version": "0.7.1.dev1+g1f601ea.d20240226"
+            "version": "0.7.1.dev15+g2ce8291.d20240308"
         },
-        "creation time": "2024-02-27T14:10:08.278961"
+        "creation time": "2024-03-08T10:54:42.702163"
     },
     "vars": [
         {
@@ -29,7 +29,7 @@
         {
             "name": "Name",
             "type": "string",
-            "dtype": "Utf8",
+            "dtype": "String",
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.freetext",
@@ -47,7 +47,7 @@
         {
             "name": "Sex",
             "type": "categorical",
-            "dtype": "Categorical",
+            "dtype": "Categorical(ordering='physical')",
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.multinoulli",
@@ -108,7 +108,7 @@
         {
             "name": "Ticket",
             "type": "string",
-            "dtype": "Utf8",
+            "dtype": "String",
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.regex",
@@ -177,7 +177,7 @@
         {
             "name": "Cabin",
             "type": "string",
-            "dtype": "Utf8",
+            "dtype": "String",
             "prop_missing": 0.7710437710437711,
             "distribution": {
                 "implements": "core.regex",
@@ -226,7 +226,7 @@
         {
             "name": "Embarked",
             "type": "categorical",
-            "dtype": "Categorical",
+            "dtype": "Categorical(ordering='physical')",
             "prop_missing": 0.002244668911335578,
             "distribution": {
                 "implements": "core.multinoulli",
@@ -304,7 +304,7 @@
         {
             "name": "all_NA",
             "type": "string",
-            "dtype": "Utf8",
+            "dtype": "String",
             "prop_missing": 1.0,
             "distribution": {
                 "implements": "core.na",

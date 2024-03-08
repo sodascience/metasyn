@@ -52,13 +52,15 @@ This warning occurs when ``metasyn`` detects a column, that seems to have unique
 
 .. code-block:: python
 
+   from metasyn import VarSpec
+
    # Create a specification dictionary, and specify the column as unique:
-   var_spec = {
-      "PassengerId": {"unique": True}
-   }
+   var_specs = [
+      VarSpec("PassengerId", unique=True)
+   ]
 
    # Call the fit_dataframe() function, passing in the `var_spec` dictionary as the `spec` argument
-   mf = MetaFrame.fit_dataframe(df, spec=var_spec)
+   mf = MetaFrame.fit_dataframe(df, var_specs=var_specs)
 
 More information on how to use the optional parameters in the :meth:`metasyn.MetaFrame.fit_dataframe() <metasyn.metaframe.MetaFrame.fit_dataframe>` function can be found in :doc:`/usage/generating_metaframes` under :ref:`optionalparams`.
 

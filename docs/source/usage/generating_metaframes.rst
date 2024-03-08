@@ -54,20 +54,15 @@ allows you to have more control over how your synthetic dataset is generated wit
 parameters:
     
 Besides the required `df` parameter, :meth:`metasyn.MetaFrame.fit_dataframe() <metasyn.metaframe.MetaFrame.fit_dataframe>`
-accepts four parameters: ``meta_config``, ``var_specs``, ``dist_providers`` and ``privacy``.
+accepts three parameters: ``var_specs``, ``dist_providers`` and ``privacy``.
 
 Let's take a look at each optional parameter individually:
-
-meta_config
-^^^^^^^^^^^
-**meta_config** is an optional parameter that encompasses all the other parameters; it contains information on the
-``var_specs``, ``dist_providers`` and ``privacy``. This parameter is generally used when the configuration is loaded
-from a .toml file. Otherwise it is recommended to leave ``meta_config`` at its default value (None) and specify
-the other optional parameters.
 
 var_specs
 ^^^^^^^^^
 **var_specs** is an optional list that outlines specific directives for columns (variables) in the DataFrame.
+This list can also be generated from a .toml file. In that case you have to provide a string of path instead of
+a list.
 The potential directives include:
 
     - ``name``: This specifies the column name and is mandatory.
@@ -79,12 +74,12 @@ The potential directives include:
     .. admonition:: Detection of unique variables
 
         When generating a MetaFrame, ``metasyn`` will automatically analyze the columns of the input DataFrame to detect ones that contain only unique values.
-        If such a column is found, and it has not manually been set to unique in the ``var_specs`` dictionary, the user will be notified with the following warning:
+        If such a column is found, and it has not manually been set to unique in the ``var_specs`` list, the user will be notified with the following warning:
         ``Warning: Variable [column_name] seems unique, but not set to be unique. Set the variable to be either unique or not unique to remove this warning``
         
         It is safe to ignore this warning - however, be aware that without setting the column as unique, ``metasyn`` may generate duplicate values for that column when synthesizing data.
         
-        To remove the warning and ensure the values in the synthesized column are unique, set the column to be unique (``"column" = {"unique": True}``) in the ``var_specs`` list.    
+        To remove the warning and ensure the values in the synthesized column are unique, set the column to be unique (``unique = True``) in the ``var_specs`` list.    
     
     - ``description``: Includes a description for each column in the DataFrame.
 
@@ -101,31 +96,27 @@ The potential directives include:
     - The ``Name`` column should be populated with realistic fake names using the `Faker <https://faker.readthedocs.io/en/master/>`_ library.
     - In the ``Fare`` column, we aim for an exponential distribution.
     - Age values in the ``Age`` column should follow a discrete uniform distribution, ranging between 20 and 40.
-    - The ``Cabin`` column should adhere to a predefined structure: a letter between A and F, followed by 2 to 3 digits (e.g., A40, B721).
 
     The following code to achieve this would look like:
 
     .. code-block:: python
 
-        from metasyn.distribution import FakerDistribution, DiscreteUniformDistribution, RegexDistribution
-        from metasyn.config import VarConfig, DistributionSpec
+        from metasyn.distribution import FakerDistribution, DiscreteUniformDistribution
+        from metasyn.config import VarSpec
 
-        # Create a specification dictionary for generating synthetic data
+        # Create a specification list for generating synthetic data
         var_specs = [
             # Ensure unique values for the `PassengerId` column
-            VarConfig(name="PassengerId", dist_spec=DistributionSpec(unique=True)),
+            VarSpec("PassengerId", unique=True),
 
             # Utilize the Faker library to synthesize realistic names for the `Name` column
-            VarConfig(name="Name", dist_spec=FakerDistribution("name")),
+            VarSpec("Name", distribution=FakerDistribution("name")),
 
             # Fit `Fare` to an log-normal distribution, but base the parameters on the data
-            VarConfig(name="Name", dist_spec="LogNormalDistribution"),
+            VarSpec("Name", distribution="lognormal"),
 
             # Set the `Age` column to a discrete uniform distribution ranging from 20 to 40
-            VarConfig(name="Age", dist_spec=DiscreteUniformDistribution(20, 40)),
-
-            # Use a regex-based distribution to generate `Cabin` values following [A-F][0-9]{2,3}
-            VarConfig(name="Cabin", dist_spec=cabin_distribution, description="The cabin number of the passenger."),
+            VarSpec("Age", distribution=DiscreteUniformDistribution(20, 40)),
         ]
 
         mf = MetaFrame.fit_dataframe(df, var_specs=var_specs)
