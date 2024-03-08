@@ -47,18 +47,8 @@ class MetaConfig():
             privacy: Optional[Union[BasePrivacy, dict]],
             n_rows: Optional[int] = None):
         self.var_configs = [self._parse_var_config(v) for v in var_configs]
-
-        # if not isinstance(dist_providers, DistributionProviderList):
-            # dist_providers = DistributionProviderList(dist_providers)
         self.dist_providers = dist_providers  # type: ignore
-
         self.privacy = privacy  # type: ignore
-        # if isinstance(privacy, dict):
-            # privacy = get_privacy(**privacy)
-        # elif privacy is None:
-            # privacy = BasicPrivacy()
-
-        # self.privacy = privacy
         self.n_rows = n_rows
 
     @staticmethod
@@ -90,12 +80,6 @@ class MetaConfig():
             self._dist_providers = DistributionProviderList(dist_providers)
         else:
             self._dist_providers = dist_providers
-
-    # def update(self,
-    #            dist_providers: Union[DistributionProviderList, list[str], str, None],
-    #            privacy: Optional[Union[BasePrivacy, dict]]):
-    #     if dist_providers is not None:
-            
 
     @classmethod
     def from_toml(cls, config_fp: Union[str, Path]) -> MetaConfig:

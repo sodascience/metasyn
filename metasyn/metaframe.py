@@ -141,17 +141,6 @@ class MetaFrame():
         if privacy is not None:
             meta_config.privacy = privacy  # type: ignore
 
-        # if meta_config is None:
-            # if privacy is None:
-                # privacy = {"name": "none"}
-            # elif isinstance(privacy, BasePrivacy):
-                # privacy = privacy.to_dict()
-            # var_specs = [] if var_specs is None else var_specs
-            # dist_providers = dist_providers if dist_providers is not None else ["builtin"]
-            # meta_config = MetaConfig(var_specs, dist_providers, privacy)
-        # else:
-            # assert privacy is None
-
         if df is not None and not isinstance(df, pl.DataFrame):
             df = pl.DataFrame(df)
         all_vars = []
