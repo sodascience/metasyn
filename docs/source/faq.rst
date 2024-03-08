@@ -56,7 +56,7 @@ This warning occurs when ``metasyn`` detects a column, that seems to have unique
 
    # Create a specification dictionary, and specify the column as unique:
    var_specs = [
-      VarSpec("PassengerId", unique=true)
+      VarSpec("PassengerId", unique=True)
    ]
 
    # Call the fit_dataframe() function, passing in the `var_spec` dictionary as the `spec` argument
