@@ -53,8 +53,11 @@ class DistributionSpec():
 
         Parameters
         ----------
-        dist_spec
+        dist_spec:
             Specification for the distribution in several types.
+        unique:
+            Whether the distribution is unique. This is only taken into account
+            if dist_spec is None or a string.
 
         Returns
         -------
@@ -99,20 +102,19 @@ class VarSpec():  # pylint: disable=too-few-public-methods
 
     Parameters
     ----------
-    name
+    name:
         Name of the variable/column.
-    distribution, optional
+    distribution, optional:
         Distribution to use for fitting/finding the distribution.
         Leave at None to allow metasyn to find the most suitable distribution
         automatically.
 
-        Examples:
         >>> # Use normal distribution
         >>> distribution="normal"
         >>> # Use normal distribution with mean 0, standard deviation 1
         >>> distribution=NormalDistribution(0, 1)
 
-    unique, optional
+    unique, optional:
         To set a column to be unique/key.
         This is only available for the integer and string datatypes. Setting a variable
         to unique ensures that the synthetic values generated for this variable are unique.
@@ -121,16 +123,16 @@ class VarSpec():  # pylint: disable=too-few-public-methods
         {"unique": True}, which sets the variable to be unique or {"unique": False} which
         forces the variable to be not unique. If the uniqueness is not specified, it is
         assumed to be not unique, but gives a warning if metasyn thinks it should be.
-    privacy, optional
+    privacy, optional:
         Set the privacy level for a variable, e.g.: DifferentialPrivacy(epsilon=10).
-    prop_missing, optional
+    prop_missing, optional:
         Proportion of missing values for a variable.
-    description, optional
+    description, optional:
         Set the description of a variable.
-    data_free, optional
+    data_free, optional:
         Whether this variable/column is to be generated from scratch or from an existing column
         in the dataframe.
-    var_type, optional
+    var_type, optional:
         Manually set the variable type of the columns (used mainly for data_free columns).
     """
 

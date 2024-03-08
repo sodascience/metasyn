@@ -98,7 +98,6 @@ class MetaFrame():
         MetaFrame:
             Initialized metasyn metaframe.
         """
-
         # Parse the var_specs into a MetaConfig instance.
         if isinstance(var_specs, (pathlib.Path, str)):
             meta_config = MetaConfig.from_toml(var_specs)
