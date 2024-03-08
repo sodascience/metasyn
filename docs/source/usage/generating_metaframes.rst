@@ -116,7 +116,7 @@ The potential directives include:
             VarSpec("Name", distribution="lognormal"),
 
             # Set the `Age` column to a discrete uniform distribution ranging from 20 to 40
-            VarSpec("Age", ddistribution=DiscreteUniformDistribution(20, 40)),
+            VarSpec("Age", distribution=DiscreteUniformDistribution(20, 40)),
         ]
 
         mf = MetaFrame.fit_dataframe(df, var_specs=var_specs)
