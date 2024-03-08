@@ -62,7 +62,7 @@ At its core, `metasyn` is designed for three functions, which are briefly descri
 3. __Generation__: Generate new synthetic datasets based on the fitted model or its serialized representation.
 
 ## Estimation
-The generative model for multivariate datasets in `metasyn` makes the simplifying assumption of marginal independence: each column is considered separately, just as is done in e.g., naïve Bayes classifiers[@hastie2009elements]. Formally, this leads to the following generative model for the $K$-variate data $\mathbf{x}$:
+The generative model for multivariate datasets in `metasyn` makes the simplifying assumption of marginal independence: each column is considered separately, just as is done in e.g., naïve Bayes classifiers [@hastie2009elements]. Formally, this leads to the following generative model for the $K$-variate data $\mathbf{x}$:
 
 \begin{equation} \label{eq:model}
 p(\mathbf{x}) = \prod_{k = 1}^K p(x_k)
@@ -86,33 +86,36 @@ Model estimation starts with an appropriately pre-processed data frame. For `met
 └─────┴────────┴─────┴────────┴──────────┘
 ```
 
-For each data type supported by `metasyn`, there is a set of candidate distributions that can be fitted to that data type (see Table \autoref{tbl:dist}). To estimate the generative model of Equation \autoref{eq:model}, for each variable the software fits all compatible candidate distributions --- by default with maximum likelihood estimation --- and then selects the one with the lowest AIC [@akaike1973information]. 
+For each data type supported by `metasyn`, there is a set of candidate distributions that can be fitted to that data type (see Table \autoref{tbl:dist}). To estimate the generative model of Equation \autoref{eq:model}, for each variable the software fits all compatible candidate distributions --- by default with maximum likelihood estimation --- and then selects the one with the lowest BIC [@neath2012bayesian]. For distributions where this is not possible, such as those for the string data type, a pseudo-BIC is created that trades off fit and complexity of the underlying models.
 
 Table: \label{tbl:dist} Candidate distributions associated with data types in the core `metasyn` package.
 
-| Variable type | Data type | example | candidate distributions | 
-| :------------ | :-------- | :------ | :---------------------- |
-| continuous | float | 1.0, 2.1, ... | UniformDistribution, NormalDistribution, ... |
-| discrete | int | 1, 2, ... | DiscreteUniformDistribution |
-| categorical | pl.Categorical | gender, country | MultinoulliDistribution |
-| structured string | str | Room number A108, C122 | RegexDistribution |
-| unstructured string | str | Names, open answers | FakerDistribution, LLMDistribution |
-| temporal | Date, Datetime | 2021-01-13, 01:40:12 | DateUniformDistribution |
+| Variable type | Example                | Candidate distributions                                  |
+| :------------ | :--------------------- | :------------------------------------------------------- |
+| categorical   | yes/no, country        | Categorical                                              |
+| continuous    | 1.0, 2.1, ...          | Uniform, Normal, LogNormal, TruncatedNormal, Exponential |
+| discrete      | 1, 2, ...              | Poisson, Uniform, Normal, TruncatedNormal, Categorical   |
+| string        | A108, C122, some words | Regex, Categorical, Faker, FreeText                      |
+| date/time     | 2021-01-13, 01:40:12   | Uniform                                                  |
+
+From this table, the string distributions deserve special attention as they are not commonly encountered as probability distributions. Regex (regular expression) inference is performed on structured strings using the companion package [RegexModel](https://pypi.org/project/regexmodel/). It is able to automatically detect structure such as room numbers (A108, C122, B109), e-mail addresses, websites, and more, which it summarizes using a probabilistic variant of regular expressions. Another option, should Regex inference fail for lack of structure, is to detect the language (using [lingua](https://pypi.org/project/lingua-language-detector/)) and randomly pick words from that language. We call this approach FreeText.  The final alternative is for the data owner to specify that a certain variable should be synthesized using the popular [Faker](https://pypi.org/project/Faker/) package, which can generate specific data types such as localized addresses. 
 
 Generative model estimation done in code as follows:
 
 ```python
-from metasyn import MetaFrame
+from metasyn import MetaFrame, VarSpec
 
-# "ID" column is the primary key;
-# ensure that it has unique values
-# when data is synthesized later
-spec_dict = {
-  "ID": {"unique": True}
-}
+# "ID" column is the primary key, 
+# thus should generate unique values.
+# "B" column is not, despite unique 
+# values in the dataframe
+specs = [
+  VarSpec("ID", unique=True),
+  VarSpec("B", unique=False),
+]
 
 # create metaframe
-mf = MetaFrame.from_dataframe(df, spec=spec_dict)
+mf = MetaFrame.fit_dataframe(df, var_specs=specs)
 ```
 
 ## Serialization and deserialization
@@ -124,7 +127,7 @@ After a fitted model object is created, `metasyn` allows it to be transparently 
 "provenance": {
     "created by": {
         "name": "metasyn",
-        "version": "0.6.0",
+        "version": "0.7.1",
         "privacy": null
     },
     "creation time": "2023-09-27T13:54:16.686166"
@@ -135,17 +138,21 @@ Then, for each variable the `gmf` file contains information the name, the data t
 
 ```json
 {
-  "name": "fruits",
-  "type": "categorical",
-  "dtype": "<class 'polars.datatypes.Categorical'>",
-  "prop_missing": 0.0,
-  "distribution": {
-    "name": "MultinoulliDistribution",
-    "parameters": {
-      "labels": ["apple", "banana"],
-      "probs": [0.4, 0.6]
+    "name": "fruits",
+    "type": "categorical",
+    "dtype": "Categorical",
+    "prop_missing": 0.0,
+    "distribution": {
+        "implements": "core.multinoulli",
+        "version": "1.0",
+        "provenance": "builtin",
+        "class_name": "MultinoulliDistribution",
+        "unique": false,
+        "parameters": {
+            "labels": ["apple", "banana"],
+            "probs": [0.4, 0.6]
+        }
     }
-  }
 }
 ```
 
@@ -196,7 +203,7 @@ This plug-in system is user-friendly: the user only needs to `pip install` the p
 from metasyn import MetaDataset
 from metasyncontrib.disclosure import DisclosurePrivacy
 
-mds = MetaFrame.from_dataframe(df, privacy=DisclosurePrivacy())
+mds = MetaFrame.fit_dataframe(df, privacy=DisclosurePrivacy())
 ```
 
 # Conclusion
