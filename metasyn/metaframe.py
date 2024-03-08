@@ -7,7 +7,6 @@ import pathlib
 from datetime import datetime
 from importlib.metadata import version
 from typing import Any, Dict, List, Optional, Sequence, Union
-from warnings import warn
 
 import numpy as np
 import polars as pl
@@ -58,7 +57,7 @@ class MetaFrame():
         return len(self.meta_vars)
 
     @classmethod
-    def fit_dataframe(
+    def fit_dataframe(  # pylint: disable=too-many-branches
             cls,
             df: Optional[pl.DataFrame],
             var_specs: Optional[Union[list[VarSpec], pathlib.Path, str, MetaConfig]] = None,

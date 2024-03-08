@@ -94,8 +94,7 @@ class DistributionSpec():
         return self.implements is not None and self.parameters is not None
 
 
-# @dataclass
-class VarSpec():
+class VarSpec():  # pylint: disable=too-few-public-methods
     """Data class for storing the configurations for variables.
 
     It contains the following attributes:
@@ -107,14 +106,6 @@ class VarSpec():
     - var_type: Type of the variable in question.
     """
 
-    # name: str
-    # dist_spec: DistributionSpec = field(default_factory=DistributionSpec)
-    # privacy: Optional[BasePrivacy] = None
-    # prop_missing: Optional[float] = None
-    # description: Optional[str] = None
-    # data_free: bool = False
-    # var_type: Optional[str] = None
-
     def __init__(
             self,
             name: str,
@@ -125,8 +116,7 @@ class VarSpec():
             prop_missing: Optional[float] = None,
             description: Optional[str] = None,
             data_free: bool = False,
-            var_type: Optional[str] = None,
-            **kwargs):
+            var_type: Optional[str] = None):
         self.name = name
         self.dist_spec = DistributionSpec.parse(distribution, unique)
         self.privacy = privacy
@@ -145,7 +135,7 @@ class VarSpec():
                             f" 'implements' and 'parameters'. {self}")
 
     @classmethod
-    def from_dict(cls, var_dict: dict) -> VarConfig:
+    def from_dict(cls, var_dict: dict) -> VarSpec:
         """Create a variable configuration from a dictionary.
 
         Parameters
@@ -157,7 +147,4 @@ class VarSpec():
         -------
             A new VarConfig instance.
         """
-        dist_spec = var_dict.pop("distribution", None)
-        if dist_spec is None:
-            return cls(**var_dict)
-        return cls(**var_dict, dist_spec=DistributionSpec.parse(dist_spec))
+        return cls(**var_dict)
