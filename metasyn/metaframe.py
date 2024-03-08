@@ -7,6 +7,7 @@ import pathlib
 from datetime import datetime
 from importlib.metadata import version
 from typing import Any, Dict, List, Optional, Sequence, Union
+from warnings import warn
 
 import numpy as np
 import polars as pl
@@ -14,6 +15,7 @@ from tqdm import tqdm
 
 from metasyn.config import MetaConfig
 from metasyn.privacy import BasePrivacy
+from metasyn.util import VarSpec
 from metasyn.validation import validate_gmf_dict
 from metasyn.var import MetaVar
 
@@ -59,10 +61,10 @@ class MetaFrame():
     def fit_dataframe(
             cls,
             df: Optional[pl.DataFrame],
-            meta_config: Optional[MetaConfig] = None,
-            var_specs: Optional[list[dict]] = None,
+            var_specs: Optional[Union[list[VarSpec], pathlib.Path, str, MetaConfig]] = None,
             dist_providers: Optional[list[str]] = None,
             privacy: Optional[Union[BasePrivacy, dict]] = None,
+            n_rows: Optional[int] = None,
             progress_bar: bool = True):
         """Create a metasyn object from a polars (or pandas) dataframe.
 
@@ -127,16 +129,29 @@ class MetaFrame():
         MetaFrame:
             Initialized metasyn metaframe.
         """
-        if meta_config is None:
-            if privacy is None:
-                privacy = {"name": "none"}
-            elif isinstance(privacy, BasePrivacy):
-                privacy = privacy.to_dict()
-            var_specs = [] if var_specs is None else var_specs
-            dist_providers = dist_providers if dist_providers is not None else ["builtin"]
-            meta_config = MetaConfig(var_specs, dist_providers, privacy)
+        if isinstance(var_specs, (pathlib.Path, str)):
+            meta_config = MetaConfig.from_toml(var_specs)
+        elif isinstance(var_specs, MetaConfig):
+            meta_config = var_specs
+        elif var_specs is None:
+            meta_config = MetaConfig([], dist_providers, privacy)
         else:
-            assert privacy is None
+            meta_config = MetaConfig(var_specs, dist_providers, privacy)
+        if dist_providers is not None:
+            meta_config.dist_providers = dist_providers
+        if privacy is not None:
+            meta_config.privacy = privacy
+
+        # if meta_config is None:
+            # if privacy is None:
+                # privacy = {"name": "none"}
+            # elif isinstance(privacy, BasePrivacy):
+                # privacy = privacy.to_dict()
+            # var_specs = [] if var_specs is None else var_specs
+            # dist_providers = dist_providers if dist_providers is not None else ["builtin"]
+            # meta_config = MetaConfig(var_specs, dist_providers, privacy)
+        # else:
+            # assert privacy is None
 
         if df is not None and not isinstance(df, pl.DataFrame):
             df = pl.DataFrame(df)
@@ -174,7 +189,8 @@ class MetaFrame():
                 raise ValueError("Please provide the number of rows in the configuration, "
                                  "or supply a DataFrame.")
             return cls(all_vars, meta_config.n_rows)
-        return cls(all_vars, len(df))
+        n_rows = len(df) if n_rows is None else n_rows
+        return cls(all_vars, n_rows)
 
     @classmethod
     def from_config(cls, meta_config: MetaConfig) -> MetaFrame:

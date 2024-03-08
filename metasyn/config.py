@@ -9,7 +9,7 @@ try:
 except ImportError:
     import tomli as tomllib  # type: ignore  # noqa
 
-from metasyn.privacy import BasePrivacy, get_privacy
+from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
 from metasyn.provider import DistributionProviderList
 from metasyn.util import VarSpec
 
@@ -44,7 +44,7 @@ class MetaConfig():
             self,
             var_configs: Union[list[dict], list[VarSpec]],
             dist_providers: Union[DistributionProviderList, list[str], str],
-            privacy: Union[BasePrivacy, dict],
+            privacy: Optional[Union[BasePrivacy, dict]],
             n_rows: Optional[int] = None):
         self.var_configs = [self._parse_var_config(v) for v in var_configs]
 
@@ -52,8 +52,10 @@ class MetaConfig():
             dist_providers = DistributionProviderList(dist_providers)
         self.dist_providers = dist_providers
 
-        if not isinstance(privacy, BasePrivacy):
+        if isinstance(privacy, dict):
             privacy = get_privacy(**privacy)
+        elif privacy is None:
+            privacy = BasicPrivacy()
 
         self.privacy = privacy
         self.n_rows = n_rows

@@ -222,8 +222,7 @@ class DistributionProviderList():
         """
         if dist_spec.implements is not None:
             return self._fit_distribution(series, dist_spec, var_type, privacy)
-        unique = dist_spec.unique if dist_spec.unique is True else False
-        return self._find_best_fit(series, var_type, unique, privacy)
+        return self._find_best_fit(series, var_type, dist_spec.unique, privacy)
 
     def create(self, var_cfg: Union[VarConfig, VarConfigAccess]) -> BaseDistribution:
         """Create a distribution without any data.
@@ -277,6 +276,8 @@ class DistributionProviderList():
                              f" and unique={try_unique}")
         dist_instances = [d.fit(series, **privacy.fit_kwargs) for d in dist_list]
         dist_bic = [d.information_criterion(series) for d in dist_instances]
+        # print(unique)
+        # raise ValueError()
         if unique is None:
             dist_list_unq = self.get_distributions(privacy, var_type, unique=True)
             if len(dist_list_unq) > 0:
