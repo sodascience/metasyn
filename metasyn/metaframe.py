@@ -137,9 +137,9 @@ class MetaFrame():
         else:
             meta_config = MetaConfig(var_specs, dist_providers, privacy)
         if dist_providers is not None:
-            meta_config.dist_providers = dist_providers
+            meta_config.dist_providers = dist_providers  # type: ignore
         if privacy is not None:
-            meta_config.privacy = privacy
+            meta_config.privacy = privacy  # type: ignore
 
         # if meta_config is None:
             # if privacy is None:

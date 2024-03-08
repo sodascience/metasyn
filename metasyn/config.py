@@ -43,21 +43,22 @@ class MetaConfig():
     def __init__(
             self,
             var_configs: Union[list[dict], list[VarSpec]],
-            dist_providers: Union[DistributionProviderList, list[str], str],
+            dist_providers: Union[DistributionProviderList, list[str], str, None],
             privacy: Optional[Union[BasePrivacy, dict]],
             n_rows: Optional[int] = None):
         self.var_configs = [self._parse_var_config(v) for v in var_configs]
 
-        if not isinstance(dist_providers, DistributionProviderList):
-            dist_providers = DistributionProviderList(dist_providers)
-        self.dist_providers = dist_providers
+        # if not isinstance(dist_providers, DistributionProviderList):
+            # dist_providers = DistributionProviderList(dist_providers)
+        self.dist_providers = dist_providers  # type: ignore
 
-        if isinstance(privacy, dict):
-            privacy = get_privacy(**privacy)
-        elif privacy is None:
-            privacy = BasicPrivacy()
+        self.privacy = privacy  # type: ignore
+        # if isinstance(privacy, dict):
+            # privacy = get_privacy(**privacy)
+        # elif privacy is None:
+            # privacy = BasicPrivacy()
 
-        self.privacy = privacy
+        # self.privacy = privacy
         self.n_rows = n_rows
 
     @staticmethod
@@ -65,6 +66,36 @@ class MetaConfig():
         if isinstance(var_cfg, VarSpec):
             return var_cfg
         return VarSpec.from_dict(var_cfg)
+
+    @property
+    def privacy(self) -> BasePrivacy:
+        return self._privacy
+
+    @privacy.setter
+    def privacy(self, privacy):
+        if privacy is None:
+            self._privacy = BasicPrivacy()
+        elif isinstance(privacy, dict):
+            self._privacy = get_privacy(**privacy)
+        else:
+            self._privacy = privacy
+
+    @property
+    def dist_providers(self) -> DistributionProviderList:
+        return self._dist_providers
+
+    @dist_providers.setter
+    def dist_providers(self, dist_providers):
+        if not isinstance(dist_providers, DistributionProviderList):
+            self._dist_providers = DistributionProviderList(dist_providers)
+        else:
+            self._dist_providers = dist_providers
+
+    # def update(self,
+    #            dist_providers: Union[DistributionProviderList, list[str], str, None],
+    #            privacy: Optional[Union[BasePrivacy, dict]]):
+    #     if dist_providers is not None:
+            
 
     @classmethod
     def from_toml(cls, config_fp: Union[str, Path]) -> MetaConfig:
