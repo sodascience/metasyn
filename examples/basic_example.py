@@ -7,7 +7,7 @@ df = demo_dataframe("fruit")
 # set A to unique and B to not unique
 specs = [
     VarSpec("ID", unique=True),
-    VarSpec("B", unique=True),
+    VarSpec("B", unique=False),
 ]
 
 # create MetaFrame
