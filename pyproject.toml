@@ -25,7 +25,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "polars>=0.19.8",
+    "polars>=0.20.13",
     "tqdm",
     "numpy>=1.20",
     "pyarrow", # Dependency of polars since we're converting from pandas.
@@ -100,9 +100,9 @@ good-names=["a", "b", "mu"]
 [tool.ruff]
 exclude = ["_version.py", "metasyn/distribution/legacy.*"]
 line-length = 100
-select = ["E", "F", "W", "I", "N"]
+lint.select = ["E", "F", "W", "I", "N"]
 
-[tool.ruff.pep8-naming]
+[tool.ruff.lint.pep8-naming]
 ignore-names = ["a", "b", "mu"]
 
 [tool.tox]

@@ -85,7 +85,7 @@ The ``create-meta`` command can be used as follows:
 
 .. code-block:: bash
 
-   metasyn create-meta --input [input] --output [output]
+   metasyn create-meta [input] --output [output]
 
 This will:
 
@@ -154,7 +154,6 @@ column is ``data_free``. It is also required to set the number of rows under the
 
       name = "PassengerId"
       data_free = true
-      unique = true
       prop_missing = 0.0
       description = "ID of the unfortunate passenger."
       var_type = "discrete"
@@ -176,7 +175,7 @@ The ``synthesize`` command can be used as follows:
 
 .. code-block:: bash
 
-   metasyn synthesize [input] [output]
+   metasyn synthesize [input] --output [output]
 
 This will:
 

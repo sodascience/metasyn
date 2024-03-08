@@ -9,9 +9,9 @@ try:
 except ImportError:
     import tomli as tomllib  # type: ignore  # noqa
 
-from metasyn.privacy import BasePrivacy, get_privacy
+from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
 from metasyn.provider import DistributionProviderList
-from metasyn.util import VarConfig
+from metasyn.util import VarSpec
 
 
 class MetaConfig():
@@ -23,18 +23,18 @@ class MetaConfig():
 
     Parameters
     ----------
-    var_configs:
+    var_specs:
         List of configurations for individual variables. The order does not
         matter for variables that are found in the DataFrame, but in the case
         of variables that are data-free, the order is also the order of columns
-        for the eventual synthesized dataframe. See the VarConfigAccess class on
+        for the eventual synthesized dataframe. See the VarSpecAccess class on
         how the dictionary can be constructed.
     dist_providers:
         Distribution providers to use when fitting distributions to variables.
         Can be a string, provider, or provider type.
     privacy:
         Privacy method/level to use as a default setting for the privacy. Can be
-        overridden in the var_config for a particular column.
+        overridden in the var_spec for a particular column.
     n_rows:
         Number of rows for synthesization at a later stage. Can be unspecified by
         leaving the value at None.
@@ -42,27 +42,46 @@ class MetaConfig():
 
     def __init__(
             self,
-            var_configs: Union[list[dict], list[VarConfig]],
-            dist_providers: Union[DistributionProviderList, list[str], str],
-            privacy: Union[BasePrivacy, dict],
+            var_specs: Union[list[dict], list[VarSpec]],
+            dist_providers: Union[DistributionProviderList, list[str], str, None],
+            privacy: Optional[Union[BasePrivacy, dict]],
             n_rows: Optional[int] = None):
-        self.var_configs = [self._parse_var_config(v) for v in var_configs]
-
-        if not isinstance(dist_providers, DistributionProviderList):
-            dist_providers = DistributionProviderList(dist_providers)
-        self.dist_providers = dist_providers
-
-        if not isinstance(privacy, BasePrivacy):
-            privacy = get_privacy(**privacy)
-
-        self.privacy = privacy
+        self.var_specs = [self._parse_var_spec(v) for v in var_specs]
+        self.dist_providers = dist_providers  # type: ignore
+        self.privacy = privacy  # type: ignore
         self.n_rows = n_rows
 
     @staticmethod
-    def _parse_var_config(var_cfg):
-        if isinstance(var_cfg, VarConfig):
-            return var_cfg
-        return VarConfig.from_dict(var_cfg)
+    def _parse_var_spec(var_spec):
+        if isinstance(var_spec, VarSpec):
+            return var_spec
+        return VarSpec.from_dict(var_spec)
+
+    @property
+    def privacy(self) -> BasePrivacy:
+        """Return default privacy for generating the metaframe."""
+        return self._privacy
+
+    @privacy.setter
+    def privacy(self, privacy):
+        if privacy is None:
+            self._privacy = BasicPrivacy()
+        elif isinstance(privacy, dict):
+            self._privacy = get_privacy(**privacy)
+        else:
+            self._privacy = privacy
+
+    @property
+    def dist_providers(self) -> DistributionProviderList:
+        """Return the distribution provider list to be used for the metaframe."""
+        return self._dist_providers
+
+    @dist_providers.setter
+    def dist_providers(self, dist_providers):
+        if not isinstance(dist_providers, DistributionProviderList):
+            self._dist_providers = DistributionProviderList(dist_providers)
+        else:
+            self._dist_providers = dist_providers
 
     @classmethod
     def from_toml(cls, config_fp: Union[str, Path]) -> MetaConfig:
@@ -102,11 +121,11 @@ class MetaConfig():
                 "privacy": self.privacy,
                 "dist_providers": self.dist_providers,
             },
-            "var": self.var_configs
+            "var": self.var_specs
         }
 
-    def get(self, name: str) -> VarConfigAccess:
-        """Create a VarConfigAccess object pointing to a var with that name.
+    def get(self, name: str) -> VarSpecAccess:
+        """Create a VarSpecAccess object pointing to a var with that name.
 
         If the variable does not exist, then a new variable config is created that
         has the default values.
@@ -118,15 +137,15 @@ class MetaConfig():
 
         Returns
         -------
-        var_cfg:
+        var_spec:
             A variable config access object.
         """
-        for var_cfg in self.var_configs:
-            if var_cfg.name == name:
-                return VarConfigAccess(var_cfg, self)
-        return VarConfigAccess(VarConfig(name=name), self)
+        for var_spec in self.var_specs:
+            if var_spec.name == name:
+                return VarSpecAccess(var_spec, self)
+        return VarSpecAccess(VarSpec(name=name), self)
 
-    def iter_var(self, exclude: Optional[list[str]] = None) -> Iterable[VarConfigAccess]:
+    def iter_var(self, exclude: Optional[list[str]] = None) -> Iterable[VarSpecAccess]:
         """Iterate over all variables in the configuration.
 
         Parameters
@@ -136,16 +155,16 @@ class MetaConfig():
 
         Returns
         -------
-        var_cfg:
-            VarConfigAccess class for each of the available variable configurations.
+        var_spec:
+            VarSpecAccess class for each of the available variable configurations.
         """
         exclude = exclude if exclude is not None else []
-        for var_spec in self.var_configs:
+        for var_spec in self.var_specs:
             if var_spec.name not in exclude:
-                yield VarConfigAccess(var_spec, self)
+                yield VarSpecAccess(var_spec, self)
 
 
-class VarConfigAccess():  # pylint: disable=too-few-public-methods
+class VarSpecAccess():  # pylint: disable=too-few-public-methods
     """Access for variable configuration object.
 
     They take into account what the defaults are from the MetaConfig object.
@@ -154,21 +173,21 @@ class VarConfigAccess():  # pylint: disable=too-few-public-methods
 
     Parameters
     ----------
-    var_config
+    var_spec
         The variable configuration to access.
     meta_config
         The meta configuration instance to get default values from.
     """
 
-    def __init__(self, var_config: VarConfig, meta_config: MetaConfig):
-        self.var_config = var_config
+    def __init__(self, var_spec: VarSpec, meta_config: MetaConfig):
+        self.var_spec = var_spec
         self.meta_config = meta_config
 
     def __getattribute__(self, attr):
         if attr == "privacy":
-            if self.var_config.privacy is None:
+            if self.var_spec.privacy is None:
                 return self.meta_config.privacy
-            return self.var_config.privacy
-        if attr not in ("var_config", "meta_config") and hasattr(self.var_config, attr):
-            return getattr(self.var_config, attr)
+            return self.var_spec.privacy
+        if attr not in ("var_spec", "meta_config") and hasattr(self.var_spec, attr):
+            return getattr(self.var_spec, attr)
         return super().__getattribute__(attr)

@@ -3,10 +3,10 @@ from pathlib import Path
 import pytest
 from pytest import mark
 
-from metasyn.config import MetaConfig, VarConfigAccess
+from metasyn.config import MetaConfig, VarSpecAccess
 from metasyn.distribution import UniformDistribution
 from metasyn.privacy import BasePrivacy
-from metasyn.util import DistributionSpec, VarConfig
+from metasyn.util import DistributionSpec, VarSpec
 
 
 @mark.parametrize(
@@ -32,46 +32,46 @@ def test_dist_spec(input, error):
         dist_spec = DistributionSpec.parse(input)
         assert isinstance(dist_spec, DistributionSpec)
 
-def test_var_config():
-    var_cfg = VarConfig("test", privacy={"name": "none", "parameters": {}})
-    assert var_cfg.name == "test"
-    assert isinstance(var_cfg.privacy, BasePrivacy)
+def test_var_spec():
+    var_spec = VarSpec("test", privacy={"name": "none", "parameters": {}})
+    assert var_spec.name == "test"
+    assert isinstance(var_spec.privacy, BasePrivacy)
     with pytest.raises(ValueError):
-        var_cfg = VarConfig("test", data_free=True)
-    var_cfg = VarConfig("test")
-    assert isinstance(var_cfg.dist_spec, DistributionSpec)
-    var_cfg = VarConfig.from_dict({"name": "test"})
-    assert var_cfg.name == "test"
-    var_cfg = VarConfig.from_dict({"name": "test", "distribution": "uniform"})
-    assert var_cfg.dist_spec.implements == "uniform"
+        var_spec = VarSpec("test", data_free=True)
+    var_spec = VarSpec("test")
+    assert isinstance(var_spec.dist_spec, DistributionSpec)
+    var_spec = VarSpec.from_dict({"name": "test"})
+    assert var_spec.name == "test"
+    var_spec = VarSpec.from_dict({"name": "test", "distribution": "uniform"})
+    assert var_spec.dist_spec.implements == "uniform"
 
 
 def test_meta_config_datafree():
     meta_config = MetaConfig.from_toml(Path("tests", "data", "no_data_config.toml"))
     assert meta_config.n_rows == 100
-    assert len(meta_config.var_configs) == 3
-    assert isinstance(meta_config.var_configs[0], VarConfig)
-    assert meta_config.var_configs[0].privacy is None
-    assert isinstance(meta_config.var_configs[0].dist_spec, DistributionSpec)
+    assert len(meta_config.var_specs) == 3
+    assert isinstance(meta_config.var_specs[0], VarSpec)
+    assert meta_config.var_specs[0].privacy is None
+    assert isinstance(meta_config.var_specs[0].dist_spec, DistributionSpec)
     assert isinstance(meta_config.to_dict(), dict)
-    var_cfg = meta_config.get("PassengerId")
-    assert isinstance(var_cfg, VarConfigAccess)
-    print(var_cfg.var_config)
-    assert var_cfg.data_free is True
-    var_cfg = meta_config.get("unknown")
-    assert var_cfg.name == "unknown"
+    var_spec = meta_config.get("PassengerId")
+    assert isinstance(var_spec, VarSpecAccess)
 
-    all_var_cfg = list(meta_config.iter_var())
-    assert len(all_var_cfg) == 3
-    assert isinstance(all_var_cfg[0], VarConfigAccess)
-    assert all_var_cfg[0].meta_config == meta_config
+    assert var_spec.data_free is True
+    var_spec = meta_config.get("unknown")
+    assert var_spec.name == "unknown"
+
+    all_var_spec = list(meta_config.iter_var())
+    assert len(all_var_spec) == 3
+    assert isinstance(all_var_spec[0], VarSpecAccess)
+    assert all_var_spec[0].meta_config == meta_config
     assert len(list(meta_config.iter_var(exclude=["PassengerId"]))) == 2
 
 
 def test_meta_config():
     meta_config = MetaConfig.from_toml(Path("tests", "data", "example_config.toml"))
-    assert len(meta_config.var_configs) == 5
-    var_cfg = meta_config.get("Cabin")
-    assert var_cfg.data_free is False
-    assert var_cfg.var_type is None
-    assert var_cfg.dist_spec.implements == "core.regex"
+    assert len(meta_config.var_specs) == 5
+    var_spec = meta_config.get("Cabin")
+    assert var_spec.data_free is False
+    assert var_spec.var_type is None
+    assert var_spec.dist_spec.implements == "core.regex"
