@@ -51,6 +51,7 @@ The process of generating synthetic data solely from the MetaFrame ensures that 
 This warning occurs when ``metasyn`` detects a column, that seems to have unique values in the real dataset but isn't specified to be unique in the fitting of the :obj:`MetaFrame<metasyn.metaframe.MetaFrame>`. To address this, you can use the `spec` parameter to create a specification dictionary and indicate that the column should have unique values. Here's an example of how to do this (in this example ``PassengerId`` is the column with unique values):
 
 .. code-block:: python
+
    from metasyn import VarSpec
 
    # Create a specification dictionary, and specify the column as unique:
