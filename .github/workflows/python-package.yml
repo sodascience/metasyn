@@ -57,3 +57,7 @@ jobs:
       if: ${{ matrix.os != 'macos-latest' }}
       run: |
         pytest --nbval-lax examples
+
+    - name: Test basic example
+      run: |
+        python examples/basic_example.py

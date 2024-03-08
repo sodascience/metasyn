@@ -59,6 +59,7 @@ class MetaConfig():
 
     @property
     def privacy(self) -> BasePrivacy:
+        """Return default privacy for generating the metaframe."""
         return self._privacy
 
     @privacy.setter
@@ -72,6 +73,7 @@ class MetaConfig():
 
     @property
     def dist_providers(self) -> DistributionProviderList:
+        """Return the distribution provider list to be used for the metaframe."""
         return self._dist_providers
 
     @dist_providers.setter
