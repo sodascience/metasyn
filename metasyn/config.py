@@ -23,7 +23,7 @@ class MetaConfig():
 
     Parameters
     ----------
-    var_configs:
+    var_specs:
         List of configurations for individual variables. The order does not
         matter for variables that are found in the DataFrame, but in the case
         of variables that are data-free, the order is also the order of columns
@@ -34,7 +34,7 @@ class MetaConfig():
         Can be a string, provider, or provider type.
     privacy:
         Privacy method/level to use as a default setting for the privacy. Can be
-        overridden in the var_config for a particular column.
+        overridden in the var_spec for a particular column.
     n_rows:
         Number of rows for synthesization at a later stage. Can be unspecified by
         leaving the value at None.
@@ -42,20 +42,20 @@ class MetaConfig():
 
     def __init__(
             self,
-            var_configs: Union[list[dict], list[VarSpec]],
+            var_specs: Union[list[dict], list[VarSpec]],
             dist_providers: Union[DistributionProviderList, list[str], str, None],
             privacy: Optional[Union[BasePrivacy, dict]],
             n_rows: Optional[int] = None):
-        self.var_configs = [self._parse_var_config(v) for v in var_configs]
+        self.var_specs = [self._parse_var_spec(v) for v in var_specs]
         self.dist_providers = dist_providers  # type: ignore
         self.privacy = privacy  # type: ignore
         self.n_rows = n_rows
 
     @staticmethod
-    def _parse_var_config(var_cfg):
-        if isinstance(var_cfg, VarSpec):
-            return var_cfg
-        return VarSpec.from_dict(var_cfg)
+    def _parse_var_spec(var_spec):
+        if isinstance(var_spec, VarSpec):
+            return var_spec
+        return VarSpec.from_dict(var_spec)
 
     @property
     def privacy(self) -> BasePrivacy:
@@ -121,7 +121,7 @@ class MetaConfig():
                 "privacy": self.privacy,
                 "dist_providers": self.dist_providers,
             },
-            "var": self.var_configs
+            "var": self.var_specs
         }
 
     def get(self, name: str) -> VarSpecAccess:
@@ -137,12 +137,12 @@ class MetaConfig():
 
         Returns
         -------
-        var_cfg:
+        var_spec:
             A variable config access object.
         """
-        for var_cfg in self.var_configs:
-            if var_cfg.name == name:
-                return VarSpecAccess(var_cfg, self)
+        for var_spec in self.var_specs:
+            if var_spec.name == name:
+                return VarSpecAccess(var_spec, self)
         return VarSpecAccess(VarSpec(name=name), self)
 
     def iter_var(self, exclude: Optional[list[str]] = None) -> Iterable[VarSpecAccess]:
@@ -155,11 +155,11 @@ class MetaConfig():
 
         Returns
         -------
-        var_cfg:
+        var_spec:
             VarSpecAccess class for each of the available variable configurations.
         """
         exclude = exclude if exclude is not None else []
-        for var_spec in self.var_configs:
+        for var_spec in self.var_specs:
             if var_spec.name not in exclude:
                 yield VarSpecAccess(var_spec, self)
 
@@ -173,21 +173,21 @@ class VarSpecAccess():  # pylint: disable=too-few-public-methods
 
     Parameters
     ----------
-    var_config
+    var_spec
         The variable configuration to access.
     meta_config
         The meta configuration instance to get default values from.
     """
 
-    def __init__(self, var_config: VarSpec, meta_config: MetaConfig):
-        self.var_config = var_config
+    def __init__(self, var_spec: VarSpec, meta_config: MetaConfig):
+        self.var_spec = var_spec
         self.meta_config = meta_config
 
     def __getattribute__(self, attr):
         if attr == "privacy":
-            if self.var_config.privacy is None:
+            if self.var_spec.privacy is None:
                 return self.meta_config.privacy
-            return self.var_config.privacy
-        if attr not in ("var_config", "meta_config") and hasattr(self.var_config, attr):
-            return getattr(self.var_config, attr)
+            return self.var_spec.privacy
+        if attr not in ("var_spec", "meta_config") and hasattr(self.var_spec, attr):
+            return getattr(self.var_spec, attr)
         return super().__getattribute__(attr)
