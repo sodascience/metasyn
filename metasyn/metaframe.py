@@ -88,8 +88,8 @@ class MetaFrame():
             Privacy level to use by default. This will overwrite the defaults if they were
             specified in the varspecs (but not the specifications per column).
         n_rows:
-            Number of rows in the metaframe. If left at None, it will use the number of rows in
-            the dataframe.
+            Number of rows registered in the MetaFrame. If left at None, it will use the number
+            of rows in the input dataframe.
         progress_bar:
             Whether to create a progress bar.
 
