@@ -30,7 +30,7 @@ class DistributionSpec():
     parameters: Optional[dict] = None
     fit_kwargs: dict = field(default_factory=dict)
     version: Optional[str] = None
-    distribution: Optional[str] = None
+    distribution: Optional[BaseDistribution] = None
 
     def __post_init__(self):
         if self.implements is None:
