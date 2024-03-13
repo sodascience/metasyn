@@ -30,6 +30,7 @@ class DistributionSpec():
     parameters: Optional[dict] = None
     fit_kwargs: dict = field(default_factory=dict)
     version: Optional[str] = None
+    distribution: Optional[str] = None
 
     def __post_init__(self):
         if self.implements is None:
@@ -71,7 +72,7 @@ class DistributionSpec():
         if isinstance(dist_spec, BaseDistribution):
             dist_dict = {key: value for key, value in dist_spec.to_dict().items()
                          if key in ["implements", "version", "unique", "parameters"]}
-            return cls(**dist_dict)
+            return cls(**dist_dict, distribution=dist_spec)
         if isinstance(dist_spec, str):
             return cls(implements=dist_spec, unique=unique)
         if dist_spec is None:
