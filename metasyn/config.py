@@ -1,7 +1,6 @@
 """Module defining configuration classes for creating MetaFrames."""
 from __future__ import annotations
 
-import pathlib
 from pathlib import Path
 from typing import Iterable, Optional, Union
 
@@ -98,13 +97,13 @@ class MetaConfig():
         meta_config:
             A fully initialized MetaConfig instance.
         """
-        if pathlib.Path(config_fp).suffix == '':
+        if Path(config_fp).suffix == '':
             raise FileNotFoundError(f"It appears '{config_fp}' is not a valid filepath."
                                     f" Please provide a path to a .toml file to load a MetaConfig"
                                     f" from.")
-        elif not pathlib.Path(config_fp).suffix == '.toml':
-            raise ValueError(f"It appears '{pathlib.Path(config_fp).name}' is a"
-                             f" '{pathlib.Path(config_fp).suffix}' file."
+        elif not Path(config_fp).suffix == '.toml':
+            raise ValueError(f"It appears '{Path(config_fp).name}' is a"
+                             f" '{Path(config_fp).suffix}' file."
                              f" To load a MetaConfig, provide it as a .toml file.")
 
         with open(config_fp, "rb") as handle:
