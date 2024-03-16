@@ -114,7 +114,7 @@ class MetaFrame():
 
         if df is not None and not isinstance(df, pl.DataFrame):
             if isinstance(df, (str, pathlib.Path)):
-                raise ValueError("Please provide a DataFrame, not a string or path.")
+                raise ValueError("Please provide a DataFrame as input, not a string or path.")
             df = pl.DataFrame(df)
         all_vars = []
         columns = df.columns if df is not None else []

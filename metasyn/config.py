@@ -97,6 +97,10 @@ class MetaConfig():
         meta_config:
             A fully initialized MetaConfig instance.
         """
+        if not str(config_fp).endswith('.toml'):
+            raise ValueError(f"It appears '{config_fp}' is not a .toml file."
+                             f" To load a MetaConfig, provide it as a .toml file.")
+
         with open(config_fp, "rb") as handle:
             config_dict = tomllib.load(handle)
         var_list = config_dict.pop("var", [])
