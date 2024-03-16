@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import pathlib
+import warnings
 from datetime import datetime
 from importlib.metadata import version
 from typing import Any, Dict, List, Optional, Sequence, Union
@@ -247,6 +248,8 @@ class MetaFrame():
         if fp is None:
             print(json.dumps(self_dict, indent=4))
         else:
+            if pathlib.Path(fp).is_file():
+                warnings.warn(f"\nFile '{fp}' already exists and will be overwritten.", UserWarning)
             with open(fp, "w", encoding="utf-8") as f:
                 json.dump(self_dict, f, indent=4)
 
