@@ -286,9 +286,9 @@ class DistributionProviderList():
                     warnings.warn(
                         f"\nVariable '{series.name}' was detected to be unique, but has not"
                         f" explicitly been set to unique.\n"
-                        f"If you want to generate only unique values for column '{series.name}', "
+                        f"To generate only unique values for column '{series.name}', "
                         f"set unique to True.\n"
-                        f"If you want to dismiss this warning, set unique to False.",
+                        f"To dismiss this warning, set unique to False.",
                         UserWarning
                     )
 
