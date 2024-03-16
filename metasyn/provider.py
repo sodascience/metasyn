@@ -60,6 +60,7 @@ from metasyn.util import DistributionSpec
 if TYPE_CHECKING:
     from metasyn.config import VarSpec, VarSpecAccess
 
+
 class BaseDistributionProvider(ABC):
     """Base class for all distribution providers.
 
@@ -282,11 +283,15 @@ class DistributionProviderList():
                 dist_inst_unq = [d.fit(series, **privacy.fit_kwargs) for d in dist_list_unq]
                 dist_bic_unq = [d.information_criterion(series) for d in dist_inst_unq]
                 if np.min(dist_bic_unq) < np.min(dist_bic):
-                    warnings.simplefilter("always")
                     warnings.warn(
-                        f"\nVariable {series.name} seems unique, but not set to be unique.\n"
-                        "Set the variable to be either unique or not unique to remove this "
-                         "warning.\n")
+                        f"\nVariable '{series.name}' was detected to be unique, but has not"
+                        f" explicitly been set to unique.\n"
+                        f"If you want to generate only unique values for column '{series.name}', "
+                        f"set unique to True.\n"
+                        f"If you want to dismiss this warning, set unique to False.",
+                        UserWarning
+                    )
+
         return dist_instances[np.argmin(dist_bic)]
 
     def find_distribution(self,  # pylint: disable=too-many-branches
@@ -322,7 +327,7 @@ class DistributionProviderList():
 
         versions_found = []
         for dist_class in self.get_distributions(
-            privacy, var_type=var_type, unique=unique) + [NADistribution]:
+                privacy, var_type=var_type, unique=unique) + [NADistribution]:
             if dist_class.matches_name(dist_name):
                 if version is None or version == dist_class.version:
                     return dist_class
@@ -336,7 +341,7 @@ class DistributionProviderList():
                                                      var_type=var_type, unique=unique)
             if dist_class.matches_name(dist_name)]
 
-        if len(legacy_distribs+versions_found) == 0:
+        if len(legacy_distribs + versions_found) == 0:
             raise ValueError(f"Cannot find distribution with name '{dist_name}'.")
 
         if len(versions_found) == 0:
@@ -352,7 +357,7 @@ class DistributionProviderList():
 
         # If version is None, take the latest version.
         if version is None:
-            scores = [int(dist.version.split(".")[0])*100 + int(dist.version.split(".")[1])
+            scores = [int(dist.version.split(".")[0]) * 100 + int(dist.version.split(".")[1])
                       for dist in legacy_distribs]
             i_min = np.argmax(scores)
             return legacy_distribs[i_min]
@@ -362,7 +367,7 @@ class DistributionProviderList():
         minor_version = int(version.split(".")[1])
         all_dist = versions_found + legacy_distribs
         all_versions = [[int(x) for x in dist.version.split(".")] for dist in all_dist]
-        score = [int(ver[0] == major_version)*1000000 - (ver[1]-minor_version)**2
+        score = [int(ver[0] == major_version) * 1000000 - (ver[1] - minor_version) ** 2
                  for ver in all_versions]
         i_max = np.argmax(score)
 
@@ -370,7 +375,7 @@ class DistributionProviderList():
         if score[i_max] < 500000:
             raise ValueError(
                 f"Cannot find compatible version for distribution '{dist_name}', available: "
-                f"{legacy_versions+versions_found}")
+                f"{legacy_versions + versions_found}")
 
         warnings.warn("Version mismatch ({version}) versus ({all_dist[i_max].version}))")
         return all_dist[i_max]
@@ -482,8 +487,8 @@ def _get_all_provider_list() -> list[BaseDistributionProvider]:
 
 def get_distribution_provider(
         provider: Union[str, type[BaseDistributionProvider],
-                        BaseDistributionProvider] = "builtin"
-        ) -> BaseDistributionProvider:
+        BaseDistributionProvider] = "builtin"
+) -> BaseDistributionProvider:
     """Get a distribution tree.
 
     Parameters
