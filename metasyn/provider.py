@@ -294,7 +294,7 @@ class DistributionProviderList():
     def find_distribution(self,  # pylint: disable=too-many-branches
                           dist_name: str,
                           var_type: str,
-                          privacy: BasePrivacy = BasicPrivacy(),
+                          privacy: Optional[BasePrivacy] = BasicPrivacy(),
                           unique: bool = False,
                           version: Optional[str] = None) -> type[BaseDistribution]:
         """Find a distribution and fit keyword arguments from a name.
@@ -404,6 +404,9 @@ class DistributionProviderList():
         unique = dist_spec.unique
         unique = unique if unique else False
         assert dist_spec.implements is not None
+
+        # If the parameters are already specified, the privacy level doesn't matter anymore.
+        privacy = privacy if not dist_spec.parameters is not None else None
         dist_class = self.find_distribution(dist_spec.implements, var_type, privacy=privacy,
                                             unique=unique)
         if dist_spec.parameters is not None:
