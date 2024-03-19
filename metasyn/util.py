@@ -96,7 +96,7 @@ class DistributionSpec():
         """
         return self.implements is not None and self.parameters is not None
 
-    def get_creation_settings(self, privacy: BasePrivacy) -> dict:
+    def get_creation_method(self, privacy: BasePrivacy) -> dict:
         """Create a dictionary on how the distribution was created.
 
         Parameters

@@ -45,7 +45,7 @@ class MetaVar():
         back. The default value is "unknown".
     description:
         User-provided description of the variable.
-    creation_settings:
+    creation_method:
         A dictionary that contains information on how the variable was created. If None,
         it will be assumed to have been created by the user.
     """
@@ -57,16 +57,16 @@ class MetaVar():
                  dtype: str = "unknown",
                  description: Optional[str] = None,
                  prop_missing: float = 0.0,
-                 creation_settings: Optional[dict] = None):
+                 creation_method: Optional[dict] = None):
         self.name = name
         self.var_type = var_type
         self.distribution = distribution
         self.dtype = dtype
         self.description = description
         self.prop_missing = prop_missing
-        self.creation_settings = creation_settings
-        if creation_settings is None:
-            self.creation_settings = {"created_by": "user"}
+        self.creation_method = creation_method
+        if creation_method is None:
+            self.creation_method = {"created_by": "user"}
         if self.prop_missing < -1e-8 or self.prop_missing > 1+1e-8:
             raise ValueError(f"Cannot create variable '{self.name}' with proportion missing "
                              "outside range [0, 1]")
@@ -124,7 +124,7 @@ class MetaVar():
             "dtype": self.dtype,
             "prop_missing": self.prop_missing,
             "distribution": dist_dict,
-            "creation_settings": self.creation_settings,
+            "creation_method": self.creation_method,
         }
         if self.description is not None:
             var_dict["description"] = self.description
@@ -194,7 +194,7 @@ class MetaVar():
             prop_missing = (len(series) - len(series.drop_nulls())) / len(series)
         return cls(series.name, var_type, distribution=distribution, dtype=str(series.dtype),
                    description=description, prop_missing=prop_missing,
-                   creation_settings=dist_spec.get_creation_settings(privacy))
+                   creation_method=dist_spec.get_creation_method(privacy))
 
     def draw(self) -> Any:
         """Draw a random item for the variable in whatever type is required."""
@@ -253,5 +253,5 @@ class MetaVar():
             prop_missing=var_dict["prop_missing"],
             dtype=var_dict["dtype"],
             description=var_dict.get("description", None),
-            creation_settings=var_dict.get("creation_settings", {"created_by": "unknown"})
+            creation_method=var_dict.get("creation_method", {"created_by": "unknown"})
         )
