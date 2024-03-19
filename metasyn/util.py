@@ -2,7 +2,7 @@
 
 This module provides utility classes that are used across metasyn,
 including classes for specifying distributions and storing variable
-configurations.
+specifications.
 """
 from __future__ import annotations
 
@@ -121,7 +121,7 @@ class DistributionSpec():
 
 
 class VarSpec():  # pylint: disable=too-few-public-methods
-    """Data class for storing the configurations for variables.
+    """Data class for storing the specifications for variables.
 
     Parameters
     ----------
@@ -190,15 +190,15 @@ class VarSpec():  # pylint: disable=too-few-public-methods
 
     @classmethod
     def from_dict(cls, var_dict: dict) -> VarSpec:
-        """Create a variable configuration from a dictionary.
+        """Create a variable specification from a dictionary.
 
         Parameters
         ----------
         var_dict
-            Dictionary to parse the configuration from.
+            Dictionary to parse the specification from.
 
         Returns
         -------
-            A new VarConfig instance.
+            A VarSpec instance.
         """
         return cls(**var_dict)
