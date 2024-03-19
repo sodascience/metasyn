@@ -7,10 +7,10 @@ configurations.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional, Union
+from typing import Any, Optional, Union
 
 from metasyn.distribution.base import BaseDistribution
-from metasyn.privacy import BasePrivacy, get_privacy
+from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
 
 
 @dataclass
@@ -96,6 +96,28 @@ class DistributionSpec():
             that are specified (not None).
         """
         return self.implements is not None and self.parameters is not None
+
+    def get_creation_method(self, privacy: BasePrivacy) -> dict:
+        """Create a dictionary on how the distribution was created.
+
+        Parameters
+        ----------
+        privacy
+            Privacy object with which the dictionary is being created.
+
+        Returns
+        -------
+            Dictionary containing all the non-default settings for the creation method.
+        """
+        ret_dict: dict[str, Any] = {"created_by": "metasyn"}
+        for var in ["implements", "unique", "parameters", "version"]:
+            if getattr(self, var) is not None:
+                ret_dict[var] = getattr(self, var)
+        if len(self.fit_kwargs) > 0:
+            ret_dict["fit_kwargs"] = self.fit_kwargs
+        if not isinstance(privacy, BasicPrivacy):
+            ret_dict["privacy"] = privacy.to_dict()
+        return ret_dict
 
 
 class VarSpec():  # pylint: disable=too-few-public-methods
