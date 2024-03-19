@@ -406,11 +406,12 @@ class DistributionProviderList():
         assert dist_spec.implements is not None
 
         # If the parameters are already specified, the privacy level doesn't matter anymore.
-        privacy = privacy if not dist_spec.parameters is not None else None
+        if dist_spec.parameters is not None:
+            dist_class = self.find_distribution(dist_spec.implements, var_type, unique=unique)
+            return dist_class(**dist_spec.parameters)
+
         dist_class = self.find_distribution(dist_spec.implements, var_type, privacy=privacy,
                                             unique=unique)
-        if dist_spec.parameters is not None:
-            return dist_class(**dist_spec.parameters)
 
         if issubclass(dist_class, NADistribution):
             dist_instance = dist_class.default_distribution()
