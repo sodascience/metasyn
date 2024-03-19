@@ -106,7 +106,7 @@ class DistributionSpec():
 
         Returns
         -------
-            Dictionary containing all the non-default settings.
+            Dictionary containing all the non-default settings for the creation method.
         """
         ret_dict: dict[str, Any] = {"created_by": "metasyn"}
         for var in ["implements", "unique", "parameters", "version"]:
