@@ -203,7 +203,7 @@ class DistributionProviderList():
     def fit(self, series: pl.Series,
             var_type: str,
             dist_spec: DistributionSpec,
-            privacy: BasePrivacy = BasicPrivacy()):
+            privacy: BasePrivacy = BasicPrivacy()) -> BaseDistribution:
         """Fit a distribution to a column/series.
 
         Parameters
@@ -220,6 +220,8 @@ class DistributionProviderList():
         privacy:
             Level of privacy that will be used in the fit.
         """
+        if dist_spec.distribution is not None:
+            return dist_spec.distribution
         if dist_spec.implements is not None:
             return self._fit_distribution(series, dist_spec, var_type, privacy)
         return self._find_best_fit(series, var_type, dist_spec.unique, privacy)
