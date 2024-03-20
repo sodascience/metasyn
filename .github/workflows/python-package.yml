@@ -61,3 +61,8 @@ jobs:
     - name: Test basic example
       run: |
         python examples/basic_example.py
+
+    - name: Test configuration example
+      run: |
+        pip install git+https://github.com/sodascience/metasyn-disclosure-control
+        metasyn create-meta metasyn/demo/demo_titanic.csv --config examples/example_config.toml
