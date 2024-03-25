@@ -1,6 +1,8 @@
+import pytest
+
 from metasyn.distribution import MultinoulliDistribution
 from metasyn.distribution.base import metadist
-from metasyn.privacy import BasicPrivacy
+from metasyn.privacy import BasicPrivacy, get_privacy
 
 
 @metadist(privacy="test")
@@ -19,3 +21,10 @@ def test_base_privacy():
     assert privacy.is_compatible(MultinoulliDistribution)
     assert privacy.is_compatible(MultinoulliDistribution(["1"], [1.0]))
     assert not privacy.is_compatible(OtherMultinoulli)
+
+
+def test_import_error():
+    with pytest.raises(ImportError):
+        get_privacy("disclosure")
+    with pytest.raises(ImportError):
+        get_privacy("dics")
