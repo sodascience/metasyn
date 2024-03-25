@@ -101,7 +101,7 @@ class MetaConfig():
             raise FileNotFoundError(f"It appears '{config_fp}' is not a valid filepath."
                                     f" Please provide a path to a .toml file to load a MetaConfig"
                                     f" from.")
-        elif not Path(config_fp).suffix == '.toml':
+        if Path(config_fp).suffix != '.toml':
             raise ValueError(f"It appears '{Path(config_fp).name}' is a"
                              f" '{Path(config_fp).suffix}' file."
                              f" To load a MetaConfig, provide it as a .toml file.")

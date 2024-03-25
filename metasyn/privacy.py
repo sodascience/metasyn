@@ -94,10 +94,10 @@ def get_privacy(name: str, parameters: Optional[dict] = None) -> BasePrivacy:
     if name == 'disclosure':
         try:
             importlib.import_module('metasyncontrib.disclosure.privacy')
-        except ImportError:
+        except ImportError as exc:
             raise ImportError("The 'DisclosurePrivacy' module is not installed.\n"
                               "To use it, install it from:"
-                              " https://github.com/sodascience/metasyn-disclosure-control")
+                              " https://github.com/sodascience/metasyn-disclosure-control") from exc
 
     raise KeyError(f"Unknown privacy type with name '{name}'. "
                     "Ensure that you have installed the privacy package."

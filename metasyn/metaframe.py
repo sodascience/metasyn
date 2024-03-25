@@ -315,9 +315,8 @@ class MetaFrame():
             if self.n_rows is None:
                 raise ValueError("Cannot synthesize DataFrame, since number of rows is unknown."
                                  "Please specify the number of rows to synthesize.")
-            else:
-                warnings.warn(f"No amount of rows to synthesize was specified. Generating "
-                                f"the same amount of rows ({self.n_rows}) as the original dataset.")
+            warnings.warn(f"No amount of rows to synthesize was specified. Generating "
+                          f"the same amount of rows ({self.n_rows}) as the original dataset.")
             n = self.n_rows
         synth_dict = {var.name: var.draw_series(n) for var in self.meta_vars}
         return pl.DataFrame(synth_dict)
