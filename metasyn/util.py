@@ -2,15 +2,15 @@
 
 This module provides utility classes that are used across metasyn,
 including classes for specifying distributions and storing variable
-configurations.
+specifications.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional, Union
+from typing import Any, Optional, Union
 
 from metasyn.distribution.base import BaseDistribution
-from metasyn.privacy import BasePrivacy, get_privacy
+from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
 
 
 @dataclass
@@ -30,6 +30,7 @@ class DistributionSpec():
     parameters: Optional[dict] = None
     fit_kwargs: dict = field(default_factory=dict)
     version: Optional[str] = None
+    distribution: Optional[BaseDistribution] = None
 
     def __post_init__(self):
         if self.implements is None:
@@ -71,7 +72,7 @@ class DistributionSpec():
         if isinstance(dist_spec, BaseDistribution):
             dist_dict = {key: value for key, value in dist_spec.to_dict().items()
                          if key in ["implements", "version", "unique", "parameters"]}
-            return cls(**dist_dict)
+            return cls(**dist_dict, distribution=dist_spec)
         if isinstance(dist_spec, str):
             return cls(implements=dist_spec, unique=unique)
         if dist_spec is None:
@@ -96,9 +97,31 @@ class DistributionSpec():
         """
         return self.implements is not None and self.parameters is not None
 
+    def get_creation_method(self, privacy: BasePrivacy) -> dict:
+        """Create a dictionary on how the distribution was created.
+
+        Parameters
+        ----------
+        privacy
+            Privacy object with which the dictionary is being created.
+
+        Returns
+        -------
+            Dictionary containing all the non-default settings for the creation method.
+        """
+        ret_dict: dict[str, Any] = {"created_by": "metasyn"}
+        for var in ["implements", "unique", "parameters", "version"]:
+            if getattr(self, var) is not None:
+                ret_dict[var] = getattr(self, var)
+        if len(self.fit_kwargs) > 0:
+            ret_dict["fit_kwargs"] = self.fit_kwargs
+        if not isinstance(privacy, BasicPrivacy):
+            ret_dict["privacy"] = privacy.to_dict()
+        return ret_dict
+
 
 class VarSpec():  # pylint: disable=too-few-public-methods
-    """Data class for storing the configurations for variables.
+    """Data class for storing the specifications for variables.
 
     Parameters
     ----------
@@ -167,15 +190,15 @@ class VarSpec():  # pylint: disable=too-few-public-methods
 
     @classmethod
     def from_dict(cls, var_dict: dict) -> VarSpec:
-        """Create a variable configuration from a dictionary.
+        """Create a variable specification from a dictionary.
 
         Parameters
         ----------
         var_dict
-            Dictionary to parse the configuration from.
+            Dictionary to parse the specification from.
 
         Returns
         -------
-            A new VarConfig instance.
+            A VarSpec instance.
         """
         return cls(**var_dict)

@@ -65,7 +65,7 @@ class MetaConfig():
     @privacy.setter
     def privacy(self, privacy):
         if privacy is None:
-            self._privacy = BasicPrivacy()
+            self._privacy: BasePrivacy = BasicPrivacy()
         elif isinstance(privacy, dict):
             self._privacy = get_privacy(**privacy)
         else:
