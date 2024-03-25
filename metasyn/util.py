@@ -9,8 +9,15 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Optional, Union
 
+import tomllib
+
 from metasyn.distribution.base import BaseDistribution
 from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
+
+try:
+    from importlib_resources import files
+except ImportError:
+    from importlib.resources import files  # type: ignore
 
 
 @dataclass
@@ -202,3 +209,9 @@ class VarSpec():  # pylint: disable=too-few-public-methods
             A VarSpec instance.
         """
         return cls(**var_dict)
+
+
+def get_registry():
+    registry_fp = files(__package__) / "schema" / "plugin_registry.toml"
+    with open(registry_fp, "rb") as handle:
+        registry = tomllib.load(handle)

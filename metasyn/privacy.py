@@ -3,19 +3,13 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Type, Union
 
-import tomllib
-
 try:
     from importlib_metadata import entry_points
 except ImportError:
     from importlib.metadata import entry_points  # type: ignore
 
-try:
-    from importlib_resources import files
-except ImportError:
-    from importlib.resources import files  # type: ignore
-
 from metasyn.distribution.base import BaseDistribution
+from metasyn.util import get_registry
 
 
 class BasePrivacy(ABC):
@@ -98,9 +92,7 @@ def get_privacy(name: str, parameters: Optional[dict] = None) -> BasePrivacy:
             return entry.load()(**parameters)
 
     # Handle case where the plugin is not installed or is misspelled.
-    registry_fp = files(__package__) / "schema" / "plugin_registry.toml"
-    with open(registry_fp, "rb") as handle:
-        registry = tomllib.load(handle)
+    registry = get_registry()
     available_plugins = {key: val for key, val in registry.items() if name in val["privacy"]}
     if len(available_plugins) > 0:
         avail = "\n".join(f"{key}: {val['url']}" for key, val in available_plugins.items())
