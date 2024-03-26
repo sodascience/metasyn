@@ -193,4 +193,3 @@ class VarSpecAccess():  # pylint: disable=too-few-public-methods
         if attr not in ("var_spec", "meta_config") and hasattr(self.var_spec, attr):
             return getattr(self.var_spec, attr)
         return super().__getattribute__(attr)
-

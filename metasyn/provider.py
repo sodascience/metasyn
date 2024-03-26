@@ -527,4 +527,5 @@ def get_distribution_provider(
         if provider not in registry:
             raise ValueError(f"Cannot find distribution provider with name '{provider}'.") from exc
         raise ValueError(f"Distribution provider '{provider}' is not installed.\n"
-                         f"See {registry['provider']['url']} for installation instructions.")
+                         f"See {registry['provider']['url']} for installation instructions."
+                         ) from exc

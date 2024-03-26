@@ -1,9 +1,4 @@
-"""Utility module for metasyn.
-
-This module provides utility classes that are used across metasyn,
-including classes for specifying distributions and storing variable
-specifications.
-"""
+"""Utility module for metasyn."""
 from __future__ import annotations
 
 import tomllib

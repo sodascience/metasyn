@@ -1,16 +1,9 @@
-
+"""Module for distribution and variable specifications."""
 from __future__ import annotations
-
-from typing import Optional, Union
-
-try:
-    import tomllib
-except ImportError:
-    import tomli as tomllib  # type: ignore  # noqa
 
 # from metasyn.util import VarSpec
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Optional, Union
 
 from metasyn.distribution.base import BaseDistribution
 from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
