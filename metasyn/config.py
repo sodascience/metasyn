@@ -9,8 +9,6 @@ try:
 except ImportError:
     import tomli as tomllib  # type: ignore  # noqa
 
-import tomllib
-
 from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
 from metasyn.provider import DistributionProviderList
 from metasyn.varspec import VarSpec
@@ -65,7 +63,7 @@ class MetaConfig():
         return self._privacy
 
     @privacy.setter
-    def privacy(self, privacy):
+    def privacy(self, privacy: Optional[Union[dict, BasePrivacy]]):
         if privacy is None:
             self._privacy: BasePrivacy = BasicPrivacy()
         elif isinstance(privacy, dict):
