@@ -9,9 +9,11 @@ try:
 except ImportError:
     import tomli as tomllib  # type: ignore  # noqa
 
+import tomllib
+
 from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
 from metasyn.provider import DistributionProviderList
-from metasyn.util import VarSpec
+from metasyn.varspec import VarSpec
 
 
 class MetaConfig():
@@ -191,3 +193,4 @@ class VarSpecAccess():  # pylint: disable=too-few-public-methods
         if attr not in ("var_spec", "meta_config") and hasattr(self.var_spec, attr):
             return getattr(self.var_spec, attr)
         return super().__getattribute__(attr)
+

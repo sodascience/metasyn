@@ -23,8 +23,8 @@ from importlib.metadata import version
 from metasyn.demo.dataset import demo_dataframe, demo_file
 from metasyn.distribution.base import metadist
 from metasyn.metaframe import MetaFrame
-from metasyn.util import VarSpec
 from metasyn.var import MetaVar
+from metasyn.varspec import VarSpec
 
 __all__ = ["MetaVar", "MetaFrame", "demo_file", "demo_dataframe", "metadist", "VarSpec"]
 __version__ = version("metasyn")

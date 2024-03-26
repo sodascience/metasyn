@@ -55,7 +55,8 @@ from metasyn.distribution.faker import (
 from metasyn.distribution.na import NADistribution
 from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistribution
 from metasyn.privacy import BasePrivacy, BasicPrivacy
-from metasyn.util import DistributionSpec, get_registry
+from metasyn.util import get_registry
+from metasyn.varspec import DistributionSpec
 
 if TYPE_CHECKING:
     from metasyn.config import VarSpec, VarSpecAccess

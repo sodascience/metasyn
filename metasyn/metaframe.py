@@ -14,9 +14,9 @@ from tqdm import tqdm
 
 from metasyn.config import MetaConfig
 from metasyn.privacy import BasePrivacy
-from metasyn.util import VarSpec
 from metasyn.validation import validate_gmf_dict
 from metasyn.var import MetaVar
+from metasyn.varspec import VarSpec
 
 
 class MetaFrame():
