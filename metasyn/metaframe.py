@@ -248,8 +248,6 @@ class MetaFrame():
         if fp is None:
             print(json.dumps(self_dict, indent=4))
         else:
-            if pathlib.Path(fp).is_file():
-                warnings.warn(f"\nFile '{fp}' already exists and will be overwritten.", UserWarning)
             with open(fp, "w", encoding="utf-8") as f:
                 json.dump(self_dict, f, indent=4)
 
@@ -315,8 +313,6 @@ class MetaFrame():
             if self.n_rows is None:
                 raise ValueError("Cannot synthesize DataFrame, since number of rows is unknown."
                                  "Please specify the number of rows to synthesize.")
-            warnings.warn(f"No amount of rows to synthesize was specified. Generating "
-                          f"the same amount of rows ({self.n_rows}) as the original dataset.")
             n = self.n_rows
         synth_dict = {var.name: var.draw_series(n) for var in self.meta_vars}
         return pl.DataFrame(synth_dict)
