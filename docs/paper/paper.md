@@ -21,6 +21,7 @@ authors:
     orcid: 0000-0002-4571-8855
     affiliation: 1
   - name: Samuel Spithorst
+    orcid: 0009-0000-4140-0658
     affiliation: 1
   - name: Erik-Jan van Kesteren
     orcid: 0000-0003-1548-1663
