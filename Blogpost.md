@@ -1,17 +1,16 @@
-# Generating safe and transparent data with metasyn
+# Generating synthetic data in a safe way with metasyn
 
 
 ## Introduction
-In some cases, datasets may contain sensitive or confidential information. This can make it difficult to share your data with others, and be a problem when you want to share your data for research, testing, or collaboration purposes.
 
-Metasyn is a Python package that aims to solve this limitation. It allows users to generate synthetic data with a focus on being easy to use and understand and most importantly, privacy-friendly.  With metasyn, you can fit a model to a dataset and synthesize data similar to the original, based on that model. In addition, the model itself can be exported and imported to and from an easy-to-read format. As a result, metasyn allows data owners to safely share synthetic datasets based on their source data, as well as the model used to generate it, without worrying about leaking any private information from the original dataset. 
+Often, you want to share your data. That way, others can check and understand your findings and code, use it to prepare their own analysis and code, use it for teaching, and more. However, sometimes datasets contain sensititive or confidential information. This makes it difficult, when not impossible, to share your data. In this case, sharing synthetic data might be a solution.
 
-Unlike most other synthetic data generation tools, metasyn strictly limits the statistical information in its data generation model to adhere to the highest privacy standards and only generates data that is similar on an individual column level. This makes it a great tool for initial exploration, code development, and sharing of datasets without compromising privacy - but it is not suitable for in-depth statistical analysis.
+Metasyn is a Python package that helps you to generate synthetic data, with two ideas in mind. First, it is easy to use and understand. Second, and most importantly, it is privacy-friendly.  Unlike most other synthetic data generation tools, metasyn strictly limits the statistical information in its data generation model to adhere to the highest privacy standards and only generates data that is similar on an individual column level. This makes it a great tool for initial exploration, code development, and sharing of datasets without compromising privacy at all - but it is not suitable for in-depth statistical analysis.
+
+With metasyn, you fit a model to a dataset and synthesize data similar to the original based on that model. You can then export the synthetic data and the model used to generate it, in easy-to-read format. As a result, metasyn allows data owners to safely share synthetic datasets based on their source data, as well as the model used to generate it, without worrying about leaking any private information from the original dataset. 
 
 
-## Using metasyn
-So, let's say you want to use metasyn to collaborate on a sensitive dataset with others. This short guide will show you everything you need to know to get started.
-
+Let's say you want to use metasyn to collaborate on a sensitive dataset with others. In this tutorial, we will show you everything you need to know to get started.
 
 ### Step 1: Setup
 
@@ -65,7 +64,7 @@ mf = MetaFrame.fit_dataframe(df)
 
 ### Step 4: Generating synthetic data
 
-With our MetaFrame in place, we can easily use it to generate synthetic data. To do so, we can call `synthesize` on our MetaFrame, and pass in the amount of rows of data that we want to generate. This will return a DataFrame with synthetic data, that is similar to our original dataset.
+With our MetaFrame in place, we can use it to generate synthetic data. To do so, we can call `synthesize` on our MetaFrame, and pass in the amount of rows of data that we want to generate. This will return a DataFrame with synthetic data, that is similar to our original dataset.
 
 
 ```python
@@ -73,7 +72,7 @@ With our MetaFrame in place, we can easily use it to generate synthetic data. To
 syn_df = mf.synthesize(5)
 ```
 
-That's it! You can now use this DataFrame as you would read, analyze, modify, use and share this DataFrame as you would with any other - knowing that it does not contain any sensitive data!
+That's it! You can now read, analyze, modify, use and share this DataFrame as you would with any other - knowing that it does not contain any sensitive data!
 
 
 ### Step 5: Exporting the MetaFrame
