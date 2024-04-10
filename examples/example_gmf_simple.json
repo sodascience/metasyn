@@ -4,9 +4,9 @@
     "provenance": {
         "created by": {
             "name": "metasyn",
-            "version": "0.6.1.dev45+g6cfcb6d.d20240131"
+            "version": "0.8.1.dev0+ge481025.d20240325"
         },
-        "creation time": "2024-01-31T11:52:33.761957"
+        "creation time": "2024-03-25T17:06:53.455575"
     },
     "vars": [
         {
@@ -22,14 +22,18 @@
                 "unique": true,
                 "parameters": {
                     "lower": 1,
-                    "consecutive": 1
+                    "consecutive": true
                 }
+            },
+            "creation_method": {
+                "created_by": "metasyn",
+                "unique": true
             }
         },
         {
             "name": "fruits",
             "type": "categorical",
-            "dtype": "Categorical",
+            "dtype": "Categorical(ordering='physical')",
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.multinoulli",
@@ -47,6 +51,9 @@
                         0.6
                     ]
                 }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
             }
         },
         {
@@ -55,21 +62,25 @@
             "dtype": "Int64",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.unique_key",
+                "implements": "core.uniform",
                 "version": "1.0",
                 "provenance": "builtin",
-                "class_name": "UniqueKeyDistribution",
-                "unique": true,
+                "class_name": "DiscreteUniformDistribution",
+                "unique": false,
                 "parameters": {
                     "lower": 1,
-                    "consecutive": 0
+                    "upper": 6
                 }
+            },
+            "creation_method": {
+                "created_by": "metasyn",
+                "unique": false
             }
         },
         {
             "name": "cars",
             "type": "categorical",
-            "dtype": "Categorical",
+            "dtype": "Categorical(ordering='physical')",
             "prop_missing": 0.0,
             "distribution": {
                 "implements": "core.multinoulli",
@@ -87,6 +98,9 @@
                         0.8
                     ]
                 }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
             }
         },
         {
@@ -95,25 +109,18 @@
             "dtype": "Int64",
             "prop_missing": 0.2,
             "distribution": {
-                "implements": "core.multinoulli",
+                "implements": "core.uniform",
                 "version": "1.0",
                 "provenance": "builtin",
-                "class_name": "MultinoulliDistribution",
+                "class_name": "DiscreteUniformDistribution",
                 "unique": false,
                 "parameters": {
-                    "labels": [
-                        -30,
-                        2,
-                        28,
-                        300
-                    ],
-                    "probs": [
-                        0.25,
-                        0.25,
-                        0.25,
-                        0.25
-                    ]
+                    "lower": -30,
+                    "upper": 301
                 }
+            },
+            "creation_method": {
+                "created_by": "metasyn"
             }
         }
     ]

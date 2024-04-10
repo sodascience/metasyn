@@ -9,6 +9,7 @@ except ImportError:
     from importlib.metadata import entry_points  # type: ignore
 
 from metasyn.distribution.base import BaseDistribution
+from metasyn.util import get_registry
 
 
 class BasePrivacy(ABC):
@@ -89,7 +90,19 @@ def get_privacy(name: str, parameters: Optional[dict] = None) -> BasePrivacy:
     for entry in entry_points(group="metasyn.privacy"):
         if name == entry.name:
             return entry.load()(**parameters)
+
+    # Handle case where the plugin is not installed or is misspelled.
+    registry = get_registry()
+    available_plugins = {key: val for key, val in registry.items() if name in val["privacy"]}
+    if len(available_plugins) > 0:
+        avail = "\n".join(f"{key}: {val['url']}" for key, val in available_plugins.items())
+        raise ImportError(f"No plugin is installed that provides '{name}' privacy. "
+                          f"Available plugins that provide '{name}' privacy:\n\n{avail}")
     privacy_names = [entry.name for entry in entry_points(group="metasyn.privacy")]
-    raise KeyError(f"Unknown privacy type with name '{name}'. "
-                    "Ensure that you have installed the privacy package."
-                    f"Available privacy names: {privacy_names}.")
+    avail = "\n".join(f"<{key}> provides: {val['privacy']}\n\t{val['url']}"
+                      for key, val in registry.items() if len(val['privacy']) > 0)
+    raise ImportError(f"Unknown privacy type with name '{name}'. "
+                       "Ensure that you have installed the correct privacy package"
+                       " (and not misspelled it).\n"
+                      f"Installed privacy types: {privacy_names}.\n\n"
+                      f"List of plugins that provide privacy:\n\n{avail}\n")

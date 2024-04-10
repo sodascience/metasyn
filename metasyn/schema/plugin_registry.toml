@@ -1,0 +1,5 @@
+[disclosure]
+
+url = "https://github.com/sodascience/metasyn-disclosure-control"
+privacy = ["disclosure"]
+distributions = []
