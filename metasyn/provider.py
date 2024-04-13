@@ -55,7 +55,8 @@ from metasyn.distribution.faker import (
 from metasyn.distribution.na import NADistribution
 from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistribution
 from metasyn.privacy import BasePrivacy, BasicPrivacy
-from metasyn.util import DistributionSpec
+from metasyn.util import get_registry
+from metasyn.varspec import DistributionSpec
 
 if TYPE_CHECKING:
     from metasyn.config import VarSpec, VarSpecAccess
@@ -343,7 +344,16 @@ class DistributionProviderList():
                                                      var_type=var_type, unique=unique)
             if dist_class.matches_name(dist_name)]
 
-        if len(legacy_distribs + versions_found) == 0:
+        if len(legacy_distribs+versions_found) == 0:
+            registry = get_registry()
+            available = {}
+            for plugin, meta in registry.items():
+                if dist_name in meta["distributions"]:
+                    available[plugin] = meta["url"]
+            if len(available) > 0:
+                avail_str = "\n".join("{plugin}: {url}" for plugin, url in available.items())
+                raise ValueError(f"Distribution with name '{dist_name}' not installed.\n"
+                                 f"Possible sources:\n\n{avail_str}\n")
             raise ValueError(f"Cannot find distribution with name '{dist_name}'.")
 
         if len(versions_found) == 0:
@@ -518,4 +528,9 @@ def get_distribution_provider(
     try:
         return all_providers[provider].load()()
     except KeyError as exc:
-        raise ValueError(f"Cannot find distribution provider with name '{provider}'.") from exc
+        registry = get_registry()
+        if provider not in registry:
+            raise ValueError(f"Cannot find distribution provider with name '{provider}'.") from exc
+        raise ValueError(f"Distribution provider '{provider}' is not installed.\n"
+                         f"See {registry['provider']['url']} for installation instructions."
+                         ) from exc

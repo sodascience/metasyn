@@ -6,7 +6,7 @@ from pytest import mark
 from metasyn.config import MetaConfig, VarSpecAccess
 from metasyn.distribution import UniformDistribution
 from metasyn.privacy import BasePrivacy
-from metasyn.util import DistributionSpec, VarSpec
+from metasyn.varspec import DistributionSpec, VarSpec
 
 
 @mark.parametrize(

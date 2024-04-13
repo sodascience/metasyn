@@ -11,7 +11,7 @@ except ImportError:
 
 from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
 from metasyn.provider import DistributionProviderList
-from metasyn.util import VarSpec
+from metasyn.varspec import VarSpec
 
 
 class MetaConfig():
@@ -63,7 +63,7 @@ class MetaConfig():
         return self._privacy
 
     @privacy.setter
-    def privacy(self, privacy):
+    def privacy(self, privacy: Optional[Union[dict, BasePrivacy]]):
         if privacy is None:
             self._privacy: BasePrivacy = BasicPrivacy()
         elif isinstance(privacy, dict):
