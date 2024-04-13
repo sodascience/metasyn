@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/source/images/logos/blue.svg" width="600px" alt="Metasyn logo"></img>
+  <img src="https://github.com/sodascience/metasyn/blob/main/docs/source/images/logos/blue.svg" width="600px" alt="Metasyn logo"></img>
   <h3 align="center">Transparent and privacy-friendly synthetic data generation</h3>
   <p align="center">
     <span>
@@ -42,7 +42,7 @@ pip install git+https://github.com/sodascience/metasyn
 ## Usage
 To generate synthetic data, `metasyn` first needs to fit a `MetaFrame` to the data which can then be used to produce new synthetic rows:
 
-![Example input and output](docs/source/images/example_input_output_concise.png)
+![Example input and output](https://github.com/sodascience/metasyn/blob/main/docs/source/images/example_input_output_concise.png)
 
 In Python code this happens as follows:
 
