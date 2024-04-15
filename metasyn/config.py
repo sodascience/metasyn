@@ -108,10 +108,10 @@ class MetaConfig():
             if Path(config_fp).suffix == ".toml":
                 raise ValueError(f"It appears '{Path(config_fp).name}' is a"
                                  f" '{Path(config_fp).suffix}' file."
-                                 f" To load a MetaConfig, provide it as a .toml file.") from value_error
-            else:
-                raise ValueError(f"An error occured while parsing the configuration file \n"
-                                 f"('{config_fp.name}').") from value_error
+                                 f" To load a MetaConfig, "
+                                 f"provide it as a .toml file.") from value_error
+            raise ValueError(f"An error occured while parsing the configuration file \n"
+                             f"('{config_fp.name}').") from value_error
         var_list = config_dict.pop("var", [])
         n_rows = config_dict.pop("n_rows", None)
         dist_providers = config_dict.pop("dist_providers", ["builtin"])
