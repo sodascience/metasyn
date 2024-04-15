@@ -344,7 +344,7 @@ class DistributionProviderList():
                                                      var_type=var_type, unique=unique)
             if dist_class.matches_name(dist_name)]
 
-        if len(legacy_distribs+versions_found) == 0:
+        if len(legacy_distribs + versions_found) == 0:
             registry = get_registry()
             available = {}
             for plugin, meta in registry.items():
@@ -503,10 +503,8 @@ def _get_all_provider_list() -> list[BaseDistributionProvider]:
     return [p.load()() for p in _get_all_providers().values()]
 
 
-def get_distribution_provider(
-        provider: Union[str, type[BaseDistributionProvider],
-        BaseDistributionProvider] = "builtin"
-) -> BaseDistributionProvider:
+def get_distribution_provider(provider: Union[str, type[
+    BaseDistributionProvider], BaseDistributionProvider] = "builtin") -> BaseDistributionProvider:
     """Get a distribution tree.
 
     Parameters

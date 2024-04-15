@@ -97,17 +97,18 @@ class MetaConfig():
         meta_config:
             A fully initialized MetaConfig instance.
         """
-        if Path(config_fp).suffix == '':
+        try:
+            with open(config_fp, "rb") as handle:
+                config_dict = tomllib.load(handle)
+        except FileNotFoundError as fnf_error:
             raise FileNotFoundError(f"It appears '{config_fp}' is not a valid filepath."
                                     f" Please provide a path to a .toml file to load a MetaConfig"
-                                    f" from.")
-        if Path(config_fp).suffix != '.toml':
+                                    f" from.") from fnf_error
+        except ValueError as value_error:
             raise ValueError(f"It appears '{Path(config_fp).name}' is a"
                              f" '{Path(config_fp).suffix}' file."
-                             f" To load a MetaConfig, provide it as a .toml file.")
+                             f" To load a MetaConfig, provide it as a .toml file.") from value_error
 
-        with open(config_fp, "rb") as handle:
-            config_dict = tomllib.load(handle)
         var_list = config_dict.pop("var", [])
         n_rows = config_dict.pop("n_rows", None)
         dist_providers = config_dict.pop("dist_providers", ["builtin"])
