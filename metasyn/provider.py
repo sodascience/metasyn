@@ -352,8 +352,10 @@ class DistributionProviderList():
                     available[plugin] = meta["url"]
             if len(available) > 0:
                 avail_str = "\n".join("{plugin}: {url}" for plugin, url in available.items())
-                raise ValueError(f"Distribution with name '{dist_name}' not installed.\n"
-                                 f"Possible sources:\n\n{avail_str}\n")
+                raise ValueError(f"You are trying to use a distribution named '{dist_name}', \n"
+                                 f"but it is not installed.\n"
+                                 f"\n"
+                                 f"{dist_name} is available from:\n\n{avail_str}\n")
             raise ValueError(f"Cannot find distribution with name '{dist_name}'.")
 
         if len(versions_found) == 0:

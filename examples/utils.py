@@ -1,10 +1,15 @@
-import pandas as pd
-import numpy as np
-from metasyn.distribution.datetime import UniformDateTimeDistribution, UniformTimeDistribution
-from metasyn.distribution.datetime import UniformDateDistribution
-import wget
-from pathlib import Path
 import random
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import wget
+
+from metasyn.distribution.datetime import (
+    UniformDateDistribution,
+    UniformDateTimeDistribution,
+    UniformTimeDistribution,
+)
 
 
 def get_demonstration_fp():

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import pathlib
-import warnings
 from datetime import datetime
 from importlib.metadata import version
 from typing import Any, Dict, List, Optional, Sequence, Union

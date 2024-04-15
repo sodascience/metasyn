@@ -1,5 +1,4 @@
 """Module with privacy classes to be used for creating GMF files."""
-import importlib
 from abc import ABC, abstractmethod
 from typing import Optional, Type, Union
 
