@@ -504,7 +504,9 @@ def _get_all_provider_list() -> list[BaseDistributionProvider]:
 
 
 def get_distribution_provider(provider: Union[str, type[
-    BaseDistributionProvider], BaseDistributionProvider] = "builtin") -> BaseDistributionProvider:
+                                        BaseDistributionProvider],
+                                        BaseDistributionProvider] = "builtin"
+                              ) -> BaseDistributionProvider:
     """Get a distribution tree.
 
     Parameters
