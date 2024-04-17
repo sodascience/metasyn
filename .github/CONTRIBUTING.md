@@ -8,7 +8,7 @@ __Issues__ are a really valuable way of contributing to this project! If you enc
 
 If you want to open an issue, make sure to follow these steps:
 
-1. Before you create an issue, please search keywords of your problem using the search bar on our on our [issues page](https://github.com/sodascience/metasyn/issues) to figure out if the issue already exists. If it does, feel free to add to the discussion there to let us know that you are also experiencing this issue!
+1. Before you create an issue, please search keywords of your problem using the search bar on our [issues page](https://github.com/sodascience/metasyn/issues) to figure out if the issue already exists. If it does, feel free to add to the discussion there to let us know that you are also experiencing this issue!
 2. Do your best to enable us to solve your issue or question. For questions, this can mean adding enough detail and sketching the context. For technical bug reports, this usually implies adding a _reproducible example_ of your problem.
 
 ## Code contributions
