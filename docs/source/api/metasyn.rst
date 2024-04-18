@@ -1,20 +1,20 @@
 API Reference
 =============
 
-.. automodule:: metasyn
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Subpackages
------------
-
 .. toctree::
    :maxdepth: 1
 
    metasyn.distribution
-   metasyn.schema
    metasyn.demo
+
+.. .. automodule:: metasyn
+   .. :members:
+   .. :undoc-members:
+   .. :show-inheritance:
+
+.. Subpackages
+.. -----------
+
 
 Submodules
 ----------

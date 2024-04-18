@@ -1,97 +1,188 @@
-Distribution package
-====================
+Distribution list
+=================
 
-This package consists of several distribution modules. 
-It also includes :mod:`metasyn.distribution.base` module, which forms the basis of all distributions.
+Categorical Distributions
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Base module
-^^^^^^^^^^^
+.. currentmodule:: metasyn.distribution.categorical
 
-.. automodule:: metasyn.distribution.base
-   :members:
-   :undoc-members:
-   :inherited-members:
-   :private-members:
-   :show-inheritance:
+.. autosummary::
+   :toctree: generated/
 
-Categorical module
-^^^^^^^^^^^^^^^^^^
+   MultinoulliDistribution -- Stores labels and probabilities.
 
-.. automodule:: metasyn.distribution.categorical
-   :members:
-   :undoc-members:
-   :inherited-members:
-   :private-members:
-   :show-inheritance:
 
-Constant module
-^^^^^^^^^^^^^^^
+Constant Distributions
+^^^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: metasyn.distribution.constant
-   :members:
-   :undoc-members:
-   :inherited-members:
-   :private-members:
-   :show-inheritance:
 
-Continuous module
-^^^^^^^^^^^^^^^^^
+.. currentmodule:: metasyn.distribution.constant
 
-.. automodule:: metasyn.distribution.continuous
-   :members:
-   :undoc-members:
-   :inherited-members:
-   :private-members:
-   :show-inheritance:
+.. autosummary::
+   :toctree: generated/
 
-Datetime module
-^^^^^^^^^^^^^^^
+   ConstantDistribution -- Constant continuous distribution
+   DiscreteConstantDistribution -- Constant discrete distribution
+   StringConstantDistribution -- Constant string distribution
+   DateTimeConstantDistribution -- Constant datetime distribution
+   TimeConstantDistribution -- Constant time distribution
+   DateConstantDistribution -- Constant date distribution
 
-.. automodule:: metasyn.distribution.datetime
-   :members:
-   :undoc-members:
-   :inherited-members:
-   :private-members:
-   :show-inheritance:
 
-Discrete module
-^^^^^^^^^^^^^^^
+Continuous Distributions
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: metasyn.distribution.discrete
-   :members:
-   :undoc-members:
-   :inherited-members:
-   :private-members:
-   :show-inheritance:
+.. currentmodule:: metasyn.distribution.continuous
 
-Faker module
-^^^^^^^^^^^^
+.. autosummary::
+   :toctree: generated/
 
-.. automodule:: metasyn.distribution.faker
-   :members:
-   :undoc-members:
-   :inherited-members:
-   :private-members:
-   :show-inheritance:
+   UniformDistribution
+   NormalDistribution
+   LogNormalDistribution
+   TruncatedNormalDistribution
+   ExponentialDistribution
 
-NA module
-^^^^^^^^^
+Date and Time Distributions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: metasyn.distribution.na
-   :members:
-   :undoc-members:
-   :inherited-members:
-   :private-members:
-   :show-inheritance:
+.. currentmodule:: metasyn.distribution.datetime
 
-Regex module
-^^^^^^^^^^^^
+.. autosummary::
+   :toctree: generated/
 
-.. automodule:: metasyn.distribution.regex
-   :members:
-   :undoc-members:
-   :inherited-members:
-   :private-members:
-   :show-inheritance:
+   DateUniformDistribution
+   TimeUniformDistribution
+   DateTimeUniformDistribution
+
+Discrete Distributions
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. currentmodule:: metasyn.distribution.discrete
+
+.. autosummary::
+   :toctree: generated/
+
+   DiscreteUniformDistribution
+   DiscreteNormalDistribution
+   DiscreteTruncatedNormalDistribution
+   PoissonDistribution
+   UniqueKeyDistribution
+
+Faker Distributions
+^^^^^^^^^^^^^^^^^^^
+
+.. currentmodule:: metasyn.distribution.faker
+
+.. autosummary::
+   :toctree: generated/
+   
+   FakerDistribution
+   UniqueFakerDistribution
+   FreeTextDistribution
+
+
+Regex Distributions
+^^^^^^^^^^^^^^^^^^^
+
+.. currentmodule:: metasyn.distribution.regex
+
+.. autosummary::
+   :toctree: generated/
+
+   RegexDistribution
+   UniqueRegexDistribution
+
+
+
+.. Base module
+.. ^^^^^^^^^^^
+
+.. .. automodule:: metasyn.distribution.base
+..    :members:
+..    :undoc-members:
+..    :inherited-members:
+..    :private-members:
+..    :show-inheritance:
+
+.. Categorical module
+.. ^^^^^^^^^^^^^^^^^^
+
+.. .. automodule:: metasyn.distribution.categorical
+..    :members:
+..    :undoc-members:
+..    :inherited-members:
+..    :private-members:
+..    :show-inheritance:
+
+.. Constant module
+.. ^^^^^^^^^^^^^^^
+
+.. .. automodule:: metasyn.distribution.constant
+..    :members:
+..    :undoc-members:
+..    :inherited-members:
+..    :private-members:
+..    :show-inheritance:
+
+.. Continuous module
+.. ^^^^^^^^^^^^^^^^^
+
+.. .. automodule:: metasyn.distribution.continuous
+..    :members:
+..    :undoc-members:
+..    :inherited-members:
+..    :private-members:
+..    :show-inheritance:
+
+.. Datetime module
+.. ^^^^^^^^^^^^^^^
+
+.. .. automodule:: metasyn.distribution.datetime
+..    :members:
+..    :undoc-members:
+..    :inherited-members:
+..    :private-members:
+..    :show-inheritance:
+
+.. Discrete module
+.. ^^^^^^^^^^^^^^^
+
+.. .. automodule:: metasyn.distribution.discrete
+..    :members:
+..    :undoc-members:
+..    :inherited-members:
+..    :private-members:
+..    :show-inheritance:
+
+.. Faker module
+.. ^^^^^^^^^^^^
+
+.. .. automodule:: metasyn.distribution.faker
+..    :members:
+..    :undoc-members:
+..    :inherited-members:
+..    :private-members:
+..    :show-inheritance:
+
+.. NA module
+.. ^^^^^^^^^
+
+.. .. automodule:: metasyn.distribution.na
+..    :members:
+..    :undoc-members:
+..    :inherited-members:
+..    :private-members:
+..    :show-inheritance:
+
+.. Regex module
+.. ^^^^^^^^^^^^
+
+.. .. automodule:: metasyn.distribution.regex
+..    :members:
+..    :undoc-members:
+..    :inherited-members:
+..    :private-members:
+..    :show-inheritance:
 
 

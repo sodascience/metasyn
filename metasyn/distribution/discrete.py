@@ -94,7 +94,7 @@ class PoissonDistribution(ScipyDistribution):
 
     Parameters
     ----------
-    rate: float
+    rate:
         Rate (mean) of the poisson distribution.
     """
 
@@ -130,10 +130,10 @@ class UniqueKeyDistribution(ScipyDistribution):
 
     Parameters
     ----------
-    lower: int
+    lower:
         Minimum value for the keys.
-    consecutive: int
-        1 if keys are consecutive and increasing, 0 otherwise.
+    consecutive:
+        True if keys are consecutive and increasing, False otherwise.
     """
 
     def __init__(self, lower: int, consecutive: bool):
