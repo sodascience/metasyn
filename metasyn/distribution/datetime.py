@@ -215,6 +215,7 @@ class DateUniformDistribution(BaseUniformDistribution):
         Latest possible date to be generated from this distribution.
         String formatted in ISO format, see examples below or use date objects
         from the python standard library `datetime`.
+
     Examples
     --------
     >>> DateUniformDistribution(lower="10:39:12", upper="10:39:45", precision="seconds")
@@ -343,6 +344,7 @@ class DateConstantDistribution(BaseConstantDistribution):
     --------
     >>> DateConstantDistribution(value="1903-07-15")
     """
+
     def __init__(self, value):
         if isinstance(value, str):
             value = dt.date.fromisoformat(value)
