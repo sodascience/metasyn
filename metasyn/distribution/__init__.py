@@ -11,15 +11,8 @@ a given set of values.
 """  # pylint: disable=invalid-name
 
 from metasyn.distribution.categorical import MultinoulliDistribution
-from metasyn.distribution.constant import (
-    ConstantDistribution,
-    DateConstantDistribution,
-    DateTimeConstantDistribution,
-    DiscreteConstantDistribution,
-    StringConstantDistribution,
-    TimeConstantDistribution,
-)
 from metasyn.distribution.continuous import (
+    ConstantDistribution,
     ExponentialDistribution,
     LogNormalDistribution,
     NormalDistribution,
@@ -27,24 +20,30 @@ from metasyn.distribution.continuous import (
     UniformDistribution,
 )
 from metasyn.distribution.datetime import (
+    DateConstantDistribution,
+    DateTimeConstantDistribution,
     DateTimeUniformDistribution,
     DateUniformDistribution,
+    TimeConstantDistribution,
     TimeUniformDistribution,
 )
 from metasyn.distribution.discrete import (
+    DiscreteConstantDistribution,
     DiscreteNormalDistribution,
     DiscreteTruncatedNormalDistribution,
     DiscreteUniformDistribution,
     PoissonDistribution,
     UniqueKeyDistribution,
 )
-from metasyn.distribution.faker import (
+from metasyn.distribution.na import NADistribution
+from metasyn.distribution.string import (
     FakerDistribution,
     FreeTextDistribution,
+    RegexDistribution,
+    StringConstantDistribution,
     UniqueFakerDistribution,
+    UniqueRegexDistribution,
 )
-from metasyn.distribution.na import NADistribution
-from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistribution
 
 __all__ = [
     "MultinoulliDistribution",

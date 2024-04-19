@@ -23,6 +23,7 @@ from typing import Optional, Union
 
 import numpy as np
 import polars as pl
+from numpy import Inf
 from numpy import typing as npt
 
 
@@ -40,11 +41,17 @@ class BaseDistribution(ABC):
     """
 
     implements: str = "unknown"
+    """The identifier for the implemented distribution"""
     var_type: str = "unknown"
+    """The variable type of the distribution"""
     provenance: str = "builtin"
+    """Which plugin provides the distribution or builtin"""
     privacy: str = "none"
+    """The type of privacy it implements"""
     unique: bool = False
+    """Whether the distribution creates only unique values"""
     version: str = "1.0"
+    """Version of the implemented distribution"""
 
     @classmethod
     def fit(cls, series: Union[pl.Series, npt.NDArray],
@@ -231,7 +238,29 @@ def metadist(
             cls.privacy = privacy
         if version is not None:
             cls.version = version
+        if cls.__doc__ is None:
+            return cls
+        cls.__doc__ = cls.__doc__.rstrip(" ")
+        if not cls.__doc__.endswith("\n"):
+            cls.__doc__ += "\n"
+        cls.__doc__ += f"""
+    Attributes
+    ----------
+    implements:
+        {cls.implements}
+    unique:
+        {cls.unique}
+    version:
+        {cls.version}
+    var_type:
+        {cls.var_type}
+    privacy:
+        {cls.privacy}
+    provenance:
+        {cls.provenance}
+    """
         return cls
+
     return _wrap
 
 
@@ -323,3 +352,40 @@ class UniqueDistributionMixin(BaseDistribution):
 
     def information_criterion(self, values):
         return 9999999
+
+
+
+class BaseConstantDistribution(BaseDistribution):
+    """Base class for constant distribution.
+
+    This base class makes it easy to implement new constant distributions
+    for different variable types.
+    """
+
+    def __init__(self, value) -> None:
+        self.value = value
+
+    @property
+    def n_par(self) -> int:
+        """int: Number of parameters for distribution."""
+        return 0
+
+    @classmethod
+    def _fit(cls, values: pl.Series) -> BaseDistribution:
+        # if unique, just get that value
+        if values.n_unique() == 1:
+            return cls(values.unique()[0])
+
+        # otherwise get most common value
+        val = values.value_counts(sort=True)[0,0]
+        return cls(val)
+
+    def _param_dict(self):
+        return {"value": self.value}
+
+    def draw(self):
+        return self.value
+
+    def information_criterion(self, values):
+        vals = self._to_series(values)
+        return -Inf if vals.n_unique() < 2 else Inf

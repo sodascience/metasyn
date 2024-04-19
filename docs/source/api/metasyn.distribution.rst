@@ -12,23 +12,6 @@ Categorical Distributions
    MultinoulliDistribution -- Stores labels and probabilities.
 
 
-Constant Distributions
-^^^^^^^^^^^^^^^^^^^^^^
-
-
-.. currentmodule:: metasyn.distribution.constant
-
-.. autosummary::
-   :toctree: generated/
-
-   ConstantDistribution -- Constant continuous distribution
-   DiscreteConstantDistribution -- Constant discrete distribution
-   StringConstantDistribution -- Constant string distribution
-   DateTimeConstantDistribution -- Constant datetime distribution
-   TimeConstantDistribution -- Constant time distribution
-   DateConstantDistribution -- Constant date distribution
-
-
 Continuous Distributions
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -42,6 +25,7 @@ Continuous Distributions
    LogNormalDistribution
    TruncatedNormalDistribution
    ExponentialDistribution
+   ConstantDistribution
 
 Date and Time Distributions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -54,6 +38,10 @@ Date and Time Distributions
    DateUniformDistribution
    TimeUniformDistribution
    DateTimeUniformDistribution
+   DateTimeConstantDistribution
+   TimeConstantDistribution
+   DateConstantDistribution
+
 
 Discrete Distributions
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -68,11 +56,12 @@ Discrete Distributions
    DiscreteTruncatedNormalDistribution
    PoissonDistribution
    UniqueKeyDistribution
+   DiscreteConstantDistribution -- Constant discrete distribution
 
-Faker Distributions
-^^^^^^^^^^^^^^^^^^^
+String Distributions
+^^^^^^^^^^^^^^^^^^^^
 
-.. currentmodule:: metasyn.distribution.faker
+.. currentmodule:: metasyn.distribution.string
 
 .. autosummary::
    :toctree: generated/
@@ -80,16 +69,7 @@ Faker Distributions
    FakerDistribution
    UniqueFakerDistribution
    FreeTextDistribution
-
-
-Regex Distributions
-^^^^^^^^^^^^^^^^^^^
-
-.. currentmodule:: metasyn.distribution.regex
-
-.. autosummary::
-   :toctree: generated/
-
+   StringConstantDistribution
    RegexDistribution
    UniqueRegexDistribution
 
