@@ -65,3 +65,13 @@ metasyn.util module
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+metasyn.distribution.base module
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: metasyn.distribution.base
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :private-members:
