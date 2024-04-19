@@ -249,4 +249,3 @@ class DiscreteConstantDistribution(BaseConstantDistribution):
         return {
             "value": {"type": "integer"}
         }
-

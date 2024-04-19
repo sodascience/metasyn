@@ -275,5 +275,3 @@ class ConstantDistribution(BaseConstantDistribution):
         return {
             "value": {"type": "number"}
         }
-
-
