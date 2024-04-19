@@ -6,63 +6,7 @@ API Reference
 
    metasyn.distribution
    metasyn.demo
+   metaframe
+   varspec
+   developer_reference
 
-.. .. automodule:: metasyn
-   .. :members:
-   .. :undoc-members:
-   .. :show-inheritance:
-
-.. Subpackages
-.. -----------
-
-
-Submodules
-----------
-
-metasyn.metaframe module
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: metasyn.metaframe
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metasyn.provider module
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: metasyn.provider
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metasyn.var module
-^^^^^^^^^^^^^^^^^^
-
-.. automodule:: metasyn.var
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metasyn.testutils module
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: metasyn.testutils
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metasyn.validation module
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: metasyn.validation
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metasyn.privacy module
-^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: metasyn.privacy
-   :members:
-   :undoc-members:
-   :show-inheritance:
