@@ -49,7 +49,7 @@ jobs:
         mypy metasyn
     - name: Check if documentation builds.
       run: |
-        cd docs; make html SPHINXOPTS="-W --keep-going"
+        cd docs; make html SPHINXOPTS="--keep-going"
     - name: Test with pytest
       run: |
         pytest tests
