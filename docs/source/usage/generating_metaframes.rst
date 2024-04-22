@@ -10,12 +10,9 @@ One of the main features of ``metasyn`` is to create a :obj:`MetaFrame <metasyn.
 
 .. admonition:: Want to learn more?
     
-   This page focuses on using ``metasyn`` to generate MetaFrames. If you're interested in learning more about how MetaFrames are generated behind the scenes and the assumptions involved, see the :doc:`/about/metasyn_in_detail` page for details.
+   This page focuses on using ``metasyn`` to generate MetaFrames. If you're interested in learning more about how MetaFrames are generated behind the scenes and the assumptions involved, see the :doc:`/metasyn_in_detail` page for details.
 
-.. admonition:: Command-line Interface
 
-    It is also possible to generate a MetaFrame, based on a given GMF file, using the ``metasyn`` command-line interface. For instructions on how to do so, see the :doc:`/usage/cli` page.
-   
 Basics
 ------
 
@@ -38,7 +35,7 @@ a :obj:`MetaFrame<metasyn.metaframe.MetaFrame>` object named :obj:`mf`, based on
     Internally, ``metasyn`` uses Polars (instead of Pandas) mainly because typing and the handling of non-existing data is more consistent. It is possible to supply a Pandas DataFrame instead of a Polars DataFrame to the ``MetaFrame.from_dataframe`` method. However, this uses the automatic Polars conversion functionality, which for some edge cases results in problems. Therefore, we recommend users to create Polars DataFrames. The resulting synthetic dataset is always a Polars DataFrame, but this can be easily converted back to a Pandas DataFrame by using ``df_pandas = df_polars.to_pandas()``.
 
 
-It is possible to print the (statistical metadata contained in the) :obj:`MetaFrame <metasyn.metaframe.MetaFrame>` to the console/output log. This can simply be done by calling the Python built-in `print` function on a :obj:`MetaFrame <metasyn.metaframe.MetaFrame>`:
+It is possible to print the statistical metadata contained in the :obj:`MetaFrame <metasyn.metaframe.MetaFrame>` to the console/output log. This can simply be done by calling the Python built-in `print` function on a :obj:`MetaFrame <metasyn.metaframe.MetaFrame>`:
 
 .. code-block:: python
 
@@ -124,7 +121,10 @@ The potential directives include:
    
 dist_providers
 ^^^^^^^^^^^^^^^^
-**dist_providers** allows you to specify distribution providers (as strings or actual provider objects) to use when fitting distributions to the column data.
+
+The parameter **dist_providers** determines which plug-ins should be loaded and in which order. By default all plug-ins will be loaded and available for fitting, which
+is what most users will probably want. It can be helpful for reproducibility to specify which providers were used. The distributions that are available through the `metasyn`
+package itself (without installing any plug-ins) is called "builtin".
 
    
 privacy

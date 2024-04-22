@@ -1,5 +1,5 @@
-Detailed overview of metasyn
-==============================
+How does metasyn work?
+======================
 
 ``Metasyn`` is a python package for generating synthetic data with a focus on maintaining privacy. It is aimed at owners of sensitive datasets such as public organisations, research groups, and individual researchers who want to improve the accessibility, reproducibility and reusability of their data. The goal of ``metasyn`` is to make it easy for data owners to share the structure and approximation of the content of their data with others with fewer privacy concerns.
 
@@ -158,7 +158,7 @@ This allows for manual and automatic editing, as well as sharing.
 .. raw:: html
 
    <details> 
-   <summary> An example of an exported MetaFrame: </summary>
+   <summary> An example of an exported MetaFrame [click to expand]: </summary>
 
 .. code-block:: json
 

@@ -14,7 +14,7 @@ The frequency of missing values is also maintained in the synthetically-augmente
 
 The generated data does **not** preserve any relationships between variables.
 
-.. warning:: 
+.. admonition:: Prerequisite
 
    Before synthetic data can be generated, a :obj:`MetaFrame <metasyn.metaframe.MetaFrame>` object must be :doc:`created </usage/generating_metaframes>` or :doc:`loaded </usage/exporting_metaframes>`.
 

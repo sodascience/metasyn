@@ -67,17 +67,21 @@ Documentation Outline
    :hidden:
    :maxdepth: 2
 
-   about/about
+   metasyn_in_detail
    usage/usage
    developer/developer
    api/metasyn
    faq
+   about/about
+
 
 This documentation is designed to help you easily navigate and find the information you need. It is organized into the following four sections:
 
-:doc:`/about/about`
-^^^^^^^^^^^^^^^^^^^
-The :doc:`About Section </about/about>` provides an overview of metasyn's purpose and functionality, contact information, and licensing details.
+
+:doc:`metasyn_in_detail`
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+The :doc:`/metasyn_in_detail` section provides an overview of metasyn's purpose and functionality.
 
 :doc:`/usage/usage`
 ^^^^^^^^^^^^^^^^^^^
@@ -95,6 +99,9 @@ The :doc:`/developer/developer` provides resources for those interested in contr
 ^^^^^^^^^^^^^^^^^^^
 The :doc:`/faq` contains commonly asked questions and answers about metasyn. 
 
+:doc:`/about/about`
+^^^^^^^^^^^^^^^^^^^
+The :doc:`About Section </about/about>` provides contact information, and licensing details.
 
 
 Indices and tables
@@ -102,4 +109,3 @@ Indices and tables
 
 * :ref:`genindex`
 * :ref:`modindex`
-
