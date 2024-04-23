@@ -5,7 +5,12 @@ from scipy.optimize import minimize
 from scipy.stats import expon, lognorm, norm, truncnorm, uniform
 from scipy.stats._continuous_distns import FitDataError
 
-from metasyn.distribution.base import ScipyDistribution, metadist
+from metasyn.distribution.base import (
+    BaseConstantDistribution,
+    BaseDistribution,
+    ScipyDistribution,
+    metadist,
+)
 
 
 @metadist(implements="core.uniform", var_type="continuous")
@@ -21,6 +26,10 @@ class UniformDistribution(ScipyDistribution):
         Lower bound for uniform distribution.
     upper: float
         Upper bound for uniform distribution.
+
+    Examples
+    --------
+    >>> UniformDistribution(lower=-3.0, upper=10.0)
     """
 
     dist_class = uniform
@@ -64,9 +73,12 @@ class NormalDistribution(ScipyDistribution):
     ----------
     mean: float
         Mean of the normal distribution.
-
     sd: float
         Standard deviation of the normal distribution.
+
+    Examples
+    --------
+    >>> NormalDistribution(mean=1.3, sd=4.5)
     """
 
     implements = "core.normal"
@@ -100,6 +112,10 @@ class LogNormalDistribution(ScipyDistribution):
         Controls the mean of the distribution.
     sd: float
         Controls the width of the distribution.
+
+    Examples
+    --------
+    >>> LogNormalDistribution(mean=-2.0, sd=4.5)
     """
 
     dist_class = lognorm
@@ -134,14 +150,18 @@ class TruncatedNormalDistribution(ScipyDistribution):
 
     Parameters
     ----------
-    lower: float
+    lower:
         Lower bound of the truncated normal distribution.
-    upper: float
+    upper:
         Upper bound of the truncated normal distribution.
-    mean: float
+    mean:
         Mean of the non-truncated normal distribution.
-    sd: float
+    sd:
         Standard deviation of the non-truncated normal distribution.
+
+    Examples
+    --------
+    >>> TruncatedNormalDistribution(lower=1.0, upper=3.5, mean=2.3, sd=5)
     """
 
     dist_class = truncnorm
@@ -196,8 +216,12 @@ class ExponentialDistribution(ScipyDistribution):
 
     Parameters
     ----------
-    rate: float
+    rate:
         Rate of the exponential distribution. This is equal to 1/mean of the distribution.
+
+    Examples
+    --------
+    >>> ExponentialDistribution(rate=2.4)
     """
 
     dist_class = expon
@@ -221,4 +245,33 @@ class ExponentialDistribution(ScipyDistribution):
     def _param_schema(cls):
         return {
             "rate": {"type": "number"}
+        }
+
+
+
+@metadist(implements="core.constant", var_type="continuous")
+class ConstantDistribution(BaseConstantDistribution):
+    """Constant distribution for floating point type.
+
+    This class implements the constant distribution, so that it draws always
+    the same value.
+
+    Parameters
+    ----------
+    value: float
+        Value that will be returned when drawn.
+
+    Examples
+    --------
+    >>> ConstantDistribution(2.45)
+    """
+
+    @classmethod
+    def default_distribution(cls) -> BaseDistribution:
+        return cls(0.0)
+
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "value": {"type": "number"}
         }

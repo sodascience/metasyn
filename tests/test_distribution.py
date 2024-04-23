@@ -3,8 +3,11 @@ from pytest import mark, raises
 from metasyn.distribution.categorical import MultinoulliDistribution
 from metasyn.distribution.continuous import NormalDistribution, UniformDistribution
 from metasyn.distribution.discrete import DiscreteNormalDistribution, DiscreteUniformDistribution
-from metasyn.distribution.faker import FakerDistribution
-from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistribution
+from metasyn.distribution.string import (
+    FakerDistribution,
+    RegexDistribution,
+    UniqueRegexDistribution,
+)
 from metasyn.provider import DistributionProviderList
 
 

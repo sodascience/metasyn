@@ -14,7 +14,7 @@ from metasyn.distribution.base import BaseDistribution, metadist
 
 @metadist(implements="core.multinoulli", var_type=["categorical", "discrete", "string"])
 class MultinoulliDistribution(BaseDistribution):
-    """Categorical distribution that stores category labels and probabilities.
+    """Categorical distribution using labels and probabilities.
 
     This class represents a multinoulli (categorical) distribution.
     It is used in cases where there are multiple potential outcomes,
@@ -29,6 +29,11 @@ class MultinoulliDistribution(BaseDistribution):
     probs : list of int
         The probabilities or frequencies of each category. These will be
         normalized internally.
+
+    Examples
+    --------
+    >>> MultinoulliDistribution(labels=["a", "b", "b"], probs=[0.1, 0.3, 0.6])
+    >>> MultinoulliDistribution(labels=[1, 3, 6], probs=[0.3, 0.4, 0.3])
     """
 
     def __init__(

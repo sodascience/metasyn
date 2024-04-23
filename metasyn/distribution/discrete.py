@@ -5,13 +5,18 @@ from typing import Set
 import numpy as np
 from scipy.stats import poisson, randint
 
-from metasyn.distribution.base import ScipyDistribution, metadist
+from metasyn.distribution.base import (
+    BaseConstantDistribution,
+    BaseDistribution,
+    ScipyDistribution,
+    metadist,
+)
 from metasyn.distribution.continuous import NormalDistribution, TruncatedNormalDistribution
 
 
 @metadist(implements="core.uniform", var_type="discrete")
 class DiscreteUniformDistribution(ScipyDistribution):
-    """Integer uniform distribution.
+    """Uniform discrete distribution.
 
     It differs from the floating point uniform distribution by
     being a discrete distribution instead.
@@ -22,6 +27,10 @@ class DiscreteUniformDistribution(ScipyDistribution):
         Lower bound (inclusive) of the uniform distribution.
     upper: int
         Upper bound (exclusive) of the uniform distribution.
+
+    Examples
+    --------
+    >>> DiscreteUniformDistribution(lower=3, upper=20)
     """
 
     dist_class = randint
@@ -51,7 +60,7 @@ class DiscreteUniformDistribution(ScipyDistribution):
 
 @metadist(implements="core.normal", var_type="discrete")
 class DiscreteNormalDistribution(NormalDistribution):
-    """Normal distribution for integer type.
+    """Normal discrete distribution.
 
     This class implements the normal/gaussian distribution and takes
     the average and standard deviation as initialization input.
@@ -63,6 +72,10 @@ class DiscreteNormalDistribution(NormalDistribution):
 
     sd: float
         Standard deviation of the normal distribution.
+
+    Examples
+    --------
+    >>> DiscreteNormalDistribution(mean=2.4, sd=1.2)
     """
 
     def draw(self):
@@ -70,7 +83,7 @@ class DiscreteNormalDistribution(NormalDistribution):
 
 @metadist(implements="core.truncated_normal", var_type="discrete")
 class DiscreteTruncatedNormalDistribution(TruncatedNormalDistribution):
-    """Truncated normal distribution for integer type.
+    """Truncated normal discrete distribution.
 
     Parameters
     ----------
@@ -82,6 +95,10 @@ class DiscreteTruncatedNormalDistribution(TruncatedNormalDistribution):
         Mean of the non-truncated normal distribution.
     sd: float
         Standard deviation of the non-truncated normal distribution.
+
+    Examples
+    --------
+    >>> DiscreteTruncatedNormalDistribution(lower=1.2, upper=4.5, mean=2.3, sd=4.5)
     """
 
     def draw(self):
@@ -94,8 +111,12 @@ class PoissonDistribution(ScipyDistribution):
 
     Parameters
     ----------
-    rate: float
+    rate:
         Rate (mean) of the poisson distribution.
+
+    Examples
+    --------
+    >>> PoissonDistribution(rate=3.5)
     """
 
     dist_class = poisson
@@ -124,16 +145,20 @@ class PoissonDistribution(ScipyDistribution):
 
 @metadist(implements="core.unique_key", var_type="discrete", unique=True)
 class UniqueKeyDistribution(ScipyDistribution):
-    """Integer distribution with unique keys.
+    """Unique key distribution for identifiers.
 
     Discrete distribution that ensures the uniqueness of the drawn values.
 
     Parameters
     ----------
-    lower: int
+    lower:
         Minimum value for the keys.
-    consecutive: int
-        1 if keys are consecutive and increasing, 0 otherwise.
+    consecutive:
+        True if keys are consecutive and increasing, False otherwise.
+
+    Examples
+    --------
+    >>> UniqueKeyDistribution(lower=0, consecutive=True)
     """
 
     def __init__(self, lower: int, consecutive: bool):
@@ -196,4 +221,31 @@ class UniqueKeyDistribution(ScipyDistribution):
         return {
             "lower": {"type": "integer"},
             "consecutive": {"type": "boolean"},
+        }
+
+@metadist(implements="core.constant", var_type="discrete")
+class DiscreteConstantDistribution(BaseConstantDistribution):
+    """Constant discrete distribution.
+
+    This class implements the constant distribution, so that it draws always
+    the same value.
+
+    Parameters
+    ----------
+    value: int
+        Value that will be returned when drawn.
+
+    Examples
+    --------
+    >>> DiscreteConstantDistribution(213456)
+    """
+
+    @classmethod
+    def default_distribution(cls) -> BaseDistribution:
+        return cls(0)
+
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "value": {"type": "integer"}
         }

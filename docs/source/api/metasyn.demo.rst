@@ -1,5 +1,5 @@
-Demo package
-============
+Demonstration datasets
+======================
 
 .. automodule:: metasyn.demo
    :members:
