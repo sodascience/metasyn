@@ -3,7 +3,7 @@
 
 ## Introduction
 
-Often, you want to share your data. That way, others can check and understand your findings and code, use it to prepare their own analysis and code, use it for teaching, and more. However, sometimes datasets contain sensititive or confidential information. This makes it difficult, when not impossible, to share your data. In this case, sharing synthetic data might be a solution.
+Doing open, reproducible science means doing your best to openly share research data and analysis code. With these open materials, others can check and understand your research, use it to prepare their own analysis, find examples for teaching, and more. However, sometimes datasets contain sensititive or confidential information, which makes it difficult — if not impossible — share. In this case, producing and sharing a _synthetic_ version of the data might be a solution. In this post, we show how to do this in an auditable, transparent way with the software package `metasyn`.
 
 Metasyn is a Python package that helps you to generate synthetic data, with two ideas in mind. First, it is easy to use and understand. Second, and most importantly, it is privacy-friendly.  Unlike most other synthetic data generation tools, metasyn strictly limits the statistical information in its data generation model to adhere to the highest privacy standards and only generates data that is similar on an individual column level. This makes it a great tool for initial exploration, code development, and sharing of datasets without compromising privacy at all - but it is not suitable for in-depth statistical analysis.
 
