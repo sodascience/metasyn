@@ -16,6 +16,14 @@ At any point, you can also use the help command to get more information about th
    metasyn --help
 
 
+.. admonition:: When should I (not) use the CLI
+
+   The CLI is mostly feature complete from creating synthetic data from ``.csv files``, but there are some limitations. The main limitation is that it needs to read the
+   csv file, for which it tries to use sensible default settings. However, this can result in errors. If you encounter errors, might want to either preprocess your data
+   so that it can be read with the default settings, or use the python API instead.
+   
+   Another limitation is that you cannot specify which columns should be categorical.
+
 Accessing the CLI
 -----------------
 If you have installed the main ``metasyn`` package, the CLI should be available automatically. You can find instructions on how to install ``metasyn`` in the :doc:`installation` section of the documentation.
@@ -50,13 +58,13 @@ Here's how you can use Docker to access Metasyn's CLI:
 The ``metasyn`` CLI should now be up and running within the Docker container and ready for use!
 
 .. note:: 
-   You can also specify which ``metasyn`` version to use in docker, by adding a tag to the docker image. For example, to use version 0.6, you can use the following command:
+   You can also specify which ``metasyn`` version to use in docker, by adding a tag to the docker image. For example, to use version 1.0, you can use the following command:
 
    .. tab:: Installing a specific version
       
       .. code-block:: console
 
-         docker pull sodateam/metasyn:v0.6
+         docker pull sodateam/metasyn:v1.0
 
    .. tab:: Using a command on a specific version
 
@@ -64,13 +72,13 @@ The ``metasyn`` CLI should now be up and running within the Docker container and
 
          .. code-block:: console
 
-            docker run -v %cd%:/wd sodateam/metasyn:v0.6 --help
+            docker run -v %cd%:/wd sodateam/metasyn:v1.0 --help
 
       .. tab:: Unix or MacOS:
 
          .. code-block:: console
 
-            docker run -v $(pwd):/wd sodateam/metasyn:v0.6 --help
+            docker run -v $(pwd):/wd sodateam/metasyn:v1.0 --help
 
 
 Creating Generative Metadata
@@ -140,6 +148,9 @@ The ``create-meta`` command also takes one optional argument:
       [[var]]
       name = "Fare"
       distribution = {implements = "core.log_normal"}
+
+Synthetic data without input file
+---------------------------------
 
 It is also possible to create a GMF file without any input CSV. For this to work, you need to supply a configuration
 file that fully specifies all wanted columns. You will need to tell ``metasyn`` in the configuration file that the
@@ -242,8 +253,4 @@ To retrieve a list of all available plugins, you can use the ``--list`` or ``-l`
 .. code-block:: console
    
    metasyn schema --list
-
-
-
-
 

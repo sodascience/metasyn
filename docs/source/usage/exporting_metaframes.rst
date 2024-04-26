@@ -304,8 +304,8 @@ If we now synthesize five rows of data based on a MetaFrame loaded from the edit
      - 51
 
 
-As you can see, it is very easy to modify the metadata to change how data is synthesized. Similarly to this example, any other aspect of the MetaFrame can be edited, including the variable names, the variable types, the data types, the percentage of missing values, and the distribution attributes. 
+As you can see, you can modify the metadata to change how data is synthesized. Similarly to this example, any other aspect of the MetaFrame can be edited, including the variable names, the variable types, the data types, the percentage of missing values, and the distribution attributes. 
 
 .. warning:: 
-    Be extra careful when manually editing GMF files as errors in names, values, or formatting can cause problems. 
+    Be extra careful when manually editing GMF files as errors in names, values, or formatting can cause problems. In this case, metasyn will most likely produce JSON validation errors.
 

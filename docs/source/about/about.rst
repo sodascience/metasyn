@@ -7,6 +7,5 @@ Welcome to the ``metasyn`` About section. This section is meant to provide more 
    :maxdepth: 1
    :caption: Sections:
    
-   metasyn_in_detail
    contact
    license

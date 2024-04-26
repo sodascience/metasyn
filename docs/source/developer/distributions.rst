@@ -153,7 +153,7 @@ The rest of the modules in the :mod:`~metasyn.distribution` subpackage contain t
 
 Creating a new distribution
 ---------------------------
-The first step to creating a new distribution is to inherit from a distribution class. This can be a base class (e.g. :class:`~metasyn.distribution.base.BaseDistribution`, :class:`~metasyn.distribution.base.ScipyDistribution`), or an existing distribution.```
+The first step to creating a new distribution is to inherit from a distribution class. This can be a base class (e.g. :class:`~metasyn.distribution.base.BaseDistribution`, :class:`~metasyn.distribution.base.ScipyDistribution`), or an existing distribution.
 
 The next step is to set the attributes of the distribution using the :func:`~metasyn.distribution.base.metadist` decorator. Refer to :class:`~metasyn.distribution.base.BaseDistribution` for an overview of these attributes.
 
@@ -170,7 +170,7 @@ For example, let's say we want to create a new distribution for unique continuou
 .. code-block:: python
 
     @metadist(implements="core.new_distribution", var_type="continuous", unique=True, version="1.0")
-    class NewDistribution(BaseDistribution, UniqueDistributionMixin):
+    class NewDistribution(UniqueDistributionMixin, BaseDistribution):
         """New custom distribution."""
 
         def __init__(self, lower=0, upper=1):
