@@ -128,27 +128,7 @@ For example, the unique variants of the :class:`~metasyn.distribution.regex.Rege
 
 Other modules
 ~~~~~~~~~~~~~
-The rest of the modules in the :mod:`~metasyn.distribution` subpackage contain the classes used to represent different types of distributions.
-
-+------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| Module                                   | Description                                                                                                                                                       |
-+==========================================+===================================================================================================================================================================+
-| :mod:`~metasyn.distribution.categorical` | Implements categorical distributions                                                                                                                              |
-+------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| :mod:`~metasyn.distribution.constant`    | Implements constant distributions                                                                                                                                 |
-+------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| :mod:`~metasyn.distribution.continuous`  | Implements continuous distributions                                                                                                                               |
-+------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| :mod:`~metasyn.distribution.datetime`    | ``time``, ``date`` and ``datetime`` distributions.                                                                                                                |
-+------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| :mod:`~metasyn.distribution.discrete`    | Implements discrete distributions.                                                                                                                                |
-+------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| :mod:`~metasyn.distribution.faker`       | Implements distributions that are based on the `Faker <https://faker.readthedocs.io/en/master/>`_ package.                                                        |
-+------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| :mod:`~metasyn.distribution.na`          | Implements a distribution which generates *only* NA values.                                                                                                       |
-+------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| :mod:`~metasyn.distribution.regex`       | Implements distributions that are based on regular expressions. It implements the open source `regexmodel <https://github.com/sodascience/regexmodel>`_ package.  |
-+------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+The rest of the modules in the :mod:`~metasyn.distribution` subpackage contain the classes used to represent different types of distributions. A comprehensive overview of these modules, along with the distributions they implement, can be found on the API reference's :doc:`/api/metasyn.distribution` page.
 
 
 Creating a new distribution

@@ -45,13 +45,4 @@ There are currently three subpackages in the ``metasyn`` package. These are the 
 
 Submodules
 ----------
-The ``metasyn`` package is organized into several submodules, each focusing on different aspects of synthetic data generation and privacy. Here's an overview of some key submodules:
-
-* The :mod:`metasyn.var` module contains the :class:`~metasyn.var.MetaVar` class and its methods, as described above.
-* The :mod:`metasyn.metaframe` module contains the :class:`~metasyn.metaframe.MetaFrame` class and its methods, as described above. 
-* The :mod:`metasyn.provider` module contains the :class:`~metasyn.provider.BaseDistributionProvider` class, which encapsulates a set of distributions, the :class:`~metasyn.provider.BuiltinDistributionProvider` class, which includes the builtin distributions and the :class:`~metasyn.provider.DistributionProviderList` class to allow for multiple distribution providers.
-* The :mod:`metasyn.testutils` module provides testing utilities for plugins. It includes functions for checking distributions and distribution providers.
-* The :mod:`metasyn.validation` module contains tools for validating distribution outputs and GMF file formats.
-* The :mod:`metasyn.privacy` module contains the basis for implementing privacy features. A system to incorporate privacy features such as differential privacy or other forms of disclosure control is still being implemented.
-* The :mod:`metasyn.util` module contains utility classes :class:`~metasyn.util.DistributionSpec` and :class:`~metasyn.util.VarConfig`.
-* The :mod:`metasyn.config` module contains the :class:`~metasyn.config.MetaConfig` class that can read .toml configuration files.
+A comprehensive overview of metasyn and all its modules can be found in the API reference's :doc:`/api/developer_reference` documentation page.
