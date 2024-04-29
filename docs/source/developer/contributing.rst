@@ -62,5 +62,8 @@ To do so, first install Tox to your environment following the `Tox installation 
 
 Maintaining the package
 -----------------------
-Our GitHub Wiki contains a guide on how to maintain the package. You can find it `here <https://github.com/sodascience/metasyn/wiki/Maintainers-guide>`_.
+Our GitHub Wiki contains a guide on how to maintain the package. You can find it `here <https://github.com/sodascience/metasyn/wiki>`_.
 
+Code of Conduct
+---------------
+We expect all contributors to adhere to the Code of Conduct found on our `Github page <https://github.com/sodascience/metasyn/blob/main/.github/CODE_OF_CONDUCT.md>`_.
