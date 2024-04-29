@@ -343,7 +343,7 @@ class UniqueDistributionMixin(BaseDistribution):
     def draw(self) -> object:
         n_retry = 0
         while n_retry < 1e5:
-            new_val = super().draw()
+            new_val = super().draw()  # type: ignore
             if new_val not in self.key_set:
                 self.key_set.add(new_val)
                 return new_val
