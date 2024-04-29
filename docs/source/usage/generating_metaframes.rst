@@ -30,11 +30,11 @@ For example, if we want to load a dataset named 'dataset.csv' into a Polars Data
 
 .. admonition:: Note on Pandas and Polars DataFrames
 
-    Internally, ``metasyn`` uses Polars (instead of Pandas) mainly because typing and the handling of non-existing data is more consistent. It is possible to supply a Pandas DataFrame instead of a Polars DataFrame to the ``MetaFrame.from_dataframe`` method. However, this uses the automatic Polars conversion functionality, which for some edge cases results in problems. Therefore, we recommend users to create Polars DataFrames. The resulting synthetic dataset is always a Polars DataFrame, but this can be easily converted back to a Pandas DataFrame by using ``df_pandas = df_polars.to_pandas()``.
+    Internally, ``metasyn`` uses Polars (instead of Pandas) mainly because typing and the handling of non-existing data is more consistent. It is possible to supply a Pandas DataFrame instead of a Polars DataFrame to the ``MetaFrame.fit_dataframe`` method. However, this uses the automatic Polars conversion functionality, which for some edge cases results in problems. Therefore, we recommend users to create Polars DataFrames. The resulting synthetic dataset is always a Polars DataFrame, but this can be easily converted back to a Pandas DataFrame by using ``df_pandas = df_polars.to_pandas()``.
 
 Generating a MetaFrame
 ----------------------
-With the DataFrame in place, we can now generate a :obj:`MetaFrame <metasyn.metaframe.MetaFrame>` object using the :meth:`metasyn.MetaFrame.from_dataframe(df) <metasyn.metaframe.MetaFrame.from_dataframe>` class method, passing in a DataFrame as a parameter.
+With the DataFrame in place, we can now generate a :obj:`MetaFrame <metasyn.metaframe.MetaFrame>` object using the :meth:`metasyn.MetaFrame.fit_dataframe(df) <metasyn.metaframe.MetaFrame.fit_dataframe>` class method, passing in a DataFrame as a parameter.
 
 .. image:: /images/pipeline_estimation_code.png
    :alt: MetaFrame Generation With Code Snippet
@@ -44,7 +44,7 @@ The following code returns a :obj:`MetaFrame<metasyn.metaframe.MetaFrame>` objec
 
 .. code-block:: python
     
-   mf = metasyn.MetaFrame.from_dataframe(df)
+   mf = metasyn.MetaFrame.fit_dataframe(df)
 
 
 
