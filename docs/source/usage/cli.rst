@@ -130,48 +130,30 @@ An example of how to use the ``create-meta`` subcommand is as follows:
 
 The ``create-meta`` command also takes one optional argument:
 
-* ``--config [config-file]``: The filepath and name of a configuration file that specifies distribution behavior. For example, if we want to set a column to be unique or to have a specific distribution, we can do so by specifying it in the configuration file.
+* ``--config [config-file]``: The filepath and name of a .toml configuration file that specifies distribution behavior. For example, if we want to set a column to be unique or to have a specific distribution, we can do so by specifying it in the configuration file. Information on how to use these files can be found in the :doc:`/usage/config_files` section.
 
-.. note::
+.. admonition:: Generating a GMF file without a dataset
 
-   The configuration file must be in the `.toml` format. For more information on the format, please refer to the `TOML documentation <https://toml.io/en/>`_.
+   It is also possible to create a GMF file (and to generate synthetic data from there) without every inputting a dataset, or to add columns that were not present in an input dataset.
 
-   An example of a configuration file that specifies the ``PassengerId`` column to be unique and the ``Fare`` column to have a log-normal distribution is as follows:
+   This can be done by supplying a configuration file that fully specifies the columns that should be generated. For each to be generated column, you need also need to set the `data_free` parameter to `true`.
 
-   .. code-block:: toml
+   It is also required to set the number of rows under the `general` section.
+   
+   For example, to create a GMF file that can be used to generate 100 rows of synthetic data with a single column `PassengerId`, that is unique and has a discrete distribution, you can use the following configuration file:
 
-      [[var]]
-      name = "PassengerId"
-      distribution = {unique = true}  # Notice lower capitalization for .toml files.
+      .. code-block:: toml
 
+         n_rows = 100
 
-      [[var]]
-      name = "Fare"
-      distribution = {implements = "core.log_normal"}
+         [[var]]
 
-Synthetic data without input file
----------------------------------
-
-It is also possible to create a GMF file without any input CSV. For this to work, you need to supply a configuration
-file that fully specifies all wanted columns. You will need to tell ``metasyn`` in the configuration file that the
-column is ``data_free``. It is also required to set the number of rows under the `general` section, for example:
-
-   .. code-block:: toml
-
-      n_rows = 100
-
-
-      [[var]]
-
-      name = "PassengerId"
-      data_free = true
-      prop_missing = 0.0
-      description = "ID of the unfortunate passenger."
-      var_type = "discrete"
-      distribution = {implements = "core.unique_key", unique = true, parameters = {consecutive = 1, low = 0}}
-
-The example will generate a GMF file that can be used to generate new synthetic data with the ``synthesize``
-subcommand described below.
+         name = "PassengerId"
+         data_free = true
+         prop_missing = 0.0
+         description = "ID of the unfortunate passenger."
+         var_type = "discrete"
+         distribution = {implements = "core.unique_key", unique = true, parameters = {consecutive = 1, low = 0}}
 
 
 Generating Synthetic Data
@@ -231,6 +213,8 @@ The ``synthesize`` command also takes two optional arguments:
 .. note::
 
    The ``output`` is required unless ``--preview`` is used.
+
+
 
 
 Creating Validation schemas

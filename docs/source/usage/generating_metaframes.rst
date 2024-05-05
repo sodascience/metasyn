@@ -138,7 +138,6 @@ dist_providers
 The parameter **dist_providers** determines which plug-ins should be loaded and in which order. By default all plug-ins will be loaded and available for fitting, which
 is what most users will probably want. It can be helpful for reproducibility to specify which providers were used. The distributions that are available through the `metasyn`
 package itself (without installing any plug-ins) is called "builtin".
-
    
 privacy
 ^^^^^^^^^
@@ -146,3 +145,8 @@ privacy
 
 .. warning::
     Privacy features (such as differential privacy or other forms of disclosure control) are currently under active development. More information on currently available extensions can be found in the :doc:`/usage/extensions` section.
+
+
+Config Files 
+^^^^^^^^^^^^
+It is also possible specify variable specifications, distribution providers and privacy levels through a .toml config file. This is mostly intended for working with the :doc:`/usage/cli`, but can also be used in the Python API. Information on how to use config files can be found in the :doc:`/usage/config_files` section.
