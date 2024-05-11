@@ -1,6 +1,8 @@
 Developer Reference
 ===================
 
+This section is intended for those that want to contribute to the metasyn package, or simply want a deeper understanding of how it works. It contains classes, functions and modules that are not user facing.
+
 DistSpec
 ^^^^^^^^
 

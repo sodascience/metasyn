@@ -185,6 +185,6 @@ For example, the following configuration file will generate a GMF file with 100 
       prop_missing = 0.0
       description = "ID of the unfortunate passenger."
       var_type = "discrete"
-      distribution = {implements = "core.unique_key", unique = true, parameters = {consecutive = 1, low = 0}}
+      distribution = {implements = "core.unique_key", unique = true, parameters = {consecutive = true, low = 0}}
 
 
