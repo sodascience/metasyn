@@ -1,34 +1,140 @@
 Configuration Files
 ===================
 
-.. give toml primer
-.. explain config file 
-.. give example of config file
-.. link to api to know what things are
+Configuration files are designed to be used in conjunction with the :doc:`/usage/cli` (though they can be used with the Python API too) to help specify distribution behavior when creating generative metadata. 
 
-.. note::
+In the configuration file, you can specify the variable specification, distribution providers, privacy level and number of rows of data to generate. 
 
-   The configuration file must be in the `.toml` format. For more information on the format, please refer to the `TOML documentation <https://toml.io/en/>`_.
+The configuration file must be in the `.toml` format. 
 
-.. simple example:
-An example of a configuration file that specifies the ``PassengerId`` column to be unique and the ``Fare`` column to have a log-normal distribution is as follows:
+.. admonition:: What is TOML?
+
+   TOML, short for Tom's Obvious, Minimal Language, aims to be a minimal configuration file with easy readability. 
+
+   A TOML file consists of key/value pairs, tables (groups of key/value pairs), and optionally, arrays of tables. Values can be strings, numbers, booleans, dates/times, or arrays.
+   
+   TOML is **case sensitive**, but does not care about indentation or whitespace.
+
+   Basic TOML syntax is as follows:
 
    .. code-block:: toml
 
-      [[var]]
-      name = "PassengerId"
-      distribution = {unique = true}  # Notice lower capitalization for .toml files.
+      # This is a comment
+      key = "value"  # You can comment on the same line too
+      key2 = """
+      This is a multiline string
+      """
+      answer = 42
+      bool = true # note how booleans are lowercase, as opposed to Python's 'True'/'False'
+      date = 1979-05-27T07:32:00Z
 
 
-      [[var]]
-      name = "Fare"
-      distribution = {implements = "core.log_normal"}
+   Tables (denoted by headers in square brackets) can be used to group key/value pairs together.
 
-.. comprehensive example:
+   .. code-block:: toml
+
+      [table]
+      key = "value"
+
+
+   Tables themselves can be nested using dotted keys:
+
+   .. code-block:: toml
+
+      [table.subtable]
+      key = "value"
+
+   For short nested key/values, inline tables can be used:
+
+   .. code-block:: toml
+
+      inline = { key = "Foo", key2 = "Bar" }
+
+   Arrays of tables can be created by using double square brackets:
+
+   .. code-block:: toml  
+
+      [[array]]
+      key = "value"
+
+
+   For more detailed information, refer to the `TOML documentation <https://toml.io/en/>`_.
+
+
+Configuration File Structure
+----------------------------
+
+
+Specifying rows
+^^^^^^^^^^^^^^^
+
+To specify the number of rows to generate, use the ``n_rows`` key.
+
+For example:
+
+.. code-block:: toml
+
+   n_rows = 100
+
+Variable specification
+^^^^^^^^^^^^^^^^^^^^^^^
+
+To set the variable spec for a variable, create an entry in the ``[[var]]`` array. Each entry should include the following:
+
+#. ``name``: The name of the variable.
+#. ``description`` (optional): A description of the variable.
+#. ``distribution``: The distribution specification for the variable. This is a dictionary that includes the ``implements`` key specifying the distribution type, and optionally a ``parameters`` key specifying parameters for the distribution. To find distributions, and their paramters, refer to the :doc:`/api/metasyn.distribution` page.
+#. ``privacy`` (optional): The privacy specification for the variable. This is a dictionary that includes the ``name`` of the privacy, and a ``parameters`` key for specifying its paramteres.
+#. ``prop_missing`` (optional): The proportion of missing values for the variable.
+
+For example:
+
+.. code-block:: toml
+
+   [[var]]
+   name = "Cabin"
+   description = "Cabin number of the passenger."
+   distribution = {implements = "core.regex", parameters = {regex_data = "[A-F][0-9]{2,3}"}}
+   prop_missing = 0.1
+   privacy = {name = "disclosure", parameters = {n_avg = 21}}
+
+
+Distribution providers
+^^^^^^^^^^^^^^^^^^^^^^
+
+To specify the distribution providers, use the ``dist_providers`` key. This is an array of strings, where each string is the name of a distribution provider.
+
+For example:
 
 .. code-block:: toml
 
    dist_providers = ["builtin", "metasyn-disclosure"]
+
+Privacy level
+^^^^^^^^^^^^^
+
+To specify the privacy level, use the ``privacy`` key. This is a dictionary that includes the ``name`` key specifying the privacy level, and optionally a ``parameters`` key specifying parameters for the privacy level.
+
+For example:
+
+.. code-block:: toml
+
+   [privacy]
+   name = "disclosure"
+   parameters = {n_avg = 11}
+
+
+Example Configuration File
+--------------------------
+
+The following is an example which specifies the distribution providers, privacy level, variable specifications and number of rows of data to generate (for the :doc:`Titanic demo dataset </api/metasyn.demo>`):
+
+
+.. code-block:: toml
+
+   dist_providers = ["builtin", "metasyn-disclosure"]
+
+   n_rows = 100
 
    [privacy]
    name = "disclosure"
@@ -61,10 +167,12 @@ An example of a configuration file that specifies the ``PassengerId`` column to 
 
 Synthetic data without input file
 ---------------------------------
-It is also possible to create a GMF file without any input dataset (or to add columns that were not present in the dataset). For this to work, you need to supply a configuration file (.toml) that fully specifies all wanted columns. You will need to tell ``metasyn`` in the configuration file that the column is ``data_free``.
-data_free is a boolean that indicates whether a variable/column is to be generated from scratch or from an existing column in the DataFrame. set to True, it means that the variable will be generated from scratch, not based on any existing data. If set to False (or not specified), the variable will be based on an existing column in the DataFrame. 
+It is also possible to create a GMF file without inputting a dataset, or to add additional fictive columns to those already present in a dataset. 
 
- It is also required to set the number of rows under the `general` section, for example:
+To do so, you need to fully specify each column (variable) you want to generate. You will also need to set the data_free parameter to true, to indicate that the variable will be generated from scratch, instead of being based on existing data.
+Finally, you will need to set the number of rows to generate.
+
+For example, the following configuration file will generate a GMF file with 100 rows of synthetic data, with a unique key column named ``PassengerId``:
 
    .. code-block:: toml
 
@@ -79,6 +187,4 @@ data_free is a boolean that indicates whether a variable/column is to be generat
       var_type = "discrete"
       distribution = {implements = "core.unique_key", unique = true, parameters = {consecutive = 1, low = 0}}
 
-The example will generate a GMF file that can be used to generate new synthetic data with the ``synthesize``
-subcommand described below.
 
