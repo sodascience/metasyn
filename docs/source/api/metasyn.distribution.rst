@@ -1,6 +1,9 @@
 Distribution list
 =================
 
+This page serves as an overview of the various distributions available in the
+``metasyn.distribution`` module. Clicking on a distribution will take you to a page with more information, including its parameters.
+
 Categorical Distributions
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
