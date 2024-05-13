@@ -134,7 +134,7 @@ The ``create-meta`` command also takes one optional argument:
 
 .. admonition:: Generating a GMF file without a dataset
 
-   It is also possible to create a GMF file (and to generate synthetic data from there) without every inputting a dataset, or to add columns that were not present in an input dataset.
+   It is also possible to create a GMF file (and to generate synthetic data from there) without every inputting a dataset. Adding columns not present in the input dataset is also possible using the same method.
 
    This can be done by supplying a configuration file that fully specifies the columns that should be generated. For each to be generated column, you need also need to set the `data_free` parameter to `true`.
 
@@ -153,7 +153,7 @@ The ``create-meta`` command also takes one optional argument:
          prop_missing = 0.0
          description = "ID of the unfortunate passenger."
          var_type = "discrete"
-         distribution = {implements = "core.unique_key", unique = true, parameters = {consecutive = 1, low = 0}}
+         distribution = {implements = "core.unique_key", unique = true, parameters = {consecutive = true, low = 0}}
 
 
 Generating Synthetic Data

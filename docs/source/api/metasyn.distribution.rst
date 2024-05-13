@@ -2,7 +2,7 @@ Distribution list
 =================
 
 This page serves as an overview of the various distributions available in the
-``metasyn.distribution`` module. Clicking on a distribution will take you to its respective API reference, where you can find more information on it and its parameters.
+``metasyn.distribution`` module. Clicking on a distribution will take you to a page with more information, including its parameters.
 
 Categorical Distributions
 ^^^^^^^^^^^^^^^^^^^^^^^^^

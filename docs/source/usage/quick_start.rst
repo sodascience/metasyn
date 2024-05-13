@@ -79,11 +79,11 @@ With the DataFrame loaded, you can now generate a :obj:`MetaFrame <metasyn.metaf
 This creates a MetaFrame named ``mf``.
 
 .. Note:: 
-	At this point you will get a warning because metasyn detects that 'PassengerId' contains unique values, but was not specified by us to generate only unique values. The warning is as follows:
+	At this point you will get a warning because metasyn detects that 'PassengerId' contains unique values, but we did not specify this column to generate only unique values. The warning is as follows:
    
 	``Variable 'PassengerId' was detected to be unique, but has not explicitly been set to unique. To generate only unique values for column 'PassengerId', set unique to True. To dismiss this warning, set unique to False."``
 
-   The page on :doc:`/usage/generating_metaframes` covers how to set unique in order to generate only unique values for a column, or dismiss the warning.
+   The page on :doc:`/usage/generating_metaframes` covers how to set unique argument in order to generate only unique values for a column, or dismiss the warning.
 
 
 We can inspect the MetaFrame by simply printing it (``print(mf)``). This will produce the following output:
@@ -127,7 +127,7 @@ Inversely, we can load a MetaFrame from a JSON file using the :func:`~metasyn.me
 Synthesizing the Data
 ---------------------
 
-With the :obj:`MetaFrame <metasyn.metaframe.MetaFrame>` loaded, you can synthesize new data. To do so, we simply call the :func:`~metasyn.metaframe.MetaFrame.synthesize` function on the MetaFrame, and pass in the number of rows you'd like to generate as a parameter. For example, to generate five rows of synthetic data we can use: 
+With the :obj:`MetaFrame <metasyn.metaframe.MetaFrame>` loaded, you can synthesize new data. To do so, we simply call the :meth:`~metasyn.metaframe.MetaFrame.synthesize` method on the MetaFrame, and pass in the number of rows you would like to generate as a parameter. For example, to generate five rows of synthetic data we can use: 
 
 
 .. code-block:: python

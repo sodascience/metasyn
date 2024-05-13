@@ -15,7 +15,7 @@ One of the main features of ``metasyn`` is to create a :obj:`MetaFrame <metasyn.
 Preparing the Dataset
 ---------------------
 
-Before we can pass a dataset into metasyn, we need to convert it to a `Polars <https://pola.rs>`__ DataFrame. In doing so, we can indicate which columns contain categorical values. We can also tell Polars to find columns that may contain dates or timestamps. Metasyn can later use this information to generate categorical or date-like values where appropriate. For more information on how to use Polars, check out the `Polars documentation <https://docs.pola.rs/>`__.
+Before we can pass a dataset into metasyn, we need to convert it to a `Polars <https://pola.rs>`__ DataFrame. In doing so, we can indicate which columns contain categorical values. We can also tell Polars to find columns that may contain dates or timestamps. Metasyn later uses this information to generate categorical or date-like values where appropriate. For more information on how to use Polars, check out the `Polars documentation <https://docs.pola.rs/>`__.
 
 For example, if we want to load a dataset named 'dataset.csv' into a Polars DataFrame, set the columns ``Color`` and ``Fruit`` to be categorical and parse dates in the DataFrame. We can use the following code:
 

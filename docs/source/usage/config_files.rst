@@ -83,8 +83,8 @@ To set the variable spec for a variable, create an entry in the ``[[var]]`` arra
 
 #. ``name``: The name of the variable.
 #. ``description`` (optional): A description of the variable.
-#. ``distribution``: The distribution specification for the variable. This is a dictionary that includes the ``implements`` key specifying the distribution type, and optionally a ``parameters`` key specifying parameters for the distribution. To find distributions, and their paramters, refer to the :doc:`/api/metasyn.distribution` page.
-#. ``privacy`` (optional): The privacy specification for the variable. This is a dictionary that includes the ``name`` of the privacy, and a ``parameters`` key for specifying its paramteres.
+#. ``distribution``: The distribution specification for the variable. This is a dictionary that includes the ``implements`` key specifying the distribution type, and optionally a ``parameters`` key specifying parameters for the distribution. To find distributions, and their parameters, refer to the :doc:`/api/metasyn.distribution` page.
+#. ``privacy`` (optional): The privacy specification for the variable. This is a dictionary that includes the ``name`` of the privacy, and a ``parameters`` key for specifying its parameters.
 #. ``prop_missing`` (optional): The proportion of missing values for the variable.
 
 For example:
