@@ -11,54 +11,9 @@ The configuration file must be in the `.toml` format.
 
    TOML, short for Tom's Obvious, Minimal Language, aims to be a minimal configuration file with easy readability. 
 
-   A TOML file consists of key/value pairs, tables (groups of key/value pairs), and optionally, arrays of tables. Values can be strings, numbers, booleans, dates/times, or arrays.
-   
-   TOML is **case sensitive**, but does not care about indentation or whitespace.
+   A TOML file consists of key/value pairs, tables (groups of key/value pairs), and optionally, arrays of tables. Values can be strings, numbers, booleans, dates/times, or arrays. TOML is **case sensitive**, but does not care about indentation or whitespace. 
 
-   Basic TOML syntax is as follows:
-
-   .. code-block:: toml
-
-      # This is a comment
-      key = "value"  # You can comment on the same line too
-      key2 = """
-      This is a multiline string
-      """
-      answer = 42
-      bool = true # note how booleans are lowercase, as opposed to Python's 'True'/'False'
-      date = 1979-05-27T07:32:00Z
-
-
-   Tables (denoted by headers in square brackets) can be used to group key/value pairs together.
-
-   .. code-block:: toml
-
-      [table]
-      key = "value"
-
-
-   Tables themselves can be nested using dotted keys:
-
-   .. code-block:: toml
-
-      [table.subtable]
-      key = "value"
-
-   For short nested key/values, inline tables can be used:
-
-   .. code-block:: toml
-
-      inline = { key = "Foo", key2 = "Bar" }
-
-   Arrays of tables can be created by using double square brackets:
-
-   .. code-block:: toml  
-
-      [[array]]
-      key = "value"
-
-
-   For more detailed information, refer to the `TOML documentation <https://toml.io/en/>`_.
+   Refer to the `TOML documentation <https://toml.io/en/>`_ to learn more about the syntax and structure of TOML files.
 
 
 Configuration File Structure
@@ -102,7 +57,7 @@ For example:
 Distribution providers
 ^^^^^^^^^^^^^^^^^^^^^^
 
-To specify the distribution providers, use the ``dist_providers`` key. This is an array of strings, where each string is the name of a distribution provider.
+To specify the distribution providers, use the ``dist_providers`` key. This is an array of strings, where each string is the name of a distribution provider. Note that this is only necessary if you install distribution plugins.
 
 For example:
 
