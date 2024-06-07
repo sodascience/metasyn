@@ -49,7 +49,7 @@ class BasePrivacy(ABC):
 
         For example epsilon in the case of differential privacy.
         """
-        return {}
+        return self.to_dict()["parameters"]
 
 
 class BasicPrivacy(BasePrivacy):
