@@ -39,7 +39,7 @@ class MultinoulliDistribution(BaseDistribution):
     def __init__(
         self,
         labels: Union[npt.NDArray[Union[np.str_, np.int_]], list[Union[str, int]]],
-        probs: Union[npt.NDArray[np.float_], list[float]]
+        probs: Union[npt.NDArray[np.double], list[float]]
     ):
         self.labels = np.array(labels)
         self.probs = np.array(probs)
