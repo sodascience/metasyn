@@ -24,7 +24,7 @@ For example, if we want to load a dataset named 'dataset.csv' into a Polars Data
    # Create a Polars DataFrame
    df = pl.read_csv(
        source="dataset.csv",
-       dtypes={"Color": pl.Categorical, "Fruit": pl.Categorical},
+       schema_overrides={"Color": pl.Categorical, "Fruit": pl.Categorical},
        try_parse_dates=True,
    )
 
