@@ -51,7 +51,7 @@ For example:
    description = "Cabin number of the passenger."
    distribution = {implements = "core.regex", parameters = {regex_data = "[A-F][0-9]{2,3}"}}
    prop_missing = 0.1
-   privacy = {name = "disclosure", parameters = {n_avg = 21}}
+   privacy = {name = "disclosure", parameters = {partition_size = 21}}
 
 
 Distribution providers
@@ -76,7 +76,7 @@ For example:
 
    [privacy]
    name = "disclosure"
-   parameters = {n_avg = 11}
+   parameters = {partition_size = 11}
 
 
 Example Configuration File
@@ -93,7 +93,7 @@ The following is an example which specifies the distribution providers, privacy 
 
    [privacy]
    name = "disclosure"
-   parameters = {n_avg = 11}
+   parameters = {partition_size = 11}
 
 
    [[var]]
@@ -117,7 +117,7 @@ The following is an example which specifies the distribution providers, privacy 
    [[var]]
    name = "Cabin"
    distribution = {implements = "core.regex", parameters = {regex_data = "[A-F][0-9]{2,3}"}}
-   privacy = {name = "disclosure", parameters = {n_avg = 21}}
+   privacy = {name = "disclosure", parameters = {partition_size = 21}}
 
 
 Synthetic data without input file

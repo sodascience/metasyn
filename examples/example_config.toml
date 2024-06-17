@@ -4,7 +4,7 @@ dist_providers = ["builtin", "metasyn-disclosure"]
 
 [privacy]
 name = "disclosure"
-parameters = {n_avg = 11}
+parameters = {partition_size = 11}
 
 
 [[var]]
@@ -28,4 +28,4 @@ distribution = {implements = "core.uniform", parameters = {lower = 20, upper = 4
 [[var]]
 name = "Cabin"
 distribution = {implements = "core.regex", parameters = {regex_data = "[A-F][0-9]{2,3}"}}
-privacy = {name = "disclosure", parameters = {n_avg = 21}}
+privacy = {name = "disclosure", parameters = {partition_size = 21}}
