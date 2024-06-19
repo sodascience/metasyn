@@ -56,7 +56,7 @@ csv_path = demo_file("fruit")
 # Create a polars dataframe from the csv file.
 # It is important to ensure the data types are correct  
 # when creating your dataframe, especially categorical data!
-df = pl.read_csv(csv_path, dtypes={
+df = pl.read_csv(csv_path, schema_overrides={
   "fruits": pl.Categorical, 
   "cars": pl.Categorical
 })

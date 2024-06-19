@@ -23,7 +23,7 @@ from typing import Optional, Union
 
 import numpy as np
 import polars as pl
-from numpy import Inf
+from numpy import inf
 from numpy import typing as npt
 
 
@@ -388,4 +388,4 @@ class BaseConstantDistribution(BaseDistribution):
 
     def information_criterion(self, values):
         vals = self._to_series(values)
-        return -Inf if vals.n_unique() < 2 else Inf
+        return -inf if vals.n_unique() < 2 else inf

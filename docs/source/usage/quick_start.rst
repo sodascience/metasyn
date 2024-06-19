@@ -40,7 +40,7 @@ To finish loading the dataset, we simply use the :meth:`polars.read_csv` functio
 
 .. code-block:: python
 
-   df = pl.read_csv(dataset_csv, dtypes=data_types)
+   df = pl.read_csv(dataset_csv, schema_overrides=data_types)
 
 
 This converts the CSV file into a DataFrame named ``df``.
