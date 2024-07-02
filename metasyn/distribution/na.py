@@ -30,3 +30,6 @@ class NADistribution(BaseDistribution):
     @classmethod
     def _param_schema(cls):
         return {}
+
+    def information_criterion(self, series):
+        return 1e10
