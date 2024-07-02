@@ -31,5 +31,5 @@ class NADistribution(BaseDistribution):
     def _param_schema(cls):
         return {}
 
-    def information_criterion(self, series):
+    def information_criterion(self, values):  # pylint: disable=unused-argument
         return 1e10
