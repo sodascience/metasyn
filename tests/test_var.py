@@ -240,8 +240,8 @@ def test_na_two(series):
 
 @mark.parametrize(
     "series",
-    [pd.Series(np.random.randint(0, 100000, size=1000)),
-     pl.Series(np.random.randint(0, 100000, size=1000))]
+    [pd.Series(np.random.randint(0, 1000, size=500)),
+     pl.Series(np.random.randint(0, 1000, size=500))]
 )
 def test_manual_unique_integer(series):
     var = MetaVar.fit(series)

@@ -112,7 +112,7 @@ class MultinoulliDistribution(BaseDistribution):
         https://en.wikipedia.org/wiki/Additive_smoothing
 
         with parameter alpha = 1. This effectively says that all values in between the observed
-        values have a probability of 1/N, where N is the number of total values. Hoewever, to
+        values have a probability of 1/N, where N is the number of total values. However, to
         prevent confusion (and potentially improve the synthesis) is draw from these unobserved
         values. That is why the information criterion for integers is not a true BIC, but a pseudo
         information criterion.
