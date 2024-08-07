@@ -10,35 +10,45 @@ One of the main features of ``metasyn`` is to create a :obj:`MetaFrame <metasyn.
 
 .. admonition:: Want to learn more?
     
-   This page focuses on using ``metasyn`` to generate MetaFrames. If you're interested in learning more about how MetaFrames are generated behind the scenes and the assumptions involved, see the :doc:`/about/metasyn_in_detail` page for details.
+   This page focuses on using ``metasyn`` to generate MetaFrames. If you're interested in learning more about how MetaFrames are generated behind the scenes and the assumptions involved, see the :doc:`/metasyn_in_detail` page for details.
 
-.. admonition:: Command-line Interface
+Preparing the Dataset
+---------------------
 
-    It is also possible to generate a MetaFrame, based on a given GMF file, using the ``metasyn`` command-line interface. For instructions on how to do so, see the :doc:`/usage/cli` page.
-   
-Basics
-------
+Before we can pass a dataset into metasyn, we need to convert it to a `Polars <https://pola.rs>`__ DataFrame. In doing so, we can indicate which columns contain categorical values. We can also tell Polars to find columns that may contain dates or timestamps. Metasyn later uses this information to generate categorical or date-like values where appropriate. For more information on how to use Polars, check out the `Polars documentation <https://docs.pola.rs/>`__.
 
-Metasyn can generate metadata from any given dataset (provided as Polars or Pandas DataFrame),
-using the :meth:`metasyn.MetaFrame.fit_dataframe(df) <metasyn.metaframe.MetaFrame.fit_dataframe>` classmethod.
+For example, if we want to load a dataset named 'dataset.csv' into a Polars DataFrame, set the columns ``Color`` and ``Fruit`` to be categorical and parse dates in the DataFrame. We can use the following code:
+
+.. code:: python
+
+   # Create a Polars DataFrame
+   df = pl.read_csv(
+       source="dataset.csv",
+       schema_overrides={"Color": pl.Categorical, "Fruit": pl.Categorical},
+       try_parse_dates=True,
+   )
+
+.. admonition:: Note on Pandas and Polars DataFrames
+
+    Internally, ``metasyn`` uses Polars (instead of Pandas) mainly because typing and the handling of non-existing data is more consistent. It is possible to supply a Pandas DataFrame instead of a Polars DataFrame to the ``MetaFrame.fit_dataframe`` method. However, this uses the automatic Polars conversion functionality, which for some edge cases results in problems. Therefore, we recommend users to create Polars DataFrames. The resulting synthetic dataset is always a Polars DataFrame, but this can be easily converted back to a Pandas DataFrame by using ``df_pandas = df_polars.to_pandas()``.
+
+Generating a MetaFrame
+----------------------
+With the DataFrame in place, we can now generate a :obj:`MetaFrame <metasyn.metaframe.MetaFrame>` object using the :meth:`metasyn.MetaFrame.fit_dataframe(df) <metasyn.metaframe.MetaFrame.fit_dataframe>` class method, passing in a DataFrame as a parameter.
 
 .. image:: /images/pipeline_estimation_code.png
    :alt: MetaFrame Generation With Code Snippet
    :align: center
 
-This function requires a :obj:`DataFrame` to be specified as parameter. The following code returns
-a :obj:`MetaFrame<metasyn.metaframe.MetaFrame>` object named :obj:`mf`, based on a DataFrame named :obj:`df`.
+The following code returns a :obj:`MetaFrame<metasyn.metaframe.MetaFrame>` object named :obj:`mf`, based on a DataFrame named :obj:`df`.
 
 .. code-block:: python
     
-   mf = metasyn.MetaFrame.from_dataframe(df)
-
-.. admonition:: Note on Pandas and Polars DataFrames
-
-    Internally, ``metasyn`` uses Polars (instead of Pandas) mainly because typing and the handling of non-existing data is more consistent. It is possible to supply a Pandas DataFrame instead of a Polars DataFrame to the ``MetaFrame.from_dataframe`` method. However, this uses the automatic Polars conversion functionality, which for some edge cases results in problems. Therefore, we recommend users to create Polars DataFrames. The resulting synthetic dataset is always a Polars DataFrame, but this can be easily converted back to a Pandas DataFrame by using ``df_pandas = df_polars.to_pandas()``.
+   mf = metasyn.MetaFrame.fit_dataframe(df)
 
 
-It is possible to print the (statistical metadata contained in the) :obj:`MetaFrame <metasyn.metaframe.MetaFrame>` to the console/output log. This can simply be done by calling the Python built-in `print` function on a :obj:`MetaFrame <metasyn.metaframe.MetaFrame>`:
+
+It is possible to print the statistical metadata contained in the :obj:`MetaFrame <metasyn.metaframe.MetaFrame>` to the console/output log. This can simply be done by calling the Python built-in `print` function on a :obj:`MetaFrame <metasyn.metaframe.MetaFrame>`:
 
 .. code-block:: python
 
@@ -75,7 +85,7 @@ The potential directives include:
 
         When generating a MetaFrame, ``metasyn`` will automatically analyze the columns of the input DataFrame to detect ones that contain only unique values.
         If such a column is found, and it has not manually been set to unique in the ``var_specs`` list, the user will be notified with the following warning:
-        ``Warning: Variable [column_name] seems unique, but not set to be unique. Set the variable to be either unique or not unique to remove this warning``
+        ``Variable '[variable name]' was detected to be unique, but has not explicitly been set to unique. To generate only unique values for column 'PassengerId', set unique to True. To dismiss this warning, set unique to False."``
         
         It is safe to ignore this warning - however, be aware that without setting the column as unique, ``metasyn`` may generate duplicate values for that column when synthesizing data.
         
@@ -124,8 +134,10 @@ The potential directives include:
    
 dist_providers
 ^^^^^^^^^^^^^^^^
-**dist_providers** allows you to specify distribution providers (as strings or actual provider objects) to use when fitting distributions to the column data.
 
+The parameter **dist_providers** determines which plug-ins should be loaded and in which order. By default all plug-ins will be loaded and available for fitting, which
+is what most users will probably want. It can be helpful for reproducibility to specify which providers were used. The distributions that are available through the `metasyn`
+package itself (without installing any plug-ins) is called "builtin".
    
 privacy
 ^^^^^^^^^
@@ -133,3 +145,8 @@ privacy
 
 .. warning::
     Privacy features (such as differential privacy or other forms of disclosure control) are currently under active development. More information on currently available extensions can be found in the :doc:`/usage/extensions` section.
+
+
+Config Files 
+^^^^^^^^^^^^
+It is also possible specify variable specifications, distribution providers and privacy levels through a .toml config file. This is mostly intended for working with the :doc:`/usage/cli`, but can also be used in the Python API. Information on how to use config files can be found in the :doc:`/usage/config_files` section.

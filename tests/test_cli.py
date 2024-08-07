@@ -35,7 +35,7 @@ def tmp_dir(tmp_path_factory) -> Path:
             "Age": float,
             "Fare": float
         }
-        data_frame = pl.read_csv(csv_fp, dtypes=csv_dt)[:100]
+        data_frame = pl.read_csv(csv_fp, schema_overrides=csv_dt)[:100]
         meta_frame = MetaFrame.fit_dataframe(data_frame, var_specs=[{"name": "PassengerId", "distribution": {"unique": True}}])
         meta_frame.to_json(json_path)
         config_fp = TMP_DIR_PATH / "config.ini"

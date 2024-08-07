@@ -11,7 +11,7 @@ except ImportError:
 
 from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
 from metasyn.provider import DistributionProviderList
-from metasyn.util import VarSpec
+from metasyn.varspec import VarSpec
 
 
 class MetaConfig():
@@ -63,9 +63,9 @@ class MetaConfig():
         return self._privacy
 
     @privacy.setter
-    def privacy(self, privacy):
+    def privacy(self, privacy: Optional[Union[dict, BasePrivacy]]):
         if privacy is None:
-            self._privacy = BasicPrivacy()
+            self._privacy: BasePrivacy = BasicPrivacy()
         elif isinstance(privacy, dict):
             self._privacy = get_privacy(**privacy)
         else:
@@ -97,8 +97,21 @@ class MetaConfig():
         meta_config:
             A fully initialized MetaConfig instance.
         """
-        with open(config_fp, "rb") as handle:
-            config_dict = tomllib.load(handle)
+        try:
+            with open(config_fp, "rb") as handle:
+                config_dict = tomllib.load(handle)
+        except FileNotFoundError as fnf_error:
+            raise FileNotFoundError(f"It appears '{config_fp}' is not a valid filepath."
+                                    f" Please provide a path to a .toml file to load a MetaConfig"
+                                    f" from.") from fnf_error
+        except ValueError as value_error:
+            if Path(config_fp).suffix == ".toml":
+                raise ValueError(f"It appears '{Path(config_fp).name}' is a"
+                                 f" '{Path(config_fp).suffix}' file."
+                                 f" To load a MetaConfig, "
+                                 f"provide it as a .toml file.") from value_error
+            raise ValueError(f"An error occured while parsing the configuration file \n"
+                             f"('{Path(config_fp).name}').") from value_error
         var_list = config_dict.pop("var", [])
         n_rows = config_dict.pop("n_rows", None)
         dist_providers = config_dict.pop("dist_providers", ["builtin"])

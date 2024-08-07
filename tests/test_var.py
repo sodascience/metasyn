@@ -52,6 +52,8 @@ def check_var(series, var_type, temp_path):
     check_similar(series, new_series)
     assert var.var_type == var_type
     assert var_type in var.distribution.var_type
+    assert var.creation_method["created_by"] == "metasyn"
+
 
     new_var = MetaVar.from_dict(var.to_dict())
     with raises(ValueError):
@@ -66,8 +68,6 @@ def check_var(series, var_type, temp_path):
 
     newer_series = new_var.draw_series(len(series))
     check_similar(newer_series, series)
-    # with raises(ValueError):
-        # new_var.fit()
 
     assert type(new_var) == type(var)
     assert new_var.dtype == var.dtype
@@ -85,6 +85,7 @@ def check_var(series, var_type, temp_path):
     assert type(new_var) == type(var)
     assert new_var.dtype == var.dtype
     assert new_var.var_type == var_type
+    assert new_var.creation_method["created_by"] == "metasyn"
 
     return new_series
 
@@ -239,8 +240,8 @@ def test_na_two(series):
 
 @mark.parametrize(
     "series",
-    [pd.Series(np.random.randint(0, 100000, size=1000)),
-     pl.Series(np.random.randint(0, 100000, size=1000))]
+    [pd.Series(np.random.randint(0, 1000, size=500)),
+     pl.Series(np.random.randint(0, 1000, size=500))]
 )
 def test_manual_unique_integer(series):
     var = MetaVar.fit(series)

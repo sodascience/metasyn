@@ -14,9 +14,9 @@ from tqdm import tqdm
 
 from metasyn.config import MetaConfig
 from metasyn.privacy import BasePrivacy
-from metasyn.util import VarSpec
 from metasyn.validation import validate_gmf_dict
 from metasyn.var import MetaVar
+from metasyn.varspec import VarSpec
 
 
 class MetaFrame():
@@ -113,6 +113,8 @@ class MetaFrame():
             meta_config.privacy = privacy  # type: ignore
 
         if df is not None and not isinstance(df, pl.DataFrame):
+            if isinstance(df, (str, pathlib.Path)):
+                raise ValueError("Please provide a DataFrame as input, not a string or path.")
             df = pl.DataFrame(df)
         all_vars = []
         columns = df.columns if df is not None else []

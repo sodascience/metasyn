@@ -31,7 +31,7 @@ def _read_csv(fp, dataframe_lib):
         df = pd.read_csv(fp, dtype=dtypes)
         return df.iloc[:100]
     else:
-        df = pl.read_csv(fp, dtypes={x: pl.Categorical for x, x_type in dtypes.items() if x_type == "category"})
+        df = pl.read_csv(fp, schema_overrides={x: pl.Categorical for x, x_type in dtypes.items() if x_type == "category"})
         return df[:100]
 
 

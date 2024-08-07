@@ -14,7 +14,7 @@ from metasyn.distribution.base import BaseDistribution, metadist
 
 @metadist(implements="core.multinoulli", var_type=["categorical", "discrete", "string"])
 class MultinoulliDistribution(BaseDistribution):
-    """Categorical distribution that stores category labels and probabilities.
+    """Categorical distribution using labels and probabilities.
 
     This class represents a multinoulli (categorical) distribution.
     It is used in cases where there are multiple potential outcomes,
@@ -29,12 +29,17 @@ class MultinoulliDistribution(BaseDistribution):
     probs : list of int
         The probabilities or frequencies of each category. These will be
         normalized internally.
+
+    Examples
+    --------
+    >>> MultinoulliDistribution(labels=["a", "b", "b"], probs=[0.1, 0.3, 0.6])
+    >>> MultinoulliDistribution(labels=[1, 3, 6], probs=[0.3, 0.4, 0.3])
     """
 
     def __init__(
         self,
         labels: Union[npt.NDArray[Union[np.str_, np.int_]], list[Union[str, int]]],
-        probs: Union[npt.NDArray[np.float_], list[float]]
+        probs: Union[npt.NDArray[np.double], list[float]]
     ):
         self.labels = np.array(labels)
         self.probs = np.array(probs)
@@ -107,7 +112,7 @@ class MultinoulliDistribution(BaseDistribution):
         https://en.wikipedia.org/wiki/Additive_smoothing
 
         with parameter alpha = 1. This effectively says that all values in between the observed
-        values have a probability of 1/N, where N is the number of total values. Hoewever, to
+        values have a probability of 1/N, where N is the number of total values. However, to
         prevent confusion (and potentially improve the synthesis) is draw from these unobserved
         values. That is why the information criterion for integers is not a true BIC, but a pseudo
         information criterion.

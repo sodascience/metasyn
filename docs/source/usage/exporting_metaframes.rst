@@ -13,7 +13,7 @@ Metasyn can serialize and **export a MetaFrame** into a GMF file. GMF files are 
 
 Exporting a MetaFrame
 ----------------------
-MetaFrames can be serialized and exported to a GMF file by calling the :meth:`metasyn.metaframe.MetaFrame.to_json` method on a :obj:`MetaFrames<metasyn.metaframe.MetaFrame>`. 
+MetaFrames can be serialized and exported to a GMF file by calling the :meth:`metasyn.metaframe.MetaFrame.to_json` method on a :obj:`MetaFrame<metasyn.metaframe.MetaFrame>`. 
 
 The following code exports a generated :obj:`MetaFrame<metasyn.metaframe.MetaFrame>` object named ``mf`` to a GMF file named ``exported_metaframe``.
 
@@ -24,7 +24,7 @@ The following code exports a generated :obj:`MetaFrame<metasyn.metaframe.MetaFra
 .. raw:: html
 
    <details> 
-   <summary> An example of a MetaFrame that has been exported to a GMF file: </summary>
+   <summary> <em><b>An example of a MetaFrame that has been exported to a GMF file: </em></b></summary>
 
 .. code-block:: json
     
@@ -34,9 +34,9 @@ The following code exports a generated :obj:`MetaFrame<metasyn.metaframe.MetaFra
         "provenance": {
             "created by": {
                 "name": "metasyn",
-                "version": "0.4.0"
+                "version": "0.8.1"
             },
-            "creation time": "2023-08-07T12:14:06.232957"
+            "creation time": "2024-04-29T12:07:36.646884"
         },
         "vars": [
             {
@@ -46,23 +46,31 @@ The following code exports a generated :obj:`MetaFrame<metasyn.metaframe.MetaFra
                 "prop_missing": 0.0,
                 "distribution": {
                     "implements": "core.unique_key",
+                    "version": "1.0",
                     "provenance": "builtin",
                     "class_name": "UniqueKeyDistribution",
+                    "unique": true,
                     "parameters": {
-                        "low": 1,
-                        "consecutive": 1
+                        "lower": 1,
+                        "consecutive": true
                     }
+                },
+                "creation_method": {
+                    "created_by": "metasyn",
+                    "unique": true
                 }
             },
             {
                 "name": "fruits",
                 "type": "categorical",
-                "dtype": "Categorical",
+                "dtype": "Categorical(ordering='physical')",
                 "prop_missing": 0.0,
                 "distribution": {
                     "implements": "core.multinoulli",
+                    "version": "1.0",
                     "provenance": "builtin",
                     "class_name": "MultinoulliDistribution",
+                    "unique": false,
                     "parameters": {
                         "labels": [
                             "apple",
@@ -73,6 +81,9 @@ The following code exports a generated :obj:`MetaFrame<metasyn.metaframe.MetaFra
                             0.6
                         ]
                     }
+                },
+                "creation_method": {
+                    "created_by": "metasyn"
                 }
             },
             {
@@ -81,23 +92,32 @@ The following code exports a generated :obj:`MetaFrame<metasyn.metaframe.MetaFra
                 "dtype": "Int64",
                 "prop_missing": 0.0,
                 "distribution": {
-                    "implements": "core.poisson",
+                    "implements": "core.uniform",
+                    "version": "1.0",
                     "provenance": "builtin",
-                    "class_name": "PoissonDistribution",
+                    "class_name": "DiscreteUniformDistribution",
+                    "unique": false,
                     "parameters": {
-                        "mu": 3.0
+                        "lower": 1,
+                        "upper": 6
                     }
+                },
+                "creation_method": {
+                    "created_by": "metasyn",
+                    "unique": false
                 }
             },
             {
                 "name": "cars",
                 "type": "categorical",
-                "dtype": "Categorical",
+                "dtype": "Categorical(ordering='physical')",
                 "prop_missing": 0.0,
                 "distribution": {
                     "implements": "core.multinoulli",
+                    "version": "1.0",
                     "provenance": "builtin",
                     "class_name": "MultinoulliDistribution",
+                    "unique": false,
                     "parameters": {
                         "labels": [
                             "audi",
@@ -108,6 +128,9 @@ The following code exports a generated :obj:`MetaFrame<metasyn.metaframe.MetaFra
                             0.8
                         ]
                     }
+                },
+                "creation_method": {
+                    "created_by": "metasyn"
                 }
             },
             {
@@ -116,13 +139,18 @@ The following code exports a generated :obj:`MetaFrame<metasyn.metaframe.MetaFra
                 "dtype": "Int64",
                 "prop_missing": 0.2,
                 "distribution": {
-                    "implements": "core.discrete_uniform",
+                    "implements": "core.uniform",
+                    "version": "1.0",
                     "provenance": "builtin",
                     "class_name": "DiscreteUniformDistribution",
+                    "unique": false,
                     "parameters": {
-                        "low": -30,
-                        "high": 301
+                        "lower": -30,
+                        "upper": 301
                     }
+                },
+                "creation_method": {
+                    "created_by": "metasyn"
                 }
             }
         ]
@@ -304,8 +332,8 @@ If we now synthesize five rows of data based on a MetaFrame loaded from the edit
      - 51
 
 
-As you can see, it is very easy to modify the metadata to change how data is synthesized. Similarly to this example, any other aspect of the MetaFrame can be edited, including the variable names, the variable types, the data types, the percentage of missing values, and the distribution attributes. 
+As you can see, you can modify the metadata to change how data is synthesized. Similarly to this example, any other aspect of the MetaFrame can be edited, including the variable names, the variable types, the data types, the percentage of missing values, and the distribution attributes. 
 
 .. warning:: 
-    Be extra careful when manually editing GMF files as errors in names, values, or formatting can cause problems. 
+    Be extra careful when manually editing GMF files as errors in names, values, or formatting can cause problems. In this case, metasyn will most likely produce JSON validation errors.
 

@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="docs/source/images/logos/blue.svg" width="600px" alt="Metasyn logo"></img>
+  <img src="https://github.com/sodascience/metasyn/blob/main/docs/source/images/logos/blue.svg" width="600px" alt="Metasyn logo"></img>
   <h3 align="center">Transparent and privacy-friendly synthetic data generation</h3>
   <p align="center">
     <span>
-        <a href="https://www.repostatus.org/#wip"><img src="https://www.repostatus.org/badges/latest/wip.svg" alt="Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public."/></a>
+        <a href="https://www.repostatus.org/#active"><img src="https://www.repostatus.org/badges/latest/active.svg" alt="Project Status: Active – The project has reached a stable, usable state and is being actively developed." /></a>
         <a href="https://pypi.org/project/metasyn"><img src="https://img.shields.io/pypi/pyversions/metasyn" alt="metasyn on pypi"></img></a>
         <a href="https://colab.research.google.com/github/sodascience/metasyn/blob/main/examples/getting_started.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="open getting started on colab"></img></a>
         <a href="https://metasyn.readthedocs.io/en/latest/index.html"><img src="https://readthedocs.org/projects/metasyn/badge/?version=latest" alt="Readthedocs"></img></a>
@@ -42,7 +42,7 @@ pip install git+https://github.com/sodascience/metasyn
 ## Usage
 To generate synthetic data, `metasyn` first needs to fit a `MetaFrame` to the data which can then be used to produce new synthetic rows:
 
-![Example input and output](docs/source/images/example_input_output_concise.png)
+![Example input and output](https://github.com/sodascience/metasyn/blob/main/docs/source/images/example_input_output_concise.png)
 
 In Python code this happens as follows:
 
@@ -56,7 +56,7 @@ csv_path = demo_file("fruit")
 # Create a polars dataframe from the csv file.
 # It is important to ensure the data types are correct  
 # when creating your dataframe, especially categorical data!
-df = pl.read_csv(csv_path, dtypes={
+df = pl.read_csv(csv_path, schema_overrides={
   "fruits": pl.Categorical, 
   "cars": pl.Categorical
 })
@@ -84,23 +84,11 @@ For more information on how to create dataframes with polars, refer to the [Pola
 - To learn more about how `metasyn` works, go to detailed overview in our [documentation](https://metasyn.readthedocs.io/en/latest/about/metasyn_in_detail.html). 
 - Want to create programs that build on metasyn? Take a look at our versioned [Docker containers](https://hub.docker.com/r/sodateam/metasyn) and our [CLI](https://metasyn.readthedocs.io/en/latest/usage/cli.html).
 
-
-
 ## Contributing
-Metasyn is an open-source project, and we welcome contributions from the community.
-
-To contribute to the codebase, follow these steps:
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-More information on contributing can be found in the [contributing](https://metasyn.readthedocs.io/en/latest/developer/contributing.html) section of the documentation.
-
+Metasyn is an open-source project, and we welcome contributions from the community, from bug reports & feature requests to code contributions. Read our [contributing guidelines](.github/CONTRIBUTING.md) for more information and to get started!
 
 ## Contact
 **Metasyn** is a project by the [ODISSEI Social Data Science (SoDa)](https://odissei-data.nl/nl/soda/) team.
-Do you have questions, suggestions, or remarks on the technical implementation? File an issue in the issue tracker or feel free to contact [Erik-Jan van Kesteren](https://github.com/vankesteren) or [Raoul Schram](https://github.com/qubixes).
+Do you have questions, suggestions, or remarks on the technical implementation? Create an issue in the [issue tracker](https://github.com/sodascience/metasyn/issues) or feel free to contact [Erik-Jan van Kesteren](https://github.com/vankesteren) or [Raoul Schram](https://github.com/qubixes).
 
 <img src="docs/source/images/logos/soda.png" alt="SoDa logo" width="250px"/> 

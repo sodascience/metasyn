@@ -1,97 +1,77 @@
-Distribution package
-====================
+Distribution list
+=================
 
-This package consists of several distribution modules. 
-It also includes :mod:`metasyn.distribution.base` module, which forms the basis of all distributions.
+This page serves as an overview of the various distributions available in the
+``metasyn.distribution`` module. Clicking on a distribution will take you to a page with more information, including its parameters.
 
-Base module
-^^^^^^^^^^^
+Categorical Distributions
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: metasyn.distribution.base
-   :members:
-   :undoc-members:
-   :inherited-members:
-   :private-members:
-   :show-inheritance:
+.. currentmodule:: metasyn.distribution.categorical
 
-Categorical module
-^^^^^^^^^^^^^^^^^^
+.. autosummary::
+   :toctree: generated/
 
-.. automodule:: metasyn.distribution.categorical
-   :members:
-   :undoc-members:
-   :inherited-members:
-   :private-members:
-   :show-inheritance:
-
-Constant module
-^^^^^^^^^^^^^^^
-
-.. automodule:: metasyn.distribution.constant
-   :members:
-   :undoc-members:
-   :inherited-members:
-   :private-members:
-   :show-inheritance:
-
-Continuous module
-^^^^^^^^^^^^^^^^^
-
-.. automodule:: metasyn.distribution.continuous
-   :members:
-   :undoc-members:
-   :inherited-members:
-   :private-members:
-   :show-inheritance:
-
-Datetime module
-^^^^^^^^^^^^^^^
-
-.. automodule:: metasyn.distribution.datetime
-   :members:
-   :undoc-members:
-   :inherited-members:
-   :private-members:
-   :show-inheritance:
-
-Discrete module
-^^^^^^^^^^^^^^^
-
-.. automodule:: metasyn.distribution.discrete
-   :members:
-   :undoc-members:
-   :inherited-members:
-   :private-members:
-   :show-inheritance:
-
-Faker module
-^^^^^^^^^^^^
-
-.. automodule:: metasyn.distribution.faker
-   :members:
-   :undoc-members:
-   :inherited-members:
-   :private-members:
-   :show-inheritance:
-
-NA module
-^^^^^^^^^
-
-.. automodule:: metasyn.distribution.na
-   :members:
-   :undoc-members:
-   :inherited-members:
-   :private-members:
-   :show-inheritance:
-
-Regex module
-^^^^^^^^^^^^
-
-.. automodule:: metasyn.distribution.regex
-   :members:
-   :undoc-members:
-   :inherited-members:
-   :private-members:
-   :show-inheritance:
+   MultinoulliDistribution -- Stores labels and probabilities.
 
 
+Continuous Distributions
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. currentmodule:: metasyn.distribution.continuous
+
+.. autosummary::
+   :toctree: generated/
+
+   UniformDistribution
+   NormalDistribution
+   LogNormalDistribution
+   TruncatedNormalDistribution
+   ExponentialDistribution
+   ConstantDistribution
+
+Date and Time Distributions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. currentmodule:: metasyn.distribution.datetime
+
+.. autosummary::
+   :toctree: generated/
+
+   DateUniformDistribution
+   TimeUniformDistribution
+   DateTimeUniformDistribution
+   DateTimeConstantDistribution
+   TimeConstantDistribution
+   DateConstantDistribution
+
+
+Discrete Distributions
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. currentmodule:: metasyn.distribution.discrete
+
+.. autosummary::
+   :toctree: generated/
+
+   DiscreteUniformDistribution
+   DiscreteNormalDistribution
+   DiscreteTruncatedNormalDistribution
+   PoissonDistribution
+   UniqueKeyDistribution
+   DiscreteConstantDistribution -- Constant discrete distribution
+
+String Distributions
+^^^^^^^^^^^^^^^^^^^^
+
+.. currentmodule:: metasyn.distribution.string
+
+.. autosummary::
+   :toctree: generated/
+   
+   FakerDistribution
+   UniqueFakerDistribution
+   FreeTextDistribution
+   StringConstantDistribution
+   RegexDistribution
+   UniqueRegexDistribution

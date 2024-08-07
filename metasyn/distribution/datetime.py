@@ -7,7 +7,7 @@ from typing import Any, Dict
 
 import numpy as np
 
-from metasyn.distribution.base import BaseDistribution, metadist
+from metasyn.distribution.base import BaseConstantDistribution, BaseDistribution, metadist
 
 
 def convert_numpy_datetime(time_obj: np.datetime64) -> dt.datetime:
@@ -110,7 +110,30 @@ class BaseUniformDistribution(BaseDistribution):
 
 @metadist(implements="core.uniform", var_type="datetime")
 class DateTimeUniformDistribution(BaseUniformDistribution):
-    """Uniform DateTime distribution."""
+    """Uniform DateTime distribution.
+
+    Datetime objects will be uniformly distributed between a start and end date time.
+
+    Parameters
+    ----------
+    lower: str or datetime.datetime
+        Earliest possible datetime to be generated from this distribution.
+        String formatted in ISO format, see examples below or use datetime objects
+        from the python standard library `datetime`.
+    upper: str or datetime.datetime
+        Latest possible datetime to be generated from this distribution.
+        String formatted in ISO format, see examples below or use datetime objects
+        from the python standard library `datetime`.
+    precision: str
+        Most precise measure of datetime that the distribution will take into account.
+        For example, if precision == "seconds", then the microseconds will always be
+        set to 0. Possible values: ["microseconds", "seconds", "minutes", "hours", "days"].
+
+    Examples
+    --------
+    >>> DateTimeUniformDistribution(lower="2022-07-15T10:39", upper="2022-08-15T10:39",
+                                    precision="minutes")
+    """
 
     def fromisoformat(self, dt_obj: str) -> dt.datetime:
         return dt.datetime.fromisoformat(dt_obj)
@@ -130,7 +153,29 @@ class DateTimeUniformDistribution(BaseUniformDistribution):
 
 @metadist(implements="core.uniform", var_type="time")
 class TimeUniformDistribution(BaseUniformDistribution):
-    """Uniform time distribution."""
+    """Uniform time distribution.
+
+    Time objects will be uniformly distributed between a start and end time.
+
+    Parameters
+    ----------
+    lower: str or datetime.time
+        Earliest possible time to be generated from this distribution.
+        String formatted in ISO format, see examples below or use time objects
+        from the python standard library `datetime`.
+    upper: str or datetime.time
+        Latest possible time to be generated from this distribution.
+        String formatted in ISO format, see examples below or use time objects
+        from the python standard library `datetime`.
+    precision: str
+        Most precise measure of time that the distribution will take into account.
+        For example, if precision == "seconds", then the microseconds will always be
+        set to 0. Possible values: ["microseconds", "seconds", "minutes", "hours"].
+
+    Examples
+    --------
+    >>> TimeUniformDistribution(lower="10:39:12", upper="10:39:45", precision="seconds")
+    """
 
     def fromisoformat(self, dt_obj: str) -> dt.time:
         return dt.time.fromisoformat(dt_obj)
@@ -156,7 +201,25 @@ class TimeUniformDistribution(BaseUniformDistribution):
 
 @metadist(implements="core.uniform", var_type="date")
 class DateUniformDistribution(BaseUniformDistribution):
-    """Uniform date distribution."""
+    """Uniform date distribution.
+
+    Date objects will be uniformly distributed between a start and end date.
+
+    Parameters
+    ----------
+    lower: str or datetime.date
+        Earliest possible date to be generated from this distribution.
+        String formatted in ISO format, see examples below or use date objects
+        from the python standard library `datetime`.
+    upper: str or datetime.date
+        Latest possible date to be generated from this distribution.
+        String formatted in ISO format, see examples below or use date objects
+        from the python standard library `datetime`.
+
+    Examples
+    --------
+    >>> DateUniformDistribution(lower="10:39:12", upper="10:39:45", precision="seconds")
+    """
 
     precision_possibilities = ["days"]
 
@@ -187,4 +250,115 @@ class DateUniformDistribution(BaseUniformDistribution):
         return {
             "lower": {"type": "string"},
             "upper": {"type": "string"},
+        }
+
+
+
+@metadist(implements="core.constant", var_type="datetime")
+class DateTimeConstantDistribution(BaseConstantDistribution):
+    """Constant datetime distribution.
+
+    This class implements the constant distribution, so that it draws always
+    the same value.
+
+    Parameters
+    ----------
+    value: str or datetime.datetime
+        Value that will be returned when drawn.
+
+    Examples
+    --------
+    >>> DateTimeConstantDistribution(value="2022-07-15T10:39:36")
+    """
+
+    def __init__(self, value):
+        if isinstance(value, str):
+            value = dt.datetime.fromisoformat(value)
+        elif isinstance(value, np.datetime64):
+            value = convert_numpy_datetime(value)
+        super().__init__(value)
+
+    def _param_dict(self):
+        return {"value": self.value.isoformat()}
+
+    @classmethod
+    def default_distribution(cls) -> BaseDistribution:
+        return cls("2022-07-15T10:39:36")
+
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "value": {"type": "string"}
+        }
+
+
+@metadist(implements="core.constant", var_type="time")
+class TimeConstantDistribution(BaseConstantDistribution):
+    """Constant time distribution.
+
+    This class implements the constant distribution, so that it draws always
+    the same value.
+
+    Parameters
+    ----------
+    value: str or datetime.time
+        Value that will be returned when drawn.
+
+    Examples
+    --------
+    >>> TimeConstantDistribution(value="10:39:36")
+    """
+
+    def __init__(self, value):
+        if isinstance(value, str):
+            value = dt.time.fromisoformat(value)
+        super().__init__(value)
+
+    def _param_dict(self):
+        return {"value": self.value.isoformat()}
+
+    @classmethod
+    def default_distribution(cls) -> BaseDistribution:
+        return cls("10:39:36")
+
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "value": {"type": "string"}
+        }
+
+
+@metadist(implements="core.constant", var_type="date")
+class DateConstantDistribution(BaseConstantDistribution):
+    """Constant date distribution.
+
+    This class implements the constant distribution, so that it draws always
+    the same value.
+
+    Parameters
+    ----------
+    value: str or datetime.date
+        Value that will be returned when drawn.
+
+    Examples
+    --------
+    >>> DateConstantDistribution(value="1903-07-15")
+    """
+
+    def __init__(self, value):
+        if isinstance(value, str):
+            value = dt.date.fromisoformat(value)
+        super().__init__(value)
+
+    def _param_dict(self):
+        return {"value": self.value.isoformat()}
+
+    @classmethod
+    def default_distribution(cls) -> BaseDistribution:
+        return cls("1903-07-15")
+
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "value": {"type": "string"}
         }

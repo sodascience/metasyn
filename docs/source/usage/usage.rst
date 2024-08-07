@@ -13,6 +13,7 @@ information on installation, quickstart, tutorials and information on the core f
    generating_metaframes
    exporting_metaframes
    generating_synthetic_data
+   config_files
    cli
    interactive_tutorials
    extensions

@@ -148,3 +148,6 @@ docs/source/images/.$distributions.drawio.bkp
 # JOSS paper artefacts
 docs/paper/*.jats
 docs/paper/media
+
+# Generated api docs stuff
+docs/source/api/generated

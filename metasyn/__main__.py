@@ -83,7 +83,7 @@ def main() -> None:
         sys.exit(1)
 
 
-def create_metadata():
+def create_metadata() -> None:
     """Program to create and export metadata from a DataFrame to a GMF file (.json)."""
     parser = argparse.ArgumentParser(
         prog="metasyn create-meta",
@@ -122,6 +122,8 @@ Example: {EXAMPLE_CREATE_META}
         meta_config = None
 
     if args.input is None:
+        if meta_config is None:
+            raise ValueError("Please supply either an input dataset or a configuration file.")
         meta_frame = MetaFrame.from_config(meta_config)
     else:
         data_frame = pl.read_csv(args.input, try_parse_dates=True, infer_schema_length=10000,

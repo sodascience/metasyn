@@ -24,7 +24,7 @@ author = 'SODA Team'
 
 
 # The full version, including alpha/beta/rc tags
-release = '0.7.1'
+release = '1.0.1'
 
 
 # -- General configuration ---------------------------------------------------
@@ -33,7 +33,7 @@ release = '0.7.1'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.napoleon', "sphinx.ext.autodoc", "sphinx_autodoc_typehints",
-              'sphinx_rtd_theme', "sphinx_inline_tabs", "sphinx_copybutton"]
+              'sphinx_rtd_theme', "sphinx_inline_tabs", "sphinx_copybutton", "sphinx.ext.autosummary"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
