@@ -126,7 +126,9 @@ def demo_dataframe(name: str = "titanic") -> pl.DataFrame:
             "Destination": pl.Categorical,
             "Transported": pl.Categorical,
         }
-        return pl.read_csv(file_path, schema_overrides=data_types, try_parse_dates=True)
+        return pl.read_csv(
+            file_path, schema_overrides=data_types, try_parse_dates=True
+        )
     if name == "titanic":
         # our edited titanic data
         data_types = {"Sex": pl.Categorical, "Embarked": pl.Categorical}
