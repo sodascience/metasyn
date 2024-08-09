@@ -1,0 +1,8 @@
+
+On windows:
+
+docker run --rm --volume %cd%/docs/paper:/data --env JOURNAL=joss openjournals/inara
+
+on unix:
+
+docker run --rm --volume $PWD/docs/paper:/data --user $(id -u):$(id -g) --env JOURNAL=joss openjournals/inara
