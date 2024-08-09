@@ -141,8 +141,13 @@ dmypy.json
 
 #DS_Store
 .DS_Store
-.DS_Store
 docs/source/images/pipeline.afphoto~lock~
 docs/source/images/.$ClassDiagram.drawio.bkp
 docs/source/images/.$distributions.drawio.bkp
+
+# JOSS paper artefacts
+docs/paper/*.jats
+docs/paper/media
+
+# Generated api docs stuff
 docs/source/api/generated
