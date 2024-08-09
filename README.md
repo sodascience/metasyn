@@ -71,9 +71,9 @@ df_synth = mf.synthesize(5)
 df_synth.write_csv("output.csv")
 ```
 
-Here's a fancy gif as well:
+Here is a gif showcasing basic `metasyn` usage:
 
-![demo](https://github.com/user-attachments/assets/c76a637e-9bd8-4e70-8d7a-94f0d0e6f548)
+![demo](https://github.com/user-attachments/assets/f3982077-4a02-4a41-b88c-d5145ef8bdd7)
 
 To explore more options and try this out online, take a look at our interactive tutorial:
 
