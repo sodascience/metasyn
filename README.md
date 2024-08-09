@@ -71,6 +71,10 @@ df_synth = mf.synthesize(5)
 df_synth.write_csv("output.csv")
 ```
 
+Here's a fancy gif as well:
+
+![demo](https://github.com/user-attachments/assets/c76a637e-9bd8-4e70-8d7a-94f0d0e6f548)
+
 To explore more options and try this out online, take a look at our interactive tutorial:
 
 [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sodascience/metasyn/blob/main/examples/getting_started.ipynb)
