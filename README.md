@@ -9,6 +9,7 @@
         <a href="https://metasyn.readthedocs.io/en/latest/index.html"><img src="https://readthedocs.org/projects/metasyn/badge/?version=latest" alt="Readthedocs"></img></a>
         <a href="https://hub.docker.com/r/sodateam/metasyn"><img src="https://img.shields.io/docker/v/sodateam/metasyn?logo=docker&label=docker&color=blue" alt="Docker image version"></img></a>
         <a href="https://zenodo.org/doi/10.5281/zenodo.7696031"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.7696031.svg" alt="DOI"></a>
+        <a href="https://joss.theoj.org/papers/43fd4234e18bfd94b952aea35db8b883"><img src="https://joss.theoj.org/papers/43fd4234e18bfd94b952aea35db8b883/status.svg"></a>
     </span>
   </p>
 </p>
