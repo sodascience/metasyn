@@ -45,7 +45,7 @@ These choices enable the software to generate synthetic data with __privacy and 
 
 At its core, `metasyn` has three main functions:
 
-1. __Estimation__: Automatically select distributions and fit them to a properly formatted tabular dataset, optionally with additional privacy guarantees.
+1. __Estimation__: Fit a generative model to a properly formatted tabular dataset, optionally with additional privacy guarantees.
 2. __(De)serialization__: Create an intermediate representation of the fitted model for auditing, editing, and exporting.
 3. __Generation__: Generate new synthetic datasets based on a fitted model.
 
@@ -74,25 +74,24 @@ Model estimation starts with an appropriately pre-processed data frame, meaning 
 └─────┴────────┴─────┴────────┴──────────┘
 ```
 
-For each data type, a set of candidate distributions is fitted (see Table \autoref{tbl:dist}), and then `metasyn` selects the one with the lowest BIC [@neath2012bayesian]. For distributions where BIC computation is impossible (e.g., for the string data type) a pseudo-BIC is created that trades off fit and complexity of the underlying models.
+For each data type, a set of candidate distributions is fitted (see \autoref{tbl:dist}), and then `metasyn` selects the one with the lowest BIC [@neath2012bayesian]. For distributions where BIC computation is impossible (e.g., for the string data type) a pseudo-BIC is created that trades off fit and complexity of the underlying models.
 
 Table: \label{tbl:dist} Candidate distributions associated with data types in the core `metasyn` package.
 
-| Variable type | Example                | Candidate distributions                                            |
-| :------------ | :--------------------- | :----------------------------------------------------------------- |
-| categorical   | yes/no, country        | Categorical (Multinoulli), Constant                                |
-| continuous    | 1.0, 2.1, ...          | Uniform, Normal, LogNormal, TruncatedNormal, Exponential, Constant |
-| discrete      | 1, 2, ...              | Poisson, Uniform, Normal, TruncatedNormal, Categorical, Constant   |
-| string        | A108, C122, some words | Regex, Categorical, Faker, FreeText, Constant                      |
-| date/time     | 2021-01-13, 01:40:12   | Uniform, Constant                                                  |
+| Data type   | Candidate distributions                                            |
+| :---------- | :----------------------------------------------------------------- |
+| Categorical | Categorical, Constant                                              |
+| Continuous  | Uniform, Normal, LogNormal, TruncatedNormal, Exponential, Constant |
+| Discrete    | Poisson, Uniform, Normal, TruncatedNormal, Categorical, Constant   |
+| String      | Regex, Categorical, Faker, FreeText, Constant                      |
+| Date/time   | Uniform, Constant                                                  |
 
-From this table, the string distributions deserve special attention as they are not commonly encountered as probability distributions. Regex (regular expression) inference is performed on structured strings using the companion package [RegexModel](https://pypi.org/project/regexmodel/). It is able to automatically detect structure such as room numbers (A108, C122, B109), e-mail addresses, websites, and more, which it summarizes using a probabilistic variant of regular expressions. The FreeText distribution detects the language (using [lingua](https://pypi.org/project/lingua-language-detector/)) and randomly picks words from that language. The [Faker](https://pypi.org/project/Faker/) distribution can generate specific data types such as localized addresses, when pre-specified by the user. 
+From this table, the string distributions deserve special attention as they are not commonly encountered as probability distributions. The regex (regular expression) distribution uses the package [`regexmodel`](https://pypi.org/project/regexmodel/) to automatically detect structure such as room numbers (A108, C122, B109), e-mail addresses, or websites. The FreeText distribution detects the language (using [lingua](https://pypi.org/project/lingua-language-detector/)) and randomly picks words from that language. The [Faker](https://pypi.org/project/Faker/) distribution can generate specific data types such as localized names and addresses pre-specified by the user. 
 
 Generative model estimation with `metasyn` can be performed as follows:
 
 ```python
 from metasyn import MetaFrame
-
 mf = MetaFrame.fit_dataframe(df)
 ```
 
@@ -124,10 +123,7 @@ This `.json` can be manually audited, edited, and after exporting this file, an 
 
 ```python
 mf.export("fruits.json")
-
-# then, audit and transfer json
-
-mf_out = MetaFrame.from_json("fruits.json")
+mf_new = MetaFrame.from_json("fruits.json")
 ```
 
 ## Data generation
@@ -135,15 +131,12 @@ mf_out = MetaFrame.from_json("fruits.json")
 For each variable in a fitted or deserialized model object, `metasyn` can randomly sample synthetic datapoints. Data generation (or synthetization) in `metasyn` can be performed as follows:
 
 ```python
-from metasyn import MetaFrame
-
-df_syn = mf.synthesize(10)
+df_syn = mf.synthesize(3)
 ```
 
 This may result in the following `polars` data frame[^1]. Note that missing values in the `optional` column are appropriately reproduced as well.
 
 ```
-shape: (10, 5)
 ┌─────┬────────┬─────┬────────┬──────────┐
 │ ID  ┆ fruits ┆ B   ┆ cars   ┆ optional │
 │ --- ┆ ---    ┆ --- ┆ ---    ┆ ---      │
@@ -151,9 +144,7 @@ shape: (10, 5)
 ╞═════╪════════╪═════╪════════╪══════════╡
 │ 1   ┆ banana ┆ 4   ┆ beetle ┆ null     │
 │ 2   ┆ banana ┆ 3   ┆ audi   ┆ null     │
-│ …   ┆ …      ┆ …   ┆ …      ┆ …        │
-│ 9   ┆ banana ┆ 4   ┆ beetle ┆ -30      │
-│ 10  ┆ banana ┆ 2   ┆ beetle ┆ 172      │
+│ 3   ┆ banana ┆ 2   ┆ beetle ┆ 172      │
 └─────┴────────┴─────┴────────┴──────────┘
 ```
 
@@ -173,6 +164,6 @@ mf = MetaFrame.fit_dataframe(df, privacy=DisclosurePrivacy())
 
 This research was conducted in whole or in part using ODISSEI, the Open Data Infrastructure for Social Science and Economic Innovations (https://ror.org/03m8v6t10)
 
-The `metasyn` project is supported by the FAIR Research IT Innovation Fund of Utrecht University (March 2023) 
+`metasyn` was supported by the Utrecht University FAIR Research IT Innovation Fund (March 2023) 
 
 # References
