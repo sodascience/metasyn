@@ -29,7 +29,7 @@ bibliography: paper.bib
 ---
 
 # Summary
-Synthetic data is a promising tool for improving the accessibility of datasets that are otherwise too sensitive to be shared publicly. To this end, we introduce `metasyn`, a Python package for generating synthetic data from tabular datasets. Unlike existing synthetic data generation software, `metasyn` is built on a simple generative model that removes multivariate information from the synthetic data. This choice enables transparency and auditability, keeps information leakage to a minimum, and enables privacy guarantees through a plug-in system. While the analytical validity of the generated data is thus intentionally limited, its potential uses are broad, including exploratory analyses, code development and testing, and external communication and teaching [@vankesteren2024democratize].
+Synthetic data is a promising tool for improving the accessibility of datasets which are too sensitive to be shared publicly. To this end, we introduce `metasyn`, a Python package for generating synthetic data from tabular datasets. Unlike existing synthetic data generation software, `metasyn` is built on a simple generative model that omits multivariate information. This choice enables transparency and auditability, keeps information leakage to a minimum, and enables privacy guarantees through a plug-in system. While the analytical validity of the generated data is thus intentionally limited, its potential uses are broad, including exploratory analyses, code development and testing, and external communication and teaching [@vankesteren2024democratize].
 
 ![Logo of the `metasyn` project.](img/logo.svg)
 
@@ -45,20 +45,18 @@ These choices enable the software to generate synthetic data with __privacy and 
 
 At its core, `metasyn` has three main functions:
 
-1. __Estimation__: Fit a generative model to a properly formatted tabular dataset, optionally with additional privacy guarantees.
+1. __Estimation__: Fit a generative model to a properly formatted tabular dataset, optionally with privacy guarantees.
 2. __(De)serialization__: Create an intermediate representation of the fitted model for auditing, editing, and exporting.
-3. __Generation__: Generate new synthetic datasets based on a fitted model.
+3. __Generation__: Synthesize new datasets based on a fitted model.
 
 ## Estimation
-The generative model for multivariate datasets in `metasyn` makes the assumption of marginal independence: each column is considered separately, just as is done in e.g., naïve Bayes classifiers [@hastie2009elements]. Formally, this leads to the following generative model for the $K$-variate data $\mathbf{x}$:
+The generative model in `metasyn` makes the assumption of marginal independence: each column is considered separately, similar to naïve Bayes classifiers [@hastie2009elements]. Some key advantages of this naïve approach are transparency and explainability, flexibility in handling mixed data types, and computational scalability to high-dimensional datasets. Formally, the generative model for $K$-variate data $\mathbf{x}$ is:
 
 \begin{equation} \label{eq:model}
 p(\mathbf{x}) = \prod_{k = 1}^K p(x_k)
 \end{equation}
 
-There are many advantages to this naïve approach when compared to more advanced generative models: it is transparent and explainable, it is able to flexibly handle data of mixed types, and it is computationally scalable to high-dimensional datasets. 
-
-Model estimation starts with an appropriately pre-processed data frame, meaning it is tidy [@wickham2014tidy], each column has the correct data type, and missing data are represented by a missing value. Internally, our software uses the `polars` data frame library [@vink2024polars], as it is performant, has consistent data types, and natively supports missing data (i.e., `null` values). A simple example source table could look like this (note that categorical data has the appropriate `cat` data type, not `str`):
+Model estimation starts with an appropriately pre-processed data frame, meaning it is tidy [@wickham2014tidy], each column has the correct data type, and missing data are represented by a missing value. Internally, our software uses the `polars` data frame library [@vink2024polars], as it is performant, has consistent data types, and natively supports missing data (i.e., `null` values). An example source table is printed below (NB: categorical data are appropriately encoded as `cat`, not `str`):
 
 ```
 ┌─────┬────────┬─────┬────────┬──────────┐
@@ -86,7 +84,7 @@ Table: \label{tbl:dist} Candidate distributions associated with data types in th
 | String      | Regex, Categorical, Faker, FreeText, Constant                      |
 | Date/time   | Uniform, Constant                                                  |
 
-From this table, the string distributions deserve special attention as they are not commonly encountered as probability distributions. The regex (regular expression) distribution uses the package [`regexmodel`](https://pypi.org/project/regexmodel/) to automatically detect structure such as room numbers (A108, C122, B109), e-mail addresses, or websites. The FreeText distribution detects the language (using [lingua](https://pypi.org/project/lingua-language-detector/)) and randomly picks words from that language. The [Faker](https://pypi.org/project/Faker/) distribution can generate specific data types such as localized names and addresses pre-specified by the user. 
+From this table, the string distributions deserve special attention as they are not common probability distributions. The regex (regular expression) distribution uses the package [`regexmodel`](https://pypi.org/project/regexmodel/) to automatically detect structure such as room numbers (A108, C122, B109), e-mail addresses, or websites. The FreeText distribution detects the language (using [lingua](https://pypi.org/project/lingua-language-detector/)) and randomly picks words from that language. The [Faker](https://pypi.org/project/Faker/) distribution can generate specific data types such as localized names and addresses pre-specified by the user. 
 
 Generative model estimation with `metasyn` can be performed as follows:
 
@@ -96,7 +94,7 @@ mf = MetaFrame.fit_dataframe(df)
 ```
 
 ## Serialization and deserialization
-After a fitted model object is created, `metasyn` allows it to be transparently stored in a human- and machine-readable `.json` file. This file can be considered as metadata: it contains dataset-level descriptive information as well as the following variable-level information:
+After fitting a model, `metasyn` can transparently store it in a human- and machine-readable `.json` metadata file. This file contains dataset-level descriptive information as well as the following variable-level information:
 
 ```json
 {
@@ -128,13 +126,13 @@ mf_new = MetaFrame.from_json("fruits.json")
 
 ## Data generation
 
-For each variable in a fitted or deserialized model object, `metasyn` can randomly sample synthetic datapoints. Data generation (or synthetization) in `metasyn` can be performed as follows:
+For each variable in a `MetaFrame` object, `metasyn` can randomly sample synthetic datapoints. Data generation (or synthetization) in `metasyn` can be performed as follows:
 
 ```python
 df_syn = mf.synthesize(3)
 ```
 
-This may result in the following `polars` data frame[^1]. Note that missing values in the `optional` column are appropriately reproduced as well.
+This may result in the following data frame. Note that missing values in the `optional` column are appropriately reproduced as well.
 
 ```
 ┌─────┬────────┬─────┬────────┬──────────┐
@@ -148,10 +146,8 @@ This may result in the following `polars` data frame[^1]. Note that missing valu
 └─────┴────────┴─────┴────────┴──────────┘
 ```
 
-[^1]: This `polars` dataframe can be easily converted to a `pandas` dataframe using `df_syn.to_pandas()`
-
 # Plug-ins and automatic privacy
-In addition to its core features, the `metasyn` package allows for plug-ins: packages that alter the distribution fitting behaviour. Through this system, privacy guarantees can be built into `metasyn` ([privacy plug-in template](https://github.com/sodascience/metasyn-privacy-template)) and additional distributions can be supported ([distribution plug-in template](https://github.com/sodascience/metasyn-distribution-template)). The [`metasyn-disclosure-control`](https://github.com/sodascience/metasyn-disclosure-control) plug-in implements output guidelines from Eurostat [@bond2015guidelines] by including micro-aggregation. In this way, information transfer from the sensitive real data to the synthetic public data can be further limited. Disclosure control is done as follows:
+The `metasyn` package also allows for plug-ins: packages that alter the distribution fitting behaviour. Through this system, privacy guarantees can be built into `metasyn` ([privacy plug-in template](https://github.com/sodascience/metasyn-privacy-template)) and additional distributions can be supported ([distribution plug-in template](https://github.com/sodascience/metasyn-distribution-template)). The [`metasyn-disclosure-control`](https://github.com/sodascience/metasyn-disclosure-control) plug-in implements output guidelines from Eurostat [@bond2015guidelines] by including micro-aggregation. In this way, information transfer from the sensitive real data to the synthetic public data can be further limited. Disclosure control is performed as follows:
 
 ```python
 from metasyn import MetaFrame
