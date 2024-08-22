@@ -49,7 +49,7 @@ In Python code this happens as follows:
 
 ```python
 import polars as pl
-from metasyn import MetaFrame, demo_file
+from metasyn import MetaFrame, demo_file, VarSpec
 
 # Get the csv file path for built-in demo dataset
 csv_path = demo_file("fruit")
@@ -63,7 +63,7 @@ df = pl.read_csv(csv_path, schema_overrides={
 })
 
 # Create a MetaFrame from the DataFrame.
-mf = MetaFrame.fit_dataframe(df)
+mf = MetaFrame.fit_dataframe(df, var_specs=[VarSpec("ID", unique=True), VarSpec("B", unique=False)])
 
 # Generate a new DataFrame with 5 rows from the MetaFrame.
 df_synth = mf.synthesize(5)
