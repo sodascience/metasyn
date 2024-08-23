@@ -72,17 +72,13 @@ df_synth = mf.synthesize(5)
 df_synth.write_csv("output.csv")
 ```
 
-To explore more options and try this out online, take a look at our interactive tutorial:
-
-[![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sodascience/metasyn/blob/main/examples/getting_started.ipynb)
-
 For more information on how to create dataframes with polars, refer to the [Polars documentation](https://pola.rs/). Metasyn also works with pandas dataframes!
 
 ## Where to go next
 
-- As a next step to learn more about generating synthetic data with metasyn we recommend to check out the [user guide](https://metasyn.readthedocs.io/en/latest/usage/usage.html).
+- To explore more options and try this out online, take a look at our interactive tutorial: [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sodascience/metasyn/blob/main/examples/getting_started.ipynb)
+- As a next step to learn more about generating synthetic data with metasyn we recommend to check out the [user guide](https://metasyn.readthedocs.io/en/latest/usage/usage.html) and other [documentation](https://metasyn.readthedocs.io/en/latest/about/metasyn_in_detail.html).
 - For even more privacy, have a look at our [disclosure control plugin](https://github.com/sodascience/metasyn-disclosure-control).
-- To learn more about how `metasyn` works, go to detailed overview in our [documentation](https://metasyn.readthedocs.io/en/latest/). 
 - Want to create programs that build on metasyn? Take a look at our versioned [Docker containers](https://hub.docker.com/r/sodateam/metasyn) and our [CLI](https://metasyn.readthedocs.io/en/latest/usage/cli.html).
 
 ## Contributing
