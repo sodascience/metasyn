@@ -75,8 +75,7 @@ def demo_file(name: str = "titanic") -> Path:
         - titanic (Included in pandas, but post-processed to contain more columns)
         - spaceship (CC-BY from https://www.kaggle.com/competitions/spaceship-titanic)
         - fruit (very basic example data from Polars)
-        - survey (columns from ESS round 11 Human Values Scale questionnaire for the Netherlands, https://doi.org/10.21338/ess11e01_0)
-
+        - survey (columns from ESS round 11 Human Values Scale questionnaire for the Netherlands)
     Arguments
     ---------
     name:
@@ -88,7 +87,9 @@ def demo_file(name: str = "titanic") -> Path:
 
     References
     ----------
-    European Social Survey European Research Infrastructure (ESS ERIC). (2024). ESS11 integrated file, edition 1.0 [Data set]. Sikt - Norwegian Agency for Shared Services in Education and Research. https://doi.org/10.21338/ess11e01_0
+    European Social Survey European Research Infrastructure (ESS ERIC). (2024). ESS11 integrated
+    file, edition 1.0 [Data set]. Sikt - Norwegian Agency for Shared Services in Education and
+    Research. https://doi.org/10.21338/ess11e01_0
 
     """
     if name == "titanic":
@@ -112,7 +113,7 @@ def demo_dataframe(name: str = "titanic") -> pl.DataFrame:
         - titanic (Included in pandas, but post-processed to contain more columns)
         - spaceship (CC-BY from https://www.kaggle.com/competitions/spaceship-titanic)
         - fruit (very basic example data from Polars)
-        - survey (columns from ESS round 11 Human Values Scale questionnaire for the Netherlands, https://doi.org/10.21338/ess11e01_0)
+        - survey (columns from ESS round 11 Human Values Scale questionnaire for the Netherlands)
 
     Arguments
     ---------
@@ -125,7 +126,9 @@ def demo_dataframe(name: str = "titanic") -> pl.DataFrame:
 
     References
     ----------
-    European Social Survey European Research Infrastructure (ESS ERIC). (2024). ESS11 integrated file, edition 1.0 [Data set]. Sikt - Norwegian Agency for Shared Services in Education and Research. https://doi.org/10.21338/ess11e01_0
+    European Social Survey European Research Infrastructure (ESS ERIC). (2024). ESS11 integrated
+    file, edition 1.0 [Data set]. Sikt - Norwegian Agency for Shared Services in Education and
+    Research. https://doi.org/10.21338/ess11e01_0
 
     """
     file_path = demo_file(name=name)
