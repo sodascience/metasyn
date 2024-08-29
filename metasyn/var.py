@@ -12,7 +12,6 @@ from metasyn.privacy import BasePrivacy, BasicPrivacy
 from metasyn.provider import BaseDistributionProvider, DistributionProviderList
 from metasyn.varspec import DistributionSpec
 
-
 class MetaVar():
     """Metadata variable describing a column in a MetaFrame.
 
@@ -90,10 +89,13 @@ class MetaVar():
         """
         if not isinstance(series, pl.Series):
             series = pl.Series(series)
-        try:
-            polars_dtype = pl.datatypes.dtype_to_py_type(series.dtype).__name__
-        except NotImplementedError:
-            polars_dtype = pl.datatypes.dtype_to_ffiname(series.dtype)
+        if series.dtype.base_type() in [pl.Categorical, pl.Enum]:
+            polars_dtype = "categorical"
+        else:
+            try:
+                polars_dtype = pl.datatypes.dtype_to_py_type(series.dtype).__name__
+            except NotImplementedError:
+                polars_dtype = pl.datatypes.dtype_to_ffiname(series.dtype)
 
         convert_dict = {
             "int": "discrete",
