@@ -48,7 +48,7 @@ To generate synthetic data, `metasyn` first needs to fit a `MetaFrame` to the da
 
 ![Example input and output](https://github.com/sodascience/metasyn/blob/main/docs/source/images/example_input_output_concise.png)
 
-In Python code this happens as follows:
+The above image closely matches the Python code:
 
 ```python
 import polars as pl
