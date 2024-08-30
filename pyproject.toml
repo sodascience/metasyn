@@ -48,11 +48,15 @@ GitHub = "https://github.com/sodascience/metasyn"
 documentation = "https://metasyn.readthedocs.io/en/latest/index.html"
 
 [project.optional-dependencies]
-test = [
-    "ruff", "pytest", "pylint", "pydocstyle", "mypy", "flake8", "nbval",
+extra = ["xlsxwriter", "pandas"]
+check = ["ruff", "mypy", "types-tqdm", "types-regex"]
+test = ["pytest", "nbval"]
+docs = [
     "sphinx", "sphinx-rtd-theme", "sphinxcontrib-napoleon",
     "sphinx-autodoc-typehints", "sphinx_inline_tabs", "sphinx_copybutton",
-    "XlsxWriter", "types-tqdm", "types-regex", "pandas"
+]
+dev = [
+    "metasyn[extra,check,test,docs]"
 ]
 
 [project.scripts]
@@ -85,119 +89,10 @@ module = [
 ]
 ignore_missing_imports = true
 
-[tool.pylint.'MASTER']
-ignore-patterns="_version.py"
-ignore-paths = "^metasyn/distribution/legacy.*$"
-
-[tool.pylint.'FORMAT']
-max-line-length=100
-max-locals=35
-max-args=10
-
-[tool.pylint.'BASIC']
-good-names=["a", "b", "mu"]
-
 [tool.ruff]
-exclude = ["_version.py", "metasyn/distribution/legacy.*"]
+exclude = ["_version.py", "metasyn/distribution/legacy.*", "tests/*", "examples/*"]
 line-length = 100
 lint.select = ["E", "F", "W", "I", "N"]
 
 [tool.ruff.lint.pep8-naming]
 ignore-names = ["a", "b", "mu"]
-
-[tool.tox]
-legacy_tox_ini = """
-    [tox]
-    env_list =
-        py311
-        ruff
-        pylint
-        pydocstyle
-        mypy
-        sphinx
-        pytest
-        nbval
-    minversion = 4.11.3
-
-    [testenv]
-    description = run the tests with pytest
-    package = wheel
-    wheel_build_env = .pkg
-    deps =
-        pandas
-        polars>=0.14.17
-        numpy>=1.20
-        pyarrow
-        scipy
-        numpy>=1.20
-        faker
-        lingua-language-detector
-        scikit-learn
-        jsonschema
-        importlib-metadata;python_version<'3.10'
-        importlib-resources;python_version<'3.9'
-        wget
-        regexmodel>=0.2.1
-
-    [testenv:ruff]
-    description = Lint with Ruff
-    deps =
-        ruff
-    commands =
-        ruff metasyn
-
-    [testenv:pylint]
-    description = Lint with PyLint
-    deps =
-        pylint
-    commands =
-        pylint metasyn
-
-    [testenv:pydocstyle]
-    description = Check docstrings with pydocstyle
-    deps =
-        pydocstyle
-    commands =
-        pydocstyle metasyn --convention=numpy --add-select=D417 --add-ignore="D102,D105"
-
-    [testenv:mypy]
-    description = Check types with MyPy
-    deps =
-        mypy
-        types-tqdm
-        types-regex
-    commands =
-        mypy metasyn
-
-    [testenv:sphinx]
-    description = Check if documentation builds.
-    allowlist_externals =
-        make
-    deps =
-        sphinx
-        sphinx-rtd-theme
-        sphinxcontrib-napoleon
-        sphinx-autodoc-typehints
-        sphinx_inline_tabs
-        sphinx_copybutton
-    changedir = docs
-    commands =
-        make html SPHINXOPTS="-W --keep-going"
-
-    [testenv:pytest]
-    description = Test with pytest
-    deps =
-        pytest
-        XlsxWriter
-    commands =
-        pytest tests
-
-    [testenv:nbval]
-    description = Check notebook output
-    deps =
-        pytest
-        nbval
-        XlsxWriter
-    commands =
-        pytest --nbval-lax examples
-"""
