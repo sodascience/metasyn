@@ -71,7 +71,7 @@ except ImportError:
 def demo_file(name: str = "titanic") -> Path:
     """Get the path for a demo data file.
 
-    There are three options:
+    There are four options:
         - titanic (Included in pandas, but post-processed to contain more columns)
         - spaceship (CC-BY from https://www.kaggle.com/competitions/spaceship-titanic)
         - fruit (very basic example data from Polars)
@@ -109,7 +109,7 @@ def demo_file(name: str = "titanic") -> Path:
 def demo_dataframe(name: str = "titanic") -> pl.DataFrame:
     """Get a demonstration dataset as a prepared polars dataframe.
 
-    There are three options:
+    There are four options:
         - titanic (Included in pandas, but post-processed to contain more columns)
         - spaceship (CC-BY from https://www.kaggle.com/competitions/spaceship-titanic)
         - fruit (very basic example data from Polars)
