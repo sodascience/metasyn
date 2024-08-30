@@ -41,11 +41,12 @@ pip install git+https://github.com/sodascience/metasyn
 ```
 
 ## Usage
+
+![demo](https://github.com/user-attachments/assets/f3982077-4a02-4a41-b88c-d5145ef8bdd7)
+
 To generate synthetic data, `metasyn` first needs to fit a `MetaFrame` to the data which can then be used to produce new synthetic rows:
 
 ![Example input and output](https://github.com/sodascience/metasyn/blob/main/docs/source/images/example_input_output_concise.png)
-
-![demo](https://github.com/user-attachments/assets/f3982077-4a02-4a41-b88c-d5145ef8bdd7)
 
 In Python code this happens as follows:
 
