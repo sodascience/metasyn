@@ -6,7 +6,7 @@ from typing import Iterable, Optional, Union
 # from lingua._constant import LETTERS, PUNCTUATION
 import regex
 from faker import Faker
-from lingua import LanguageDetectorBuilder  # pylint: disable=no-name-in-module
+from lingua import LanguageDetectorBuilder
 from regexmodel import NotFittedError, RegexModel
 from scipy.stats import poisson
 
@@ -48,15 +48,14 @@ class FakerDistribution(BaseDistribution):
         self.fake: Faker = Faker(locale=locale)
 
     @classmethod
-    def _fit(cls, values, faker_type: str = "city", locale: str = "en_US"):  \
-            # pylint: disable=arguments-differ
+    def _fit(cls, values, faker_type: str = "city", locale: str = "en_US"): # noqa: ARG003
         """Select the appropriate faker function and locale."""
         return cls(faker_type, locale)
 
     def draw(self):
         return getattr(self.fake, self.faker_type)()
 
-    def information_criterion(self, values: Iterable) -> float:
+    def information_criterion(self, values: Iterable) -> float: # noqa: ARG002
         return 99999
 
     @classmethod

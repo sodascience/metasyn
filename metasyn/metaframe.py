@@ -1,4 +1,4 @@
-"""Module defining MetaFrames, used for creating MetaFrames from DataFrames."""  # pylint: disable=invalid-name
+"""Module defining MetaFrames, used for creating MetaFrames from DataFrames."""
 
 from __future__ import annotations
 
@@ -57,7 +57,7 @@ class MetaFrame():
         return len(self.meta_vars)
 
     @classmethod
-    def fit_dataframe(  # pylint: disable=too-many-branches
+    def fit_dataframe(  # noqa: PLR0912
             cls,
             df: Optional[pl.DataFrame],
             var_specs: Optional[Union[list[VarSpec], pathlib.Path, str, MetaConfig]] = None,

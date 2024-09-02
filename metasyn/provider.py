@@ -296,7 +296,7 @@ class DistributionProviderList():
 
         return dist_instances[np.argmin(dist_bic)]
 
-    def find_distribution(self,  # pylint: disable=too-many-branches
+    def find_distribution(self,
                           dist_name: str,
                           var_type: str,
                           privacy: Optional[BasePrivacy] = BasicPrivacy(),

@@ -19,7 +19,7 @@ from metasyn.provider import get_distribution_provider
 
 SCHEMA_BASE = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "http://sodascience.github.io/generative_metadata_format/core/1.0.0/generative_metadata_format",  # noqa # pylint: disable=line-too-long
+    "$id": "http://sodascience.github.io/generative_metadata_format/core/1.0.0/generative_metadata_format",  # noqa: E501
     "type": "object",
     "properties": {
         "n_rows": {"type": "number"},

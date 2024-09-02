@@ -50,8 +50,8 @@ class MetaVar:
         it will be assumed to have been created by the user.
     """
 
-    def __init__(
-        self,  # pylint: disable=too-many-arguments
+    def __init__( # noqa: PLR0913
+        self,
         name: str,
         var_type: str,
         distribution: BaseDistribution,

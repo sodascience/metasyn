@@ -21,7 +21,7 @@ from metasyn import MetaFrame
 from metasyn.config import MetaConfig
 from metasyn.validation import create_schema
 
-EXAMPLE_CREATE_META="metasyn create-meta your_dataset.csv -o your_gmf_file.json --config your_config.toml"  # noqa # pylint: disable=line-too-long
+EXAMPLE_CREATE_META="metasyn create-meta your_dataset.csv -o your_gmf_file.json --config your_config.toml" # noqa: E501
 EXAMPLE_SYNTHESIZE="metasyn synthesize your_gmf_file.json -o your_synthetic_file.csv"
 
 MAIN_HELP_MESSAGE = f"""
