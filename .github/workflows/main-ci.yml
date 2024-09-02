@@ -31,7 +31,6 @@ jobs:
 
   test:
     name: Run test suite
-    needs: check # only run if lint and type check are ok
     strategy:
       fail-fast: false
       matrix:
