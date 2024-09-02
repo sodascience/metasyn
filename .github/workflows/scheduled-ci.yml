@@ -1,10 +1,9 @@
-name: Continuous integration
+name: Scheduled CI suite on main and dev branches
 
 on:
-  push:
-  pull_request:
-  schedule:
+  schedule: 
     - cron: "0 0 * * 0"
+  workflow_dispatch: # also allow manual trigger
 
 jobs:
   check:
@@ -12,10 +11,13 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
+        branch: ["main", "develop"]
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
     runs-on: "ubuntu-latest"
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.branch }}
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -34,6 +36,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        branch: ["main", "develop"]
         os: [ubuntu-latest]
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
         include:
@@ -44,6 +47,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
+      with:
+        ref: ${{ matrix.branch }}
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
@@ -64,19 +69,3 @@ jobs:
         pip install git+https://github.com/sodascience/metasyn-disclosure-control
         pip install .
         metasyn create-meta metasyn/demo/demo_titanic.csv --config examples/example_config.toml
-
-  build-docs:
-    name: Build documentation
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.x"
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install ".[docs]"
-    - name: Build docs
-      run: cd docs; make html SPHINXOPTS="--keep-going"
