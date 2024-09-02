@@ -1,5 +1,6 @@
 import datetime as dt
 import json
+import string
 
 import numpy as np
 import pandas as pd
@@ -117,6 +118,39 @@ def test_nullable_integer(dtype, tmp_path):
     assert new_series.min() >= 0
     assert new_series.max() < 10
 
+@mark.parametrize(
+    "dtype", [pl.Int8, pl.Int16, pl.Int32, pl.Int32, pl.Int64,
+              pl.UInt8, pl.UInt16, pl.UInt32, pl.UInt64]
+)
+def test_polars_discrete(dtype, tmp_path):
+    series = pl.Series("ser", [np.random.randint(0, 10) for _ in range(100)], dtype=dtype)
+    new_series = check_var(series, "discrete", tmp_path)
+    assert new_series.min() >= 0
+    assert new_series.max() < 10
+
+@mark.parametrize(
+    "dtype", [pl.Float32, pl.Float64, pl.Decimal]
+)
+def test_polars_continuous(dtype, tmp_path):
+    series = pl.Series("ser", np.random.rand(100), dtype=dtype)
+    new_series = check_var(series, "continuous", tmp_path)
+    assert new_series.min() > -0.5
+    assert new_series.max() < 1.5
+
+
+@mark.parametrize(
+    "dtype", [pl.String, pl.Utf8]
+)
+def test_polars_string(dtype, tmp_path):
+    series = pl.Series("series", string.printable, dtype=dtype)
+    check_var(series, "string", tmp_path)
+
+@mark.parametrize(
+    "dtype", [pl.Enum, pl.Categorical]
+)
+def test_polars_categorical(dtype, tmp_path):
+    series = pl.Series("series", string.printable, dtype=dtype)
+    check_var(series, "categorical", tmp_path)
 
 @mark.parametrize(
     "series_type",
