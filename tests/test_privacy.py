@@ -25,6 +25,4 @@ def test_base_privacy():
 
 def test_import_error():
     with pytest.raises(ImportError):
-        get_privacy("disclosure")
-    with pytest.raises(ImportError):
-        get_privacy("dics")
+        get_privacy("nonexistentprivacyplugin")

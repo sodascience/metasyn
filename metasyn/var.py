@@ -13,7 +13,7 @@ from metasyn.provider import BaseDistributionProvider, DistributionProviderList
 from metasyn.varspec import DistributionSpec
 
 
-class MetaVar():
+class MetaVar:
     """Metadata variable describing a column in a MetaFrame.
 
     MetaVar is a structure that holds all metadata needed to generate a
@@ -50,14 +50,16 @@ class MetaVar():
         it will be assumed to have been created by the user.
     """
 
-    def __init__(self,  # pylint: disable=too-many-arguments
-                 name: str,
-                 var_type: str,
-                 distribution: BaseDistribution,
-                 dtype: str = "unknown",
-                 description: Optional[str] = None,
-                 prop_missing: float = 0.0,
-                 creation_method: Optional[dict] = None):
+    def __init__(
+        self,  # pylint: disable=too-many-arguments
+        name: str,
+        var_type: str,
+        distribution: BaseDistribution,
+        dtype: str = "unknown",
+        description: Optional[str] = None,
+        prop_missing: float = 0.0,
+        creation_method: Optional[dict] = None,
+    ):
         self.name = name
         self.var_type = var_type
         self.distribution = distribution
@@ -67,9 +69,11 @@ class MetaVar():
         self.creation_method = creation_method
         if creation_method is None:
             self.creation_method = {"created_by": "user"}
-        if self.prop_missing < -1e-8 or self.prop_missing > 1+1e-8:
-            raise ValueError(f"Cannot create variable '{self.name}' with proportion missing "
-                             "outside range [0, 1]")
+        if self.prop_missing < -1e-8 or self.prop_missing > 1 + 1e-8:
+            raise ValueError(
+                f"Cannot create variable '{self.name}' with proportion missing "
+                "outside range [0, 1]"
+            )
 
     @staticmethod
     def get_var_type(series: pl.Series) -> str:
@@ -90,10 +94,13 @@ class MetaVar():
         """
         if not isinstance(series, pl.Series):
             series = pl.Series(series)
-        try:
-            polars_dtype = pl.datatypes.dtype_to_py_type(series.dtype).__name__
-        except NotImplementedError:
-            polars_dtype = pl.datatypes.dtype_to_ffiname(series.dtype)
+        if series.dtype.base_type() in [pl.Categorical, pl.Enum]:
+            polars_dtype = "categorical"
+        else:
+            try:
+                polars_dtype = pl.datatypes.dtype_to_py_type(series.dtype).__name__
+            except NotImplementedError:
+                polars_dtype = pl.datatypes.dtype_to_ffiname(series.dtype)
 
         convert_dict = {
             "int": "discrete",
@@ -109,8 +116,7 @@ class MetaVar():
         try:
             return convert_dict[polars_dtype]
         except KeyError as exc:
-            raise ValueError(
-                f"Unsupported polars type '{polars_dtype}'") from exc
+            raise ValueError(f"Unsupported polars type '{polars_dtype}'") from exc
 
     def to_dict(self) -> Dict[str, Any]:
         """Create a dictionary from the variable."""
@@ -143,21 +149,23 @@ class MetaVar():
 
         return (
             f'"{self.name}"\n'
-            f'{description}'
-            f'- Variable Type: {self.var_type}\n'
-            f'- Data Type: {self.dtype}\n'
-            f'- Proportion of Missing Values: {self.prop_missing:.4f}\n'
-            f'- Distribution:\n{distribution_formatted}\n'
+            f"{description}"
+            f"- Variable Type: {self.var_type}\n"
+            f"- Data Type: {self.dtype}\n"
+            f"- Proportion of Missing Values: {self.prop_missing:.4f}\n"
+            f"- Distribution:\n{distribution_formatted}\n"
         )
 
     @classmethod
-    def fit(cls,  # pylint: disable=too-many-arguments
-            series: pl.Series,
-            dist_spec: Optional[Union[dict, type, BaseDistribution, DistributionSpec]] = None,
-            provider_list: DistributionProviderList = DistributionProviderList("builtin"),
-            privacy: BasePrivacy = BasicPrivacy(),
-            prop_missing: Optional[float] = None,
-            description: Optional[str] = None) -> MetaVar:
+    def fit(
+        cls,  # pylint: disable=too-many-arguments
+        series: pl.Series,
+        dist_spec: Optional[Union[dict, type, BaseDistribution, DistributionSpec]] = None,
+        provider_list: DistributionProviderList = DistributionProviderList("builtin"),
+        privacy: BasePrivacy = BasicPrivacy(),
+        prop_missing: Optional[float] = None,
+        description: Optional[str] = None,
+    ) -> MetaVar:
         """Fit distributions to the data.
 
         If multiple distributions are available for the current data type,
@@ -192,9 +200,15 @@ class MetaVar():
         distribution = provider_list.fit(series, var_type, dist_spec, privacy)
         if prop_missing is None:
             prop_missing = (len(series) - len(series.drop_nulls())) / len(series)
-        return cls(series.name, var_type, distribution=distribution, dtype=str(series.dtype),
-                   description=description, prop_missing=prop_missing,
-                   creation_method=dist_spec.get_creation_method(privacy))
+        return cls(
+            series.name,
+            var_type,
+            distribution=distribution,
+            dtype=str(series.dtype),
+            description=description,
+            prop_missing=prop_missing,
+            creation_method=dist_spec.get_creation_method(privacy),
+        )
 
     def draw(self) -> Any:
         """Draw a random item for the variable in whatever type is required."""
@@ -223,11 +237,13 @@ class MetaVar():
         return pl.Series(value_list)
 
     @classmethod
-    def from_dict(cls,
-                  var_dict: Dict[str, Any],
-                  distribution_providers: Union[
-                      None, str, type[BaseDistributionProvider],
-                      BaseDistributionProvider] = None) -> MetaVar:
+    def from_dict(
+        cls,
+        var_dict: Dict[str, Any],
+        distribution_providers: Union[
+            None, str, type[BaseDistributionProvider], BaseDistributionProvider
+        ] = None,
+    ) -> MetaVar:
         """Restore variable from dictionary.
 
         Parameters
@@ -253,5 +269,5 @@ class MetaVar():
             prop_missing=var_dict["prop_missing"],
             dtype=var_dict["dtype"],
             description=var_dict.get("description", None),
-            creation_method=var_dict.get("creation_method", {"created_by": "unknown"})
+            creation_method=var_dict.get("creation_method", {"created_by": "unknown"}),
         )

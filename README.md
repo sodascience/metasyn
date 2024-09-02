@@ -41,11 +41,14 @@ pip install git+https://github.com/sodascience/metasyn
 ```
 
 ## Usage
+
+![demo](https://github.com/user-attachments/assets/f3982077-4a02-4a41-b88c-d5145ef8bdd7)
+
 To generate synthetic data, `metasyn` first needs to fit a `MetaFrame` to the data which can then be used to produce new synthetic rows:
 
 ![Example input and output](https://github.com/sodascience/metasyn/blob/main/docs/source/images/example_input_output_concise.png)
 
-In Python code this happens as follows:
+The above image closely matches the Python code:
 
 ```python
 import polars as pl
@@ -72,12 +75,16 @@ df_synth = mf.synthesize(5)
 df_synth.write_csv("output.csv")
 ```
 
+To explore more options and try this out online, take a look at our interactive tutorial:
+
+[![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sodascience/metasyn/blob/main/examples/getting_started.ipynb)
+
 For more information on how to create dataframes with polars, refer to the [Polars documentation](https://pola.rs/). Metasyn also works with pandas dataframes!
 
 ## Where to go next
 
 - To explore more options and try this out online, take a look at our interactive tutorial: [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sodascience/metasyn/blob/main/examples/getting_started.ipynb)
-- As a next step to learn more about generating synthetic data with metasyn we recommend to check out the [user guide](https://metasyn.readthedocs.io/en/latest/usage/usage.html) and other [documentation](https://metasyn.readthedocs.io/en/latest/about/metasyn_in_detail.html).
+- As a next step to learn more about generating synthetic data with metasyn we recommend to check out the [user guide](https://metasyn.readthedocs.io/en/latest/usage/usage.html) and other [documentation](https://metasyn.readthedocs.io/en/latest).
 - For even more privacy, have a look at our [disclosure control plugin](https://github.com/sodascience/metasyn-disclosure-control).
 - Want to create programs that build on metasyn? Take a look at our versioned [Docker containers](https://hub.docker.com/r/sodateam/metasyn) and our [CLI](https://metasyn.readthedocs.io/en/latest/usage/cli.html).
 
