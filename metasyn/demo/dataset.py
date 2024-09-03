@@ -1,6 +1,7 @@
 """Create and retrieve demo datasets."""
 
 # import random
+from abc import ABC, abstractclassmethod
 from pathlib import Path
 
 import polars as pl
@@ -10,62 +11,101 @@ try:
 except ImportError:
     from importlib.resources import files  # type: ignore
 
-# import numpy as np
-# import wget
-
-# from metasyn.distribution.datetime import (
-#     DateTimeUniformDistribution,
-#     DateUniformDistribution,
-#     TimeUniformDistribution,
-# )
+_AVAILABLE_DATASETS = {}
 
 
-# def create_titanic_demo(output_fp: Path) -> Path:
-#     """Create demo dataset for the titanic dataset.
+def register(*args):
+    def _wrap(cls):
+        _AVAILABLE_DATASETS[cls.name] = cls
+        return cls
+    return _wrap(*args)
 
-#     Arguments
-#     ---------
-#     output_fp:
-#         File to write the demonstration table to.
 
-#     Returns
-#     -------
-#         Output file location.
-#     """
-#     titanic_fp = Path("titanic.csv")
-#     if Path(output_fp).is_file():
-#         return output_fp
-#     if not titanic_fp.is_file():
-#         wget.download(
-#             "https://raw.githubusercontent.com/pandas-dev/pandas/main/doc/data/titanic.csv")
-#     dframe = pd.read_csv(titanic_fp)
-#     np.random.seed(1283742)
-#     random.seed(1928374)
+class BaseDataset(ABC):
 
-#     # Convert Age to a nullable integer.
-#     dframe["Age"] = dframe["Age"].round().astype("Int64")
+    @property
+    @abstractclassmethod
+    def name(cls):
+        pass
 
-#     # Add a date column.
-#     date_dist = DateUniformDistribution.default_distribution()
-#     dframe["Birthday"] = [date_dist.draw() if np.random.rand() < 0.9 else pd.NA
-#                           for _ in range(len(dframe))]
+    @classmethod
+    @property
+    def file_location(cls):
+        return files(__package__) / f"demo_{cls.name}.csv"
 
-#     # Add a time column.
+    @abstractclassmethod
+    def get_dataframe(cls):
+        return pl.read_csv(cls.file_location)
 
-#     time_dist = TimeUniformDistribution.default_distribution()
-#     dframe["Board time"] = [time_dist.draw() if np.random.rand() < 0.9 else pd.NA
-#                             for _ in range(len(dframe))]
 
-#     # Add a datetime column
-#     time_dist = DateTimeUniformDistribution.default_distribution()
-#     dframe["Married since"] = [time_dist.draw() if np.random.rand() < 0.9 else pd.NA
-#                                for _ in range(len(dframe))]
+@register
+class TitanicDataset(BaseDataset):
+    @classmethod
+    @property
+    def name(cls):
+        return "titanic"
 
-#     dframe["all_NA"] = [pd.NA for _ in range(len(dframe))]
-#     # Remove some columns for brevity and write to a file.
-#     dframe = dframe.drop(["SibSp", "Pclass", "Survived"], axis=1)
-#     dframe.to_csv(output_fp, index=False)
-#     return output_fp
+    @classmethod
+    def get_dataframe(cls):
+        file_path = cls.file_location
+        data_types = {"Sex": pl.Categorical, "Embarked": pl.Categorical}
+        return pl.read_csv(file_path, schema_overrides=data_types, try_parse_dates=True)
+
+
+@register
+class SpaceShipDataset(BaseDataset):
+    @classmethod
+    @property
+    def name(cls):
+        return "spaceship"
+
+    @classmethod
+    def get_dataframe(cls):
+        # the Kaggle spaceship data (CC-BY)
+        data_types = {
+            "HomePlanet": pl.Categorical,
+            "CryoSleep": pl.Categorical,
+            "VIP": pl.Categorical,
+            "Destination": pl.Categorical,
+            "Transported": pl.Categorical,
+        }
+        return pl.read_csv(
+            cls.file_location, schema_overrides=data_types, try_parse_dates=True
+        )
+
+
+@register
+class FruitDataset(BaseDataset):
+    @classmethod
+    @property
+    def name(cls):
+        return "fruit"
+
+    @classmethod
+    def get_dataframe(cls):
+        # basic fruit data from polars example
+        data_types = {"fruits": pl.Categorical, "cars": pl.Categorical}
+        return pl.read_csv(cls.file_location, schema_overrides=data_types)
+
+
+@register
+class SurveyDataset(BaseDataset):
+    @classmethod
+    @property
+    def name(cls):
+        return "survey"
+
+    @classmethod
+    def get_dataframe(cls):
+        super().get_dataframe()
+
+
+def _get_demo_class(name):
+    if name in _AVAILABLE_DATASETS:
+        return _AVAILABLE_DATASETS[name]
+    raise ValueError(
+        f"No demonstration dataset with name '{name}'. Options: {list(_AVAILABLE_DATASETS)}."
+    )
 
 
 def demo_file(name: str = "titanic") -> Path:
@@ -92,18 +132,7 @@ def demo_file(name: str = "titanic") -> Path:
     file, edition 1.0 [Data set]. Sikt - Norwegian Agency for Shared Services in Education and
     Research. https://doi.org/10.21338/ess11e01_0
     """
-    if name == "titanic":
-        return files(__package__) / "demo_titanic.csv"
-    if name == "spaceship":
-        return files(__package__) / "demo_spaceship.csv"
-    if name == "fruit":
-        return files(__package__) / "demo_fruit.csv"
-    if name == "survey":
-        return files(__package__) / "demo_survey.csv"
-
-    raise ValueError(
-        f"No demonstration dataset with name '{name}'. Options: titanic, spaceship, fruit, survey."
-    )
+    return _get_demo_class(name).file_location
 
 
 def demo_dataframe(name: str = "titanic") -> pl.DataFrame:
@@ -130,28 +159,4 @@ def demo_dataframe(name: str = "titanic") -> pl.DataFrame:
     file, edition 1.0 [Data set]. Sikt - Norwegian Agency for Shared Services in Education and
     Research. https://doi.org/10.21338/ess11e01_0
     """
-    file_path = demo_file(name=name)
-    if name == "spaceship":
-        # the Kaggle spaceship data (CC-BY)
-        data_types = {
-            "HomePlanet": pl.Categorical,
-            "CryoSleep": pl.Categorical,
-            "VIP": pl.Categorical,
-            "Destination": pl.Categorical,
-            "Transported": pl.Categorical,
-        }
-        return pl.read_csv(file_path, schema_overrides=data_types, try_parse_dates=True)
-    if name == "titanic":
-        # our edited titanic data
-        data_types = {"Sex": pl.Categorical, "Embarked": pl.Categorical}
-        return pl.read_csv(file_path, schema_overrides=data_types, try_parse_dates=True)
-    if name == "fruit":
-        # basic fruit data from polars example
-        data_types = {"fruits": pl.Categorical, "cars": pl.Categorical}
-        return pl.read_csv(file_path, schema_overrides=data_types)
-    if name == "survey":
-        return pl.read_csv(file_path)
-
-    raise ValueError(
-        f"No demonstration dataset with name '{name}'. Options: titanic, spaceship, fruit."
-    )
+    return _get_demo_class(name).get_dataframe()
