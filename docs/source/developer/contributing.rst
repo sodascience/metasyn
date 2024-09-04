@@ -15,6 +15,7 @@ If you encounter a bug or have a feature request, you can report it in the `issu
    :alt: GitHub Issue Tracker Button
    :target: https://github.com/sodascience/metasyn/issues
 
+
 Contribute directly to the code or documentation:
 --------------------------------------------------
 You can contribute to the project by writing code to fix bugs, implement new features, or improve existing functionality. Alternatively, you can help improve the documentation by fixing errors, adding examples, or clarifying instructions.
@@ -53,11 +54,17 @@ The following shows a basic overview of the steps needed to do so.
 
 Running local tests
 -------------------
-When a pull request is created, GitHub automatically runs `a series of tests <https://github.com/sodascience/metasyn/actions>`_ on the code to ensure it meets the projects standards and does not introduce any errors. You can run these tests locally to ensure your code passes before opening a pull request, using the `Tox <https://tox.wiki/>`_ package. 
+When a pull request is created, GitHub automatically runs `a series of tests <https://github.com/sodascience/metasyn/actions>`_ on the code to ensure it meets the projects standards and does not introduce any errors. You can run these tests locally to ensure your code passes before opening a pull request as follows:
 
-To do so, first install Tox to your environment following the `Tox installation guide <https://tox.wiki/en/4.11.3/installation.html>`_. Then simply run the ``tox`` on the ``metasyn`` root directory to run all the tests. If you want to run a specific test, you can do so by specifying a (list of) test environment(s), e.g. ``tox -e ruff`` or ``tox -e ruff,pylint,pydocstyle,mypy,sphinx,pytest,nbval``. The available test environments can be found in the `pyproject.toml <https://github.com/sodascience/metasyn/blob/main/pyproject.toml>`_ file, under the ``[tool.tox]`` section.
+1. Make your changes
+2. From the root folder of the project, run: ``pip install -e .[dev]`` (this will install metasyn in editable form with all optional dependencies)
+3. Then, run: 
 
-
+  a. Linting: ``ruff check`` 
+  b. Type checking: ``mypy metasyn`` 
+  c. Testing: ``pytest`` 
+  d. Notebook testing: ``pytest --nbval-lax examples`` 
+  e. Documentation building: ``cd docs; make html SPHINXOPTS="--keep-going"``
 
 
 Maintaining the package

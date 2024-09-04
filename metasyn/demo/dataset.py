@@ -82,11 +82,11 @@ def demo_file(name: str = "titanic") -> Path:
     name:
         Name of the demo dataset.
 
-    Returns:
+    Returns
     -------
         Path to the dataset.
 
-    References:
+    References
     ----------
     European Social Survey European Research Infrastructure (ESS ERIC). (2024). ESS11 integrated
     file, edition 1.0 [Data set]. Sikt - Norwegian Agency for Shared Services in Education and
@@ -121,11 +121,11 @@ def demo_dataframe(name: str = "titanic") -> pl.DataFrame:
     name:
         Name of the demo dataset: spaceship, fruit, or titanic.
 
-    Returns:
+    Returns
     -------
         Polars dataframe with correct column types
 
-    References:
+    References
     ----------
     European Social Survey European Research Infrastructure (ESS ERIC). (2024). ESS11 integrated
     file, edition 1.0 [Data set]. Sikt - Norwegian Agency for Shared Services in Education and

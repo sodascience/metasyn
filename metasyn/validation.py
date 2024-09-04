@@ -80,7 +80,7 @@ def create_schema(packages: list[str]) -> dict:
     packages:
         List of packages to create the schema with.
 
-    Returns:
+    Returns
     -------
     schema:
         Schema containing all the distributions in the distribution packages.

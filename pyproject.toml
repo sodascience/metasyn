@@ -52,7 +52,7 @@ extra = ["xlsxwriter", "pandas"]
 check = ["ruff", "mypy", "types-tqdm", "types-regex"]
 test = ["pytest", "nbval"]
 docs = [
-    "sphinx", "sphinx-rtd-theme", "sphinxcontrib-napoleon",
+    "sphinx<7.0.0", "sphinx-rtd-theme", "sphinxcontrib-napoleon",
     "sphinx-autodoc-typehints", "sphinx_inline_tabs", "sphinx_copybutton",
 ]
 dev = [
@@ -101,3 +101,6 @@ ignore-names = ["a", "b", "mu"]
 [tool.ruff.lint.pylint]
 max-args=10
 max-locals=35
+
+[tool.ruff.lint.pydocstyle]
+convention="numpy"
