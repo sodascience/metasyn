@@ -64,7 +64,7 @@ When a pull request is created, GitHub automatically runs `a series of tests <ht
   b. Type checking: ``mypy metasyn`` 
   c. Testing: ``pytest`` 
   d. Notebook testing: ``pytest --nbval-lax examples`` 
-  e. Documentation building: ``cd docs; make html SPHINXOPTS="--keep-going"``
+  e. Documentation building: ``sphinx-build -M html docs/source docs/build``
 
 
 Maintaining the package

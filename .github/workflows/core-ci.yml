@@ -77,4 +77,4 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install ".[docs]"
     - name: Build docs
-      run: cd docs; make html SPHINXOPTS="--keep-going"
+      run: sphinx-build -M html docs/source docs/build 
