@@ -14,6 +14,7 @@ from metasyn.varspec import DistributionSpec
 
 
 class MetaVar:
+
     """Metadata variable describing a column in a MetaFrame.
 
     MetaVar is a structure that holds all metadata needed to generate a
@@ -48,6 +49,7 @@ class MetaVar:
     creation_method:
         A dictionary that contains information on how the variable was created. If None,
         it will be assumed to have been created by the user.
+
     """
 
     def __init__( # noqa: PLR0913
@@ -91,6 +93,7 @@ class MetaVar:
         -------
         var_type:
             The variable type that is found.
+
         """
         if not isinstance(series, pl.Series):
             series = pl.Series(series)
@@ -192,6 +195,7 @@ class MetaVar:
             Proportion of the values missing, default None.
         description:
             Description for the variable.
+
         """
         if not isinstance(series, pl.Series):
             series = pl.Series(series)
@@ -229,6 +233,7 @@ class MetaVar:
         -------
         polars.Series:
             Polars series with the synthetic data.
+
         """
         self.distribution.draw_reset()
         value_list = [self.draw() for _ in range(n)]
@@ -259,6 +264,7 @@ class MetaVar:
         -------
         MetaVar:
             Initialized metadata variable.
+
         """
         provider_list = DistributionProviderList(distribution_providers)
         dist = provider_list.from_dict(var_dict)

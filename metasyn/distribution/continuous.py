@@ -15,6 +15,7 @@ from metasyn.distribution.base import (
 
 @metadist(implements="core.uniform", var_type="continuous")
 class UniformDistribution(ScipyDistribution):
+
     """Uniform distribution for floating point type.
 
     This class implements the uniform distribution between a minimum
@@ -30,6 +31,7 @@ class UniformDistribution(ScipyDistribution):
     Examples
     --------
     >>> UniformDistribution(lower=-3.0, upper=10.0)
+
     """
 
     dist_class = uniform
@@ -64,6 +66,7 @@ class UniformDistribution(ScipyDistribution):
 
 @metadist(implements="core.normal", var_type="continuous")
 class NormalDistribution(ScipyDistribution):
+
     """Normal distribution for floating point type.
 
     This class implements the normal/gaussian distribution and takes
@@ -79,6 +82,7 @@ class NormalDistribution(ScipyDistribution):
     Examples
     --------
     >>> NormalDistribution(mean=1.3, sd=4.5)
+
     """
 
     implements = "core.normal"
@@ -102,6 +106,7 @@ class NormalDistribution(ScipyDistribution):
 
 @metadist(implements="core.lognormal", var_type="continuous")
 class LogNormalDistribution(ScipyDistribution):
+
     """Log-normal distribution for floating point type.
 
     This class implements the log-normal mu and sigma as initialization input.
@@ -116,6 +121,7 @@ class LogNormalDistribution(ScipyDistribution):
     Examples
     --------
     >>> LogNormalDistribution(mean=-2.0, sd=4.5)
+
     """
 
     dist_class = lognorm
@@ -146,6 +152,7 @@ class LogNormalDistribution(ScipyDistribution):
 
 @metadist(implements="core.truncated_normal", var_type="continuous")
 class TruncatedNormalDistribution(ScipyDistribution):
+
     """Truncated normal distribution for floating point type.
 
     Parameters
@@ -162,6 +169,7 @@ class TruncatedNormalDistribution(ScipyDistribution):
     Examples
     --------
     >>> TruncatedNormalDistribution(lower=1.0, upper=3.5, mean=2.3, sd=5)
+
     """
 
     dist_class = truncnorm
@@ -209,6 +217,7 @@ class TruncatedNormalDistribution(ScipyDistribution):
 
 @metadist(implements="core.exponential", var_type="continuous")
 class ExponentialDistribution(ScipyDistribution):
+
     """Exponential distribution for floating point type.
 
     This class implements the exponential distribution with the rate as its
@@ -222,6 +231,7 @@ class ExponentialDistribution(ScipyDistribution):
     Examples
     --------
     >>> ExponentialDistribution(rate=2.4)
+
     """
 
     dist_class = expon
@@ -251,6 +261,7 @@ class ExponentialDistribution(ScipyDistribution):
 
 @metadist(implements="core.constant", var_type="continuous")
 class ConstantDistribution(BaseConstantDistribution):
+
     """Constant distribution for floating point type.
 
     This class implements the constant distribution, so that it draws always
@@ -264,6 +275,7 @@ class ConstantDistribution(BaseConstantDistribution):
     Examples
     --------
     >>> ConstantDistribution(2.45)
+
     """
 
     @classmethod

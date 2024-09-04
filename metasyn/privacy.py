@@ -12,6 +12,7 @@ from metasyn.util import get_registry
 
 
 class BasePrivacy(ABC):
+
     """Abstract base class for privacy levels.
 
     This class serves as a blueprint for privacy classes. Derived classes
@@ -36,10 +37,11 @@ class BasePrivacy(ABC):
     def is_compatible(self, dist: Union[BaseDistribution, Type[BaseDistribution]]) -> bool:
         """Check whether the distribution has the same privacy.
 
-        Arguments
+        Arguments:
         ---------
         dist:
             Distribution to check.
+
         """
         return dist.privacy == self.name
 
@@ -53,6 +55,7 @@ class BasePrivacy(ABC):
 
 
 class BasicPrivacy(BasePrivacy):
+
     """Class representing no privacy level.
 
     This class uses statistically optimal distributions. It inherits from the
@@ -84,6 +87,7 @@ def get_privacy(name: str, parameters: Optional[dict] = None) -> BasePrivacy:
     ------
     KeyError
         If the name of the privacy type cannot be found.
+
     """
     parameters = parameters if parameters is not None else {}
     for entry in entry_points(group="metasyn.privacy"):

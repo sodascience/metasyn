@@ -61,10 +61,11 @@ def validate_gmf_dict(gmf_dict: dict):
     Make sure that you have used the _jsonify function to convert numpy arrays to
     lists, etc.
 
-    Arguments
+    Arguments:
     ---------
     gmf_dict:
         Dictionary containing the metasyn output for a metaframe.
+
     """
     packages = [entry.name for entry in entry_points(group="metasyn.distribution_provider")]
     schema = create_schema(packages)
@@ -74,15 +75,16 @@ def validate_gmf_dict(gmf_dict: dict):
 def create_schema(packages: list[str]) -> dict:
     """Create JSON Schema to validate a GMF file.
 
-    Arguments
+    Arguments:
     ---------
     packages:
         List of packages to create the schema with.
 
-    Returns
+    Returns:
     -------
     schema:
         Schema containing all the distributions in the distribution packages.
+
     """
     defs: list[dict] = []
     for package_name in packages:

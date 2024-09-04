@@ -62,6 +62,7 @@ if TYPE_CHECKING:
 
 
 class BaseDistributionProvider(ABC):
+
     """Base class for all distribution providers.
 
     A distribution provider is a class that provides a set of distributions
@@ -101,6 +102,7 @@ class BaseDistributionProvider(ABC):
         -------
         list[Type[BaseDistribution]]:
             List of distributions with that variable type.
+
         """
         dist_list = []
         if use_legacy:
@@ -130,6 +132,7 @@ class BaseDistributionProvider(ABC):
 
 
 class BuiltinDistributionProvider(BaseDistributionProvider):
+
     """Distribution tree that includes the builtin distributions.
 
     This class inherits from BaseDistributionProvider and provides
@@ -160,6 +163,7 @@ class BuiltinDistributionProvider(BaseDistributionProvider):
 
 
 class DistributionProviderList():
+
     """List of DistributionProviders with functionality to fit distributions.
 
     This class is responsible for managing and providing access to
@@ -176,6 +180,7 @@ class DistributionProviderList():
         The order in which distribution providers are included matters.
         If a provider implements the same distribution at the same privacy level,
         then only the first will be taken into account.
+
     """
 
     def __init__(
@@ -220,6 +225,7 @@ class DistributionProviderList():
             the BIC (Bayesian Information Criterion).
         privacy:
             Level of privacy that will be used in the fit.
+
         """
         if dist_spec.distribution is not None:
             return dist_spec.distribution
@@ -238,6 +244,7 @@ class DistributionProviderList():
         Returns
         -------
             A distribution according to the variable specifications.
+
         """
         dist_spec = var_spec.dist_spec
         unique = dist_spec.unique if dist_spec.unique else False
@@ -269,6 +276,7 @@ class DistributionProviderList():
         -------
         BaseDistribution:
             Distribution fitted to the series.
+
         """
         if len(series.drop_nulls()) == 0:
             return NADistribution()
@@ -323,6 +331,7 @@ class DistributionProviderList():
         -------
         tuple[Type[BaseDistribution], dict[str, Any]]:
             A distribution and the arguments to create an instance.
+
         """
         if NADistribution.matches_name(dist_name):
             return NADistribution
@@ -416,6 +425,7 @@ class DistributionProviderList():
         -------
         BaseDistribution:
             Fitted distribution.
+
         """
         unique = dist_spec.unique
         unique = unique if unique else False
@@ -457,6 +467,7 @@ class DistributionProviderList():
         -------
         dist_list:
             List of distributions that fit the given constraints.
+
         """
         dist_list = []
         for dist_provider in self.dist_packages:
@@ -480,6 +491,7 @@ class DistributionProviderList():
         -------
         BaseDistribution:
             Distribution representing the dictionary.
+
         """
         dist_name = var_dict["distribution"]["implements"]
         version = var_dict["distribution"].get("version", "1.0")
@@ -519,6 +531,7 @@ def get_distribution_provider(provider: Union[str, type[
     -------
     BaseDistributionProvider:
         The distribution provider that was found.
+
     """
     if isinstance(provider, BaseDistributionProvider):
         return provider

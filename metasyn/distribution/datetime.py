@@ -22,6 +22,7 @@ def convert_numpy_datetime(time_obj: np.datetime64) -> dt.datetime:
     -------
     datetime.datetime:
         Converted datetime.
+
     """
     unix_epoch = np.datetime64(0, 's')
     one_second = np.timedelta64(1, 's')
@@ -30,6 +31,7 @@ def convert_numpy_datetime(time_obj: np.datetime64) -> dt.datetime:
 
 
 class BaseUniformDistribution(BaseDistribution):
+
     """Base class for all time/date/datetime uniform distributions."""
 
     precision_possibilities = ["microseconds", "seconds", "minutes", "hours", "days"]
@@ -72,6 +74,7 @@ class BaseUniformDistribution(BaseDistribution):
         ------
         obj:
             Time/date/datetime object rounded down to the measured precision.
+
         """
         for prec in self.precision_possibilities:
             if prec == self.precision:
@@ -110,6 +113,7 @@ class BaseUniformDistribution(BaseDistribution):
 
 @metadist(implements="core.uniform", var_type="datetime")
 class DateTimeUniformDistribution(BaseUniformDistribution):
+
     """Uniform DateTime distribution.
 
     Datetime objects will be uniformly distributed between a start and end date time.
@@ -133,6 +137,7 @@ class DateTimeUniformDistribution(BaseUniformDistribution):
     --------
     >>> DateTimeUniformDistribution(lower="2022-07-15T10:39", upper="2022-08-15T10:39",
                                     precision="minutes")
+
     """
 
     def fromisoformat(self, dt_obj: str) -> dt.datetime:
@@ -153,6 +158,7 @@ class DateTimeUniformDistribution(BaseUniformDistribution):
 
 @metadist(implements="core.uniform", var_type="time")
 class TimeUniformDistribution(BaseUniformDistribution):
+
     """Uniform time distribution.
 
     Time objects will be uniformly distributed between a start and end time.
@@ -175,6 +181,7 @@ class TimeUniformDistribution(BaseUniformDistribution):
     Examples
     --------
     >>> TimeUniformDistribution(lower="10:39:12", upper="10:39:45", precision="seconds")
+
     """
 
     def fromisoformat(self, dt_obj: str) -> dt.time:
@@ -201,6 +208,7 @@ class TimeUniformDistribution(BaseUniformDistribution):
 
 @metadist(implements="core.uniform", var_type="date")
 class DateUniformDistribution(BaseUniformDistribution):
+
     """Uniform date distribution.
 
     Date objects will be uniformly distributed between a start and end date.
@@ -219,6 +227,7 @@ class DateUniformDistribution(BaseUniformDistribution):
     Examples
     --------
     >>> DateUniformDistribution(lower="10:39:12", upper="10:39:45", precision="seconds")
+
     """
 
     precision_possibilities = ["days"]
@@ -256,6 +265,7 @@ class DateUniformDistribution(BaseUniformDistribution):
 
 @metadist(implements="core.constant", var_type="datetime")
 class DateTimeConstantDistribution(BaseConstantDistribution):
+
     """Constant datetime distribution.
 
     This class implements the constant distribution, so that it draws always
@@ -269,6 +279,7 @@ class DateTimeConstantDistribution(BaseConstantDistribution):
     Examples
     --------
     >>> DateTimeConstantDistribution(value="2022-07-15T10:39:36")
+
     """
 
     def __init__(self, value):
@@ -294,6 +305,7 @@ class DateTimeConstantDistribution(BaseConstantDistribution):
 
 @metadist(implements="core.constant", var_type="time")
 class TimeConstantDistribution(BaseConstantDistribution):
+
     """Constant time distribution.
 
     This class implements the constant distribution, so that it draws always
@@ -307,6 +319,7 @@ class TimeConstantDistribution(BaseConstantDistribution):
     Examples
     --------
     >>> TimeConstantDistribution(value="10:39:36")
+
     """
 
     def __init__(self, value):
@@ -330,6 +343,7 @@ class TimeConstantDistribution(BaseConstantDistribution):
 
 @metadist(implements="core.constant", var_type="date")
 class DateConstantDistribution(BaseConstantDistribution):
+
     """Constant date distribution.
 
     This class implements the constant distribution, so that it draws always
@@ -343,6 +357,7 @@ class DateConstantDistribution(BaseConstantDistribution):
     Examples
     --------
     >>> DateConstantDistribution(value="1903-07-15")
+
     """
 
     def __init__(self, value):

@@ -22,6 +22,7 @@ PUNCTUATION = regex.compile(r"\p{P}")
 
 @metadist(implements="core.faker", var_type="string")
 class FakerDistribution(BaseDistribution):
+
     """Faker distribution for cities, addresses, etc.
 
     This is mainly an interface for the faker package, so that it
@@ -40,6 +41,7 @@ class FakerDistribution(BaseDistribution):
     --------
     >>> FakerDistribution(faker_type="city", locale="en_US")
     >>> FakerDistribution(faker_type="address", locale="nl_NL")
+
     """
 
     def __init__(self, faker_type: str, locale: str = "en_US"):
@@ -78,6 +80,7 @@ class FakerDistribution(BaseDistribution):
 
 @metadist(implements="core.faker", var_type="string")
 class UniqueFakerDistribution(UniqueDistributionMixin, FakerDistribution):
+
     """Faker distribution that returns unique values.
 
     See :class:`~FakerDistribution` for examples and explanation.
@@ -86,6 +89,7 @@ class UniqueFakerDistribution(UniqueDistributionMixin, FakerDistribution):
 
 @metadist(implements="core.freetext", var_type="string")
 class FreeTextDistribution(BaseDistribution):
+
     """Free text distribution.
 
     This distribution detects the language and generates sentences using
@@ -101,6 +105,7 @@ class FreeTextDistribution(BaseDistribution):
         if None do not make sentences.
     avg_words:
         Average number of words per (non-NA) row.
+
     """
 
     def __init__(self, locale: str, avg_sentences: Optional[float], avg_words: float):
@@ -145,6 +150,7 @@ class FreeTextDistribution(BaseDistribution):
         -------
         language:
             Two letter ISO code to represent the language, or None if it could not be determined.
+
         """
         detector = LanguageDetectorBuilder.from_all_languages().with_low_accuracy_mode().build()
         lang = detector.detect_language_of("\n".join(values))
@@ -195,6 +201,7 @@ class FreeTextDistribution(BaseDistribution):
 
 @metadist(implements="core.constant", var_type="string")
 class StringConstantDistribution(BaseConstantDistribution):
+
     """Constant string distribution.
 
     This class implements the constant distribution, so that it draws always
@@ -208,6 +215,7 @@ class StringConstantDistribution(BaseConstantDistribution):
     Examples
     --------
     >>> ConstantDistribution("some_string")
+
     """
 
     @classmethod
@@ -222,6 +230,7 @@ class StringConstantDistribution(BaseConstantDistribution):
 
 @metadist(implements="core.regex", var_type="string", version="2.0")
 class RegexDistribution(BaseDistribution):
+
     """Structured string distribution using regex.
 
     Main implementation details in the regexmodel package:
@@ -264,6 +273,7 @@ class RegexDistribution(BaseDistribution):
     "AB8123"
     >>> RegexDistribution(r"(a|b|c)10)").draw()
     "b10"
+
     """
 
     def __init__(self, regex_data: Union[str, dict, RegexModel]):
@@ -273,7 +283,7 @@ class RegexDistribution(BaseDistribution):
     def _fit(cls, values, count_thres: Optional[int] = None, method: str = "auto"):
         """Fit a regex to structured strings.
 
-        Arguments
+        Arguments:
         ---------
         values:
             Values to be fitted (pl.Series).
@@ -284,6 +294,7 @@ class RegexDistribution(BaseDistribution):
             Method for fitting the regex model. Possible values are ["accurate", "fast", "auto"]
             The "auto" method switches between the "accurate" and "fast" methods depending on
             the number of characters (fast if #char > 10000) in the series.
+
         """
         if method == "auto":
             if values.str.len_chars().mean() > 10:
@@ -330,6 +341,7 @@ class RegexDistribution(BaseDistribution):
 
 @metadist(implements="core.regex", var_type="string")
 class UniqueRegexDistribution(UniqueDistributionMixin, RegexDistribution):
+
     """Unique variant of the regex distribution.
 
     See :class:`~RegexDistribution` for examples and explanation on this distribution.

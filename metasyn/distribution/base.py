@@ -1,5 +1,4 @@
-"""
-Module serving as the basis for all metasyn distributions.
+"""Module serving as the basis for all metasyn distributions.
 
 The base module contains the ``BaseDistribution`` class,
 which is the base class for all distributions.
@@ -28,6 +27,7 @@ from numpy import typing as npt
 
 
 class BaseDistribution(ABC):
+
     """Abstract base class to define a distribution.
 
     All distributions should be derived from this class, and should implement
@@ -54,7 +54,7 @@ class BaseDistribution(ABC):
     """Version of the implemented distribution"""
 
     @classmethod
-    def fit(cls, series: Union[pl.Series, npt.NDArray],
+    def fit(cls, series: Union[pl.Series, npt.NDArray], # noqa: D417
             *args, **kwargs) -> BaseDistribution:
         """Fit the distribution to the series.
 
@@ -67,6 +67,7 @@ class BaseDistribution(ABC):
         -------
         BaseDistribution:
             Fitted distribution.
+
         """
         pl_series = cls._to_series(series)
         if len(pl_series) == 0:
@@ -165,6 +166,7 @@ class BaseDistribution(ABC):
         ----------
         values: array_like
             Values to determine the BIC value of.
+
         """
         return 0.0
 
@@ -181,6 +183,7 @@ class BaseDistribution(ABC):
         -------
         bool:
             Whether the name matches.
+
         """
         assert cls.implements != "unknown", f"Internal error in class {cls.__name__}"
         return name in (cls.implements.split(".")[1],
@@ -224,6 +227,7 @@ def metadist(
     -------
     cls:
         Class with the appropriate class variables.
+
     """
     def _wrap(cls):
         if implements is not None:
@@ -265,6 +269,7 @@ def metadist(
 
 
 class ScipyDistribution(BaseDistribution):
+
     """Base class for numerical distributions using Scipy.
 
     This base class makes it easy to implement new numerical
@@ -291,6 +296,7 @@ class ScipyDistribution(BaseDistribution):
         -------
         object:
             Parameter or attribute.
+
         """
         if attr != "par" and attr in self.par:
             return self.par[attr]
@@ -321,6 +327,7 @@ class ScipyDistribution(BaseDistribution):
 
 @metadist(unique=True)
 class UniqueDistributionMixin(BaseDistribution):
+
     """Mixin class to make unique version of base distributions.
 
     This mixin class can be used to extend base distribution classes, adding
@@ -356,6 +363,7 @@ class UniqueDistributionMixin(BaseDistribution):
 
 
 class BaseConstantDistribution(BaseDistribution):
+
     """Base class for constant distribution.
 
     This base class makes it easy to implement new constant distributions
