@@ -78,7 +78,7 @@ def demo_file(name: str = "titanic") -> Path:
         - survey (columns from ESS round 11 Human Values Scale questionnaire for the Netherlands)
 
     Arguments:
-    ---------
+    ----------
     name:
         Name of the demo dataset.
 
@@ -117,7 +117,7 @@ def demo_dataframe(name: str = "titanic") -> pl.DataFrame:
         - survey (columns from ESS round 11 Human Values Scale questionnaire for the Netherlands)
 
     Arguments:
-    ---------
+    ----------
     name:
         Name of the demo dataset: spaceship, fruit, or titanic.
 

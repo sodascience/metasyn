@@ -25,7 +25,7 @@ def check_distribution_provider(provider_name: str):
     """Check internal consistency of a distribution provider.
 
     Arguments:
-    ---------
+    ----------
     provider_name:
         Name of the provider to be tested.
 
@@ -46,7 +46,7 @@ def check_distribution(distribution: type[BaseDistribution], privacy: BasePrivac
     """Check whether the distributions in the package can be validated positively.
 
     Arguments:
-    ---------
+    ----------
     distribution:
         Distribution to validate to check whether it behaves as expected.
     privacy:

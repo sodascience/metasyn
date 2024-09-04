@@ -62,7 +62,7 @@ def validate_gmf_dict(gmf_dict: dict):
     lists, etc.
 
     Arguments:
-    ---------
+    ----------
     gmf_dict:
         Dictionary containing the metasyn output for a metaframe.
 
@@ -76,7 +76,7 @@ def create_schema(packages: list[str]) -> dict:
     """Create JSON Schema to validate a GMF file.
 
     Arguments:
-    ---------
+    ----------
     packages:
         List of packages to create the schema with.
 

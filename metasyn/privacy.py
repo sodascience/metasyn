@@ -38,7 +38,7 @@ class BasePrivacy(ABC):
         """Check whether the distribution has the same privacy.
 
         Arguments:
-        ---------
+        ----------
         dist:
             Distribution to check.
 

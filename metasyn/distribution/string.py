@@ -284,7 +284,7 @@ class RegexDistribution(BaseDistribution):
         """Fit a regex to structured strings.
 
         Arguments:
-        ---------
+        ----------
         values:
             Values to be fitted (pl.Series).
         count_thres:
