@@ -9,6 +9,7 @@
         <a href="https://metasyn.readthedocs.io/en/latest/index.html"><img src="https://readthedocs.org/projects/metasyn/badge/?version=latest" alt="Readthedocs"></img></a>
         <a href="https://hub.docker.com/r/sodateam/metasyn"><img src="https://img.shields.io/docker/v/sodateam/metasyn?logo=docker&label=docker&color=blue" alt="Docker image version"></img></a>
         <a href="https://zenodo.org/doi/10.5281/zenodo.7696031"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.7696031.svg" alt="DOI"></a>
+        <a href="https://joss.theoj.org/papers/43fd4234e18bfd94b952aea35db8b883"><img src="https://joss.theoj.org/papers/43fd4234e18bfd94b952aea35db8b883/status.svg"></a>
     </span>
   </p>
 </p>
@@ -24,7 +25,7 @@ With metasyn you can __fit__ a model to an existing dataframe, __export__ it to 
 - 🔎 __Transparent__. With metasyn you share not only synthetic data, but also the model and settings used to create it through a traceable, auditable metadata format. Everyone can read and understand what the model does; it is crystal clear which information becomes public.
 - 🔐 __Private__. By default, metasyn does not incorporate multivariate information, meaning less risk of privacy issues such as identity, attribute, or group disclosure. On top of this, we support privacy plugins such as our own [disclosure control plugin](https://github.com/sodascience/metasyn-disclosure-control) to further enhance privacy in critically sensitive situations.
 - 🔗 __Integrated__. We integrate closely with popular, modern tools in the python ecosystem, building on the wonderful [polars](https://pola.rs/) dataframe library ([pandas](https://pandas.pydata.org/) is supported too), as well as [faker](https://faker.readthedocs.io/en/master/) to generate localized data for names, emails, and phone numbers, and more.
-- 📦 __Extensible__. Are you missing features? Do you have a different definition of privacy? Our plugin system allows you (or your organisation) to create their own extension to adjust metasyn to what you need. Or you can [contribute](https://metasyn.readthedocs.io/en/latest/developer/contributing.html) directly to the project.
+- 📦 __Extensible__. Are you missing features? Do you have a different definition of privacy? Our plugin system allows you (or your organisation) to create their own extension to adjust metasyn to what you need. Or you can [contribute](#contributing) directly to the project.
 
 ## Installation
 Metasyn can be installed directly from PyPI using the following command in the terminal:
@@ -40,11 +41,14 @@ pip install git+https://github.com/sodascience/metasyn
 ```
 
 ## Usage
+
+![demo](https://github.com/user-attachments/assets/f3982077-4a02-4a41-b88c-d5145ef8bdd7)
+
 To generate synthetic data, `metasyn` first needs to fit a `MetaFrame` to the data which can then be used to produce new synthetic rows:
 
 ![Example input and output](https://github.com/sodascience/metasyn/blob/main/docs/source/images/example_input_output_concise.png)
 
-In Python code this happens as follows:
+The above image closely matches the Python code:
 
 ```python
 import polars as pl
@@ -79,9 +83,9 @@ For more information on how to create dataframes with polars, refer to the [Pola
 
 ## Where to go next
 
-- As a next step to learn more about generating synthetic data with metasyn we recommend to check out the [user guide](https://metasyn.readthedocs.io/en/latest/usage/usage.html).
+- To explore more options and try this out online, take a look at our interactive tutorial: [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sodascience/metasyn/blob/main/examples/getting_started.ipynb)
+- As a next step to learn more about generating synthetic data with metasyn we recommend to check out the [user guide](https://metasyn.readthedocs.io/en/latest/usage/usage.html) and other [documentation](https://metasyn.readthedocs.io/en/latest).
 - For even more privacy, have a look at our [disclosure control plugin](https://github.com/sodascience/metasyn-disclosure-control).
-- To learn more about how `metasyn` works, go to detailed overview in our [documentation](https://metasyn.readthedocs.io/en/latest/about/metasyn_in_detail.html). 
 - Want to create programs that build on metasyn? Take a look at our versioned [Docker containers](https://hub.docker.com/r/sodateam/metasyn) and our [CLI](https://metasyn.readthedocs.io/en/latest/usage/cli.html).
 
 ## Contributing
