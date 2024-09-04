@@ -20,7 +20,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "License :: OSI Approved :: MIT License",
 ]
 
@@ -92,7 +92,7 @@ ignore_missing_imports = true
 [tool.ruff]
 exclude = ["_version.py", "metasyn/distribution/legacy.*", "tests/*", "examples/*"]
 line-length = 100
-lint.select = ["E", "F", "W", "I", "N", "PLR", "ARG"]
+lint.select = ["E", "F", "W", "I", "N", "PL", "ARG"]
 lint.ignore = ["PLR2004"]
 
 [tool.ruff.lint.pep8-naming]
