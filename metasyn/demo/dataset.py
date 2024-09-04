@@ -97,8 +97,19 @@ class SurveyDataset(BaseDataset):
 
     @classmethod
     def get_dataframe(cls):
-        super().get_dataframe()
+        return super().get_dataframe()
 
+
+@register
+class TestDataset(BaseDataset):
+    @classmethod
+    @property
+    def name(cls):
+        return "test"
+
+    @classmethod
+    def create(cls, file_out):
+        pass
 
 def _get_demo_class(name):
     if name in _AVAILABLE_DATASETS:
