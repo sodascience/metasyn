@@ -28,7 +28,6 @@ def check_distribution_provider(provider_name: str):
     ---------
     provider_name:
         Name of the provider to be tested.
-
     """
     provider = get_distribution_provider(provider_name)
     assert isinstance(provider, BaseDistributionProvider)
@@ -53,7 +52,6 @@ def check_distribution(distribution: type[BaseDistribution], privacy: BasePrivac
         Level/type of privacy the distribution adheres to.
     provenance:
         Which provider/plugin/package provides the distribution.
-
     """
     # Check the schema of the distribution.
     schema = distribution.schema()

@@ -30,7 +30,6 @@ class UniformDistribution(ScipyDistribution):
     Examples
     --------
     >>> UniformDistribution(lower=-3.0, upper=10.0)
-
     """
 
     dist_class = uniform
@@ -80,7 +79,6 @@ class NormalDistribution(ScipyDistribution):
     Examples
     --------
     >>> NormalDistribution(mean=1.3, sd=4.5)
-
     """
 
     implements = "core.normal"
@@ -118,7 +116,6 @@ class LogNormalDistribution(ScipyDistribution):
     Examples
     --------
     >>> LogNormalDistribution(mean=-2.0, sd=4.5)
-
     """
 
     dist_class = lognorm
@@ -165,7 +162,6 @@ class TruncatedNormalDistribution(ScipyDistribution):
     Examples
     --------
     >>> TruncatedNormalDistribution(lower=1.0, upper=3.5, mean=2.3, sd=5)
-
     """
 
     dist_class = truncnorm
@@ -226,7 +222,6 @@ class ExponentialDistribution(ScipyDistribution):
     Examples
     --------
     >>> ExponentialDistribution(rate=2.4)
-
     """
 
     dist_class = expon
@@ -269,7 +264,6 @@ class ConstantDistribution(BaseConstantDistribution):
     Examples
     --------
     >>> ConstantDistribution(2.45)
-
     """
 
     @classmethod

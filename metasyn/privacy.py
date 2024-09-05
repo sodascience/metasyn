@@ -40,7 +40,6 @@ class BasePrivacy(ABC):
         ---------
         dist:
             Distribution to check.
-
         """
         return dist.privacy == self.name
 
@@ -85,7 +84,6 @@ def get_privacy(name: str, parameters: Optional[dict] = None) -> BasePrivacy:
     ------
     KeyError
         If the name of the privacy type cannot be found.
-
     """
     parameters = parameters if parameters is not None else {}
     for entry in entry_points(group="metasyn.privacy"):

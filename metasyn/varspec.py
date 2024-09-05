@@ -64,7 +64,6 @@ class DistributionSpec():
         ------
         TypeError
             If the input has the wrong type and cannot be parsed.
-
         """
         if isinstance(dist_spec, BaseDistribution):
             dist_dict = {key: value for key, value in dist_spec.to_dict().items()
@@ -91,7 +90,6 @@ class DistributionSpec():
         -------
             A flag that indicates whether a distribution can be generated from the values
             that are specified (not None).
-
         """
         return self.implements is not None and self.parameters is not None
 
@@ -106,7 +104,6 @@ class DistributionSpec():
         Returns
         -------
             Dictionary containing all the non-default settings for the creation method.
-
         """
         ret_dict: dict[str, Any] = {"created_by": "metasyn"}
         for var in ["implements", "unique", "parameters", "version"]:
@@ -156,7 +153,6 @@ class VarSpec():  # pylint: disable=too-few-public-methods
         in the dataframe.
     var_type, optional:
         Manually set the variable type of the columns (used mainly for data_free columns).
-
     """
 
     def __init__(
@@ -200,6 +196,5 @@ class VarSpec():  # pylint: disable=too-few-public-methods
         Returns
         -------
             A VarSpec instance.
-
         """
         return cls(**var_dict)

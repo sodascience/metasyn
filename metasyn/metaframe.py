@@ -44,7 +44,6 @@ class MetaFrame():
         Number of rows in the original DataFrame.
     privacy_package:
         Package that supplies the distributions.
-
     """
 
     def __init__(self, meta_vars: List[MetaVar],
@@ -98,7 +97,6 @@ class MetaFrame():
         -------
         MetaFrame:
             Initialized metasyn metaframe.
-
         """
         # Parse the var_specs into a MetaConfig instance.
         if isinstance(var_specs, (pathlib.Path, str)):
@@ -167,7 +165,6 @@ class MetaFrame():
         Returns
         -------
             A created MetaFrame.
-
         """
         return cls.fit_dataframe(None, meta_config)
 
@@ -243,7 +240,6 @@ class MetaFrame():
             File to write the metaframe to.
         validate:
             Validate the JSON file with a schema.
-
         """
         self_dict = _jsonify(self.to_dict())
         if validate:
@@ -269,7 +265,6 @@ class MetaFrame():
             File to write the metaframe to.
         validate:
             Validate the JSON file with a schema.
-
         """
         self.export(fp, validate)
 
@@ -289,7 +284,6 @@ class MetaFrame():
         -------
         MetaFrame:
             A restored MetaFrame from the file.
-
         """
         with open(fp, "r", encoding="utf-8") as f:
             self_dict = json.load(f)
@@ -313,7 +307,6 @@ class MetaFrame():
         -------
         polars.DataFrame:
             Dataframe with the synthetic data.
-
         """
         if n is None:
             if self.n_rows is None:

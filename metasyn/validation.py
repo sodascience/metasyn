@@ -65,7 +65,6 @@ def validate_gmf_dict(gmf_dict: dict):
     ---------
     gmf_dict:
         Dictionary containing the metasyn output for a metaframe.
-
     """
     packages = [entry.name for entry in entry_points(group="metasyn.distribution_provider")]
     schema = create_schema(packages)
@@ -84,7 +83,6 @@ def create_schema(packages: list[str]) -> dict:
     -------
     schema:
         Schema containing all the distributions in the distribution packages.
-
     """
     defs: list[dict] = []
     for package_name in packages:

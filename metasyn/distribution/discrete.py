@@ -31,7 +31,6 @@ class DiscreteUniformDistribution(ScipyDistribution):
     Examples
     --------
     >>> DiscreteUniformDistribution(lower=3, upper=20)
-
     """
 
     dist_class = randint
@@ -77,7 +76,6 @@ class DiscreteNormalDistribution(NormalDistribution):
     Examples
     --------
     >>> DiscreteNormalDistribution(mean=2.4, sd=1.2)
-
     """
 
     def draw(self):
@@ -101,7 +99,6 @@ class DiscreteTruncatedNormalDistribution(TruncatedNormalDistribution):
     Examples
     --------
     >>> DiscreteTruncatedNormalDistribution(lower=1.2, upper=4.5, mean=2.3, sd=4.5)
-
     """
 
     def draw(self):
@@ -120,7 +117,6 @@ class PoissonDistribution(ScipyDistribution):
     Examples
     --------
     >>> PoissonDistribution(rate=3.5)
-
     """
 
     dist_class = poisson
@@ -163,7 +159,6 @@ class UniqueKeyDistribution(ScipyDistribution):
     Examples
     --------
     >>> UniqueKeyDistribution(lower=0, consecutive=True)
-
     """
 
     def __init__(self, lower: int, consecutive: bool):
@@ -243,7 +238,6 @@ class DiscreteConstantDistribution(BaseConstantDistribution):
     Examples
     --------
     >>> DiscreteConstantDistribution(213456)
-
     """
 
     @classmethod

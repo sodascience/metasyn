@@ -22,7 +22,6 @@ def convert_numpy_datetime(time_obj: np.datetime64) -> dt.datetime:
     -------
     datetime.datetime:
         Converted datetime.
-
     """
     unix_epoch = np.datetime64(0, 's')
     one_second = np.timedelta64(1, 's')
@@ -73,7 +72,6 @@ class BaseUniformDistribution(BaseDistribution):
         ------
         obj:
             Time/date/datetime object rounded down to the measured precision.
-
         """
         for prec in self.precision_possibilities:
             if prec == self.precision:
@@ -135,7 +133,6 @@ class DateTimeUniformDistribution(BaseUniformDistribution):
     --------
     >>> DateTimeUniformDistribution(lower="2022-07-15T10:39", upper="2022-08-15T10:39",
                                     precision="minutes")
-
     """
 
     def fromisoformat(self, dt_obj: str) -> dt.datetime:
@@ -178,7 +175,6 @@ class TimeUniformDistribution(BaseUniformDistribution):
     Examples
     --------
     >>> TimeUniformDistribution(lower="10:39:12", upper="10:39:45", precision="seconds")
-
     """
 
     def fromisoformat(self, dt_obj: str) -> dt.time:
@@ -223,7 +219,6 @@ class DateUniformDistribution(BaseUniformDistribution):
     Examples
     --------
     >>> DateUniformDistribution(lower="10:39:12", upper="10:39:45", precision="seconds")
-
     """
 
     precision_possibilities = ["days"]
@@ -274,7 +269,6 @@ class DateTimeConstantDistribution(BaseConstantDistribution):
     Examples
     --------
     >>> DateTimeConstantDistribution(value="2022-07-15T10:39:36")
-
     """
 
     def __init__(self, value):
@@ -313,7 +307,6 @@ class TimeConstantDistribution(BaseConstantDistribution):
     Examples
     --------
     >>> TimeConstantDistribution(value="10:39:36")
-
     """
 
     def __init__(self, value):
@@ -350,7 +343,6 @@ class DateConstantDistribution(BaseConstantDistribution):
     Examples
     --------
     >>> DateConstantDistribution(value="1903-07-15")
-
     """
 
     def __init__(self, value):

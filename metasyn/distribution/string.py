@@ -268,7 +268,6 @@ class RegexDistribution(BaseDistribution):
     "AB8123"
     >>> RegexDistribution(r"(a|b|c)10)").draw()
     "b10"
-
     """
 
     def __init__(self, regex_data: Union[str, dict, RegexModel]):
@@ -289,7 +288,6 @@ class RegexDistribution(BaseDistribution):
             Method for fitting the regex model. Possible values are ["accurate", "fast", "auto"]
             The "auto" method switches between the "accurate" and "fast" methods depending on
             the number of characters (fast if #char > 10000) in the series.
-
         """
         if method == "auto":
             if values.str.len_chars().mean() > 10:

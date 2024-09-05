@@ -20,7 +20,6 @@ def get_registry() -> dict:
     Returns
     -------
         Dictionary containing the registry entries.
-
     """
     registry_fp = files(__package__) / "schema" / "plugin_registry.toml"
     with open(registry_fp, "rb") as handle:

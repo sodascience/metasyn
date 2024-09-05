@@ -38,7 +38,6 @@ class MetaConfig():
     n_rows:
         Number of rows for synthesization at a later stage. Can be unspecified by
         leaving the value at None.
-
     """
 
     def __init__(
@@ -97,7 +96,6 @@ class MetaConfig():
         -------
         meta_config:
             A fully initialized MetaConfig instance.
-
         """
         try:
             with open(config_fp, "rb") as handle:
@@ -130,7 +128,6 @@ class MetaConfig():
         -------
         config_dict:
             Configuration in dictionary form.
-
         """
         return {
             "general": {
@@ -155,7 +152,6 @@ class MetaConfig():
         -------
         var_spec:
             A variable config access object.
-
         """
         for var_spec in self.var_specs:
             if var_spec.name == name:
@@ -174,7 +170,6 @@ class MetaConfig():
         -------
         var_spec:
             VarSpecAccess class for each of the available variable configurations.
-
         """
         exclude = exclude if exclude is not None else []
         for var_spec in self.var_specs:
@@ -195,7 +190,6 @@ class VarSpecAccess():
         The variable configuration to access.
     meta_config
         The meta configuration instance to get default values from.
-
     """
 
     def __init__(self, var_spec: VarSpec, meta_config: MetaConfig):

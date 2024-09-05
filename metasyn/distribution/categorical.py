@@ -34,7 +34,6 @@ class MultinoulliDistribution(BaseDistribution):
     --------
     >>> MultinoulliDistribution(labels=["a", "b", "b"], probs=[0.1, 0.3, 0.6])
     >>> MultinoulliDistribution(labels=[1, 3, 6], probs=[0.3, 0.4, 0.3])
-
     """
 
     def __init__(

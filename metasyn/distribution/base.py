@@ -66,7 +66,6 @@ class BaseDistribution(ABC):
         -------
         BaseDistribution:
             Fitted distribution.
-
         """
         pl_series = cls._to_series(series)
         if len(pl_series) == 0:
@@ -165,7 +164,6 @@ class BaseDistribution(ABC):
         ----------
         values: array_like
             Values to determine the BIC value of.
-
         """
         return 0.0
 
@@ -182,7 +180,6 @@ class BaseDistribution(ABC):
         -------
         bool:
             Whether the name matches.
-
         """
         assert cls.implements != "unknown", f"Internal error in class {cls.__name__}"
         return name in (cls.implements.split(".")[1],
@@ -226,7 +223,6 @@ def metadist(
     -------
     cls:
         Class with the appropriate class variables.
-
     """
     def _wrap(cls):
         if implements is not None:
@@ -294,7 +290,6 @@ class ScipyDistribution(BaseDistribution):
         -------
         object:
             Parameter or attribute.
-
         """
         if attr != "par" and attr in self.par:
             return self.par[attr]

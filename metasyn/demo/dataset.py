@@ -91,7 +91,6 @@ def demo_file(name: str = "titanic") -> Path:
     European Social Survey European Research Infrastructure (ESS ERIC). (2024). ESS11 integrated
     file, edition 1.0 [Data set]. Sikt - Norwegian Agency for Shared Services in Education and
     Research. https://doi.org/10.21338/ess11e01_0
-
     """
     if name == "titanic":
         return files(__package__) / "demo_titanic.csv"
@@ -130,7 +129,6 @@ def demo_dataframe(name: str = "titanic") -> pl.DataFrame:
     European Social Survey European Research Infrastructure (ESS ERIC). (2024). ESS11 integrated
     file, edition 1.0 [Data set]. Sikt - Norwegian Agency for Shared Services in Education and
     Research. https://doi.org/10.21338/ess11e01_0
-
     """
     file_path = demo_file(name=name)
     if name == "spaceship":
