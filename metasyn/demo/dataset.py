@@ -1,9 +1,12 @@
 """Create and retrieve demo datasets."""
 
 # import random
+import string
 from abc import ABC, abstractclassmethod
+from datetime import date, datetime, time, timedelta
 from pathlib import Path
 
+import numpy as np
 import polars as pl
 
 try:
@@ -108,8 +111,61 @@ class TestDataset(BaseDataset):
         return "test"
 
     @classmethod
-    def create(cls, file_out):
-        pass
+    def get_dataframe(cls):
+        columns = pl.read_csv(cls.file_location).columns
+        data_types = {col_name: (getattr(pl, col_name[3:]) if col_name != "NA" else pl.String) for col_name in columns}
+        return pl.read_csv(cls.file_location, schema_overrides=data_types)
+
+    @classmethod
+    def create(cls, csv_file):
+        all_series = []
+        n_rows = 100
+
+        for int_val in [8, 16, 32, 64]:
+            all_series.append(pl.Series(f"pl.Int{int_val}",
+                                        [np.random.randint(-10, 10) for _ in range(n_rows)],
+                                        dtype=getattr(pl, f"Int{int_val}")))
+            all_series.append(pl.Series(f"pl.UInt{int_val}",
+                                        [np.random.randint(10) for _ in range(n_rows)],
+                                        dtype=getattr(pl, f"UInt{int_val}")))
+
+        for float_val in [32, 64]:
+            all_series.append(pl.Series(f"pl.Float{float_val}",
+                                        np.random.randn(n_rows),
+                                        dtype=getattr(pl, f"Float{float_val}")))
+
+        all_series.append(pl.Series("pl.Date", [date(2024, 9, 4) + timedelta(days=i)
+                                                for i in range(n_rows)],
+                                    dtype=pl.Date))
+        all_series.append(pl.Series("pl.Datetime",
+                                    [datetime(2024, 9, 4, 12, 30, 12)
+                                        + timedelta(hours=i, minutes=i*2, seconds=i*3)
+                                        for i in range(n_rows)],
+                                    dtype=pl.Datetime))
+        all_series.append(pl.Series("pl.Time",
+                                    [time(3+i//20, 6+i//12, 12+i//35) for i in range(n_rows)],
+                                    dtype=pl.Time))
+        all_series.append(pl.Series("pl.String",
+                                    np.random.choice(list(string.printable), size=n_rows),
+                                    dtype=pl.String))
+        all_series.append(pl.Series("pl.Utf8",
+                                    np.random.choice(list(string.printable), size=n_rows),
+                                    dtype=pl.Utf8))
+        all_series.append(pl.Series("pl.Categorical",
+                                    np.random.choice(list(string.ascii_uppercase[:5]), size=n_rows),
+                                    dtype=pl.Categorical))
+        all_series.append(pl.Series("NA", [None for _ in range(n_rows)], dtype=pl.String))
+
+        # Add NA's for all series except the categorical
+        for series in all_series:
+            if series.name != "pl.Categorical":
+                none_idx = np.random.choice(np.arange(n_rows), size=n_rows//10, replace=False)
+                none_idx.sort()
+                series[none_idx] = None
+
+        # Write to a csv file
+        pl.DataFrame(all_series).write_csv(csv_file)
+
 
 def _get_demo_class(name):
     if name in _AVAILABLE_DATASETS:
