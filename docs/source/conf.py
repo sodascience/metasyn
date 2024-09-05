@@ -1,3 +1,4 @@
+# ruff: noqa
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
@@ -12,31 +13,37 @@
 #
 import os
 import sys
-import sphinx_rtd_theme
-sys.path.insert(0, os.path.abspath('..'))
+
+sys.path.insert(0, os.path.abspath(".."))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'metasyn'
-copyright = '2024, SODA Team'
-author = 'SODA Team'
+project = "metasyn"
+copyright = "2024, SODA Team"
+author = "SODA Team"
 
 
 # The full version, including alpha/beta/rc tags
 release = '1.0.3'
-
 
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.napoleon', "sphinx.ext.autodoc", "sphinx_autodoc_typehints",
-              'sphinx_rtd_theme', "sphinx_inline_tabs", "sphinx_copybutton", "sphinx.ext.autosummary"]
+extensions = [
+    "sphinx.ext.napoleon",
+    "sphinx.ext.autodoc",
+    "sphinx_autodoc_typehints",
+    "sphinx_rtd_theme",
+    "sphinx_inline_tabs",
+    "sphinx_copybutton",
+    "sphinx.ext.autosummary",
+]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -49,14 +56,13 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
-html_logo = 'images/logos/white_med.png'
+html_theme = "sphinx_rtd_theme"
+html_logo = "images/logos/white_med.png"
 html_theme_options = {
-    'logo_only': True, 
-    'navigation_depth': -1,
-    'display_version': True,
-    'style_external_links': True,
-    
+    "logo_only": True,
+    "navigation_depth": -1,
+    "display_version": True,
+    "style_external_links": True,
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

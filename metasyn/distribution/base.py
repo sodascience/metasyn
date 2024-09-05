@@ -1,5 +1,4 @@
-"""
-Module serving as the basis for all metasyn distributions.
+"""Module serving as the basis for all metasyn distributions.
 
 The base module contains the ``BaseDistribution`` class,
 which is the base class for all distributions.
@@ -54,7 +53,7 @@ class BaseDistribution(ABC):
     """Version of the implemented distribution"""
 
     @classmethod
-    def fit(cls, series: Union[pl.Series, npt.NDArray],
+    def fit(cls, series: Union[pl.Series, npt.NDArray], # noqa: D417
             *args, **kwargs) -> BaseDistribution:
         """Fit the distribution to the series.
 
@@ -158,7 +157,7 @@ class BaseDistribution(ABC):
         """Create a distribution from a dictionary."""
         return cls(**dist_dict["parameters"])
 
-    def information_criterion(self, values: Union[pl.Series, npt.NDArray]) -> float:  # pylint: disable=unused-argument
+    def information_criterion(self, values: Union[pl.Series, npt.NDArray]) -> float: # noqa: ARG002
         """Get the BIC value for a particular set of values.
 
         Parameters
@@ -350,7 +349,7 @@ class UniqueDistributionMixin(BaseDistribution):
             n_retry += 1
         raise ValueError(f"Failed to draw unique string after {n_retry} tries.")
 
-    def information_criterion(self, values):
+    def information_criterion(self, values): # noqa: ARG002
         return 9999999
 
 

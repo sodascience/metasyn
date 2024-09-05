@@ -120,7 +120,7 @@ class LogNormalDistribution(ScipyDistribution):
 
     dist_class = lognorm
 
-    def __init__(self, mean: float, sd: float):  # pylint: disable=invalid-name
+    def __init__(self, mean: float, sd: float):
         self.par = {"mean": mean, "sd": sd}
         self.dist = lognorm(s=max(sd, 1e-8), scale=np.exp(mean))
 

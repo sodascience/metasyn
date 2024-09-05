@@ -177,7 +177,7 @@ class MetaConfig():
                 yield VarSpecAccess(var_spec, self)
 
 
-class VarSpecAccess():  # pylint: disable=too-few-public-methods
+class VarSpecAccess():
     """Access for variable configuration object.
 
     They take into account what the defaults are from the MetaConfig object.

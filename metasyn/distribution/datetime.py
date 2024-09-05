@@ -97,7 +97,7 @@ class BaseUniformDistribution(BaseDistribution):
         """Get the minimum time delta."""
         return dt.timedelta(**{self.precision: 1})
 
-    def information_criterion(self, values):
+    def information_criterion(self, values): # noqa: ARG002
         return 0.0
 
     def _param_dict(self):
