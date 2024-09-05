@@ -31,7 +31,6 @@ def convert_numpy_datetime(time_obj: np.datetime64) -> dt.datetime:
 
 
 class BaseUniformDistribution(BaseDistribution):
-
     """Base class for all time/date/datetime uniform distributions."""
 
     precision_possibilities = ["microseconds", "seconds", "minutes", "hours", "days"]
@@ -113,7 +112,6 @@ class BaseUniformDistribution(BaseDistribution):
 
 @metadist(implements="core.uniform", var_type="datetime")
 class DateTimeUniformDistribution(BaseUniformDistribution):
-
     """Uniform DateTime distribution.
 
     Datetime objects will be uniformly distributed between a start and end date time.
@@ -158,7 +156,6 @@ class DateTimeUniformDistribution(BaseUniformDistribution):
 
 @metadist(implements="core.uniform", var_type="time")
 class TimeUniformDistribution(BaseUniformDistribution):
-
     """Uniform time distribution.
 
     Time objects will be uniformly distributed between a start and end time.
@@ -208,7 +205,6 @@ class TimeUniformDistribution(BaseUniformDistribution):
 
 @metadist(implements="core.uniform", var_type="date")
 class DateUniformDistribution(BaseUniformDistribution):
-
     """Uniform date distribution.
 
     Date objects will be uniformly distributed between a start and end date.
@@ -265,7 +261,6 @@ class DateUniformDistribution(BaseUniformDistribution):
 
 @metadist(implements="core.constant", var_type="datetime")
 class DateTimeConstantDistribution(BaseConstantDistribution):
-
     """Constant datetime distribution.
 
     This class implements the constant distribution, so that it draws always
@@ -305,7 +300,6 @@ class DateTimeConstantDistribution(BaseConstantDistribution):
 
 @metadist(implements="core.constant", var_type="time")
 class TimeConstantDistribution(BaseConstantDistribution):
-
     """Constant time distribution.
 
     This class implements the constant distribution, so that it draws always
@@ -343,7 +337,6 @@ class TimeConstantDistribution(BaseConstantDistribution):
 
 @metadist(implements="core.constant", var_type="date")
 class DateConstantDistribution(BaseConstantDistribution):
-
     """Constant date distribution.
 
     This class implements the constant distribution, so that it draws always

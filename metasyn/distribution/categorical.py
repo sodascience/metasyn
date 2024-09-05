@@ -14,7 +14,6 @@ from metasyn.distribution.base import BaseDistribution, metadist
 
 @metadist(implements="core.multinoulli", var_type=["categorical", "discrete", "string"])
 class MultinoulliDistribution(BaseDistribution):
-
     """Categorical distribution using labels and probabilities.
 
     This class represents a multinoulli (categorical) distribution.

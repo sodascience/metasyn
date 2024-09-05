@@ -15,7 +15,6 @@ from metasyn.varspec import VarSpec
 
 
 class MetaConfig():
-
     """Configuration class for creating MetaFrames.
 
     This class is used to create, manipulate, and retrieve configurations for
@@ -184,7 +183,6 @@ class MetaConfig():
 
 
 class VarSpecAccess():
-
     """Access for variable configuration object.
 
     They take into account what the defaults are from the MetaConfig object.

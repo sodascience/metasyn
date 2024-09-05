@@ -11,7 +11,6 @@ from metasyn.distribution.base import BaseDistribution, metadist
 
 @metadist(implements="core.na", var_type="string")
 class NADistribution(BaseDistribution):
-
     """Distribution that always returns NA values (None)."""
 
     @classmethod

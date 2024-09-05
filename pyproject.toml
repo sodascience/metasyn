@@ -93,7 +93,7 @@ ignore_missing_imports = true
 exclude = ["_version.py", "metasyn/distribution/legacy.*", "tests/*", "examples/*"]
 line-length = 100
 lint.select = ["E", "F", "W", "I", "N", "D", "PL", "ARG"]
-lint.ignore = ["PLR2004", "D107", "D105", "D102", "D211", "D213"]
+lint.ignore = ["PLR2004", "D107", "D105", "D102"]
 
 [tool.ruff.lint.pep8-naming]
 ignore-names = ["a", "b", "mu"]

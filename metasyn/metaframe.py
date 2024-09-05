@@ -20,7 +20,6 @@ from metasyn.varspec import VarSpec
 
 
 class MetaFrame():
-
     """Container for statistical metadata describing a dataset.
 
     This class is used to fit a MetaFrame to a Polars DataFrame, serialize and

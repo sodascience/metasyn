@@ -15,7 +15,6 @@ from metasyn.distribution.base import (
 
 @metadist(implements="core.uniform", var_type="continuous")
 class UniformDistribution(ScipyDistribution):
-
     """Uniform distribution for floating point type.
 
     This class implements the uniform distribution between a minimum
@@ -66,7 +65,6 @@ class UniformDistribution(ScipyDistribution):
 
 @metadist(implements="core.normal", var_type="continuous")
 class NormalDistribution(ScipyDistribution):
-
     """Normal distribution for floating point type.
 
     This class implements the normal/gaussian distribution and takes
@@ -106,7 +104,6 @@ class NormalDistribution(ScipyDistribution):
 
 @metadist(implements="core.lognormal", var_type="continuous")
 class LogNormalDistribution(ScipyDistribution):
-
     """Log-normal distribution for floating point type.
 
     This class implements the log-normal mu and sigma as initialization input.
@@ -152,7 +149,6 @@ class LogNormalDistribution(ScipyDistribution):
 
 @metadist(implements="core.truncated_normal", var_type="continuous")
 class TruncatedNormalDistribution(ScipyDistribution):
-
     """Truncated normal distribution for floating point type.
 
     Parameters
@@ -217,7 +213,6 @@ class TruncatedNormalDistribution(ScipyDistribution):
 
 @metadist(implements="core.exponential", var_type="continuous")
 class ExponentialDistribution(ScipyDistribution):
-
     """Exponential distribution for floating point type.
 
     This class implements the exponential distribution with the rate as its
@@ -261,7 +256,6 @@ class ExponentialDistribution(ScipyDistribution):
 
 @metadist(implements="core.constant", var_type="continuous")
 class ConstantDistribution(BaseConstantDistribution):
-
     """Constant distribution for floating point type.
 
     This class implements the constant distribution, so that it draws always

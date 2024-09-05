@@ -22,7 +22,6 @@ PUNCTUATION = regex.compile(r"\p{P}")
 
 @metadist(implements="core.faker", var_type="string")
 class FakerDistribution(BaseDistribution):
-
     """Faker distribution for cities, addresses, etc.
 
     This is mainly an interface for the faker package, so that it
@@ -80,7 +79,6 @@ class FakerDistribution(BaseDistribution):
 
 @metadist(implements="core.faker", var_type="string")
 class UniqueFakerDistribution(UniqueDistributionMixin, FakerDistribution):
-
     """Faker distribution that returns unique values.
 
     See :class:`~FakerDistribution` for examples and explanation.
@@ -89,7 +87,6 @@ class UniqueFakerDistribution(UniqueDistributionMixin, FakerDistribution):
 
 @metadist(implements="core.freetext", var_type="string")
 class FreeTextDistribution(BaseDistribution):
-
     """Free text distribution.
 
     This distribution detects the language and generates sentences using
@@ -201,7 +198,6 @@ class FreeTextDistribution(BaseDistribution):
 
 @metadist(implements="core.constant", var_type="string")
 class StringConstantDistribution(BaseConstantDistribution):
-
     """Constant string distribution.
 
     This class implements the constant distribution, so that it draws always
@@ -230,7 +226,6 @@ class StringConstantDistribution(BaseConstantDistribution):
 
 @metadist(implements="core.regex", var_type="string", version="2.0")
 class RegexDistribution(BaseDistribution):
-
     """Structured string distribution using regex.
 
     Main implementation details in the regexmodel package:
@@ -283,8 +278,8 @@ class RegexDistribution(BaseDistribution):
     def _fit(cls, values, count_thres: Optional[int] = None, method: str = "auto"):
         """Fit a regex to structured strings.
 
-        Arguments:
-        ----------
+        Arguments
+        ---------
         values:
             Values to be fitted (pl.Series).
         count_thres:
@@ -341,7 +336,6 @@ class RegexDistribution(BaseDistribution):
 
 @metadist(implements="core.regex", var_type="string")
 class UniqueRegexDistribution(UniqueDistributionMixin, RegexDistribution):
-
     """Unique variant of the regex distribution.
 
     See :class:`~RegexDistribution` for examples and explanation on this distribution.

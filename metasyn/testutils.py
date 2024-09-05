@@ -24,8 +24,8 @@ from metasyn.provider import (
 def check_distribution_provider(provider_name: str):
     """Check internal consistency of a distribution provider.
 
-    Arguments:
-    ----------
+    Arguments
+    ---------
     provider_name:
         Name of the provider to be tested.
 
@@ -45,8 +45,8 @@ def check_distribution(distribution: type[BaseDistribution], privacy: BasePrivac
                        provenance: str):
     """Check whether the distributions in the package can be validated positively.
 
-    Arguments:
-    ----------
+    Arguments
+    ---------
     distribution:
         Distribution to validate to check whether it behaves as expected.
     privacy:

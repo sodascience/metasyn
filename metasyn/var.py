@@ -14,7 +14,6 @@ from metasyn.varspec import DistributionSpec
 
 
 class MetaVar:
-
     """Metadata variable describing a column in a MetaFrame.
 
     MetaVar is a structure that holds all metadata needed to generate a

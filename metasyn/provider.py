@@ -62,7 +62,6 @@ if TYPE_CHECKING:
 
 
 class BaseDistributionProvider(ABC):
-
     """Base class for all distribution providers.
 
     A distribution provider is a class that provides a set of distributions
@@ -132,7 +131,6 @@ class BaseDistributionProvider(ABC):
 
 
 class BuiltinDistributionProvider(BaseDistributionProvider):
-
     """Distribution tree that includes the builtin distributions.
 
     This class inherits from BaseDistributionProvider and provides
@@ -163,7 +161,6 @@ class BuiltinDistributionProvider(BaseDistributionProvider):
 
 
 class DistributionProviderList():
-
     """List of DistributionProviders with functionality to fit distributions.
 
     This class is responsible for managing and providing access to

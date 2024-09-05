@@ -16,7 +16,6 @@ from metasyn.distribution.continuous import NormalDistribution, TruncatedNormalD
 
 @metadist(implements="core.uniform", var_type="discrete")
 class DiscreteUniformDistribution(ScipyDistribution):
-
     """Uniform discrete distribution.
 
     It differs from the floating point uniform distribution by
@@ -62,7 +61,6 @@ class DiscreteUniformDistribution(ScipyDistribution):
 
 @metadist(implements="core.normal", var_type="discrete")
 class DiscreteNormalDistribution(NormalDistribution):
-
     """Normal discrete distribution.
 
     This class implements the normal/gaussian distribution and takes
@@ -87,7 +85,6 @@ class DiscreteNormalDistribution(NormalDistribution):
 
 @metadist(implements="core.truncated_normal", var_type="discrete")
 class DiscreteTruncatedNormalDistribution(TruncatedNormalDistribution):
-
     """Truncated normal discrete distribution.
 
     Parameters
@@ -113,7 +110,6 @@ class DiscreteTruncatedNormalDistribution(TruncatedNormalDistribution):
 
 @metadist(implements="core.poisson", var_type="discrete")
 class PoissonDistribution(ScipyDistribution):
-
     """Poisson distribution.
 
     Parameters
@@ -153,7 +149,6 @@ class PoissonDistribution(ScipyDistribution):
 
 @metadist(implements="core.unique_key", var_type="discrete", unique=True)
 class UniqueKeyDistribution(ScipyDistribution):
-
     """Unique key distribution for identifiers.
 
     Discrete distribution that ensures the uniqueness of the drawn values.
@@ -235,7 +230,6 @@ class UniqueKeyDistribution(ScipyDistribution):
 
 @metadist(implements="core.constant", var_type="discrete")
 class DiscreteConstantDistribution(BaseConstantDistribution):
-
     """Constant discrete distribution.
 
     This class implements the constant distribution, so that it draws always

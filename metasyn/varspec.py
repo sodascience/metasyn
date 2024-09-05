@@ -11,7 +11,6 @@ from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
 
 @dataclass
 class DistributionSpec():
-
     """Specification that determines which distribution is selected.
 
     It has the following attributes:
@@ -121,7 +120,6 @@ class DistributionSpec():
 
 
 class VarSpec():  # pylint: disable=too-few-public-methods
-
     """Data class for storing the specifications for variables.
 
     Parameters

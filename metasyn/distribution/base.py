@@ -27,7 +27,6 @@ from numpy import typing as npt
 
 
 class BaseDistribution(ABC):
-
     """Abstract base class to define a distribution.
 
     All distributions should be derived from this class, and should implement
@@ -269,7 +268,6 @@ def metadist(
 
 
 class ScipyDistribution(BaseDistribution):
-
     """Base class for numerical distributions using Scipy.
 
     This base class makes it easy to implement new numerical
@@ -327,7 +325,6 @@ class ScipyDistribution(BaseDistribution):
 
 @metadist(unique=True)
 class UniqueDistributionMixin(BaseDistribution):
-
     """Mixin class to make unique version of base distributions.
 
     This mixin class can be used to extend base distribution classes, adding
@@ -363,7 +360,6 @@ class UniqueDistributionMixin(BaseDistribution):
 
 
 class BaseConstantDistribution(BaseDistribution):
-
     """Base class for constant distribution.
 
     This base class makes it easy to implement new constant distributions
