@@ -27,7 +27,7 @@ classifiers = [
 dependencies = [
     "polars>=1",
     "tqdm",
-    "numpy>=1.20,<2.0",
+    "numpy>=1.20",
     "pyarrow", # Dependency of polars since we're converting from pandas.
     "scipy",
     "numpy>=1.20",

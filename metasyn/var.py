@@ -234,9 +234,13 @@ class MetaVar:
         """
         self.distribution.draw_reset()
         value_list = [self.draw() for _ in range(n)]
+        pl_type = self.dtype.split("(")[0]
+
+        # Workaround for polars issue with numpy 2.0
+        if pl_type == "Boolean":
+            value_list = [bool(x) for x in value_list if x is not None]
 
         # Some dtypes have extra information, discard that
-        pl_type = self.dtype.split("(")[0]
         return pl.Series(value_list, dtype=getattr(pl, pl_type))
 
     @classmethod
