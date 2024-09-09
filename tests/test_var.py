@@ -182,7 +182,6 @@ def test_string(tmp_path, series_type):
     [pl.Series, pd.Series]
 )
 def test_bool(tmp_path, series_type):
-    print([bool(x) for x in np.random.choice([True, False], size=100)])
     series = series_type(np.random.choice([True, False], size=100))
     check_var(series, "categorical", tmp_path)
     var = MetaVar.fit(series)
