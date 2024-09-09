@@ -2,7 +2,7 @@
 
 # import random
 import string
-from abc import ABC, abstractclassmethod, abstractproperty
+from abc import ABC, abstractproperty
 from datetime import date, datetime, time, timedelta
 from pathlib import Path
 
