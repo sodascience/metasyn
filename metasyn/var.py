@@ -74,6 +74,8 @@ class MetaVar:
                 f"Cannot create variable '{self.name}' with proportion missing "
                 "outside range [0, 1]"
             )
+        if self.dtype == "unknown":
+            self.dtype = str(pl.Series([self.draw()]).dtype)
 
     @staticmethod
     def get_var_type(series: pl.Series) -> str:
@@ -232,9 +234,14 @@ class MetaVar:
         """
         self.distribution.draw_reset()
         value_list = [self.draw() for _ in range(n)]
-        if "Categorical" in self.dtype:
-            return pl.Series(value_list, dtype=pl.Categorical)
-        return pl.Series(value_list)
+        pl_type = self.dtype.split("(")[0]
+
+        # Workaround for polars issue with numpy 2.0
+        if pl_type == "Boolean":
+            value_list = [None if x is None else bool(x) for x in value_list]
+
+        # Some dtypes have extra information, discard that
+        return pl.Series(value_list, dtype=getattr(pl, pl_type))
 
     @classmethod
     def from_dict(
