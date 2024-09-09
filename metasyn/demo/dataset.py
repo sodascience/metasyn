@@ -51,6 +51,7 @@ class BaseDataset(ABC):
 @register
 class TitanicDataset(BaseDataset):
     """Included in pandas, but post-processed to contain more columns."""
+
     @classmethod
     @property
     def name(cls):
@@ -65,6 +66,7 @@ class TitanicDataset(BaseDataset):
 @register
 class SpaceShipDataset(BaseDataset):
     """CC-BY from https://www.kaggle.com/competitions/spaceship-titanic"""
+
     @classmethod
     @property
     def name(cls):
@@ -85,6 +87,7 @@ class SpaceShipDataset(BaseDataset):
 @register
 class FruitDataset(BaseDataset):
     """Very basic example data from Polars"""
+
     @classmethod
     @property
     def name(cls):
@@ -99,6 +102,7 @@ class FruitDataset(BaseDataset):
 @register
 class SurveyDataset(BaseDataset):
     """Columns from ESS round 11 Human Values Scale questionnaire for the Netherlands"""
+
     @classmethod
     @property
     def name(cls):
@@ -113,6 +117,7 @@ class SurveyDataset(BaseDataset):
 @register
 class TestDataset(BaseDataset):
     """Test dataset with all supported data types."""
+
     @classmethod
     @property
     def name(cls):
