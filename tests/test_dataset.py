@@ -6,6 +6,7 @@ import polars as pl
 import pytest
 from pytest import mark
 
+from metasyn.demo import _get_demo_class, demo_dataframe, demo_file
 from metasyn.metaframe import MetaFrame
 from metasyn.provider import get_distribution_provider
 from metasyn.var import MetaVar
@@ -114,3 +115,25 @@ def test_distributions(tmp_path):
                           prop_missing=random())
             dataset = MetaFrame([var], n_rows=10)
             dataset.to_json(tmp_fp)
+
+@mark.parametrize(
+    "dataset_name", ["spaceship", "titanic", "fruit", "survey", "test"]
+)
+def test_demo_datasets(tmp_path, dataset_name):
+    demo_fp = demo_file(dataset_name)
+    demo_df = demo_dataframe(dataset_name)
+    assert demo_fp.is_file()
+    assert isinstance(demo_df, pl.DataFrame)
+
+    mf = MetaFrame.fit_dataframe(demo_df)
+    assert isinstance(mf, MetaFrame)
+
+    tmp_file = tmp_path / "gmf.json"
+    mf.to_json(tmp_file)
+    mf = MetaFrame.from_json(tmp_file)
+
+    df_syn = mf.synthesize(100)
+    demo_class = _get_demo_class(dataset_name)
+
+    for col, dtype in demo_class.items():
+        assert issubclass(dtype, df_syn[col].dtype)

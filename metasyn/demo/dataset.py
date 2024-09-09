@@ -36,9 +36,14 @@ class BaseDataset(ABC):
     def file_location(cls):
         return files(__package__) / f"demo_{cls.name}.csv"
 
-    @abstractclassmethod
+    @classmethod
     def get_dataframe(cls):
-        return pl.read_csv(cls.file_location)
+        return pl.read_csv(cls.file_location, schema_overrides=cls.schema, try_parse_dates=True)
+
+    @property
+    @abstractclassmethod
+    def schema(cls):
+        pass
 
 
 @register
@@ -49,10 +54,9 @@ class TitanicDataset(BaseDataset):
         return "titanic"
 
     @classmethod
-    def get_dataframe(cls):
-        file_path = cls.file_location
-        data_types = {"Sex": pl.Categorical, "Embarked": pl.Categorical}
-        return pl.read_csv(file_path, schema_overrides=data_types, try_parse_dates=True)
+    @property
+    def schema(cls):
+        return {"Sex": pl.Categorical, "Embarked": pl.Categorical}
 
 
 @register
@@ -63,18 +67,15 @@ class SpaceShipDataset(BaseDataset):
         return "spaceship"
 
     @classmethod
-    def get_dataframe(cls):
-        # the Kaggle spaceship data (CC-BY)
-        data_types = {
+    @property
+    def schema(cls):
+        return {
             "HomePlanet": pl.Categorical,
             "CryoSleep": pl.Categorical,
             "VIP": pl.Categorical,
             "Destination": pl.Categorical,
             "Transported": pl.Categorical,
         }
-        return pl.read_csv(
-            cls.file_location, schema_overrides=data_types, try_parse_dates=True
-        )
 
 
 @register
@@ -85,10 +86,9 @@ class FruitDataset(BaseDataset):
         return "fruit"
 
     @classmethod
-    def get_dataframe(cls):
-        # basic fruit data from polars example
-        data_types = {"fruits": pl.Categorical, "cars": pl.Categorical}
-        return pl.read_csv(cls.file_location, schema_overrides=data_types)
+    @property
+    def schema(cls):
+        return {"fruits": pl.Categorical, "cars": pl.Categorical}
 
 
 @register
@@ -99,8 +99,9 @@ class SurveyDataset(BaseDataset):
         return "survey"
 
     @classmethod
-    def get_dataframe(cls):
-        return super().get_dataframe()
+    @property
+    def schema(cls):
+        return {}
 
 
 @register
@@ -111,10 +112,11 @@ class TestDataset(BaseDataset):
         return "test"
 
     @classmethod
-    def get_dataframe(cls):
+    @property
+    def schema(cls):
         columns = pl.read_csv(cls.file_location).columns
-        data_types = {col_name: (getattr(pl, col_name[3:]) if col_name != "NA" else pl.String) for col_name in columns}
-        return pl.read_csv(cls.file_location, schema_overrides=data_types)
+        return {col_name: (getattr(pl, col_name[3:]) if col_name != "NA" else pl.String)
+                for col_name in columns}
 
     @classmethod
     def create(cls, csv_file):
