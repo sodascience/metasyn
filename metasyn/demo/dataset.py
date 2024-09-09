@@ -2,7 +2,7 @@
 
 # import random
 import string
-from abc import ABC, abstractclassmethod
+from abc import ABC, abstractclassmethod, abstractproperty
 from datetime import date, datetime, time, timedelta
 from pathlib import Path
 
@@ -22,7 +22,7 @@ _AVAILABLE_DATASETS = {}
 def register(*args):
     """Register a dataset so that it can be found by name."""
     def _wrap(cls):
-        _AVAILABLE_DATASETS[cls.name] = cls
+        _AVAILABLE_DATASETS[cls().name] = cls()
         return cls
     return _wrap(*args)
 
@@ -30,28 +30,24 @@ def register(*args):
 class BaseDataset(ABC):
     """Base class for demo datasets."""
 
-    @property
-    @abstractclassmethod
-    def name(cls):
+    @abstractproperty
+    def name(self):
         pass
 
-    @classmethod
     @property
-    def file_location(cls):
-        return files(__package__) / f"demo_{cls.name}.csv"
+    def file_location(self):
+        return files(__package__) / f"demo_{self.name}.csv"
 
-    @classmethod
-    def get_dataframe(cls):
-        return pl.read_csv(cls.file_location, schema_overrides=cls.schema, try_parse_dates=True)
+    def get_dataframe(self):
+        return pl.read_csv(self.file_location, schema_overrides=self.schema,
+                           try_parse_dates=True)
 
-    @property
-    @abstractclassmethod
-    def schema(cls):
+    @abstractproperty
+    def schema(self):
         pass
 
-    @classmethod
     @property
-    def var_specs(cls):
+    def var_specs(self):
         return []
 
 
@@ -59,33 +55,28 @@ class BaseDataset(ABC):
 class TitanicDataset(BaseDataset):
     """Included in pandas, but post-processed to contain more columns."""
 
-    @classmethod
     @property
-    def name(cls):
+    def name(self):
         return "titanic"
 
-    @classmethod
     @property
-    def schema(cls):
+    def schema(self):
         return {"Sex": pl.Categorical, "Embarked": pl.Categorical}
 
-    @classmethod
     @property
-    def var_specs(cls):
+    def var_specs(self):
         return [VarSpec("PassengerId", unique=True)]
 
 @register
 class SpaceShipDataset(BaseDataset):
     """CC-BY from https://www.kaggle.com/competitions/spaceship-titanic."""
 
-    @classmethod
     @property
-    def name(cls):
+    def name(self):
         return "spaceship"
 
-    @classmethod
     @property
-    def schema(cls):
+    def schema(self):
         return {
             "HomePlanet": pl.Categorical,
             "CryoSleep": pl.Categorical,
@@ -99,19 +90,16 @@ class SpaceShipDataset(BaseDataset):
 class FruitDataset(BaseDataset):
     """Very basic example data from Polars."""
 
-    @classmethod
     @property
-    def name(cls):
+    def name(self):
         return "fruit"
 
-    @classmethod
     @property
-    def schema(cls):
+    def schema(self):
         return {"fruits": pl.Categorical, "cars": pl.Categorical}
 
-    @classmethod
     @property
-    def var_specs(cls):
+    def var_specs(self):
         return [VarSpec("ID", unique=True), VarSpec("B", unique=False)]
 
 
@@ -119,14 +107,12 @@ class FruitDataset(BaseDataset):
 class SurveyDataset(BaseDataset):
     """Columns from ESS round 11 Human Values Scale questionnaire for the Netherlands."""
 
-    @classmethod
     @property
-    def name(cls):
+    def name(self):
         return "survey"
 
-    @classmethod
     @property
-    def schema(cls):
+    def schema(self):
         return {}
 
 
@@ -134,15 +120,13 @@ class SurveyDataset(BaseDataset):
 class TestDataset(BaseDataset):
     """Test dataset with all supported data types."""
 
-    @classmethod
     @property
-    def name(cls):
+    def name(self):
         return "test"
 
-    @classmethod
     @property
-    def schema(cls):
-        columns = pl.read_csv(cls.file_location).columns
+    def schema(self):
+        columns = pl.read_csv(self.file_location).columns
         return {col_name: (getattr(pl, col_name[3:]) if col_name != "NA" else pl.String)
                 for col_name in columns}
 

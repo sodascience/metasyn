@@ -138,3 +138,8 @@ def test_demo_datasets(tmp_path, dataset_name):
 
     for col, dtype in demo_class.schema.items():
         assert dtype == df_syn[col].dtype
+
+
+def test_demo_non_exist():
+    with pytest.raises(ValueError):
+        demo_file("non-existing-dataset")
