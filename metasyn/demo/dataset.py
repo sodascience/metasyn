@@ -65,7 +65,7 @@ class TitanicDataset(BaseDataset):
 
 @register
 class SpaceShipDataset(BaseDataset):
-    """CC-BY from https://www.kaggle.com/competitions/spaceship-titanic"""
+    """CC-BY from https://www.kaggle.com/competitions/spaceship-titanic."""
 
     @classmethod
     @property
@@ -86,7 +86,7 @@ class SpaceShipDataset(BaseDataset):
 
 @register
 class FruitDataset(BaseDataset):
-    """Very basic example data from Polars"""
+    """Very basic example data from Polars."""
 
     @classmethod
     @property
@@ -101,7 +101,7 @@ class FruitDataset(BaseDataset):
 
 @register
 class SurveyDataset(BaseDataset):
-    """Columns from ESS round 11 Human Values Scale questionnaire for the Netherlands"""
+    """Columns from ESS round 11 Human Values Scale questionnaire for the Netherlands."""
 
     @classmethod
     @property
