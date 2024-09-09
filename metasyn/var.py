@@ -238,7 +238,7 @@ class MetaVar:
 
         # Workaround for polars issue with numpy 2.0
         if pl_type == "Boolean":
-            value_list = [bool(x) for x in value_list if x is not None]
+            value_list = [None if x is None else bool(x) for x in value_list]
 
         # Some dtypes have extra information, discard that
         return pl.Series(value_list, dtype=getattr(pl, pl_type))

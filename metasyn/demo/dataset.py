@@ -168,6 +168,9 @@ class TestDataset(BaseDataset):
         all_series.append(pl.Series("pl.Categorical",
                                     np.random.choice(list(string.ascii_uppercase[:5]), size=n_rows),
                                     dtype=pl.Categorical))
+        all_series.append(pl.Series("pl.Boolean",
+                                    np.random.choice([True, False], size=n_rows),
+                                    dtype=pl.Boolean))
         all_series.append(pl.Series("NA", [None for _ in range(n_rows)], dtype=pl.String))
 
         # Add NA's for all series except the categorical
