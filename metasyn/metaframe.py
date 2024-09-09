@@ -331,6 +331,8 @@ def _jsonify(data):
 
     if isinstance(data, (np.int8, np.int16, np.int32, np.int64)):
         return int(data)
+    if isinstance(data, np.float32):
+        return float(data)
     if isinstance(data, np.ndarray):
         return _jsonify(data.tolist())
     return data

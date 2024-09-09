@@ -232,9 +232,10 @@ class MetaVar:
         """
         self.distribution.draw_reset()
         value_list = [self.draw() for _ in range(n)]
-        if "Categorical" in self.dtype:
-            return pl.Series(value_list, dtype=pl.Categorical)
-        return pl.Series(value_list)
+
+        # Some dtypes have extra information, discard that
+        pl_type = self.dtype.split("(")[0]
+        return pl.Series(value_list, dtype=getattr(pl, pl_type))
 
     @classmethod
     def from_dict(

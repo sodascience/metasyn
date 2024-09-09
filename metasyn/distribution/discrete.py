@@ -130,7 +130,9 @@ class PoissonDistribution(ScipyDistribution):
 
     @classmethod
     def _fit(cls, values):
-        return cls(values.mean())
+        mean_values = values.mean()
+        mean_values = mean_values if mean_values >= 0 else 0
+        return cls(mean_values)
 
     @classmethod
     def default_distribution(cls):

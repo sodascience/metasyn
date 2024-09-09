@@ -6,7 +6,7 @@ import polars as pl
 import pytest
 from pytest import mark
 
-from metasyn.demo import _get_demo_class, demo_dataframe, demo_file
+from metasyn.demo.dataset import _get_demo_class, demo_dataframe, demo_file
 from metasyn.metaframe import MetaFrame
 from metasyn.provider import get_distribution_provider
 from metasyn.var import MetaVar
@@ -135,5 +135,5 @@ def test_demo_datasets(tmp_path, dataset_name):
     df_syn = mf.synthesize(100)
     demo_class = _get_demo_class(dataset_name)
 
-    for col, dtype in demo_class.items():
-        assert issubclass(dtype, df_syn[col].dtype)
+    for col, dtype in demo_class.schema.items():
+        assert dtype == df_syn[col].dtype
