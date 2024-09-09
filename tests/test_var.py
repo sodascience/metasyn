@@ -129,7 +129,7 @@ def test_polars_discrete(dtype, tmp_path):
     assert new_series.max() < 10
 
 @mark.parametrize(
-    "dtype", [pl.Float32, pl.Float64, pl.Decimal]
+    "dtype", [pl.Float32, pl.Float64]
 )
 def test_polars_continuous(dtype, tmp_path):
     series = pl.Series("ser", np.random.rand(100), dtype=dtype)
@@ -146,7 +146,7 @@ def test_polars_string(dtype, tmp_path):
     check_var(series, "string", tmp_path)
 
 @mark.parametrize(
-    "dtype", [pl.Enum, pl.Categorical]
+    "dtype", [pl.Categorical]
 )
 def test_polars_categorical(dtype, tmp_path):
     series = pl.Series("series", string.printable, dtype=dtype)

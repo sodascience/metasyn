@@ -74,6 +74,8 @@ class MetaVar:
                 f"Cannot create variable '{self.name}' with proportion missing "
                 "outside range [0, 1]"
             )
+        if self.dtype == "unknown":
+            self.dtype = str(pl.Series([self.draw()]).dtype)
 
     @staticmethod
     def get_var_type(series: pl.Series) -> str:

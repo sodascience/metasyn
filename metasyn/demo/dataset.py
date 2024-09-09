@@ -9,6 +9,8 @@ from pathlib import Path
 import numpy as np
 import polars as pl
 
+from metasyn.varspec import VarSpec
+
 try:
     from importlib_resources import files
 except ImportError:
@@ -47,6 +49,11 @@ class BaseDataset(ABC):
     def schema(cls):
         pass
 
+    @classmethod
+    @property
+    def var_specs(cls):
+        return []
+
 
 @register
 class TitanicDataset(BaseDataset):
@@ -62,6 +69,10 @@ class TitanicDataset(BaseDataset):
     def schema(cls):
         return {"Sex": pl.Categorical, "Embarked": pl.Categorical}
 
+    @classmethod
+    @property
+    def var_specs(cls):
+        return [VarSpec("PassengerId", unique=True)]
 
 @register
 class SpaceShipDataset(BaseDataset):
@@ -97,6 +108,11 @@ class FruitDataset(BaseDataset):
     @property
     def schema(cls):
         return {"fruits": pl.Categorical, "cars": pl.Categorical}
+
+    @classmethod
+    @property
+    def var_specs(cls):
+        return [VarSpec("ID", unique=True), VarSpec("B", unique=False)]
 
 
 @register

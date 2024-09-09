@@ -122,10 +122,12 @@ def test_distributions(tmp_path):
 def test_demo_datasets(tmp_path, dataset_name):
     demo_fp = demo_file(dataset_name)
     demo_df = demo_dataframe(dataset_name)
+    demo_class = _get_demo_class(dataset_name)
+
     assert demo_fp.is_file()
     assert isinstance(demo_df, pl.DataFrame)
 
-    mf = MetaFrame.fit_dataframe(demo_df)
+    mf = MetaFrame.fit_dataframe(demo_df, var_specs=demo_class.var_specs)
     assert isinstance(mf, MetaFrame)
 
     tmp_file = tmp_path / "gmf.json"
@@ -133,7 +135,6 @@ def test_demo_datasets(tmp_path, dataset_name):
     mf = MetaFrame.from_json(tmp_file)
 
     df_syn = mf.synthesize(100)
-    demo_class = _get_demo_class(dataset_name)
 
     for col, dtype in demo_class.schema.items():
         assert dtype == df_syn[col].dtype
