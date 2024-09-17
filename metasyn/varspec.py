@@ -164,7 +164,7 @@ class VarSpec():  # pylint: disable=too-few-public-methods
             privacy: Optional[BasePrivacy] = None,
             prop_missing: Optional[float] = None,
             description: Optional[str] = None,
-            data_free: bool = False,
+            data_free: Optional[bool] = None,
             var_type: Optional[str] = None):
 
         self.name = name
@@ -198,3 +198,15 @@ class VarSpec():  # pylint: disable=too-few-public-methods
             A VarSpec instance.
         """
         return cls(**var_dict)
+
+
+@dataclass
+class VarDefaults():
+    data_free: bool = False
+    prop_missing: Optional[float] = None
+    distribution: Optional[dict] = None
+    privacy: Optional[BasePrivacy] = None
+
+    def __post_init__(self):
+        if isinstance(self.privacy, dict):
+            self.privacy = get_privacy(**self.privacy)

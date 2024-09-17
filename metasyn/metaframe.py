@@ -10,10 +10,12 @@ from typing import Any, Dict, List, Optional, Sequence, Union
 
 import numpy as np
 import polars as pl
+import tomlkit
+import tomllib
 from tqdm import tqdm
 
 from metasyn.config import MetaConfig
-from metasyn.privacy import BasePrivacy
+from metasyn.privacy import BasePrivacy, get_privacy
 from metasyn.validation import validate_gmf_dict
 from metasyn.var import MetaVar
 from metasyn.varspec import VarSpec
@@ -287,6 +289,46 @@ class MetaFrame():
         """
         with open(fp, "r", encoding="utf-8") as f:
             self_dict = json.load(f)
+
+        if validate:
+            validate_gmf_dict(self_dict)
+
+        n_rows = self_dict["n_rows"]
+        meta_vars = [MetaVar.from_dict(d) for d in self_dict["vars"]]
+        return cls(meta_vars, n_rows)
+
+    def to_toml(self, fp: Optional[Union[pathlib.Path, str]],
+               validate: bool = True) -> None:
+        self_dict = _jsonify(self.to_dict())
+        if validate:
+            validate_gmf_dict(self_dict)
+
+        doc = tomlkit.loads(tomlkit.dumps(self_dict))
+        doc["n_rows"].comment("Number of rows")
+        doc["n_columns"].comment("Number of columns")
+        for i in range(self.n_columns):
+            var = self.meta_vars[i]
+            doc["vars"][i].comment(f"Metadata for column with name {var.name}")
+            doc["vars"][i]["prop_missing"].comment(
+                f"Based on {round(self.n_rows*(1-var.prop_missing))} values")
+            if "privacy" in var.creation_method:
+                privacy = get_privacy(**var.creation_method["privacy"])
+                doc["vars"][i]["creation_method"].add(tomlkit.comment(privacy.comment(var.name)))
+            if var.distribution.matches_name("multinoulli"):
+                counts = (var.distribution.probs*(1-var.prop_missing)*self.n_rows).round()
+                doc["vars"][i]["distribution"].add(tomlkit.comment(f"Counts: {counts.astype(int)}\n"))
+
+        if fp is None:
+            print(tomlkit.dumps(doc))
+        else:
+            with open(fp, "w", encoding="utf-8") as f:
+                tomlkit.dump(doc, f)
+
+    @classmethod
+    def from_toml(cls, fp: Union[pathlib.Path, str],
+                  validate: bool = True) -> MetaFrame:
+        with open(fp, "rb") as f:
+            self_dict = tomllib.load(f)
 
         if validate:
             validate_gmf_dict(self_dict)
