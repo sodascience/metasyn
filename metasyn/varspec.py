@@ -7,6 +7,7 @@ from typing import Any, Optional, Union
 
 from metasyn.distribution.base import BaseDistribution
 from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
+from metasyn.util import ALL_VAR_TYPES
 
 
 @dataclass
@@ -183,6 +184,9 @@ class VarSpec():  # pylint: disable=too-few-public-methods
         if self.data_free and not self.dist_spec.fully_specified:
             raise ValueError("Error creating variable specification: data free variable should have"
                             f" 'implements' and 'parameters'. {self}")
+        if self.var_type is not None and self.var_type not in ALL_VAR_TYPES:
+            raise ValueError(f"Cannot create variable '{self.name}': unknown variable type "
+                             f"'{self.var_type}'. Choose from {ALL_VAR_TYPES}.")
 
     @classmethod
     def from_dict(cls, var_dict: dict) -> VarSpec:

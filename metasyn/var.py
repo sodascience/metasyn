@@ -63,7 +63,7 @@ class MetaVar:
         self.name = name
         if var_type is None:
             if not isinstance(distribution.var_type, str):
-                raise ValueError("Failed to infer variable type for variable {name}"
+                raise ValueError("Failed to infer variable type for variable '{name}'"
                                  " supply var_type or a different distribution.")
             var_type = distribution.var_type
         self.var_type = var_type
@@ -80,7 +80,10 @@ class MetaVar:
                 "outside range [0, 1]"
             )
         if self.dtype == "unknown":
-            self.dtype = str(pl.Series([self.draw()]).dtype)
+            if self.var_type == "categorical":
+                self.dtype = "Categorical"
+            else:
+                self.dtype = str(pl.Series([self.distribution.draw()]).dtype)
 
     @staticmethod
     def get_var_type(series: pl.Series) -> str:
