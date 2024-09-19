@@ -206,6 +206,20 @@ class VarSpec():  # pylint: disable=too-few-public-methods
 
 @dataclass
 class VarDefaults():
+    """Dataclass for variable defaults.
+
+    Parameters
+    ----------
+    data_free:
+        Whether the variable is completely synthetic or is based on real data.
+    prop_missing:
+        Proportion of missing values.
+    distribution:
+        Dictionary containing default distributions for each variable type.
+    privacy:
+        Privacy to be used by default for estimating distributions.
+    """
+
     data_free: bool = False
     prop_missing: Optional[float] = None
     distribution: Optional[dict] = None
@@ -214,6 +228,6 @@ class VarDefaults():
     def __post_init__(self):
         if isinstance(self.privacy, dict):
             self.privacy = get_privacy(**self.privacy)
-        else:
+        elif not isinstance(self.privacy, BasePrivacy):
             self.privacy = get_privacy("none")
 

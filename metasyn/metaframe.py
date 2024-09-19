@@ -10,8 +10,12 @@ from typing import Any, Dict, List, Optional, Sequence, Union, no_type_check
 
 import numpy as np
 import polars as pl
-import tomlkit
-import tomllib
+
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib  # type: ignore  # noqa
+
 from tqdm import tqdm
 
 from metasyn.config import MetaConfig
@@ -300,6 +304,11 @@ class MetaFrame():
     @no_type_check
     def to_toml(self, fp: Optional[Union[pathlib.Path, str]],
                validate: bool = True) -> None:
+        try:
+            import tomlkit
+        except ImportError:
+            raise ValueError("Please install tomlkit (pip install tomlkit) to "
+                             "enable support for exporting to toml.")
         self_dict = _jsonify(self.to_dict())
         if validate:
             validate_gmf_dict(self_dict)
@@ -317,7 +326,8 @@ class MetaFrame():
                 doc["vars"][i]["creation_method"].add(tomlkit.comment(privacy.comment(var.name)))
             if var.distribution.matches_name("multinoulli"):
                 counts = (var.distribution.probs*(1-var.prop_missing)*self.n_rows).round()
-                doc["vars"][i]["distribution"].add(tomlkit.comment(f"Counts: {counts.astype(int)}\n"))
+                doc["vars"][i]["distribution"].add(tomlkit.comment(
+                    f"Counts: {counts.astype(int)}\n"))
 
         if fp is None:
             print(tomlkit.dumps(doc))
