@@ -214,3 +214,6 @@ class VarDefaults():
     def __post_init__(self):
         if isinstance(self.privacy, dict):
             self.privacy = get_privacy(**self.privacy)
+        else:
+            self.privacy = get_privacy("none")
+

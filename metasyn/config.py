@@ -45,11 +45,14 @@ class MetaConfig():
             var_specs: Union[list[dict], list[VarSpec]],
             dist_providers: Union[DistributionProviderList, list[str], str, None],
             defaults: Optional[dict] = None,
-            n_rows: Optional[int] = None):
+            n_rows: Optional[int] = None,
+            config_version: str = "1.1"):
         self.var_specs = [self._parse_var_spec(v) for v in var_specs]
         self.dist_providers = dist_providers  # type: ignore
         self.n_rows = n_rows
+        defaults = {} if defaults is None else defaults
         self.defaults = VarDefaults(**defaults)
+        self.config_version = config_version
 
     @staticmethod
     def _parse_var_spec(var_spec):
@@ -114,7 +117,8 @@ class MetaConfig():
         if len(config_dict) > 0:
             raise ValueError(f"Error parsing configuration file '{config_fp}'."
                              f" Unknown keys detected: '{list(config_dict)}'")
-        return cls(var_list, dist_providers, defaults, n_rows=n_rows)
+        return cls(var_list, dist_providers, defaults, n_rows=n_rows,
+                   config_version=config_version)
 
     def to_dict(self) -> dict:
         """Convert the configuration to a dictionary.
@@ -125,10 +129,10 @@ class MetaConfig():
             Configuration in dictionary form.
         """
         return {
-            "general": {
-                "privacy": self.privacy,
-                "dist_providers": self.dist_providers,
-            },
+            "config_version": self.config_version,
+            "dist_providers": self.dist_providers,
+            "n_rows": self.n_rows,
+            "defaults": self.defaults,
             "var": self.var_specs
         }
 

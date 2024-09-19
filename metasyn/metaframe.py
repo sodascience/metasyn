@@ -6,7 +6,7 @@ import json
 import pathlib
 from datetime import datetime
 from importlib.metadata import version
-from typing import Any, Dict, List, Optional, Sequence, Union
+from typing import Any, Dict, List, Optional, Sequence, Union, no_type_check
 
 import numpy as np
 import polars as pl
@@ -106,13 +106,13 @@ class MetaFrame():
         elif isinstance(var_specs, MetaConfig):
             meta_config = var_specs
         elif var_specs is None:
-            meta_config = MetaConfig([], dist_providers, privacy)
+            meta_config = MetaConfig([], dist_providers, defaults = {"privacy": privacy})
         else:
-            meta_config = MetaConfig(var_specs, dist_providers, privacy)
+            meta_config = MetaConfig(var_specs, dist_providers, defaults = {"privacy": privacy})
         if dist_providers is not None:
             meta_config.dist_providers = dist_providers  # type: ignore
         if privacy is not None:
-            meta_config.privacy = privacy  # type: ignore
+            meta_config.defaults["privacy"] = privacy  # type: ignore
 
         if df is not None and not isinstance(df, pl.DataFrame):
             if isinstance(df, (str, pathlib.Path)):
@@ -297,6 +297,7 @@ class MetaFrame():
         meta_vars = [MetaVar.from_dict(d) for d in self_dict["vars"]]
         return cls(meta_vars, n_rows)
 
+    @no_type_check
     def to_toml(self, fp: Optional[Union[pathlib.Path, str]],
                validate: bool = True) -> None:
         self_dict = _jsonify(self.to_dict())
