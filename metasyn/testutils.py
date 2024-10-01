@@ -117,6 +117,7 @@ VAR_TEMPLATE = """
 """
 
 def create_md_report(file_name, out_md_file):
+    """Create markdown report from GMF file."""
     with open(file_name, "r") as handle:
         gmf_dict = json.load(handle)
 
@@ -169,6 +170,7 @@ def create_md_report(file_name, out_md_file):
 
 
 def create_input_toml(file_name):
+    """Create input toml with all distribution in builtin."""
     import tomlkit
 
     prov = get_distribution_provider("builtin")
