@@ -90,7 +90,7 @@ module = [
 ignore_missing_imports = true
 
 [tool.ruff]
-exclude = ["_version.py", "metasyn/distribution/legacy.*", "tests/*", "examples/*"]
+exclude = ["_version.py", "metasyn/distribution/legacy.*", "examples/*"]
 line-length = 100
 lint.select = ["E", "F", "W", "I", "N", "D", "PL", "ARG"]
 lint.ignore = ["PLR2004", "D107", "D105", "D102"]

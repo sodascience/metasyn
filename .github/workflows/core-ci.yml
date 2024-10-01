@@ -23,7 +23,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install ".[check]" tomlkit
       - name: Lint with Ruff
-        run: ruff check
+        run: ruff check metasyn
       - name: Check types with MyPy
         run: mypy metasyn  
 

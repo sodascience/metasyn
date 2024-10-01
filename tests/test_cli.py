@@ -56,7 +56,6 @@ distribution = {implements = "lognormal"}
 @mark.parametrize("ext", [".csv", ".feather", ".parquet", ".pkl", ".xlsx"])
 def test_cli(tmp_dir, ext):
     """A simple integration test for reading and writing using the CLI"""
-
     # create out file path with correct extension
     out_file = tmp_dir / f"titanic{ext}"
 
