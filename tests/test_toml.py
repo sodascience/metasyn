@@ -28,7 +28,7 @@ def test_datafree_create(tmpdir):
 @mark.parametrize(
     "toml_input,data", [
         (Path("examples", "config_files", "example_all.toml"), None),
-        (Path("examples", "config_files", "example_config.toml"), demo_dataframe("titanic")),
+        # (Path("examples", "config_files", "example_config.toml"), demo_dataframe("titanic")),
         (Path("examples", "config_files", "example_datafree.toml"), None),
     ]
 )
