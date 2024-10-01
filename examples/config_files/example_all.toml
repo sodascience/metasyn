@@ -1,0 +1,331 @@
+config_version = "1.1"
+dist_providers = ["builtin"]
+n_rows = 100
+
+[defaults]
+data_free = true
+prop_missing = 0.1
+
+[[var]]
+name = "DiscreteNormalDistribution"
+var_type = "discrete"
+
+[var.distribution]
+implements = "core.normal"
+unique = false
+
+[var.distribution.parameters]
+mean = 0
+sd = 1
+
+
+[[var]]
+name = "DiscreteTruncatedNormalDistribution"
+var_type = "discrete"
+
+[var.distribution]
+implements = "core.truncated_normal"
+unique = false
+
+[var.distribution.parameters]
+lower = -1
+upper = 2
+mean = 0
+sd = 1
+
+
+[[var]]
+name = "DiscreteUniformDistribution"
+var_type = "discrete"
+
+[var.distribution]
+implements = "core.uniform"
+unique = false
+
+[var.distribution.parameters]
+lower = 0
+upper = 10
+
+
+[[var]]
+name = "PoissonDistribution"
+var_type = "discrete"
+
+[var.distribution]
+implements = "core.poisson"
+unique = false
+
+[var.distribution.parameters]
+rate = 0.5
+
+
+[[var]]
+name = "UniqueKeyDistribution"
+var_type = "discrete"
+
+[var.distribution]
+implements = "core.unique_key"
+unique = true
+
+[var.distribution.parameters]
+lower = 0
+consecutive = false
+
+
+[[var]]
+name = "UniformDistribution"
+var_type = "continuous"
+
+[var.distribution]
+implements = "core.uniform"
+unique = false
+
+[var.distribution.parameters]
+lower = 0
+upper = 1
+
+
+[[var]]
+name = "NormalDistribution"
+var_type = "continuous"
+
+[var.distribution]
+implements = "core.normal"
+unique = false
+
+[var.distribution.parameters]
+mean = 0
+sd = 1
+
+
+[[var]]
+name = "LogNormalDistribution"
+var_type = "continuous"
+
+[var.distribution]
+implements = "core.lognormal"
+unique = false
+
+[var.distribution.parameters]
+mean = 0
+sd = 1
+
+
+[[var]]
+name = "TruncatedNormalDistribution"
+var_type = "continuous"
+
+[var.distribution]
+implements = "core.truncated_normal"
+unique = false
+
+[var.distribution.parameters]
+lower = -1
+upper = 2
+mean = 0
+sd = 1
+
+
+[[var]]
+name = "ExponentialDistribution"
+var_type = "continuous"
+
+[var.distribution]
+implements = "core.exponential"
+unique = false
+
+[var.distribution.parameters]
+rate = 1.0
+
+
+[[var]]
+name = "MultinoulliDistribution"
+var_type = "categorical"
+
+[var.distribution]
+implements = "core.multinoulli"
+unique = false
+
+[var.distribution.parameters]
+labels = ["a", "b", "c"]
+probs = [0.1, 0.3, 0.6]
+
+
+[[var]]
+name = "RegexDistribution"
+var_type = "string"
+
+[var.distribution]
+implements = "core.regex"
+unique = false
+
+[var.distribution.parameters.regex_data]
+regex = "[ABC][0-9]{3,4}"
+counts = [1, 1, 1]
+
+
+[[var]]
+name = "UniqueRegexDistribution"
+var_type = "string"
+
+[var.distribution]
+implements = "core.regex"
+unique = true
+
+[var.distribution.parameters.regex_data]
+regex = "[ABC][0-9]{3,4}"
+counts = [1, 1, 1]
+
+
+[[var]]
+name = "FakerDistribution"
+var_type = "string"
+
+[var.distribution]
+implements = "core.faker"
+unique = false
+
+[var.distribution.parameters]
+faker_type = "city"
+locale = "en_US"
+
+
+[[var]]
+name = "UniqueFakerDistribution"
+var_type = "string"
+
+[var.distribution]
+implements = "core.faker"
+unique = true
+
+[var.distribution.parameters]
+faker_type = "city"
+locale = "en_US"
+
+
+[[var]]
+name = "FreeTextDistribution"
+var_type = "string"
+
+[var.distribution]
+implements = "core.freetext"
+unique = false
+
+[var.distribution.parameters]
+locale = "en_US"
+avg_sentences = 3
+avg_words = 6
+
+
+[[var]]
+name = "DateUniformDistribution"
+var_type = "date"
+
+[var.distribution]
+implements = "core.uniform"
+unique = false
+
+[var.distribution.parameters]
+lower = "1903-07-15"
+upper = "1940-07-16"
+
+
+[[var]]
+name = "TimeUniformDistribution"
+var_type = "time"
+
+[var.distribution]
+implements = "core.uniform"
+unique = false
+
+[var.distribution.parameters]
+lower = "10:39:36"
+upper = "18:39:36"
+precision = "seconds"
+
+
+[[var]]
+name = "DateTimeUniformDistribution"
+var_type = "datetime"
+
+[var.distribution]
+implements = "core.uniform"
+unique = false
+
+[var.distribution.parameters]
+lower = "2022-07-15T10:39:36"
+upper = "2022-08-15T10:39:36"
+precision = "seconds"
+
+
+[[var]]
+name = "ConstantDistribution"
+var_type = "continuous"
+
+[var.distribution]
+implements = "core.constant"
+unique = false
+
+[var.distribution.parameters]
+value = 0.0
+
+
+[[var]]
+name = "DiscreteConstantDistribution"
+var_type = "discrete"
+
+[var.distribution]
+implements = "core.constant"
+unique = false
+
+[var.distribution.parameters]
+value = 0
+
+
+[[var]]
+name = "StringConstantDistribution"
+var_type = "string"
+
+[var.distribution]
+implements = "core.constant"
+unique = false
+
+[var.distribution.parameters]
+value = "text"
+
+
+[[var]]
+name = "DateTimeConstantDistribution"
+var_type = "datetime"
+
+[var.distribution]
+implements = "core.constant"
+unique = false
+
+[var.distribution.parameters]
+value = "2022-07-15T10:39:36"
+
+
+[[var]]
+name = "DateConstantDistribution"
+var_type = "date"
+
+[var.distribution]
+implements = "core.constant"
+unique = false
+
+[var.distribution.parameters]
+value = "1903-07-15"
+
+
+[[var]]
+name = "TimeConstantDistribution"
+var_type = "time"
+
+[var.distribution]
+implements = "core.constant"
+unique = false
+
+[var.distribution.parameters]
+value = "10:39:36"
+

@@ -143,3 +143,10 @@ def test_demo_datasets(tmp_path, dataset_name):
 def test_demo_non_exist():
     with pytest.raises(ValueError):
         demo_file("non-existing-dataset")
+
+
+def test_create_dataset(tmpdir):
+    test_class = _get_demo_class("test")
+    test_class.create(tmpdir/"test.csv")
+    df = pl.read_csv(Path(tmpdir/"test.csv"))
+    assert isinstance(df, pl.DataFrame)
