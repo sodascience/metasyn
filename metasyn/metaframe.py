@@ -235,7 +235,7 @@ class MetaFrame():
             for i_desc, new_desc in enumerate(new_descriptions):
                 self[i_desc].description = new_desc
 
-    def store(self, fp: Optional[Union[pathlib.Path, str]],
+    def store(self, fp: Union[pathlib.Path, str],
               validate: bool = True) -> None:
         """Serialize and export the MetaFrame to a JSON file, following the GMF format.
 
@@ -256,7 +256,7 @@ class MetaFrame():
             self.store_json(fp, validate)
 
     @classmethod
-    def load(cls, fp: Optional[Union[pathlib.Path, str]], validate: bool = True) -> MetaFrame:
+    def load(cls, fp: Union[pathlib.Path, str], validate: bool = True) -> MetaFrame:
         """Read a MetaFrame from a JSON file.
 
         Parameters
@@ -330,14 +330,14 @@ class MetaFrame():
         meta_vars = [MetaVar.from_dict(d) for d in self_dict["vars"]]
         return cls(meta_vars, n_rows)
 
-    def to_json(self, fp: Union[pathlib.Path, str], validate: bool = True) -> MetaFrame:
+    def to_json(self, fp: Union[pathlib.Path, str], validate: bool = True) -> None:
         """Export, deprecated method, use Metaframe.export_to_json instead."""
         warn("to_json method of MetaFrame is deprecated and will be removed in the future, "
              "Use MetaFrame.store_json or MetaFrame.store instead.",
              DeprecationWarning, stacklevel=2)
         self.store_json(fp, validate)
 
-    def export(self, fp: Union[pathlib.Path, str], validate: bool = True) -> MetaFrame:
+    def export(self, fp: Union[pathlib.Path, str], validate: bool = True) -> None:
         """Export, deprecated method, use Metaframe.export_to_json instead."""
         warn("Export method of MetaFrame is deprecated and will be removed in the future, "
              "Use MetaFrame.load_json or MetaFrame.load instead.",
