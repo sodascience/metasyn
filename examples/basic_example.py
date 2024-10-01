@@ -16,7 +16,7 @@ specs = [
 mf = MetaFrame.fit_dataframe(df, var_specs=specs)
 
 # write to json
-gmf_path = Path("gmf_files", "example_gmf_simple.json")
+gmf_path = Path("examples", "gmf_files", "example_gmf_simple.json")
 mf.export(gmf_path)
 
 # then, export json from secure environment
