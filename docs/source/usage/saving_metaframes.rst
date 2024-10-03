@@ -171,6 +171,9 @@ It is possible to preview the GMF file, without having to save it. This can be d
     gmf_preview = repr(mf)
     print(gmf_preview)
 
+
+.. _loading-a-metaframe:
+
 Loading a MetaFrame
 -------------------
 You can load a MetaFrame from a GMF file using the :meth:`MetaFrame.load <metasyn.metaframe.MetaFrame.load>` classmethod. 

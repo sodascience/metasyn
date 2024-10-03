@@ -1,7 +1,10 @@
 Generative Metadata Format (GMF)
 ================================
 
-At the core of ``metasyn`` lies its ability to :doc:`generate </usage/generating_metaframes>`, :doc:`save</usage/saving_metaframes>` and :doc:`load</usage/loading_metaframes>` statistical metadata for a given dataset, which can then be used to :doc:`generate synthetic datasets </usage/generating_synthetic_data>`. To achieve this, ``metasyn`` uses the Generative Metadata Format (GMF), an open source format (available on `GitHub <https://github.com/sodascience/generative_metadata_format>`_) designed to store statistical metadata for tabular datasets. The GMF standard is designed to be modular and extensible,  with more distributions and privacy-enhancing mechanisms. Due to its open nature, GMF can be used by other software too.
+At the core of ``metasyn`` lies its ability to :doc:`generate </usage/generating_metaframes>`, 
+:doc:`save</usage/saving_metaframes>` and :ref:`load<loading-a-metaframe>` statistical metadata 
+for a given dataset, which can then be used to :doc:`generate synthetic datasets </usage/generating_synthetic_data>`. To achieve this, ``metasyn`` uses the Generative Metadata Format (GMF), an open source format (available on `GitHub <https://github.com/sodascience/generative_metadata_format>`_) designed to store statistical metadata for tabular datasets. The GMF standard is designed to be modular and extensible,  with more distributions and privacy-enhancing mechanisms.
+Due to its open nature, GMF can be used by other software too.
 
 
 
