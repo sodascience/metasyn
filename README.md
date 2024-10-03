@@ -71,7 +71,7 @@ mf = MetaFrame.fit_dataframe(df)
 # Generate a new DataFrame with 5 rows from the MetaFrame.
 df_synth = mf.synthesize(5)
 
-# This DataFrame can be saved to csv, parquet, excel and more.
+# This DataFrame can be exported to csv, parquet, excel and more.
 df_synth.write_csv("output.csv")
 ```
 
