@@ -251,6 +251,7 @@ class MetaFrame():
         """
         if fp is None:
             self.save_json(fp, validate)
+            return
         fp_path = Path(fp)
         if fp_path.suffix == ".toml":
             self.save_toml(fp, validate)
