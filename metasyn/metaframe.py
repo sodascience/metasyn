@@ -235,7 +235,7 @@ class MetaFrame():
             for i_desc, new_desc in enumerate(new_descriptions):
                 self[i_desc].description = new_desc
 
-    def save(self, fp: Union[pathlib.Path, str], validate: bool = True) -> None:
+    def save(self, fp: Optional[Union[pathlib.Path, str]], validate: bool = True) -> None:
         """Serialize and save the MetaFrame to a JSON file, following the GMF format.
 
         Optionally, validate the saved JSON file against the JSON schema(s) included in the
@@ -248,6 +248,8 @@ class MetaFrame():
         validate:
             Validate the JSON file with a schema.
         """
+        if fp is None:
+            self.save_json(fp, validate)
         fp_path = Path(fp)
         if fp_path.suffix == ".toml":
             self.save_toml(fp, validate)
@@ -277,7 +279,7 @@ class MetaFrame():
             return cls.load_json(fp, validate)
 
 
-    def save_json(self, fp: Union[pathlib.Path, str],
+    def save_json(self, fp: Optional[Union[pathlib.Path, str]],
                 validate: bool = True) -> None:
         """Serialize and save the MetaFrame to a JSON file, following the GMF format.
 
