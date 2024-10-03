@@ -236,17 +236,18 @@ class MetaFrame():
                 self[i_desc].description = new_desc
 
     def save(self, fp: Optional[Union[pathlib.Path, str]], validate: bool = True) -> None:
-        """Serialize and save the MetaFrame to a JSON file, following the GMF format.
+        """Serialize and save the MetaFrame to a JSON or TOML file, following the GMF format.
 
         Optionally, validate the saved JSON file against the JSON schema(s) included in the
-        package.
+        package. A TOML cannot be validated against a schema currently.
 
         Parameters
         ----------
         fp:
             File to write the metaframe to.
         validate:
-            Validate the JSON file with a schema.
+            Validate the JSON file with a schema. If the file is a TOML file, then this will
+            be ignored.
         """
         if fp is None:
             self.save_json(fp, validate)
@@ -258,14 +259,18 @@ class MetaFrame():
 
     @classmethod
     def load(cls, fp: Union[pathlib.Path, str], validate: bool = True) -> MetaFrame:
-        """Read a MetaFrame from a JSON file.
+        """Read a MetaFrame from a JSON or TOML GMF file.
+
+        Optionally, validate the saved JSON file against the JSON schema(s) included in the
+        package. A TOML cannot be validated against a schema currently.
 
         Parameters
         ----------
         fp:
             Path to read the data from.
         validate:
-            Validate the JSON file with a schema.
+            Validate the JSON file with a schema. If the file is a TOML file, then this will
+            be ignored.
 
         Returns
         -------
@@ -280,7 +285,7 @@ class MetaFrame():
 
 
     def save_json(self, fp: Optional[Union[pathlib.Path, str]],
-                validate: bool = True) -> None:
+                  validate: bool = True) -> None:
         """Serialize and save the MetaFrame to a JSON file, following the GMF format.
 
         Optionally, validate the saved JSON file against the JSON schema(s) included in the
