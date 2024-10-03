@@ -51,7 +51,7 @@ class BasePrivacy(ABC):
         """
         return self.to_dict()["parameters"]
 
-    def comment(self, col_name):  # noqa
+    def comment(self, var):  # noqa
         """Comment on the privacy features for the TOML GMF file.
 
         Parameters
@@ -63,7 +63,7 @@ class BasePrivacy(ABC):
         -------
             A comment on the privacy features.
         """
-        return ""
+        return "Above are the parameters for the column {var.name}"
 
 class BasicPrivacy(BasePrivacy):
     """Class representing no privacy level.

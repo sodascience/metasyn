@@ -376,10 +376,14 @@ class MetaFrame():
             var = self.meta_vars[i]
             doc["vars"][i].comment(f"Metadata for column with name {var.name}")
             doc["vars"][i]["prop_missing"].comment(
-                f"Based on {round(self.n_rows*(1-var.prop_missing))} values")
+                f"Fraction of missing values, remaining: {round(self.n_rows*(1-var.prop_missing))} "
+                "values")
+            # The below comment does not work, a tomlkit bug?
+            # doc["vars"][i]["distribution"]["unique"].add(tomlkit.comment(
+                # "Whether to generate unique values or not"))
             if "privacy" in var.creation_method:
                 privacy = get_privacy(**var.creation_method["privacy"])
-                doc["vars"][i]["creation_method"].add(tomlkit.comment(privacy.comment(var.name)))
+                doc["vars"][i]["distribution"]["parameters"].add(tomlkit.comment(privacy.comment(var)))
             if var.distribution.matches_name("multinoulli"):
                 counts = (var.distribution.probs*(1-var.prop_missing)*self.n_rows).round()
                 doc["vars"][i]["distribution"].add(tomlkit.comment(
