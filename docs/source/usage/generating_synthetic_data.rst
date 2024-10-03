@@ -16,7 +16,7 @@ The generated data does **not** preserve any relationships between variables.
 
 .. admonition:: Prerequisite
 
-   Before synthetic data can be generated, a :obj:`MetaFrame <metasyn.metaframe.MetaFrame>` object must be :doc:`created </usage/generating_metaframes>` or :doc:`loaded </usage/exporting_metaframes>`.
+   Before synthetic data can be generated, a :obj:`MetaFrame <metasyn.metaframe.MetaFrame>` object must be :doc:`created </usage/generating_metaframes>` or :doc:`loaded </usage/saving_metaframes>`.
 
 To generate a synthetic dataset, simply call the :meth:`MetaFrame.synthesize(n) <metasyn.metaframe.MetaFrame.synthesize>` method on a :obj:`MetaFrame <metasyn.metaframe.MetaFrame>` object. This method takes a parameter `n` which represents the number of rows of data that should be generated. By default (when `n` is not provided), metasyn tries to generate as many rows as in the original dataset.
 

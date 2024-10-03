@@ -158,7 +158,7 @@ This allows for manual and automatic editing, as well as sharing.
 .. raw:: html
 
    <details> 
-   <summary> An example of an exported MetaFrame [click to expand]: </summary>
+   <summary> An example of a saved MetaFrame [click to expand]: </summary>
 
 .. code-block:: json
 
@@ -268,7 +268,7 @@ This allows for manual and automatic editing, as well as sharing.
    <br>
 
 .. note:: 
-  See the :doc:`/usage/exporting_metaframes` page for information on *how* to export and load MetaFrame to and from JSON files.
+  See the :doc:`/usage/saving_metaframes` page for information on *how* to save and load MetaFrame to and from JSON files.
   
 Data generation
 ^^^^^^^^^^^^^^^^

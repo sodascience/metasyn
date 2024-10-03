@@ -46,7 +46,7 @@ These choices enable the software to generate synthetic data with __privacy and 
 At its core, `metasyn` has three main functions:
 
 1. __Estimation__: Fit a generative model to a properly formatted tabular dataset, optionally with privacy guarantees.
-2. __(De)serialization__: Create an intermediate representation of the fitted model for auditing, editing, and exporting.
+2. __(De)serialization__: Create an intermediate representation of the fitted model for auditing, editing, and saving.
 3. __Generation__: Synthesize new datasets based on a fitted model.
 
 ## Estimation
@@ -117,11 +117,11 @@ After fitting a model, `metasyn` can transparently store it in a human- and mach
 }
 ```
 
-This `.json` can be manually audited, edited, and after exporting this file, an unlimited number of synthetic records can be created without incurring additional privacy risks. Serialization and deserialization with `metasyn` can be performed as follows:
+This `.json` can be manually audited, edited, and after saving this file, an unlimited number of synthetic records can be created without incurring additional privacy risks. Serialization and deserialization with `metasyn` can be performed as follows:
 
 ```python
-mf.export("fruits.json")
-mf_new = MetaFrame.from_json("fruits.json")
+mf.save("fruits.json")
+mf_new = MetaFrame.load("fruits.json")
 ```
 
 ## Data generation

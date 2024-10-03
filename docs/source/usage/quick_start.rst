@@ -112,17 +112,17 @@ We can inspect the MetaFrame by simply printing it (``print(mf)``). This will pr
 Saving and Loading the MetaFrame
 --------------------------------
 
-The MetaFrame can be saved to a JSON file for future use, to do so we simply use the :func:`~metasyn.metaframe.MetaFrame.to_json` function on the MetaFrame (which in our case is named ``mf``), and pass in the filepath as a parameter. The following code saves the MetaFrame to a JSON file named "exported_metaframe.json":
+The MetaFrame can be saved to a JSON file for future use, to do so we simply use the :func:`~metasyn.metaframe.MetaFrame.save` method on the MetaFrame (which in our case is named ``mf``), and pass in the filepath as a parameter. The following code saves the MetaFrame to a JSON file named "saved_metaframe.json":
 
 .. code-block:: python
 
-   mf.to_json("exported_metaframe.json")
+   mf.save("saved_metaframe.json")
 
-Inversely, we can load a MetaFrame from a JSON file using the :func:`~metasyn.metaframe.MetaFrame.from_json` function, passing in the filepath as a parameter. To load our previously saved MetaFrame, we use the following code:
+Inversely, we can load a MetaFrame from a JSON file using the :func:`~metasyn.metaframe.MetaFrame.load` method, passing in the filepath as a parameter. To load our previously saved MetaFrame, we use the following code:
 
 .. code-block:: python
 
-   mf = MetaFrame.from_json("exported_metaframe.json")
+   mf = MetaFrame.load("saved_metaframe.json")
 
 Synthesizing the Data
 ---------------------

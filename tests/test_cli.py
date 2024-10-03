@@ -37,7 +37,7 @@ def tmp_dir(tmp_path_factory) -> Path:
         }
         data_frame = pl.read_csv(csv_fp, schema_overrides=csv_dt)[:100]
         meta_frame = MetaFrame.fit_dataframe(data_frame, var_specs=[{"name": "PassengerId", "distribution": {"unique": True}}])
-        meta_frame.to_json(json_path)
+        meta_frame.save_json(json_path)
         config_fp = TMP_DIR_PATH / "config.ini"
         with open(config_fp, "w") as handle:
             handle.write("""
@@ -95,7 +95,7 @@ def test_create_meta(tmp_dir, config):
     result = subprocess.run(cmd, check=False, capture_output=True)
     assert result.returncode == 0
     assert out_file.is_file()
-    meta_frame = MetaFrame.from_json(out_file)
+    meta_frame = MetaFrame.load_json(out_file)
     assert len(meta_frame.meta_vars) == 12
 
 
@@ -144,7 +144,7 @@ def test_datafree(tmp_dir):
     ]
     result = subprocess.run(cmd, check=False, capture_output=True)
     assert result.returncode == 0
-    meta_frame = MetaFrame.from_json(gmf_fp)
+    meta_frame = MetaFrame.load_json(gmf_fp)
     assert meta_frame.n_rows == 100
     assert len(meta_frame.meta_vars) == 3
     cmd2 = [

@@ -5,7 +5,7 @@
 Exporting and importing MetaFrames
 ===================================
 
-Metasyn can serialize and **export a MetaFrame** into a GMF file. GMF files are JSON files that follow the :doc:`/developer/GMF` and have been designed to be easy to read and understand. This allows users to audit, understand, modify and share their data generation model with ease. 
+Metasyn can serialize and **save a MetaFrame** into a GMF file. GMF files are JSON files that follow the :doc:`/developer/GMF` and have been designed to be easy to read and understand. This allows users to audit, understand, modify and share their data generation model with ease. 
 
 .. image:: /images/pipeline_serialization_simple.png
    :alt: MetaFrame Serialization Flow
@@ -13,18 +13,18 @@ Metasyn can serialize and **export a MetaFrame** into a GMF file. GMF files are 
 
 Exporting a MetaFrame
 ----------------------
-MetaFrames can be serialized and exported to a GMF file by calling the :meth:`metasyn.metaframe.MetaFrame.to_json` method on a :obj:`MetaFrame<metasyn.metaframe.MetaFrame>`. 
+MetaFrames can be serialized and saved to a GMF file by calling the :meth:`metasyn.metaframe.MetaFrame.save` method on a :obj:`MetaFrame<metasyn.metaframe.MetaFrame>`. 
 
-The following code exports a generated :obj:`MetaFrame<metasyn.metaframe.MetaFrame>` object named ``mf`` to a GMF file named ``exported_metaframe``.
+The following code saves a generated :obj:`MetaFrame<metasyn.metaframe.MetaFrame>` object named ``mf`` to a GMF file named ``saved_metaframe``.
 
 .. code-block:: python
 
-   mf.to_json("exported_metaframe.json")
+   mf.save("saved_metaframe.json")
 
 .. raw:: html
 
    <details> 
-   <summary> <em><b>An example of a MetaFrame that has been exported to a GMF file: </em></b></summary>
+   <summary> <em><b>An example of a MetaFrame that has been saved to a GMF file: </em></b></summary>
 
 .. code-block:: json
     
@@ -164,7 +164,7 @@ The following code exports a generated :obj:`MetaFrame<metasyn.metaframe.MetaFra
 |break|
 
     
-It is possible to preview the GMF file, without having to export it. This can be done by calling the Python built-in :func:`repr <python:repr>` function on a :obj:`MetaFrame<metasyn.metaframe.MetaFrame>` object, and printing its output.
+It is possible to preview the GMF file, without having to save it. This can be done by calling the Python built-in :func:`repr <python:repr>` function on a :obj:`MetaFrame<metasyn.metaframe.MetaFrame>` object, and printing its output.
 
 .. code-block:: python
 
@@ -173,16 +173,16 @@ It is possible to preview the GMF file, without having to export it. This can be
 
 Loading a MetaFrame
 -------------------
-You can load a MetaFrame from a GMF file using the :meth:`MetaFrame.from_json <metasyn.metaframe.MetaFrame.from_json>` classmethod. 
+You can load a MetaFrame from a GMF file using the :meth:`MetaFrame.load <metasyn.metaframe.MetaFrame.load>` classmethod. 
 
-The following code loads a :obj:`MetaFrame<metasyn.metaframe.MetaFrame>` object named ``mf`` from a GMF file named ``exported_metaframe``.
+The following code loads a :obj:`MetaFrame<metasyn.metaframe.MetaFrame>` object named ``mf`` from a GMF file named ``saved_metaframe``.
 
 .. code-block:: python
 
-   mf = metasyn.MetaFrame.from_json("exported_metaframe.json")
+   mf = metasyn.MetaFrame.load("saved_metaframe.json")
 
 
-Tweaking an exported MetaFrame
+Tweaking an saved MetaFrame
 -----------------------------------
 Since the JSON is formatted in an easy to read way (for both humans *and* computers), it is easy to manually edit the metadata, or to automatically edit the metadata using a script. 
 
@@ -231,7 +231,7 @@ Let's say we import a MetaFrame from the GMF (from earlier on this page) and use
      - audi
      - 87
 
-Well, what if we wanted to change the distribution of the ``fruits`` variable to instead be 30% ``apple``, 30% ``banana``, and introduce a new fruit ``orange`` with a distribution of 40%? We can do this by editing the ``probs`` and ``labels`` attributes of the ``fruits`` variable in the exported MetaFrame. The following is the edited MetaFrame:
+Well, what if we wanted to change the distribution of the ``fruits`` variable to instead be 30% ``apple``, 30% ``banana``, and introduce a new fruit ``orange`` with a distribution of 40%? We can do this by editing the ``probs`` and ``labels`` attributes of the ``fruits`` variable in the saved MetaFrame. The following is the edited MetaFrame:
 
 
 .. tab:: GMF file before

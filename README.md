@@ -17,7 +17,7 @@
 
 __Generate synthetic tabular data__ in a transparent, understandable, and privacy-friendly way. Metasyn makes it possible for owners of sensitive data to create test data, do open science, improve code reproducibility, encourage data reuse, and enhance accessibility of their datasets, without worrying about leaking private information. 
 
-With metasyn you can __fit__ a model to an existing dataframe, __export__ it to a transparent and auditable `.json` file, and __synthesize__ a dataframe that looks a lot like the real one. In contrast to most other synthetic data software, we make the explicit choice to strictly limit the statistical information in our model in order to adhere to the highest privacy standards.
+With metasyn you can __fit__ a model to an existing dataframe, __save__ it to a transparent and auditable `.json` file, and __synthesize__ a dataframe that looks a lot like the real one. In contrast to most other synthetic data software, we make the explicit choice to strictly limit the statistical information in our model in order to adhere to the highest privacy standards.
 
 ## Highlights
 - 👋 __Accessible__. Metasyn is designed to be easy to use and understand, and we do our best to be welcoming to newcomers and novice users. [Let us know](https://github.com/sodascience/metasyn/issues/new) if we can improve!
@@ -71,7 +71,7 @@ mf = MetaFrame.fit_dataframe(df)
 # Generate a new DataFrame with 5 rows from the MetaFrame.
 df_synth = mf.synthesize(5)
 
-# This DataFrame can be exported to csv, parquet, excel and more.
+# This DataFrame can be saved to csv, parquet, excel and more.
 df_synth.write_csv("output.csv")
 ```
 

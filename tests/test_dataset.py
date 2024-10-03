@@ -78,8 +78,8 @@ def test_dataset(tmp_path, dataframe_lib):
         dataset.n_rows = 100
 
     check_dataset(dataset)
-    dataset.to_json(tmp_fp)
-    dataset = MetaFrame.from_json(tmp_fp)
+    dataset.save_json(tmp_fp)
+    dataset = MetaFrame.load_json(tmp_fp)
     check_dataset(dataset)
 
     dataset.descriptions = {"Embarked": "Some description", "Sex": "Other description"}
@@ -114,7 +114,7 @@ def test_distributions(tmp_path):
             var = MetaVar(name="None", var_type=var_type, distribution=dist.default_distribution(),
                           prop_missing=random())
             dataset = MetaFrame([var], n_rows=10)
-            dataset.to_json(tmp_fp)
+            dataset.save_json(tmp_fp)
 
 @mark.parametrize(
     "dataset_name", ["spaceship", "titanic", "fruit", "survey", "test"]
@@ -131,8 +131,8 @@ def test_demo_datasets(tmp_path, dataset_name):
     assert isinstance(mf, MetaFrame)
 
     tmp_file = tmp_path / "gmf.json"
-    mf.to_json(tmp_file)
-    mf = MetaFrame.from_json(tmp_file)
+    mf.save_json(tmp_file)
+    mf = MetaFrame.load_json(tmp_file)
 
     df_syn = mf.synthesize(100)
 

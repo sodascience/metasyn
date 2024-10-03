@@ -32,9 +32,9 @@ def test_datafree_create(tmpdir):
         (Path("examples", "config_files", "example_datafree.toml"), None),
     ]
 )
-def test_toml_store_load(tmpdir, toml_input, data):
+def test_toml_save_load(tmpdir, toml_input, data):
     mf = MetaFrame.fit_dataframe(data, toml_input)
-    mf.store(tmpdir/"test.toml")
+    mf.save(tmpdir/"test.toml")
     new_mf = MetaFrame.load(tmpdir/"test.toml")
     assert mf.n_columns == new_mf.n_columns
 

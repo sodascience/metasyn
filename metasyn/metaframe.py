@@ -31,7 +31,7 @@ class MetaFrame():
     """Container for statistical metadata describing a dataset.
 
     This class is used to fit a MetaFrame to a Polars DataFrame, serialize and
-    export the MetaFrame to a file, read a MetaFrame from a file, and create
+    save the MetaFrame to a file, read a MetaFrame from a file, and create
     a synthetic Polars DataFrame.
 
     A MetaFrame represents a metadata frame, which is a structure that holds
@@ -235,11 +235,10 @@ class MetaFrame():
             for i_desc, new_desc in enumerate(new_descriptions):
                 self[i_desc].description = new_desc
 
-    def store(self, fp: Union[pathlib.Path, str],
-              validate: bool = True) -> None:
-        """Serialize and export the MetaFrame to a JSON file, following the GMF format.
+    def save(self, fp: Union[pathlib.Path, str], validate: bool = True) -> None:
+        """Serialize and save the MetaFrame to a JSON file, following the GMF format.
 
-        Optionally, validate the exported JSON file against the JSON schema(s) included in the
+        Optionally, validate the saved JSON file against the JSON schema(s) included in the
         package.
 
         Parameters
@@ -251,9 +250,9 @@ class MetaFrame():
         """
         fp_path = Path(fp)
         if fp_path.suffix == ".toml":
-            self.store_toml(fp, validate)
+            self.save_toml(fp, validate)
         else:
-            self.store_json(fp, validate)
+            self.save_json(fp, validate)
 
     @classmethod
     def load(cls, fp: Union[pathlib.Path, str], validate: bool = True) -> MetaFrame:
@@ -278,13 +277,11 @@ class MetaFrame():
             return cls.load_json(fp, validate)
 
 
-    def store_json(self, fp: Union[pathlib.Path, str],
+    def save_json(self, fp: Union[pathlib.Path, str],
                 validate: bool = True) -> None:
-        """Serialize and export the MetaFrame to a JSON file, following the GMF format.
+        """Serialize and save the MetaFrame to a JSON file, following the GMF format.
 
-        This method is a wrapper and simply calls the 'export' function.
-
-        Optionally, validate the exported JSON file against the JSON schema(s) included in the
+        Optionally, validate the saved JSON file against the JSON schema(s) included in the
         package.
 
         Parameters
@@ -304,8 +301,7 @@ class MetaFrame():
                 json.dump(self_dict, f, indent=4)
 
     @classmethod
-    def load_json(cls, fp: Union[pathlib.Path, str],
-                         validate: bool = True) -> MetaFrame:
+    def load_json(cls, fp: Union[pathlib.Path, str], validate: bool = True) -> MetaFrame:
         """Read a MetaFrame from a JSON file.
 
         Parameters
@@ -331,36 +327,36 @@ class MetaFrame():
         return cls(meta_vars, n_rows)
 
     def to_json(self, fp: Union[pathlib.Path, str], validate: bool = True) -> None:
-        """Export, deprecated method, use Metaframe.export_to_json instead."""
+        """Export, deprecated method, use Metaframe.save_json instead."""
         warn("to_json method of MetaFrame is deprecated and will be removed in the future, "
-             "Use MetaFrame.store_json or MetaFrame.store instead.",
+             "Use MetaFrame.save_json or MetaFrame.save instead.",
              DeprecationWarning, stacklevel=2)
-        self.store_json(fp, validate)
+        self.save_json(fp, validate)
 
     def export(self, fp: Union[pathlib.Path, str], validate: bool = True) -> None:
-        """Export, deprecated method, use Metaframe.export_to_json instead."""
+        """Export, deprecated method, use Metaframe.save instead."""
         warn("Export method of MetaFrame is deprecated and will be removed in the future, "
-             "Use MetaFrame.load_json or MetaFrame.load instead.",
+             "Use MetaFrame.save_json or MetaFrame.save instead.",
              DeprecationWarning, stacklevel=2)
-        self.store_json(fp, validate)
+        self.save_json(fp, validate)
 
     @classmethod
     def from_json(cls, fp: Union[pathlib.Path, str],
                   validate: bool = True) -> MetaFrame:
-        """Import, deprecated method, use Metaframe.export_to_json instead."""
+        """Import, deprecated method, use Metaframe.load_json instead."""
         warn("MetaFrame.from_json is deprecated and will be removed in the future, "
-             "use MetaFrame.import_from_json or MetaFrame.import instead.",
+             "use MetaFrame.load_json or MetaFrame.load instead.",
              DeprecationWarning, stacklevel=2)
         return cls.load_json(fp, validate)
 
     @no_type_check
-    def store_toml(self, fp: Optional[Union[pathlib.Path, str]],
+    def save_toml(self, fp: Optional[Union[pathlib.Path, str]],
                        validate: bool = True) -> None:
         try:
             import tomlkit
         except ImportError:
             raise ValueError("Please install tomlkit (pip install tomlkit) to "
-                             "enable support for exporting to toml.")
+                             "enable support for saving to toml.")
         self_dict = _jsonify(self.to_dict())
         if validate:
             validate_gmf_dict(self_dict)
