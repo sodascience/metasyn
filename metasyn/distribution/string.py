@@ -331,6 +331,13 @@ class RegexDistribution(BaseDistribution):
     def default_distribution(cls):
         return cls(r"[ABC][0-9]{3,4}")
 
+    def information_criterion(self, values):
+        mean_len = values.str.len_chars().mean()
+        diff = ((values.str.len_chars() - mean_len)**2).mean()
+        if mean_len > 3 and diff < 1:
+            return -2
+        return 0
+        # print(str(self.regex_model.regex), len(self.regex_model.regex), values.str.len_chars().mean())
 
 @metadist(implements="core.regex", var_type="string")
 class UniqueRegexDistribution(UniqueDistributionMixin, RegexDistribution):
