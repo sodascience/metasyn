@@ -337,7 +337,6 @@ class RegexDistribution(BaseDistribution):
         if mean_len > 3 and diff < 1:
             return -2
         return 0
-        # print(str(self.regex_model.regex), len(self.regex_model.regex), values.str.len_chars().mean())
 
 @metadist(implements="core.regex", var_type="string")
 class UniqueRegexDistribution(UniqueDistributionMixin, RegexDistribution):
