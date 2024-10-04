@@ -318,9 +318,15 @@ class MetaFrame():
 
     def __repr__(self) -> str:
         """Return the MetaFrame as it would be output to JSON."""
-        pretty_data = _jsonify(self.to_dict())
-        output = json.dumps(pretty_data, indent=4)
-        return output
+        if len(self.meta_vars) <= 3:
+            var_str = ", ".join(var.__repr__() for var in self.meta_vars)
+        else:
+            var_str = ", ".join(var.__repr__() for var in self.meta_vars[:2])
+            var_str += ", ..."
+        return f"MetaFrame: size = ({self.n_rows} x {self.n_columns}) <{var_str}>"
+        # pretty_data = _jsonify(self.to_dict())
+        # output = json.dumps(pretty_data, indent=4)
+        # return output
 
 
 def _jsonify(data):
