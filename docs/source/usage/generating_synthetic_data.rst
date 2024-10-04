@@ -3,7 +3,7 @@ Generating Synthetic Data
 
 Metasyn can **generate synthetic data** from any :obj:`MetaFrame <metasyn.metaframe.MetaFrame>` object.
 
-.. image:: /images/pipeline_generation_simple.png
+.. image:: /images/pipeline_generation_code.png
    :alt: Synthetic Data Generation
    :align: center
 

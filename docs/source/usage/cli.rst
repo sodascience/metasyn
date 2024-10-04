@@ -160,7 +160,7 @@ Generating Synthetic Data
 -------------------------
 The ``synthesize`` subcommand combines the :doc:`deserialization </usage/saving_metaframes>` and :doc:`generation </usage/generating_synthetic_data>` steps in the pipeline into one, and allows you to generate a synthetic dataset from a previously saved MetaFrame (stored as GMF file). 
 
-.. image:: /images/pipeline_cli.png
+.. image:: /images/pipeline_cli_synthesize.png
    :alt: Creating Synthetic Data from a GMF file using the CLI
    :align: center
 

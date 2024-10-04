@@ -51,7 +51,7 @@ The three key stages of the ``metasyn`` pipeline include the **estimation** of t
 
 Estimation
 ^^^^^^^^^^^^^
-.. image:: /images/pipeline_estimation_simple.png
+.. image:: /images/pipeline_estimation_code.png
    :alt: Metasyn Estimation Step in Pipeline
    :align: center
 
@@ -147,9 +147,10 @@ From all those fits, the distribution with the lowest `AIC <https://springer.com
 
 Serialization and deserialization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. image:: /images/pipeline_serialization_simple.png
+.. image:: /images/pipeline_serialization_code.png
    :alt: Metasyn Serialization Step in Pipeline
    :align: center
+   :width: 400px
 
 After a ``MetaFrame`` object is created, ``metasyn`` allows it to be stored in a human- and machine-readable ``.json`` file. This file contains all the (statistical) metadata as input for the generation step.
 Exported :obj:`MetaFrames <metasyn.metaframe.MetaFrame>` follow the  :doc:`/developer/GMF`, a standard designed to be easy to read and understand. 
@@ -273,7 +274,7 @@ This allows for manual and automatic editing, as well as sharing.
 Data generation
 ^^^^^^^^^^^^^^^^
 
-.. image:: /images/pipeline_generation_simple.png
+.. image:: /images/pipeline_generation_code.png
    :alt: Metasyn Estimation Step in Pipeline
    :align: center
 
