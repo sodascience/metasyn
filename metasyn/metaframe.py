@@ -324,9 +324,6 @@ class MetaFrame():
             var_str = ", ".join(var.__repr__() for var in self.meta_vars[:2])
             var_str += ", ..."
         return f"MetaFrame: size = ({self.n_rows} x {self.n_columns}) <{var_str}>"
-        # pretty_data = _jsonify(self.to_dict())
-        # output = json.dumps(pretty_data, indent=4)
-        # return output
 
 
 def _jsonify(data):
