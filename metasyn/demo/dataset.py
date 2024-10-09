@@ -117,6 +117,25 @@ class SurveyDataset(BaseDataset):
 
 
 @register
+class SyntheaImagingDataset(BaseDataset):
+    """Synthetic medical health dataset from Synthea.
+
+    Jason Walonoski, Mark Kramer, Joseph Nichols, Andre Quina, Chris Moesel, Dylan Hall,
+    Carlton Duffett, Kudakwashe Dube, Thomas Gallagher, Scott McLachlan,
+    Synthea: An approach, method, and software mechanism for generating synthetic patients
+    and the synthetic electronic health care record, Journal of the American Medical Informatics
+    Association, Volume 25, Issue 3, March 2018, Pages 230–238, https://doi.org/10.1093/jamia/ocx079
+    """
+
+    @property
+    def name(self):
+        return "synthea_imaging"
+
+    @property
+    def schema(self):
+        return {"SOP_DESCRIPTION": pl.Categorical, "BODYSITE_DESCRIPTION": pl.Categorical}
+
+@register
 class TestDataset(BaseDataset):
     """Test dataset with all supported data types."""
 
@@ -195,11 +214,13 @@ def _get_demo_class(name):
 def demo_file(name: str = "titanic") -> Path:
     """Get the path for a demo data file.
 
-    There are four options:
+    There are six options:
         - titanic (Included in pandas, but post-processed to contain more columns)
         - spaceship (CC-BY from https://www.kaggle.com/competitions/spaceship-titanic)
+        - synthea_imaging (CC-BY from https://synthea.mitre.org/downloads)
         - fruit (very basic example data from Polars)
         - survey (columns from ESS round 11 Human Values Scale questionnaire for the Netherlands)
+        - test (columns with all supported data types)
 
     Arguments
     ---------
@@ -222,11 +243,13 @@ def demo_file(name: str = "titanic") -> Path:
 def demo_dataframe(name: str = "titanic") -> pl.DataFrame:
     """Get a demonstration dataset as a prepared polars dataframe.
 
-    There are four options:
+    There are six options:
         - titanic (Included in pandas, but post-processed to contain more columns)
         - spaceship (CC-BY from https://www.kaggle.com/competitions/spaceship-titanic)
+        - synthea_imaging (CC-BY from https://synthea.mitre.org/downloads)
         - fruit (very basic example data from Polars)
         - survey (columns from ESS round 11 Human Values Scale questionnaire for the Netherlands)
+        - test (columns with all supported data types)
 
     Arguments
     ---------

@@ -6,7 +6,7 @@ import polars as pl
 import pytest
 from pytest import mark
 
-from metasyn.demo.dataset import _get_demo_class, demo_dataframe, demo_file
+from metasyn.demo.dataset import _get_demo_class, demo_dataframe, demo_file, _AVAILABLE_DATASETS
 from metasyn.metaframe import MetaFrame
 from metasyn.provider import get_distribution_provider
 from metasyn.var import MetaVar
@@ -117,7 +117,7 @@ def test_distributions(tmp_path):
             dataset.to_json(tmp_fp)
 
 @mark.parametrize(
-    "dataset_name", ["spaceship", "titanic", "fruit", "survey", "test"]
+    "dataset_name", list(_AVAILABLE_DATASETS)
 )
 def test_demo_datasets(tmp_path, dataset_name):
     demo_fp = demo_file(dataset_name)
