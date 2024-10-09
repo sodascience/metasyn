@@ -157,6 +157,8 @@ class MetaVar:
             f"- Proportion of Missing Values: {self.prop_missing:.4f}\n"
             f"- Distribution:\n{distribution_formatted}\n"
         )
+    def __repr__(self) -> str:
+        return f"MetaVar <{self.name}, {self.distribution.implements}>"
 
     @classmethod
     def fit(
