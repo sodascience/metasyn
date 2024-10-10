@@ -21,9 +21,9 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install ".[check]"
+          python -m pip install ".[check,extra]"
       - name: Lint with Ruff
-        run: ruff check
+        run: ruff check metasyn
       - name: Check types with MyPy
         run: mypy metasyn  
 
@@ -61,7 +61,7 @@ jobs:
       run: |
         pip install git+https://github.com/sodascience/metasyn-disclosure-control
         pip install .
-        metasyn create-meta metasyn/demo/demo_titanic.csv --config examples/example_config.toml
+        metasyn create-meta metasyn/demo/demo_titanic.csv --config examples/config_files/example_config.toml
 
   build-docs:
     name: Build documentation

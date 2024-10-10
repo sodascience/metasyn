@@ -241,7 +241,8 @@ class DistributionProviderList():
         """
         dist_spec = var_spec.dist_spec
         unique = dist_spec.unique if dist_spec.unique else False
-        assert dist_spec.implements is not None and var_spec.var_type is not None
+        if dist_spec.implements is None:
+            raise ValueError("Cannot create distribution without specifying the 'implements' key.")
         dist_class = self.find_distribution(
             dist_spec.implements, var_spec.var_type,
             privacy=BasicPrivacy(), unique=unique)
@@ -298,7 +299,7 @@ class DistributionProviderList():
 
     def find_distribution(self,
                           dist_name: str,
-                          var_type: str,
+                          var_type: Optional[str],
                           privacy: Optional[BasePrivacy] = BasicPrivacy(),
                           unique: bool = False,
                           version: Optional[str] = None) -> type[BaseDistribution]:

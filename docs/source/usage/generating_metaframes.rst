@@ -3,7 +3,7 @@ Generating MetaFrames
 
 One of the main features of ``metasyn`` is to create a :obj:`MetaFrame <metasyn.metaframe.MetaFrame>`, an object which captures the essential aspects of the dataset, including variable names, types, data types, the percentage of missing values, and distribution attributes. :obj:`MetaFrame <metasyn.metaframe.MetaFrame>` objects essentially capture all the information needed to generate a synthetic dataset that aligns with the original dataset.
 
-.. image:: /images/pipeline_estimation_simple.png
+.. image:: /images/pipeline_estimation_code.png
    :alt: MetaFrame Generation Flow
    :align: center
 

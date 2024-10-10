@@ -48,7 +48,7 @@ GitHub = "https://github.com/sodascience/metasyn"
 documentation = "https://metasyn.readthedocs.io/en/latest/index.html"
 
 [project.optional-dependencies]
-extra = ["xlsxwriter", "pandas"]
+extra = ["xlsxwriter", "pandas", "tomlkit"]
 check = ["ruff", "mypy", "types-tqdm", "types-regex"]
 test = ["pytest", "nbval"]
 docs = [
@@ -90,7 +90,7 @@ module = [
 ignore_missing_imports = true
 
 [tool.ruff]
-exclude = ["_version.py", "metasyn/distribution/legacy.*", "tests/*", "examples/*"]
+exclude = ["_version.py", "metasyn/distribution/legacy.*", "examples/*"]
 line-length = 100
 lint.select = ["E", "F", "W", "I", "N", "D", "PL", "ARG"]
 lint.ignore = ["PLR2004", "D107", "D105", "D102"]

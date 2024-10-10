@@ -14,7 +14,7 @@ A MetaFrame is a fitted model that describes the aggregate structure and charact
 
 Key elements encapsulated in a MetaFrame include variable names, their data types, the proportion of missing values, and the parameters of the distributions that these variables follow in the dataset. This information is sufficient to understand the overall structure and attributes of the data, without divulging the exact data points.
 
-When a MetaFrame is created from an input dataset, it can be exported for auditing or manual editing. 
+When a MetaFrame is created from an input dataset, it can be saved for auditing or manual editing. 
 
 In the ``metasyn`` workflow, once you have a MetaFrame, ``metasyn`` can generate synthetic data that aligns with the MetaFrame. This synthetic data shares the structural and distributional characteristics (as defined in the MetaFrame) with the original data but does not contain any actual data points from the original dataset, thus preserving privacy.
 

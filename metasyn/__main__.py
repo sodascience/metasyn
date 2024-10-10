@@ -22,6 +22,7 @@ from metasyn.config import MetaConfig
 from metasyn.validation import create_schema
 
 EXAMPLE_CREATE_META="metasyn create-meta your_dataset.csv -o your_gmf_file.json --config your_config.toml" # noqa: E501
+EXAMPLE_CREATE_TOML="metasyn create-meta your_dataset.csv -o your_gmf_file.toml --config your_config.toml" # noqa: E501
 EXAMPLE_SYNTHESIZE="metasyn synthesize your_gmf_file.json -o your_synthetic_file.csv"
 
 MAIN_HELP_MESSAGE = f"""
@@ -31,7 +32,7 @@ Usage: metasyn [subcommand] [options]
 
 Available subcommands:
     create-meta:
-        Create a intermediate metadata file (GMF/.json). This file can later be used to
+        Create a intermediate metadata file (GMF/.json/.toml). This file can later be used to
         create a new synthetic dataset with the `synthesize` subcommand.
     synthesize:
         Create a synthetic dataset from the intermediate metadata file (GMF).
@@ -49,6 +50,7 @@ wrong reading your dataset, and during the creation of metadata.
 Example usage:
 
 {EXAMPLE_CREATE_META}
+{EXAMPLE_CREATE_TOML}
 {EXAMPLE_SYNTHESIZE}
 
 
@@ -84,13 +86,16 @@ def main() -> None:
 
 
 def create_metadata() -> None:
-    """Program to create and export metadata from a DataFrame to a GMF file (.json)."""
+    """Program to create and save metadata from a DataFrame to a GMF file (.json/.toml)."""
     parser = argparse.ArgumentParser(
         prog="metasyn create-meta",
         description=f"""Create a Generative Metadata Format file from a CSV file.
 This metadata file can then be used to create a synthetic dataset with the `synthesize` subcommand.
 
-Example: {EXAMPLE_CREATE_META}
+Examples:
+
+{EXAMPLE_CREATE_META}
+{EXAMPLE_CREATE_TOML}
 """,
         formatter_class=RawDescriptionHelpFormatter,
     )
@@ -103,7 +108,7 @@ Example: {EXAMPLE_CREATE_META}
     )
     parser.add_argument(
         "--output", "-o",
-        help="Metadata GMF output file: .json. This file can be used to synthesize data.",
+        help="Metadata GMF output file: .json/.toml. This file can be used to synthesize data.",
         type=pathlib.Path,
         default=None,
         required=False,
@@ -130,14 +135,14 @@ Example: {EXAMPLE_CREATE_META}
                                  null_values=["", "na", "NA", "N/A", "Na"],
                                  ignore_errors=True)
         meta_frame = MetaFrame.fit_dataframe(data_frame, meta_config)
-    meta_frame.export(args.output)
+    meta_frame.save(args.output)
 
 
 def synthesize() -> None:
     """Program to generate synthetic data."""
     parser = argparse.ArgumentParser(
         prog="metasyn synthesize",
-        description=f"""Synthesize data from a Generative Metadata Format .json file.
+        description=f"""Synthesize data from a Generative Metadata Format .json/.toml file.
 To create the metadata file from your dataset, use the `create-meta` subcommand.
 
 Example: {EXAMPLE_SYNTHESIZE}
@@ -146,7 +151,7 @@ Example: {EXAMPLE_SYNTHESIZE}
     )
     parser.add_argument(
         "input",
-        help="input file; typically .json adhering to the Generative Metadata Format",
+        help="input file; typically .json or .toml adhering to the Generative Metadata Format",
         type=pathlib.Path,
     )
     parser.add_argument(
@@ -174,12 +179,12 @@ Example: {EXAMPLE_SYNTHESIZE}
     if not args.preview and not args.output:
         parser.error("Output file is required if you are not using the preview option.")
 
-    # Create the metaframe from the json file
+    # Create the metaframe from the GMF file
     try:
-        meta_frame = MetaFrame.from_json(args.input)
+        meta_frame = MetaFrame.load(args.input)
     except json.JSONDecodeError as _err:
         print(f"Error: Unable to parse the file '{args.input}'.\n\n"
-              "Expecting a GMF/.json file as input.\n"
+              "Expecting a GMF/.json/.toml file as input.\n"
               "Did you perhaps provide your dataset?\n"
               "If so, please first create the metadata with the `create-meta` sub command.\n"
               "Otherwise your GMF file might be corrupted, and you should recreate it.")

@@ -1,6 +1,7 @@
 """Module defining configuration classes for creating MetaFrames."""
 from __future__ import annotations
 
+import warnings
 from pathlib import Path
 from typing import Iterable, Optional, Union
 
@@ -9,9 +10,8 @@ try:
 except ImportError:
     import tomli as tomllib  # type: ignore  # noqa
 
-from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
 from metasyn.provider import DistributionProviderList
-from metasyn.varspec import VarSpec
+from metasyn.varspec import DistributionSpec, VarDefaults, VarSpec
 
 
 class MetaConfig():
@@ -44,32 +44,21 @@ class MetaConfig():
             self,
             var_specs: Union[list[dict], list[VarSpec]],
             dist_providers: Union[DistributionProviderList, list[str], str, None],
-            privacy: Optional[Union[BasePrivacy, dict]],
-            n_rows: Optional[int] = None):
+            defaults: Optional[dict] = None,
+            n_rows: Optional[int] = None,
+            config_version: str = "1.1"):
         self.var_specs = [self._parse_var_spec(v) for v in var_specs]
         self.dist_providers = dist_providers  # type: ignore
-        self.privacy = privacy  # type: ignore
         self.n_rows = n_rows
+        defaults = {} if defaults is None else defaults
+        self.defaults = VarDefaults(**defaults)
+        self.config_version = config_version
 
     @staticmethod
     def _parse_var_spec(var_spec):
         if isinstance(var_spec, VarSpec):
             return var_spec
         return VarSpec.from_dict(var_spec)
-
-    @property
-    def privacy(self) -> BasePrivacy:
-        """Return default privacy for generating the metaframe."""
-        return self._privacy
-
-    @privacy.setter
-    def privacy(self, privacy: Optional[Union[dict, BasePrivacy]]):
-        if privacy is None:
-            self._privacy: BasePrivacy = BasicPrivacy()
-        elif isinstance(privacy, dict):
-            self._privacy = get_privacy(**privacy)
-        else:
-            self._privacy = privacy
 
     @property
     def dist_providers(self) -> DistributionProviderList:
@@ -104,22 +93,32 @@ class MetaConfig():
             raise FileNotFoundError(f"It appears '{config_fp}' is not a valid filepath."
                                     f" Please provide a path to a .toml file to load a MetaConfig"
                                     f" from.") from fnf_error
-        except ValueError as value_error:
-            if Path(config_fp).suffix == ".toml":
+        except tomllib.TOMLDecodeError as value_error:
+            if Path(config_fp).suffix != ".toml":
                 raise ValueError(f"It appears '{Path(config_fp).name}' is a"
                                  f" '{Path(config_fp).suffix}' file."
                                  f" To load a MetaConfig, "
-                                 f"provide it as a .toml file.") from value_error
-            raise ValueError(f"An error occured while parsing the configuration file \n"
-                             f"('{Path(config_fp).name}').") from value_error
+                                 f"provide the configuration as a .toml file.") from value_error
+            raise value_error
         var_list = config_dict.pop("var", [])
         n_rows = config_dict.pop("n_rows", None)
         dist_providers = config_dict.pop("dist_providers", ["builtin"])
-        privacy = config_dict.pop("privacy", {"name": "none", "parameters": {}})
+        defaults = config_dict.pop("defaults", None)
+        privacy = config_dict.pop("privacy", None)
+        config_version = config_dict.pop("config_version", "1.0")
+        if config_version not in ["1.0", "1.1"]:
+            warnings.warn(f"Trying to read configuration file with version {config_version}, "
+                          "this version of metasyn only supports 1.0 and 1.1.")
+        if privacy is not None:
+            if defaults is not None:
+                raise ValueError("Error parsing configuration file: cannot have both [privacy]"
+                                 " and [defaults] tables.")
+            defaults = {"privacy": privacy}
         if len(config_dict) > 0:
             raise ValueError(f"Error parsing configuration file '{config_fp}'."
                              f" Unknown keys detected: '{list(config_dict)}'")
-        return cls(var_list, dist_providers, privacy, n_rows=n_rows)
+        return cls(var_list, dist_providers, defaults, n_rows=n_rows,
+                   config_version=config_version)
 
     def to_dict(self) -> dict:
         """Convert the configuration to a dictionary.
@@ -130,10 +129,10 @@ class MetaConfig():
             Configuration in dictionary form.
         """
         return {
-            "general": {
-                "privacy": self.privacy,
-                "dist_providers": self.dist_providers,
-            },
+            "config_version": self.config_version,
+            "dist_providers": self.dist_providers,
+            "n_rows": self.n_rows,
+            "defaults": self.defaults,
             "var": self.var_specs
         }
 
@@ -197,10 +196,20 @@ class VarSpecAccess():
         self.meta_config = meta_config
 
     def __getattribute__(self, attr):
-        if attr == "privacy":
-            if self.var_spec.privacy is None:
-                return self.meta_config.privacy
-            return self.var_spec.privacy
+        if attr in ["privacy", "data_free", "prop_missing", "privacy"]:
+            if getattr(self.var_spec, attr) is None:
+                return getattr(self.meta_config.defaults, attr)
+            return getattr(self.var_spec, attr)
+        if attr == "dist_spec":
+            if self.data_free and self.var_spec.dist_spec.implements is None:
+                if self.var_type not in self.meta_config.defaults.distribution:
+                    raise ValueError(
+                        f"Variable with name '{self.name}' is declared datafree and a distribution "
+                        f"cannot be inferred. You can set the distribution for '{self.name}' or set"
+                        f" a default distribution for variable type '{self.var_type}'.")
+                return DistributionSpec.parse(self.meta_config.defaults.distribution[self.var_type])
+            return self.var_spec.dist_spec
+
         if attr not in ("var_spec", "meta_config") and hasattr(self.var_spec, attr):
             return getattr(self.var_spec, attr)
         return super().__getattribute__(attr)

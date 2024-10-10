@@ -12,6 +12,8 @@ except ImportError:
     from importlib.resources import files  # type: ignore
 
 
+ALL_VAR_TYPES = ["discrete", "continuous", "time", "date", "datetime", "string", "categorical"]
+
 def get_registry() -> dict:
     """Get the registry dictionary from the package.
 
