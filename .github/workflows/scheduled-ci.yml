@@ -9,7 +9,7 @@ jobs:
   check:
     name: Lint and check types
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         branch: ["main", "develop"]
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
