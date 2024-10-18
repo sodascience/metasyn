@@ -382,7 +382,7 @@ class MetaFrame():
             # doc["vars"][i]["distribution"]["unique"].add(tomlkit.comment(
                 # "Whether to generate unique values or not"))
             parameter_comments = []
-            # multi_default = 
+            # multi_default =
             if "parameters" in var.creation_method:
                 parameter_comments.append(f"The above parameters for column '{var.name}' were "
                                            "manually set by the user, no data was (directly) used.")
