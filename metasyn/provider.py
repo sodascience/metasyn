@@ -290,7 +290,7 @@ class DistributionProviderList():
                 # Or 5 rows for consecutive values.
                 if np.min(dist_bic_unq) + 16 < np.min(dist_bic):
                     best_dist = dist_inst_unq[np.argmin(dist_bic_unq)]
-                    if best_dist.implements == "core.unique_key" and best_dist.consecutive:
+                    if best_dist.implements == "core.unique_key" and best_dist.consecutive:  # type: ignore
                         return best_dist
                     warnings.warn(
                         f"\nMetasyn detected that variable '{series.name}' is potentially unique.\n"
