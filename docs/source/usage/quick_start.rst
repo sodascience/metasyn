@@ -78,14 +78,6 @@ With the DataFrame loaded, you can now generate a :obj:`MetaFrame <metasyn.metaf
 
 This creates a MetaFrame named ``mf``.
 
-.. Note:: 
-	At this point you will get a warning because metasyn detects that 'PassengerId' contains unique values, but we did not specify this column to generate only unique values. The warning is as follows:
-   
-	``Variable 'PassengerId' was detected to be unique, but has not explicitly been set to unique. To generate only unique values for column 'PassengerId', set unique to True. To dismiss this warning, set unique to False."``
-
-   The page on :doc:`/usage/generating_metaframes` covers how to set unique argument in order to generate only unique values for a column, or dismiss the warning.
-
-
 We can inspect the MetaFrame by simply printing it (``print(mf)``). This will produce the following output:
 
 .. code-block:: 

@@ -20,6 +20,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Development Status :: 4 - Beta",
     "License :: OSI Approved :: MIT License",
 ]
@@ -52,7 +53,7 @@ extra = ["xlsxwriter", "pandas", "tomlkit"]
 check = ["ruff", "mypy", "types-tqdm", "types-regex"]
 test = ["pytest", "nbval"]
 docs = [
-    "sphinx<7.0.0", "sphinx-rtd-theme", "sphinxcontrib-napoleon",
+    "sphinx<9.0.0", "sphinx-rtd-theme", "sphinxcontrib-napoleon",
     "sphinx-autodoc-typehints", "sphinx_inline_tabs", "sphinx_copybutton",
 ]
 dev = [
