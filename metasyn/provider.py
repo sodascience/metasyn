@@ -285,13 +285,19 @@ class DistributionProviderList():
             if len(dist_list_unq) > 0:
                 dist_inst_unq = [d.fit(series, **privacy.fit_kwargs) for d in dist_list_unq]
                 dist_bic_unq = [d.information_criterion(series) for d in dist_inst_unq]
-                if np.min(dist_bic_unq) < np.min(dist_bic):
+                # We don't want to warn about potential uniqueness too easily
+                # The offset is a heuristic that ensures about 12 rows are needed for uniqueness
+                # Or 5 rows for consecutive values.
+                if np.min(dist_bic_unq) + 16 < np.min(dist_bic):
+                    best_dist = dist_inst_unq[np.argmin(dist_bic_unq)]
+                    if best_dist.implements == "core.unique_key" and best_dist.consecutive:
+                        return best_dist
                     warnings.warn(
-                        f"\nVariable '{series.name}' was detected to be unique, but has not"
-                        f" explicitly been set to unique.\n"
-                        f"To generate only unique values for column '{series.name}', "
-                        f"set unique to True.\n"
-                        f"To dismiss this warning, set unique to False.",
+                        f"\nMetasyn detected that variable '{series.name}' is potentially unique.\n"
+                        f"Use var_spec=[VarSpec(\"{series.name}\", unique=True)] to make it unique."
+                        f"\nTo dismiss this warning use [VarSpec(\"{series.name}\", unique=False)]."
+                        "\nIf you are using a configuration file add distribution = {unique = True}"
+                        f" for the variable with name '{series.name}'.",
                         UserWarning
                     )
 
