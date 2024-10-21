@@ -85,7 +85,7 @@ The potential directives include:
 
         When generating a MetaFrame, ``metasyn`` will automatically analyze the columns of the input DataFrame to detect ones that contain only unique values.
         If such a column is found, and it has not manually been set to unique in the ``var_specs`` list, the user will be notified with the following warning:
-        ``Variable '[variable name]' was detected to be unique, but has not explicitly been set to unique. To generate only unique values for column 'PassengerId', set unique to True. To dismiss this warning, set unique to False."``
+        ``Metasyn detected that variable '{variable name}' is potentially unique."``
         
         It is safe to ignore this warning - however, be aware that without setting the column as unique, ``metasyn`` may generate duplicate values for that column when synthesizing data.
         
