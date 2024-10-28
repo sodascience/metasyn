@@ -155,6 +155,7 @@ class BuiltinDistributionProvider(BaseDistributionProvider):
         DateTimeConstantDistribution,
         DateConstantDistribution,
         TimeConstantDistribution,
+        NADistribution,
     ]
     legacy_distributions = []
 
@@ -331,12 +332,12 @@ class DistributionProviderList():
         tuple[Type[BaseDistribution], dict[str, Any]]:
             A distribution and the arguments to create an instance.
         """
-        if NADistribution.matches_name(dist_name):
-            return NADistribution
+        # if NADistribution.matches_name(dist_name):
+            # return NADistribution
 
         versions_found = []
         for dist_class in self.get_distributions(
-                privacy, var_type=var_type, unique=unique) + [NADistribution]:
+                privacy, var_type=var_type, unique=unique):
             if dist_class.matches_name(dist_name):
                 if version is None or version == dist_class.version:
                     return dist_class
@@ -362,7 +363,15 @@ class DistributionProviderList():
                                  f"but it is not installed.\n"
                                  f"\n"
                                  f"{dist_name} is available from:\n\n{avail_str}\n")
-            raise ValueError(f"Cannot find distribution with name '{dist_name}'.")
+            if var_type is not None:
+                dist_other_type = self.find_distribution(dist_name, var_type=None,
+                                                         privacy=privacy, unique=unique,
+                                                         version=version)
+                extra_info = ("Distribution is available with different type(s):"
+                              f" {dist_other_type.var_type}")
+            else:
+                extra_info = ""
+            raise ValueError(f"Cannot find distribution with name '{dist_name}'. {extra_info}")
 
         if len(versions_found) == 0:
             warnings.warn("Distribution with name '{dist_name}' is deprecated and "

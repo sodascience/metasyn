@@ -28,20 +28,21 @@ def _series_drop_nans(series):
     return series.dropna()
 
 
-def _series_element_classname(series):
-    series = _series_drop_nans(series)
+def _series_element_classname(series, all_nan):
+    if not all_nan:
+        series = _series_drop_nans(series)
     if isinstance(series, pl.Series):
         return series[0].__class__.__name__
     return series.iloc[0].__class__.__name__
 
 
-def check_var(series, var_type, temp_path):
+def check_var(series, var_type, temp_path, all_nan=False):
     def check_similar(series_a, series_b):
         assert isinstance(series_a, (pd.Series, pl.Series))
         assert isinstance(series_b, (pd.Series, pl.Series))
         assert len(series_a) == len(series_b)
-        base_type_a = _series_element_classname(series_a)
-        base_type_b = _series_element_classname(series_b)
+        base_type_a = _series_element_classname(series_a, all_nan)
+        base_type_b = _series_element_classname(series_b, all_nan)
         if type(series_a) == type(series_b):
             assert base_type_a == base_type_b
         assert (len(series_a)-len(_series_drop_nans(series_a)) > 0) == (len(series_b) - len(_series_drop_nans(series_b)) > 0)
@@ -50,6 +51,7 @@ def check_var(series, var_type, temp_path):
 
     var = MetaVar.fit(series)
     new_series = var.draw_series(len(series))
+    print(new_series)
     check_similar(series, new_series)
     assert var.var_type == var_type
     assert var_type in var.distribution.var_type
@@ -60,7 +62,7 @@ def check_var(series, var_type, temp_path):
     with raises(ValueError):
         var_dict = var.to_dict()
         var_dict.update({"type": "unknown"})
-        MetaVar.from_dict(var_dict)
+        print(MetaVar.from_dict(var_dict))
 
     with raises(ValueError):
         var_dict = var.to_dict()
@@ -175,6 +177,23 @@ def test_string(tmp_path, series_type):
     series = series_type(np.random.choice(["a", "b", "c", None], size=100).tolist())
     new_series = check_var(series, "string", tmp_path)
     assert set(np.unique(_series_drop_nans(series))) == set(np.unique(_series_drop_nans(new_series)))
+
+@mark.parametrize("dtype,var_type", [
+    (pl.Float32, "continuous"),
+    (pl.Float64, "continuous"),
+    (pl.Int32, "discrete"),
+    (pl.Int64, "discrete"),
+    (pl.Categorical, "categorical"),
+    (pl.Utf8, "string")])
+def test_na(tmp_path, dtype, var_type):
+    series = pl.Series("x", [None, None, None], dtype=dtype)
+    print(series)
+    new_series = check_var(series, var_type, tmp_path, all_nan=True)
+    assert all(x is None for x in new_series)
+    # df = pl.DataFrame({"data": pl.Series([None, None, None], dtype=dtype)})
+    # metadata = MetaFrame.fit_dataframe(df)
+    # print(metadata.to_dict())
+    # assert isinstance(metadata["data"].distribution, NADistribution)
 
 
 @mark.parametrize(

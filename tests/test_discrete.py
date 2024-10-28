@@ -1,3 +1,4 @@
+"""Module for testing discrete distributions."""
 from math import fabs
 
 import numpy as np
@@ -27,6 +28,7 @@ from metasyn.distribution.discrete import (
     "series_type", [pd.Series, pl.Series]
 )
 def test_uniform(data, series_type):
+    """Test discrete uniform distribution."""
     series = series_type(data)
     dist = DiscreteUniformDistribution.fit(series)
     assert dist.lower == series.min() and dist.upper == series.max()+1
@@ -51,12 +53,14 @@ def test_uniform(data, series_type):
 )
 @mark.parametrize("series_type", [pd.Series, pl.Series])
 def test_integer_key(data, better_than_uniform, consecutive, series_type):
+    """Test unique key distribution (included increasing id's)."""
     series = series_type(data)
     dist = UniqueKeyDistribution.fit(series)
     unif_dist = DiscreteUniformDistribution.fit(series)
     assert dist.lower == series.min()
     assert dist.consecutive == consecutive
-    assert better_than_uniform == (dist.information_criterion(series) < unif_dist.information_criterion(series))
+    assert better_than_uniform == (dist.information_criterion(series)
+                                   < unif_dist.information_criterion(series))
     assert isinstance(dist, UniqueKeyDistribution)
 
     drawn_values = np.array([dist.draw() for _ in range(100)])
@@ -66,6 +70,7 @@ def test_integer_key(data, better_than_uniform, consecutive, series_type):
 
 @mark.parametrize("series_type", [pd.Series, pl.Series])
 def test_poisson(series_type):
+    """Test Poisson distribution."""
     series = series_type(stats.poisson(mu=10).rvs(1000))
     dist = PoissonDistribution.fit(series)
     dist_unif = DiscreteUniformDistribution.fit(series)
@@ -81,6 +86,7 @@ def test_poisson(series_type):
     ]
 )
 def test_trunc_normal(lower, upper, mean, sd):
+    """Test discrete version of truncated normal distribution."""
     a, b = (lower-mean)/sd, (upper-mean)/sd
     values = pl.Series(stats.truncnorm(a=a, b=b, loc=mean, scale=sd).rvs(5000)).cast(pl.Int64)
     dist = DiscreteTruncatedNormalDistribution.fit(values)
@@ -98,6 +104,7 @@ def test_trunc_normal(lower, upper, mean, sd):
     ]
 )
 def test_normal(mean, sd):
+    """Test for discrete version of normal/Gaussian distribution."""
     values = pl.Series(stats.norm(loc=mean, scale=sd).rvs(1000)).cast(pl.Int64)
     dist = DiscreteNormalDistribution.fit(values)
     dist_uniform = DiscreteUniformDistribution.fit(values)

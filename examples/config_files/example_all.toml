@@ -329,3 +329,14 @@ unique = false
 [var.distribution.parameters]
 value = "10:39:36"
 
+
+[[var]]
+name = "NADistribution"
+var_type = "continuous"
+
+[var.distribution]
+implements = "core.na"
+unique = false
+
+[var.distribution.parameters]
+

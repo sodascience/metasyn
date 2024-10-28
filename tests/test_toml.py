@@ -2,6 +2,7 @@ from filecmp import cmp
 from pathlib import Path
 
 import pytest
+
 try:
     import tomllib
 except ImportError:
@@ -9,7 +10,6 @@ except ImportError:
 
 from pytest import mark
 
-from metasyn.demo import demo_dataframe
 from metasyn.metaframe import MetaFrame
 from metasyn.provider import BuiltinDistributionProvider
 from metasyn.testutils import create_input_toml, create_md_report
