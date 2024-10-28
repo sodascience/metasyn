@@ -1,3 +1,4 @@
+"""Test whether the privacy functionality works."""
 import pytest
 
 from metasyn.distribution import MultinoulliDistribution
@@ -7,10 +8,11 @@ from metasyn.privacy import BasicPrivacy, get_privacy
 
 @metadist(privacy="test")
 class OtherMultinoulli(MultinoulliDistribution):
-    pass
+    """Test privacy version of multinoulli."""
 
 
 def test_base_privacy():
+    """Test whether the builtin version of privacy (no extra) works as expected."""
     privacy = BasicPrivacy()
     priv_dict = privacy.to_dict()
     assert isinstance(priv_dict, dict)
@@ -24,5 +26,6 @@ def test_base_privacy():
 
 
 def test_import_error():
+    """Test whether trying to use a non-existing privacy type raises an error."""
     with pytest.raises(ImportError):
         get_privacy("nonexistentprivacyplugin")

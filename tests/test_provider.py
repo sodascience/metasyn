@@ -18,12 +18,14 @@ from metasyn.provider import BuiltinDistributionProvider, DistributionProviderLi
 @mark.parametrize("input", ["builtin", "fake-name", BuiltinDistributionProvider,
                             BuiltinDistributionProvider()])
 def test_plist_init(input):
+    """Test whether the initialization works correctly."""
     if input == "fake-name":
         with pytest.raises(ValueError):
             DistributionProviderList(input)
     else:
         plist = DistributionProviderList(input)
-        assert issubclass(plist.find_distribution("core.regex", var_type="string"), BaseDistribution)
+        assert issubclass(plist.find_distribution("core.regex", var_type="string"),
+                          BaseDistribution)
 
 
 @metadist(version="1.0")
@@ -56,22 +58,33 @@ class LegacyOnly(BuiltinDistributionProvider):
 
 
 def test_legacy():
+    """Test whether the legacy system/distributions work."""
     plist = DistributionProviderList(CheckProvider)
     assert issubclass(plist.find_distribution("core.uniform", var_type="continuous"), UniformTest2)
     with pytest.warns():  # version 1.1 is deprecated
-        assert issubclass(plist.find_distribution("core.uniform", var_type="continuous", version="1.1"), UniformTest11)
+        assert issubclass(
+            plist.find_distribution(
+                "core.uniform", var_type="continuous", version="1.1"), UniformTest11)
     with pytest.warns():  # version 1.0 is deprecated
-        assert issubclass(plist.find_distribution("core.uniform", var_type="continuous", version="1.0"), UniformTest1)
+        assert issubclass(
+            plist.find_distribution("core.uniform", var_type="continuous", version="1.0"),
+            UniformTest1)
     with pytest.warns():  # version 1.2 does not exist, so 1.1 should be chosen.
-        assert issubclass(plist.find_distribution("core.uniform", var_type="continuous", version="1.2"), UniformTest11)
+        assert issubclass(
+            plist.find_distribution("core.uniform", var_type="continuous", version="1.2"),
+            UniformTest11)
     with pytest.raises(ValueError):  # No version 0.x available
         plist.find_distribution("core.uniform", var_type="continuous", version="0.9")
     with pytest.warns():  # No version 2.1 available, but 2.0 is.
-        assert issubclass(plist.find_distribution("core.uniform", var_type="continuous", version="2.1"), UniformTest2)
+        assert issubclass(
+            plist.find_distribution("core.uniform", var_type="continuous", version="2.1"),
+            UniformTest2)
 
     plist = DistributionProviderList(LegacyOnly)
     with pytest.warns():  # core.uniform is deprecated.
-        assert issubclass(plist.find_distribution("core.uniform", var_type="continuous"), UniformTest2)
+        assert issubclass(
+            plist.find_distribution("core.uniform", var_type="continuous"),
+            UniformTest2)
 
 
 @mark.parametrize(

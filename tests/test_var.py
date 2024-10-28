@@ -50,7 +50,9 @@ def check_var(series, var_type, temp_path, all_nan=False):
         base_type_b = _series_element_classname(series_b, all_nan)
         if type(series_a) == type(series_b):
             assert base_type_a == base_type_b
-        assert (len(series_a)-len(_series_drop_nans(series_a)) > 0) == (len(series_b) - len(_series_drop_nans(series_b)) > 0)
+        has_nans_a = len(series_a) - len(_series_drop_nans(series_a)) > 0
+        has_nans_b = len(series_b) - len(_series_drop_nans(series_b)) > 0
+        assert has_nans_a == has_nans_b
 
     assert isinstance(series, (pd.Series, pl.Series))
 
@@ -190,7 +192,9 @@ def test_string(tmp_path, series_type):
     """Test polars/pandas string type fitting."""
     series = series_type(np.random.choice(["a", "b", "c", None], size=100).tolist())
     new_series = check_var(series, "string", tmp_path)
-    assert set(np.unique(_series_drop_nans(series))) == set(np.unique(_series_drop_nans(new_series)))
+    unq_values = set(np.unique(_series_drop_nans(series)))
+    new_unq_values = set(np.unique(_series_drop_nans(new_series)))
+    assert unq_values == new_unq_values
 
 @mark.parametrize("dtype,var_type", [
     (pl.Float32, "continuous"),
