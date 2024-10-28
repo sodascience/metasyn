@@ -332,9 +332,6 @@ class DistributionProviderList():
         tuple[Type[BaseDistribution], dict[str, Any]]:
             A distribution and the arguments to create an instance.
         """
-        # if NADistribution.matches_name(dist_name):
-            # return NADistribution
-
         versions_found = []
         for dist_class in self.get_distributions(
                 privacy, var_type=var_type, unique=unique):
@@ -352,26 +349,7 @@ class DistributionProviderList():
             if dist_class.matches_name(dist_name)]
 
         if len(legacy_distribs + versions_found) == 0:
-            registry = get_registry()
-            available = {}
-            for plugin, meta in registry.items():
-                if dist_name in meta["distributions"]:
-                    available[plugin] = meta["url"]
-            if len(available) > 0:
-                avail_str = "\n".join("{plugin}: {url}" for plugin, url in available.items())
-                raise ValueError(f"You are trying to use a distribution named '{dist_name}', \n"
-                                 f"but it is not installed.\n"
-                                 f"\n"
-                                 f"{dist_name} is available from:\n\n{avail_str}\n")
-            if var_type is not None:
-                dist_other_type = self.find_distribution(dist_name, var_type=None,
-                                                         privacy=privacy, unique=unique,
-                                                         version=version)
-                extra_info = ("Distribution is available with different type(s):"
-                              f" {dist_other_type.var_type}")
-            else:
-                extra_info = ""
-            raise ValueError(f"Cannot find distribution with name '{dist_name}'. {extra_info}")
+            self._handle_distribution_not_found(dist_name, var_type, privacy, unique, version)
 
         if len(versions_found) == 0:
             warnings.warn("Distribution with name '{dist_name}' is deprecated and "
@@ -409,6 +387,30 @@ class DistributionProviderList():
         warnings.warn("Version mismatch ({version}) versus ({all_dist[i_max].version}))")
         return all_dist[i_max]
 
+    def _handle_distribution_not_found(self, dist_name, var_type, privacy, unique, version):
+        """Raise a ValueError with extra information."""
+        registry = get_registry()
+        available = {}
+        for plugin, meta in registry.items():
+            if dist_name in meta["distributions"]:
+                available[plugin] = meta["url"]
+        if len(available) > 0:
+            avail_str = "\n".join("{plugin}: {url}" for plugin, url in available.items())
+            raise ValueError(f"You are trying to use a distribution named '{dist_name}', \n"
+                                f"but it is not installed.\n"
+                                f"\n"
+                                f"{dist_name} is available from:\n\n{avail_str}\n")
+        if var_type is not None:
+            dist_other_type = self.find_distribution(dist_name, var_type=None,
+                                                        privacy=privacy, unique=unique,
+                                                        version=version)
+            extra_info = ("Distribution is available with different type(s):"
+                            f" {dist_other_type.var_type}")
+        else:
+            extra_info = ""
+        raise ValueError(f"Cannot find distribution with name '{dist_name}'. {extra_info}")
+
+
     def _fit_distribution(self, series: pl.Series,
                           dist_spec: DistributionSpec,
                           var_type: str,
@@ -445,11 +447,8 @@ class DistributionProviderList():
         dist_class = self.find_distribution(dist_spec.implements, var_type, privacy=privacy,
                                             unique=unique)
 
-        if issubclass(dist_class, NADistribution):
-            dist_instance = dist_class.default_distribution()
-        else:
-            fit_kwargs = dist_spec.fit_kwargs
-            dist_instance = dist_class.fit(series, **privacy.fit_kwargs, **fit_kwargs)
+        fit_kwargs = dist_spec.fit_kwargs
+        dist_instance = dist_class.fit(series, **privacy.fit_kwargs, **fit_kwargs)
         return dist_instance
 
     def get_distributions(self, privacy: Optional[BasePrivacy] = None,
