@@ -381,14 +381,30 @@ class MetaFrame():
             # The below comment does not work, a tomlkit bug?
             # doc["vars"][i]["distribution"]["unique"].add(tomlkit.comment(
                 # "Whether to generate unique values or not"))
-            if "privacy" in var.creation_method:
+            parameter_comments = []
+            multi_default = (
+                var.distribution.matches_name("multinoulli") and
+                len(var.distribution.labels) == len(var.distribution.default_distribution().labels)
+                and
+                np.all(var.distribution.labels == var.distribution.default_distribution().labels)
+            )
+            print(var.name, multi_default)
+            if "parameters" in var.creation_method:
+                parameter_comments.append(f"The above parameters for column '{var.name}' were "
+                                           "manually set by the user, no data was (directly) used.")
+            elif (var.distribution.matches_name("multinoulli") and multi_default):
+                parameter_comments.append("This mulinoulli distribution is the default one, no data"
+                                          " was used.")
+            elif "privacy" in var.creation_method:
                 privacy = get_privacy(**var.creation_method["privacy"])
-                doc["vars"][i]["distribution"]["parameters"].add(tomlkit.comment(privacy.comment(var)))
-            if var.distribution.matches_name("multinoulli"):
+                parameter_comments.append(privacy.comment(var))
+            if (var.distribution.matches_name("multinoulli") and not multi_default):
                 counts = (var.distribution.probs*(1-var.prop_missing)*self.n_rows).round()
-                doc["vars"][i]["distribution"].add(tomlkit.comment(
-                    f"Counts: {counts.astype(int)}\n"))
-
+                parameter_comments.append(f"Counts: {counts.astype(int)}\n")
+                # doc["vars"][i]["distribution"].add(tomlkit.comment(
+                    # f"Counts: {counts.astype(int)}\n"))
+            par_comment = "\n# ".join(parameter_comments) + "\n\n"
+            doc["vars"][i]["distribution"]["parameters"].add(tomlkit.comment(par_comment))
         if fp is None:
             print(tomlkit.dumps(doc))
         else:
