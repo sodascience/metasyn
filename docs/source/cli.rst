@@ -1,4 +1,4 @@
-Command-line Interface
+Command-Line Interface
 ======================
 Metasyn provides a command-line interface (CLI) for accessing core functionality without needing to write any Python code.
 

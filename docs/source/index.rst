@@ -29,36 +29,6 @@ Welcome to the `metasyn <https://github.com/sodascience/metasyn/>`_ documentatio
 
 ``Metasyn`` is a Python package for generating synthetic tabular data with a focus on privacy. It is designed for owners of sensitive datasets who want to share approximations of their data so that others can perform exploratory analysis and testing without disclosing real values.
 
-``Metasyn`` has three main functionalities:
-
-.. image:: /images/pipeline_basic.png
-   :width: 100%
-   :alt: ``Metasyn`` Pipeline
-   :align: center
-
-1. **Estimation**: ``Metasyn`` can **create a MetaFrame**, from a dataset. A MetaFrame is metadata describing a table, augmented with statistical information on the columns. It captures individual distributions and features and enables the generation of synthetic data based on it.
-2. **Generation**: ``Metasyn`` can **generate synthetic data** based on a MetaFrame. The synthetic data produced solely depends on the MetaFrame, thereby maintaining a critical separation between the original sensitive data and the generated synthetic data.
-3. **Serialization**: ``Metasyn`` can **save a MetaFrame** into an easy-to-read :doc:`/developer/GMF` file. This allows users to audit, understand, and modify their data generation model. These GMF files can also be imported back into Metasyn to generate synthetic data.
-
-Researchers and data owners can use ``metasyn`` to generate and share synthetic versions of their sensitive datasets, mitigating privacy concerns. Additionally, ``metasyn`` facilitates transparency and reproducibility by allowing the underlying MetaFrames to be saved and shared. Other researchers can use these to regenerate consistent synthetic datasets, validating published work without requiring sensitive data.
-
-
-
-.. admonition:: Key Features
-
-   -  **MetaFrame Generation**: ``Metasyn`` allows the creation of a MetaFrame from a dataset provided as a `Polars <https://pola.rs/>`_ or `Pandas <https://pandas.pydata.org/>`_ DataFrame. MetaFrames include key characteristics such as *variable names*, *data types*, *percentage of missing values*, and *distribution parameters*. 
-   -  **Saving MetaFrames**: ``Metasyn`` can save and load MetaFrames to GMF files. These are JSON files that follow the easy-to-read and understand :doc:`/developer/GMF`.
-   -  **Synthetic Data Generation**: ``Metasyn`` allows for the generation of a Polars DataFrame with synthetic data that resembles the original data.
-   -  **Distribution Fitting**: ``Metasyn`` allows for manual and automatic distribution fitting.
-   -  **Data Type Support**: ``Metasyn`` supports generating synthetic data for a variety of common data types including ``categorical``, ``string``, ``integer``, ``float``, ``date``, ``time``, and ``datetime``.
-   -  **Integration with Faker**: ``Metasyn`` integrates with the `faker <https://github.com/joke2k/faker>`__ package, a Python library for generating fake data such as names and emails. Allowing for more realistic synthetic data.
-   -  **Structured String Detection**: ``Metasyn`` identifies structured strings within your dataset, which can include formatted text, codes, identifiers, or any string that follows a specific pattern.
-   -  **Handling Unique Values**: ``Metasyn`` can identify and process variables with unique values or keys in the data, preserving their uniqueness in the synthetic dataset.
-
-.. admonition:: Want to know more?
-
-   For more information on ``metasyn`` and its features, check out the :doc:`/about/about` section.
-
 
 Documentation Outline
 ---------------------
@@ -68,7 +38,13 @@ Documentation Outline
    :maxdepth: 2
 
    metasyn_in_detail
-   usage/usage
+   installation
+   quick_start
+   cli
+   improve_synth
+   metaframes
+   datafree
+
    developer/developer
    api/metasyn
    faq
@@ -82,10 +58,6 @@ This documentation is designed to help you easily navigate and find the informat
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 The :doc:`/metasyn_in_detail` section provides an overview of metasyn's purpose and functionality.
-
-:doc:`/usage/usage`
-^^^^^^^^^^^^^^^^^^^
-The :doc:`/usage/usage` contains detailed, step-by-step instructions, as well as best practices for using the package. If you're new to metasyn, we recommend you start here!
 
 :doc:`/api/metasyn`
 ^^^^^^^^^^^^^^^^^^^^^

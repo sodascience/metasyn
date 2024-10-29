@@ -36,5 +36,3 @@ Feel free to contact one of the maintainers directly:
 
 * Raoul Schram: `https://github.com/qubixes <https://github.com/qubixes>`_
 
-* Samuel Spithorst: `https://github.com/samuwhale <https://github.com/samuwhale>`_
-

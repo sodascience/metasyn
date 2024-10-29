@@ -8,8 +8,6 @@ information on installation, quickstart, tutorials and information on the core f
    :maxdepth: 1
    :caption: Sections:
 
-   installation
-   quick_start
    generating_metaframes
    saving_metaframes
    generating_synthetic_data

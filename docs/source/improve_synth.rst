@@ -1,5 +1,13 @@
+Improve your synthetic data
+===========================
+
+Variable specifications
+-----------------------
+
+xx
+
 Configuration Files
-===================
+-------------------
 
 Configuration files are designed to be used in conjunction with the :doc:`/usage/cli` (though they can be used with the Python API too) to help specify distribution behavior when creating generative metadata. 
 

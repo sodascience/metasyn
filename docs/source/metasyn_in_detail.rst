@@ -1,7 +1,39 @@
-How does metasyn work?
-======================
+What is metasyn?
+================
 
 ``Metasyn`` is a python package for generating synthetic data with a focus on maintaining privacy. It is aimed at owners of sensitive datasets such as public organisations, research groups, and individual researchers who want to improve the accessibility, reproducibility and reusability of their data. The goal of ``metasyn`` is to make it easy for data owners to share the structure and approximation of the content of their data with others with fewer privacy concerns.
+
+``Metasyn`` has three main functionalities:
+
+.. image:: /images/pipeline_basic.png
+   :width: 100%
+   :alt: ``Metasyn`` Pipeline
+   :align: center
+
+1. **Estimation**: ``Metasyn`` can **create a MetaFrame**, from a dataset. A MetaFrame is metadata describing a table, augmented with statistical information on the columns. It captures individual distributions and features and enables the generation of synthetic data based on it.
+2. **Generation**: ``Metasyn`` can **generate synthetic data** based on a MetaFrame. The synthetic data produced solely depends on the MetaFrame, thereby maintaining a critical separation between the original sensitive data and the generated synthetic data.
+3. **Serialization**: ``Metasyn`` can **save a MetaFrame** into an easy-to-read :doc:`/developer/GMF` file. This allows users to audit, understand, and modify their data generation model. These GMF files can also be imported back into Metasyn to generate synthetic data.
+
+Researchers and data owners can use ``metasyn`` to generate and share synthetic versions of their sensitive datasets, mitigating privacy concerns. Additionally, ``metasyn`` facilitates transparency and reproducibility by allowing the underlying MetaFrames to be saved and shared. Other researchers can use these to regenerate consistent synthetic datasets, validating published work without requiring sensitive data.
+
+
+
+.. admonition:: Key Features
+
+   -  **MetaFrame Generation**: ``Metasyn`` allows the creation of a MetaFrame from a dataset provided as a `Polars <https://pola.rs/>`_ or `Pandas <https://pandas.pydata.org/>`_ DataFrame. MetaFrames include key characteristics such as *variable names*, *data types*, *percentage of missing values*, and *distribution parameters*. 
+   -  **Saving MetaFrames**: ``Metasyn`` can save and load MetaFrames to GMF files. These are JSON files that follow the easy-to-read and understand :doc:`/developer/GMF`.
+   -  **Synthetic Data Generation**: ``Metasyn`` allows for the generation of a Polars DataFrame with synthetic data that resembles the original data.
+   -  **Distribution Fitting**: ``Metasyn`` allows for manual and automatic distribution fitting.
+   -  **Data Type Support**: ``Metasyn`` supports generating synthetic data for a variety of common data types including ``categorical``, ``string``, ``integer``, ``float``, ``date``, ``time``, and ``datetime``.
+   -  **Integration with Faker**: ``Metasyn`` integrates with the `faker <https://github.com/joke2k/faker>`__ package, a Python library for generating fake data such as names and emails. Allowing for more realistic synthetic data.
+   -  **Structured String Detection**: ``Metasyn`` identifies structured strings within your dataset, which can include formatted text, codes, identifiers, or any string that follows a specific pattern.
+   -  **Handling Unique Values**: ``Metasyn`` can identify and process variables with unique values or keys in the data, preserving their uniqueness in the synthetic dataset.
+
+.. admonition:: Want to know more?
+
+   For more information on ``metasyn`` and its features, check out the :doc:`/about/about` section.
+
+
 
 With this goal in mind, ``metasyn`` restricts itself to the `'synthetically-augmented plausible' <https://www.ons.gov.uk/methodology/methodologicalpublications/generalmethodology/onsworkingpaperseries/onsmethodologyworkingpaperseriesnumber16syntheticdatapilot>`__ category of synthetic data, as categorized by the Office for National Statistics (ONS).
 
@@ -50,7 +82,7 @@ The three key stages of the ``metasyn`` pipeline include the **estimation** of t
 
 
 Estimation
-^^^^^^^^^^^^^
+^^^^^^^^^^
 .. image:: /images/pipeline_estimation_code.png
    :alt: Metasyn Estimation Step in Pipeline
    :align: center
@@ -272,7 +304,7 @@ This allows for manual and automatic editing, as well as sharing.
   See the :doc:`/usage/saving_metaframes` page for information on *how* to save and load MetaFrame to and from JSON files.
   
 Data generation
-^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^
 
 .. image:: /images/pipeline_generation_code.png
    :alt: Metasyn Estimation Step in Pipeline

@@ -1,5 +1,5 @@
-Quick start guide
-=================
+Generate synthetic data
+=======================
 
 Get started quickly with ``metasyn`` using the following example. In this concise demonstration, you'll learn the basic functionality of ``metasyn`` by generating synthetic data from `titanic <https://raw.githubusercontent.com/pandas-dev/pandas/main/doc/data/titanic.csv>`_ dataset.
 
