@@ -26,7 +26,7 @@ def convert_numpy_datetime(time_obj: np.datetime64) -> dt.datetime:
     unix_epoch = np.datetime64(0, 's')
     one_second = np.timedelta64(1, 's')
     seconds_since_epoch = (time_obj - unix_epoch) / one_second
-    return dt.datetime.utcfromtimestamp(float(seconds_since_epoch))
+    return dt.datetime.fromtimestamp(float(seconds_since_epoch))
 
 
 class BaseUniformDistribution(BaseDistribution):
