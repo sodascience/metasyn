@@ -2,7 +2,7 @@
 
 # import random
 import string
-from abc import ABC, abstractproperty
+from abc import ABC, abstractmethod
 from datetime import date, datetime, time, timedelta
 from pathlib import Path
 
@@ -21,16 +21,19 @@ _AVAILABLE_DATASETS = {}
 
 def register(*args):
     """Register a dataset so that it can be found by name."""
+
     def _wrap(cls):
         _AVAILABLE_DATASETS[cls().name] = cls()
         return cls
+
     return _wrap(*args)
 
 
 class BaseDataset(ABC):
     """Base class for demo datasets."""
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def name(self):
         pass
 
@@ -39,10 +42,10 @@ class BaseDataset(ABC):
         return files(__package__) / f"demo_{self.name}.csv"
 
     def get_dataframe(self):
-        return pl.read_csv(self.file_location, schema_overrides=self.schema,
-                           try_parse_dates=True)
+        return pl.read_csv(self.file_location, schema_overrides=self.schema, try_parse_dates=True)
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def schema(self):
         pass
 
@@ -66,6 +69,7 @@ class TitanicDataset(BaseDataset):
     @property
     def var_specs(self):
         return [VarSpec("PassengerId", unique=True)]
+
 
 @register
 class SpaceShipDataset(BaseDataset):
@@ -135,6 +139,39 @@ class SyntheaImagingDataset(BaseDataset):
     def schema(self):
         return {"SOP_DESCRIPTION": pl.Categorical, "BODYSITE_DESCRIPTION": pl.Categorical}
 
+
+@register
+class HospitalDataset(BaseDataset):
+    """Example electronic health record hospital dataset. This dataset was created manually."""
+
+    @property
+    def name(self):
+        return "hospital"
+
+    @property
+    def schema(self):
+        return {"date_admitted": pl.Date, "time_admitted": pl.Time, "type": pl.Categorical}
+
+
+@register
+class DrugUseDataset(BaseDataset):
+    """Example dataset with answers to an open question on study participants' daily drug use.
+
+    This example dataset was generated through ChatGPT-4o on 07-11-2024 using the following prompt:
+    > Create a csv with 12 rows and 2 columns: participant_id, and drug_use. The participant_id
+    has a standard alphanumeric structure, and the drug_use contains participant's responses on
+    how they use drugs in their daily life.
+    """
+
+    @property
+    def name(self):
+        return "druguse"
+
+    @property
+    def schema(self):
+        return {}
+
+
 @register
 class TestDataset(BaseDataset):
     """Test dataset with all supported data types."""
@@ -146,8 +183,10 @@ class TestDataset(BaseDataset):
     @property
     def schema(self):
         columns = pl.read_csv(self.file_location).columns
-        return {col_name: (getattr(pl, col_name[3:]) if col_name != "NA" else pl.String)
-                for col_name in columns}
+        return {
+            col_name: (getattr(pl, col_name[3:]) if col_name != "NA" else pl.String)
+            for col_name in columns
+        }
 
     @classmethod
     def create(cls, csv_file):
@@ -155,47 +194,81 @@ class TestDataset(BaseDataset):
         n_rows = 100
 
         for int_val in [8, 16, 32, 64]:
-            all_series.append(pl.Series(f"pl.Int{int_val}",
-                                        [np.random.randint(-10, 10) for _ in range(n_rows)],
-                                        dtype=getattr(pl, f"Int{int_val}")))
-            all_series.append(pl.Series(f"pl.UInt{int_val}",
-                                        [np.random.randint(10) for _ in range(n_rows)],
-                                        dtype=getattr(pl, f"UInt{int_val}")))
+            all_series.append(
+                pl.Series(
+                    f"pl.Int{int_val}",
+                    [np.random.randint(-10, 10) for _ in range(n_rows)],
+                    dtype=getattr(pl, f"Int{int_val}"),
+                )
+            )
+            all_series.append(
+                pl.Series(
+                    f"pl.UInt{int_val}",
+                    [np.random.randint(10) for _ in range(n_rows)],
+                    dtype=getattr(pl, f"UInt{int_val}"),
+                )
+            )
 
         for float_val in [32, 64]:
-            all_series.append(pl.Series(f"pl.Float{float_val}",
-                                        np.random.randn(n_rows),
-                                        dtype=getattr(pl, f"Float{float_val}")))
+            all_series.append(
+                pl.Series(
+                    f"pl.Float{float_val}",
+                    np.random.randn(n_rows),
+                    dtype=getattr(pl, f"Float{float_val}"),
+                )
+            )
 
-        all_series.append(pl.Series("pl.Date", [date(2024, 9, 4) + timedelta(days=i)
-                                                for i in range(n_rows)],
-                                    dtype=pl.Date))
-        all_series.append(pl.Series("pl.Datetime",
-                                    [datetime(2024, 9, 4, 12, 30, 12)
-                                        + timedelta(hours=i, minutes=i*2, seconds=i*3)
-                                        for i in range(n_rows)],
-                                    dtype=pl.Datetime))
-        all_series.append(pl.Series("pl.Time",
-                                    [time(3+i//20, 6+i//12, 12+i//35) for i in range(n_rows)],
-                                    dtype=pl.Time))
-        all_series.append(pl.Series("pl.String",
-                                    np.random.choice(list(string.printable), size=n_rows),
-                                    dtype=pl.String))
-        all_series.append(pl.Series("pl.Utf8",
-                                    np.random.choice(list(string.printable), size=n_rows),
-                                    dtype=pl.Utf8))
-        all_series.append(pl.Series("pl.Categorical",
-                                    np.random.choice(list(string.ascii_uppercase[:5]), size=n_rows),
-                                    dtype=pl.Categorical))
-        all_series.append(pl.Series("pl.Boolean",
-                                    np.random.choice([True, False], size=n_rows),
-                                    dtype=pl.Boolean))
+        all_series.append(
+            pl.Series(
+                "pl.Date",
+                [date(2024, 9, 4) + timedelta(days=i) for i in range(n_rows)],
+                dtype=pl.Date,
+            )
+        )
+        all_series.append(
+            pl.Series(
+                "pl.Datetime",
+                [
+                    datetime(2024, 9, 4, 12, 30, 12)
+                    + timedelta(hours=i, minutes=i * 2, seconds=i * 3)
+                    for i in range(n_rows)
+                ],
+                dtype=pl.Datetime,
+            )
+        )
+        all_series.append(
+            pl.Series(
+                "pl.Time",
+                [time(3 + i // 20, 6 + i // 12, 12 + i // 35) for i in range(n_rows)],
+                dtype=pl.Time,
+            )
+        )
+        all_series.append(
+            pl.Series(
+                "pl.String", np.random.choice(list(string.printable), size=n_rows), dtype=pl.String
+            )
+        )
+        all_series.append(
+            pl.Series(
+                "pl.Utf8", np.random.choice(list(string.printable), size=n_rows), dtype=pl.Utf8
+            )
+        )
+        all_series.append(
+            pl.Series(
+                "pl.Categorical",
+                np.random.choice(list(string.ascii_uppercase[:5]), size=n_rows),
+                dtype=pl.Categorical,
+            )
+        )
+        all_series.append(
+            pl.Series("pl.Boolean", np.random.choice([True, False], size=n_rows), dtype=pl.Boolean)
+        )
         all_series.append(pl.Series("NA", [None for _ in range(n_rows)], dtype=pl.String))
 
         # Add NA's for all series except the categorical
         for series in all_series:
             if series.name != "pl.Categorical":
-                none_idx = np.random.choice(np.arange(n_rows), size=n_rows//10, replace=False)
+                none_idx = np.random.choice(np.arange(n_rows), size=n_rows // 10, replace=False)
                 none_idx.sort()
                 series[none_idx] = None
 
