@@ -1,3 +1,7 @@
+"""Module to test the MetaVar object.
+
+Most of the test functions try to infer the correct distribution from a series.
+"""
 import datetime as dt
 import json
 import string
@@ -28,28 +32,33 @@ def _series_drop_nans(series):
     return series.dropna()
 
 
-def _series_element_classname(series):
-    series = _series_drop_nans(series)
+def _series_element_classname(series, all_nan):
+    if not all_nan:
+        series = _series_drop_nans(series)
     if isinstance(series, pl.Series):
         return series[0].__class__.__name__
     return series.iloc[0].__class__.__name__
 
 
-def check_var(series, var_type, temp_path):
+def check_var(series, var_type, temp_path, all_nan=False):
+    """Checker for all variables whether series are inferred correctly."""
     def check_similar(series_a, series_b):
         assert isinstance(series_a, (pd.Series, pl.Series))
         assert isinstance(series_b, (pd.Series, pl.Series))
         assert len(series_a) == len(series_b)
-        base_type_a = _series_element_classname(series_a)
-        base_type_b = _series_element_classname(series_b)
+        base_type_a = _series_element_classname(series_a, all_nan)
+        base_type_b = _series_element_classname(series_b, all_nan)
         if type(series_a) == type(series_b):
             assert base_type_a == base_type_b
-        assert (len(series_a)-len(_series_drop_nans(series_a)) > 0) == (len(series_b) - len(_series_drop_nans(series_b)) > 0)
+        has_nans_a = len(series_a) - len(_series_drop_nans(series_a)) > 0
+        has_nans_b = len(series_b) - len(_series_drop_nans(series_b)) > 0
+        assert has_nans_a == has_nans_b
 
     assert isinstance(series, (pd.Series, pl.Series))
 
     var = MetaVar.fit(series)
     new_series = var.draw_series(len(series))
+    print(new_series)
     check_similar(series, new_series)
     assert var.var_type == var_type
     assert var_type in var.distribution.var_type
@@ -60,7 +69,7 @@ def check_var(series, var_type, temp_path):
     with raises(ValueError):
         var_dict = var.to_dict()
         var_dict.update({"type": "unknown"})
-        MetaVar.from_dict(var_dict)
+        print(MetaVar.from_dict(var_dict))
 
     with raises(ValueError):
         var_dict = var.to_dict()
@@ -99,11 +108,13 @@ def check_var(series, var_type, temp_path):
     ]
 )
 def test_categorical(tmp_path, series):
+    """Test the inference of categorical variables."""
     new_series = check_var(series, "categorical", tmp_path)
     assert set(_series_drop_nans(series)) == set(np.unique(_series_drop_nans(new_series)))
 
 @mark.parametrize("dtype", ["int8", "int16", "int32", "int64", "int"])
 def test_integer(dtype, tmp_path):
+    """Test the inference of integer variables."""
     series = pd.Series([np.random.randint(0, 10) for _ in range(300)], dtype=dtype)
     new_series = check_var(series, "discrete", tmp_path)
     assert new_series.min() >= 0
@@ -112,6 +123,7 @@ def test_integer(dtype, tmp_path):
 
 @mark.parametrize("dtype", ["Int8", "Int16", "Int32", "Int64"])
 def test_nullable_integer(dtype, tmp_path):
+    """Test for pandas nullable integer data types (no applicable to polars)."""
     series = pd.Series([np.random.randint(0, 10) if np.random.rand() > 0.5 else None
                         for _ in range(500)], dtype=dtype)
     new_series = check_var(series, "discrete", tmp_path)
@@ -123,6 +135,7 @@ def test_nullable_integer(dtype, tmp_path):
               pl.UInt8, pl.UInt16, pl.UInt32, pl.UInt64]
 )
 def test_polars_discrete(dtype, tmp_path):
+    """Test for all different variables of polars discrete types."""
     series = pl.Series("ser", [np.random.randint(0, 10) for _ in range(100)], dtype=dtype)
     new_series = check_var(series, "discrete", tmp_path)
     assert new_series.min() >= 0
@@ -132,6 +145,7 @@ def test_polars_discrete(dtype, tmp_path):
     "dtype", [pl.Float32, pl.Float64]
 )
 def test_polars_continuous(dtype, tmp_path):
+    """Test for all polars continuous data types."""
     series = pl.Series("ser", np.random.rand(100), dtype=dtype)
     new_series = check_var(series, "continuous", tmp_path)
     assert new_series.min() > -0.5
@@ -142,6 +156,7 @@ def test_polars_continuous(dtype, tmp_path):
     "dtype", [pl.String, pl.Utf8]
 )
 def test_polars_string(dtype, tmp_path):
+    """Test polars string types."""
     series = pl.Series("series", string.printable, dtype=dtype)
     check_var(series, "string", tmp_path)
 
@@ -149,6 +164,7 @@ def test_polars_string(dtype, tmp_path):
     "dtype", [pl.Categorical]
 )
 def test_polars_categorical(dtype, tmp_path):
+    """Test whether polars categorical data types are parsed correctly."""
     series = pl.Series("series", string.printable, dtype=dtype)
     check_var(series, "categorical", tmp_path)
 
@@ -157,6 +173,7 @@ def test_polars_categorical(dtype, tmp_path):
     [pl.Series, pd.Series],
 )
 def test_float(tmp_path, series_type):
+    """Test for continuous variables, pandas or polars."""
     np.random.seed(3727442)
     series = series_type([np.random.rand() for _ in range(10000)])
     new_series = check_var(series, "continuous", tmp_path)
@@ -172,9 +189,26 @@ def test_float(tmp_path, series_type):
     [pl.Series, pd.Series],
 )
 def test_string(tmp_path, series_type):
+    """Test polars/pandas string type fitting."""
     series = series_type(np.random.choice(["a", "b", "c", None], size=100).tolist())
     new_series = check_var(series, "string", tmp_path)
-    assert set(np.unique(_series_drop_nans(series))) == set(np.unique(_series_drop_nans(new_series)))
+    unq_values = set(np.unique(_series_drop_nans(series)))
+    new_unq_values = set(np.unique(_series_drop_nans(new_series)))
+    assert unq_values == new_unq_values
+
+@mark.parametrize("dtype,var_type", [
+    (pl.Float32, "continuous"),
+    (pl.Float64, "continuous"),
+    (pl.Int32, "discrete"),
+    (pl.Int64, "discrete"),
+    (pl.Categorical, "categorical"),
+    (pl.Utf8, "string")])
+def test_na(tmp_path, dtype, var_type):
+    """Test the various NA type distributions."""
+    series = pl.Series("x", [None, None, None], dtype=dtype)
+    print(series)
+    new_series = check_var(series, var_type, tmp_path, all_nan=True)
+    assert all(x is None for x in new_series)
 
 
 @mark.parametrize(
@@ -182,6 +216,7 @@ def test_string(tmp_path, series_type):
     [pl.Series, pd.Series]
 )
 def test_bool(tmp_path, series_type):
+    """Test whether booleans are correctly handled as categorical variables."""
     series = series_type(np.random.choice([True, False], size=100))
     check_var(series, "categorical", tmp_path)
     var = MetaVar.fit(series)
@@ -194,7 +229,7 @@ def test_bool(tmp_path, series_type):
     [-1, -0.1, 1.2],
 )
 def test_invalid_prop(prop_missing):
-    # with raises(ValueError):
+    """Ensure that errors are thrown for prop_missing outside of [0, 1]."""
     MetaVar("test", "discrete", DiscreteUniformDistribution.default_distribution())
     with raises(ValueError):
         MetaVar("test", "discrete", DiscreteUniformDistribution.default_distribution(),
@@ -218,6 +253,7 @@ def test_invalid_prop(prop_missing):
     ]
 )
 def test_get_var_type(series, var_type):
+    """Test get_var_type method of MetaVar."""
     assert MetaVar.get_var_type(series) == var_type
 
 
@@ -227,6 +263,7 @@ def test_get_var_type(series, var_type):
      pl.Series([np.random.rand() for _ in range(5000)])]
 )
 def test_manual_fit(series):
+    """Test adding dist_spec to MetaVar.fit call."""
     var = MetaVar.fit(series)
     assert isinstance(var.distribution, (UniformDistribution, TruncatedNormalDistribution))
     var = MetaVar.fit(series, dist_spec={"implements": "normal"})
@@ -235,8 +272,8 @@ def test_manual_fit(series):
     assert isinstance(var.distribution, UniformDistribution)
     var = MetaVar.fit(series, dist_spec=NormalDistribution(0, 1))
     assert isinstance(var.distribution, NormalDistribution)
-    # with raises(TypeError):
-        # var.fit(10)
+    with raises(TypeError):
+        var.fit(10)
 
 
 @mark.parametrize(
@@ -245,6 +282,7 @@ def test_manual_fit(series):
      pl.Series([None for _ in range(10)])]
 )
 def test_na_zero(series):
+    """Test whether fitting a series with only NA works."""
     var = MetaVar.fit(series)
     assert var.var_type == "continuous"
     assert var.prop_missing == 1.0
@@ -256,6 +294,7 @@ def test_na_zero(series):
      pl.Series([None if i != 0 else 1.0 for i in range(10)])]
 )
 def test_na_one(series):
+    """Test whether fitting a series with exactly one non-NA values works."""
     var = MetaVar.fit(series)
     assert var.var_type == "continuous"
     assert abs(var.prop_missing-0.9) < 1e7
@@ -267,6 +306,7 @@ def test_na_one(series):
      pl.Series([None if i < 2 else 0.123*i for i in range(10)])]
 )
 def test_na_two(series):
+    """Test whether fitting a series with exactly two non-NA values works."""
     var = MetaVar.fit(series)
     assert var.var_type == "continuous"
     assert abs(var.prop_missing-0.8) < 1e7
@@ -278,6 +318,7 @@ def test_na_two(series):
      pl.Series(np.random.randint(0, 1000, size=500))]
 )
 def test_manual_unique_integer(series):
+    """Test whether discrete uniform/unique key are correctly inferred."""
     var = MetaVar.fit(series)
     assert isinstance(var.distribution, DiscreteUniformDistribution)
     var = MetaVar.fit(series, dist_spec = {"unique": True})
@@ -292,7 +333,7 @@ def test_manual_unique_integer(series):
     ]
 )
 def test_manual_unique_string(series):
-    # series = pd.Series(["x213", "2dh2", "4k2kk"])
+    """Test which regexmodel is used dependent on the uniqueness."""
     var = MetaVar.fit(series)
     assert isinstance(var.distribution, RegexDistribution)
     var = MetaVar.fit(series, dist_spec={"unique": True})
@@ -304,16 +345,17 @@ def test_manual_unique_string(series):
     [
         pl.Series([2]*100 + [4]*100 + [12394]*100),
         pl.Series([-123]*12 + [123]*12),
-        # pl.Series(["2"]*100 + ["5"]*100 + ["123"]*100),
         pl.Series(["2"]*100 + ["5"]*100 + ["123"]*100, dtype=pl.Categorical)
     ]
 )
 def test_int_multinoulli(series):
+    """Test whether the multinoulli distribution is correctly inferred."""
     var = MetaVar.fit(series)
     assert isinstance(var.distribution, MultinoulliDistribution)
 
 
 def test_error_multinoulli():
+    """Test whether incorrect probabilities give a warning/error."""
     with raises(ValueError):
         MultinoulliDistribution(["1", "2"], [-0.1, 1.1])
     with pytest.warns():

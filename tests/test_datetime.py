@@ -1,3 +1,4 @@
+"""Module for testing date/time distributions."""
 import datetime as dt
 
 import numpy as np
@@ -25,6 +26,7 @@ lower = ["10", ""]
 )
 @mark.parametrize("series_type", [pl.Series, pd.Series])
 def test_time(lower, upper, precision, series_type):
+    """Test for TimeUniformDistribution."""
     lower_iso, upper_iso = dt.time.fromisoformat(lower), dt.time.fromisoformat(upper)
     dist = TimeUniformDistribution(lower, upper, precision)
     all_times = []
@@ -47,6 +49,7 @@ def test_time(lower, upper, precision, series_type):
 
 @mark.parametrize("series_type", [pl.Series, pd.Series])
 def test_date(series_type):
+    """Test for DateUniformDistribution."""
     lower_date, upper_date = "2020-07-09", "2023-08-19"
     lower_iso, upper_iso = dt.date.fromisoformat(lower_date), dt.date.fromisoformat(upper_date)
 
@@ -76,6 +79,7 @@ def test_date(series_type):
 )
 @mark.parametrize("series_type", [pl.Series, pd.Series])
 def test_datetime(lower, upper, precision, series_type):
+    """Test for DateTimeUniformDistribution."""
     if isinstance(lower, str):
         lower_iso, upper_iso = dt.datetime.fromisoformat(lower), dt.datetime.fromisoformat(upper)
     else:
