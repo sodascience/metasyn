@@ -196,7 +196,7 @@ class VarSpecAccess():
         self.meta_config = meta_config
 
     def __getattribute__(self, attr):
-        if attr in ["privacy", "data_free", "prop_missing", "privacy"]:
+        if attr in ["privacy", "data_free", "prop_missing"]:
             if getattr(self.var_spec, attr) is None:
                 return getattr(self.meta_config.defaults, attr)
             return getattr(self.var_spec, attr)
