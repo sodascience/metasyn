@@ -31,6 +31,8 @@ Key features
 
 For more detail on how metasyn works, see our `paper <https://github.com/sodascience/metasyn/blob/main/docs/paper/paper.pdf>`_.
 
+.. _metaframes and GMF:
+
 MetaFrames and GMF files
 ------------------------
 

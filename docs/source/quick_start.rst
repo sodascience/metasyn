@@ -4,7 +4,7 @@ Quickstart
 Get started quickly with ``metasyn`` using the following example. In this concise demonstration, you'll learn the basic functionality of ``metasyn`` by generating synthetic data from `titanic <https://raw.githubusercontent.com/pandas-dev/pandas/main/doc/data/titanic.csv>`_ dataset.
 
 .. note:: 
-   A more elaborate version of this page is also available as an interactive tutorial available on the :doc:`/usage/interactive_tutorials` page.
+   A more elaborate version of this page is also available as an interactive tutorial available on the :doc:`/tutorials` page.
 
 Importing Libraries
 -------------------
@@ -143,7 +143,7 @@ We can inspect our synthesized data by printing it (``print(synthetic_data)``). 
 | 495         | "Morning. Nice. Large. Challenge." | "male" | 8   | 0     | "9582"   | 9.150979  | "G01" | "S"      | "190-017-05"   | "11:1:24"    | "2022-07-02 205:0:52"  | null    |
 +-------------+------------------------------------+--------+-----+-------+----------+-----------+-------+----------+----------------+--------------+------------------------+---------+
 
-Of course, it's easy to see some flaws with the generated dataset, such as the names, dates and times not making a lot of sense. The page on :doc:`/usage/generating_metaframes` shows how to improve the quality of the synthesized data, such as for example generating fake names using Faker, or generating proper DateTime formatted values.
+Of course, it's easy to see some flaws with the generated dataset, such as the names, dates and times not making a lot of sense. The page on :doc:`improve_synth` shows how to improve the quality of the synthesized data, such as for example generating fake names using Faker, or generating proper DateTime formatted values.
 
 Conclusion
 ----------

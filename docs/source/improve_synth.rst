@@ -255,7 +255,7 @@ Uniqueness: ``unique``
 ^^^^^^^^^^^^^^^^^^^^^^
 
 Some distributions produce only values that are unique without any repeats (see distributions starting with ``Unique``
-in :doc:`api/generated/metasyn.distribution`). By default, metasyn will not select any unique distributions. An exception
+in :doc:`api/metasyn.distribution`). By default, metasyn will not select any unique distributions. An exception
 is the :class:`metasyn.distribution.UniqueKeyDistribution <UniqueKeyDistribution>`; if values in the column are sequentially
 increasing. When the column represents a variable that is known to be unique (such as IDs), this can be represented with:
 

@@ -4,7 +4,7 @@ Installation
 This document will guide you through the process of installing the ``metasyn`` package. 
 
 .. note:: 
-	If you're new to Python or simply want to quickly explore the basic features of ``metasyn`` without installing it locally, you can try one of our :doc:`/usage/interactive_tutorials`.
+	If you're new to Python or simply want to quickly explore the basic features of ``metasyn`` without installing it locally, you can try one of our :doc:`/tutorials`.
 
 
 Step 1: Install Python

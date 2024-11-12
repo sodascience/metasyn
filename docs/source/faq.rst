@@ -1,7 +1,7 @@
 FAQ
 ===
 
-Here, we've compiled answers to commonly asked questions about ``metasyn`` and its development. If you have any other questions, need further assistance, or want to discuss something related to metasyn, don't hesitate to contact us directly. You can find our contact details on the :doc:`contact page </about/contact>`. We're more than happy to assist you and provide any additional information you may need.
+Here, we've compiled answers to commonly asked questions about ``metasyn`` and its development. If you have any other questions, need further assistance, or want to discuss something related to metasyn, don't hesitate to contact us directly. You can find our contact details on the :ref:`contact page <contact us>`. We're more than happy to assist you and provide any additional information you may need.
 
 **Can I use pandas DataFrames with metasyn?**
 -----------------------------------------------
@@ -38,13 +38,13 @@ This warning occurs when ``metasyn`` detects a column, that seems to have unique
    # Call the fit_dataframe() function, passing in the `var_spec` dictionary as the `spec` argument
    mf = MetaFrame.fit_dataframe(df, var_specs=var_specs)
 
-More information on how to use the optional parameters in the :meth:`metasyn.MetaFrame.fit_dataframe() <metasyn.metaframe.MetaFrame.fit_dataframe>` function can be found in :doc:`/usage/generating_metaframes` under :ref:`optionalparams`.
+More information on how to use the optional parameters in the :meth:`metasyn.MetaFrame.fit_dataframe() <metasyn.metaframe.MetaFrame.fit_dataframe>` function can be found in :doc:`improve_synth`.
 
-You can also set the uniqueness of a variable in the :doc:`configuration file <usage/config_files>`
+You can also set the uniqueness of a variable in the :doc:`configuration file <improve_synth>`
 
 **I found a bug/issue, where can I report it?**
 -----------------------------------------------
-If you encounter any bugs or have identified an issue with metasyn, we encourage you to report it on our `GitHub issue tracker <https://github.com/sodascience/metasyn/issues>`_. This allows us to track and address the problem efficiently. Alternatively, you can find out how to contact us through the details provided in our :doc:`contact page </about/contact>`.
+If you encounter any bugs or have identified an issue with metasyn, we encourage you to report it on our `GitHub issue tracker <https://github.com/sodascience/metasyn/issues>`_. This allows us to track and address the problem efficiently. Alternatively, you can find out how to contact us through the details provided in our :ref:`contact page <contact us>`.
 
 **I would like to contribute to the project, how do I get started?**
 ---------------------------------------------------------------------

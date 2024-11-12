@@ -1,6 +1,8 @@
 About
 =====
 
+.. _contact us:
+
 Contact Us
 ----------
 

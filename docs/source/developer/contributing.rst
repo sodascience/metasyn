@@ -5,7 +5,7 @@ Thank you for your interest in contributing to metasyn! We greatly appreciate an
 
 Feedback, suggestions and issues:
 ---------------------------------
-If you encounter a bug or have a feature request, you can report it in the `issue tracker <https://github.com/sodascience/metasyn/issues>`_. Detailed bug reports and well-defined feature requests are highly appreciated. Additionally, you can help us by leaving suggestions or feedback on how to enhance ``metasyn`` on the project's `GitHub repository <https://github.com/sodascience/metasyn>`_. More information on getting in touch with us can be found on our :doc:`contact page </about/contact>`.
+If you encounter a bug or have a feature request, you can report it in the `issue tracker <https://github.com/sodascience/metasyn/issues>`_. Detailed bug reports and well-defined feature requests are highly appreciated. Additionally, you can help us by leaving suggestions or feedback on how to enhance ``metasyn`` on the project's `GitHub repository <https://github.com/sodascience/metasyn>`_. More information on getting in touch with us can be found on our :ref:`contact page <contact us>`.
 
 .. image:: https://img.shields.io/badge/GitHub-blue?logo=github&link=https%3A%2F%2Fgithub.com%2Fsodascience%2Fmetasyn
    :alt: GitHub Repository Button

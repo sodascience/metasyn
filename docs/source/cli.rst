@@ -83,7 +83,7 @@ The ``metasyn`` CLI should now be up and running within the Docker container and
 
 Creating Generative Metadata
 ----------------------------
-The ``create-meta`` subcommand combines the :doc:`estimation </usage/generating_metaframes>` and :doc:`serialization </usage/saving_metaframes>` steps in the pipeline into one, this allows you to generate generative metadata for a tabular dataset (in CSV format), and store it in a GMF (Generative Metadata Format) file.
+The ``create-meta`` subcommand combines the estimation and serialization steps in the pipeline into one, this allows you to generate generative metadata for a tabular dataset (in CSV format), and store it in a GMF (Generative Metadata Format) file.
 
 .. image:: /images/pipeline_cli_create_meta.png
    :alt: Creating Generative Metadata using the CLI
@@ -130,7 +130,7 @@ An example of how to use the ``create-meta`` subcommand is as follows:
 
 The ``create-meta`` command also takes one optional argument:
 
-* ``--config [config-file]``: The filepath and name of a .toml configuration file that specifies distribution behavior. For example, if we want to set a column to be unique or to have a specific distribution, we can do so by specifying it in the configuration file. Information on how to use these files can be found in the :doc:`/usage/config_files` section.
+* ``--config [config-file]``: The filepath and name of a .toml configuration file that specifies distribution behavior. For example, if we want to set a column to be unique or to have a specific distribution, we can do so by specifying it in the configuration file. Information on how to use these files can be found in the :doc:`improve_synth` section.
 
 .. admonition:: Generating a GMF file without a dataset
 
@@ -158,7 +158,7 @@ The ``create-meta`` command also takes one optional argument:
 
 Generating Synthetic Data
 -------------------------
-The ``synthesize`` subcommand combines the :doc:`deserialization </usage/saving_metaframes>` and :doc:`generation </usage/generating_synthetic_data>` steps in the pipeline into one, and allows you to generate a synthetic dataset from a previously saved MetaFrame (stored as GMF file). 
+The ``synthesize`` subcommand combines the deserialization and generation steps in the pipeline into one, and allows you to generate a synthetic dataset from a previously saved MetaFrame (stored as GMF file). 
 
 .. image:: /images/pipeline_cli_synthesize.png
    :alt: Creating Synthetic Data from a GMF file using the CLI
