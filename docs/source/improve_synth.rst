@@ -251,6 +251,29 @@ You can set the privacy only for specific columns:
       privacy = "disclosure"
 
 
+Uniqueness: ``unique``
+^^^^^^^^^^^^^^^^^^^^^^
+
+Some distributions produce only values that are unique without any repeats (see distributions starting with ``Unique``
+in :doc:`api/generated/metasyn.distribution`). By default, metasyn will not select any unique distributions. An exception
+is the :class:`metasyn.distribution.UniqueKeyDistribution <UniqueKeyDistribution>`; if values in the column are sequentially
+increasing. When the column represents a variable that is known to be unique (such as IDs), this can be represented with:
+
+.. tab:: Python
+
+   .. code-block:: python
+
+      # You have to put the specifications in the ...
+      MetaFrame.fit_dataframe(df, var_specs=[{"name": "Cabin", "unique": True}])
+
+.. tab:: Configuration file
+
+   .. code-block:: toml
+
+      [[var]]
+      name = "Cabin"
+      unique = true  # Notice the lower case for TOML
+
 
 
 Distribution: ``distribution``

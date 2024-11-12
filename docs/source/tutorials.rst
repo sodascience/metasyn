@@ -1,7 +1,9 @@
 Interactive Tutorials
 =====================
 
-If you're new to Python or simply want to quickly explore the basic features of metasyn, you can try our interactive tutorial. It provides a step-by-step walkthrough and example dataset to help you get started.
+If you're new to Python or simply want to quickly explore the basic features of metasyn,
+you can try our interactive tutorial. It provides a step-by-step walkthrough and example dataset
+to help you get started.
 
 You can access it here:
    - Binder: `Open in Binder <https://mybinder.org/v2/gh/sodascience/metasyn/HEAD?labpath=examples%2Fgetting_started.ipynb>`__

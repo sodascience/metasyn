@@ -40,6 +40,7 @@ others can perform exploratory analysis and testing without disclosing real valu
    what_is_metasyn
    installation
    quick_start
+   tutorials
 
 
 .. toctree::
@@ -58,6 +59,7 @@ others can perform exploratory analysis and testing without disclosing real valu
    cli
    developer/developer
    api/metasyn
+   extensions
 
 .. toctree::
    :hidden:
@@ -65,4 +67,4 @@ others can perform exploratory analysis and testing without disclosing real valu
    :caption: Extras
 
    faq
-   about/about
+   about
