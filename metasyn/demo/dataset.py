@@ -142,7 +142,10 @@ class SyntheaImagingDataset(BaseDataset):
 
 @register
 class HospitalDataset(BaseDataset):
-    """Example electronic health record hospital dataset. This dataset was created manually."""
+    """Example electronic health record hospital dataset.
+
+    This dataset was created manually by the metasyn team.
+    """
 
     @property
     def name(self):
