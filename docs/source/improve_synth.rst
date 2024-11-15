@@ -1,104 +1,96 @@
 Improve your synthetic data
 ===========================
 
-When you run metasyn on your dataframe without any directives, metasyn will attempt
-to fit the best distribution to each of your columns. This could be sub-optimal:
-for example, metasyn won't try see whether a column contains names of people for example.
-The column can also be too privacy sensitive to fit with the default methods.
+When you run metasyn on your dataframe, by default it will attempt
+to find the best distribution for each of your columns. This could be sub-optimal:
+for example, metasyn won't know whether a column contains names of people.
+The column can also be too privacy-sensitive to fit with default methods.
 
+Metasyn provides two paths to improving the quality of your synthetic data: by further
+specifying information directly in python, or by providing a configuration file in the
+TOML format. For interactive use, we foresee using python directly, and for programmatic
+use the configuration file is a more appropriate interface (see also our :doc:`cli`).
+
+
+.. tab:: Python
+
+   .. code-block:: python
+
+      from metasyn import MetaFrame, VarSpec
+      from metasyn.distribution import FakerDistribution
+      from metasyncontrib.disclosure import DisclosurePrivacy
+
+      specs = [
+         VarSpec(name="Name", distribution=FakerDistribution(faker_type="name")),
+      ]
+
+      mf = MetaFrame.fit_dataframe(
+         df,
+         privacy=DisclosurePrivacy(),
+         var_specs=specs,
+      )
+
+.. tab:: Configuration file
+
+   .. code-block:: python
+
+      MetaFrame.fit_dataframe(
+         df,
+         var_specs="your_config_file.toml"
+      )
+
+   This refers to a configuration file called ``your_config_file.toml``:
+
+   .. code-block:: toml
+
+      privacy = "disclosure"
+
+      [[var]]
+      name = "Name"
+      description = "Name of the unfortunate passenger of the titanic."
+      distribution = {implements = "core.faker", parameters = {faker_type = "name"}}
+
+   More examples for metasyn configuration files are available on our
+   `GitHub page <https://github.com/sodascience/metasyn/tree/develop/examples/config_files>`_.
 
 .. admonition:: What is the TOML file format?
 
-   The `TOML <https://toml.io/en/>`_ file format can be read with any text editor, and natural to comprehend.
-   You should be able to create your own TOML files from the examples below, but for more details reffer to the TOML 
+   The `TOML <https://toml.io/en/>`_ file format can be read with any text editor, and is natural to comprehend.
+   You should be able to create your own TOML files from the examples below, but for more details refer to the TOML 
    `Documentation <https://toml.io/en/>`_. One important thing to note is that the TOML format is case sensitive.
 
 
-Metasyn provides two ways of improving the quality of your synthetic data: by
-specifying directives directly in the API, or by providing a configuration file in the
-TOML format. Examples for metasyn configuration files are available on our
-`GitHub page <https://github.com/sodascience/metasyn/tree/develop/examples/config_files>`_.
+The remainder of this page serves as a reference for the different options to improve synthetic data quality.
+
 
 General specifications
 ----------------------
 
-There are three general specifications that can be set: ``dist_providers``, ``privacy`` and ``n_rows``.
-Depending on whether you want to use a configuration file, examples are shown below:
-
-.. tab:: Python
-
-   .. code-block:: python
-
-      MetaFrame.fit_dataframe(
-         df,
-         dist_providers=["builtin", "disclosure"],
-         privacy="disclosure",
-         n_rows=100,
-      )
-
-.. tab:: Configuration file
-
-   .. code-block:: python
-
-      MetaFrame.fit_dataframe(
-         df,
-         var_specs="your_configuration_file.toml"
-      )
-
-An example of a configuration file:
-
-.. code-block:: toml
-
-   # Put these at the start of the TOML file.
-   dist_providers = ["builtin", "disclosure"]
-   privacy = "disclosure"
-   n_rows = 100
-
-
-Distribution Providers: ``dist_providers``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Extra distribution providers can be added using plugins. By default all installed distribution providers
-will be used. It is good practice to set the distribution providers explicitly if you are using more than
-the built-in distribution provider, so that other people using your configuration file understand which
-plugins/providers were used. This can be done as follows:
-
-.. tab:: Python
-
-   .. code-block:: python
-
-      MetaFrame.fit_dataframe(
-         df,
-         dist_providers=["builtin", "disclosure"],
-      )
-
-.. tab:: Configuration file
-
-   .. code-block:: toml
-
-      # Put this at the start of the TOML file.
-      dist_providers = ["builtin", "disclosure"]
+Three general options can be set: ``privacy``, ``n_rows``, and ``dist_providers``. 
+In our python interface, these are arguments to :py:meth:`~MetaFrame.fit_dataframe()`; in the 
+configuration file these are mentioned at the top of the file.
 
 Privacy: ``privacy``
 ^^^^^^^^^^^^^^^^^^^^
 
-To be extra careful with privacy, you can use a different privacy mechanism from the default one.
-An example is ``disclosure`` privacy, which limits how the outliers are handled.
+Using privacy plug-ins (see :doc:`extensions`), metasyn can increase the level of privacy.
+An example is ``disclosure`` privacy, which limits the influence of various problematic 
+situations such as outliers.
 
 .. tab:: Python
 
    .. code-block:: python
 
+      from metasyncontrib.disclosure import DisclosurePrivacy
       MetaFrame.fit_dataframe(
          df,
-         privacy={"name": "disclosure", "parameters": {"partition_size": 11}}
+         privacy=DisclosurePrivacy(partition_size=11)
       )
 
 .. tab:: Configuration file
 
    .. code-block:: toml
 
-      # Put this at the start of the TOML file.
       privacy = "disclosure"
       parameters = {partition_size = 11}
 
@@ -122,9 +114,31 @@ or undesirable. In this case you can specify it manually:
 
    .. code-block:: toml
 
-      # Put this at the start of the TOML file.
       n_rows = 100
 
+
+Distribution Providers: ``dist_providers``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Extra distribution providers can be added using plugins. By default all installed distribution providers
+will be used. For reproducibility, it is a good idea to set the distribution providers explicitly, so that 
+other people using your configuration file understand which plugins/providers were used. This can be done 
+as follows:
+
+.. tab:: Python
+
+   .. code-block:: python
+
+      MetaFrame.fit_dataframe(
+         df,
+         dist_providers=["builtin", "disclosure"],
+      )
+
+.. tab:: Configuration file
+
+   .. code-block:: toml
+
+      dist_providers = ["builtin", "disclosure"]
 
 
 Adding column specifications
@@ -137,8 +151,26 @@ The most common use-case for this is to set the distribution type and/or paramet
 
    .. code-block:: python
 
-      # You have to put the specifications in the ...
-      MetaFrame.fit_dataframe(df, var_specs=[...])
+      # we suggest using the VarSpec object like so:
+      from metasyn import MetaFrame, VarSpec
+      from metasyn.distribution import RegexDistribution
+
+      specs = [
+         VarSpec(
+            name="Cabin", 
+            description="Cabin number of the passenger.", 
+            distribution=RegexDistribution("[A-F][0-9]{2,3}"), 
+            prop_missing=0.2,
+         ),
+         VarSpec(
+            name=..., 
+            description=..., 
+            distribution=...,
+         ),
+         ...
+      ]
+      
+      MetaFrame.fit_dataframe(df, var_specs=specs)
 
 .. tab:: Configuration file
 
@@ -147,42 +179,18 @@ The most common use-case for this is to set the distribution type and/or paramet
       # In this example you put the specifications in the toml file.
       MetaFrame.fit_dataframe(df, var_specs="your_config_file.toml")
 
-
-In the following examples we will provide specifications for a column called "Cabin". Note that these specifications
-can be combined, where only the name of the column is manditory to provide.
-
-.. tab:: Python
-
-   .. code-block:: python
-   
-      MetaFrame.fit_dataframe(df, var_specs=[{
-         "name": "Cabin",
-         "description": "Cabin number of the passenger.",
-         "distribution": {"implements": "core.regex",
-                          "parameters": {"regex_data": "[A-F][0-9]{2,3}"}},
-         "prop_missing": 0.2,
-      },
-      {
-         "name": "some_other_column",
-         ...
-      }])
-      
-.. tab:: Configuration file
-
    .. code-block:: toml
 
       [[var]]
-
       name = "Cabin"
       description = "Cabin number of the passenger."
       distribution = {implements = "core.regex", parameters = {regex_data = "[A-F][0-9]{2,3}"}}
-      prop_missing = 0.1
-      privacy = {name = "disclosure", parameters = {partition_size = 21}}
+      prop_missing = 0.2
 
-      # Repeat the [[var]] to add the specifications for another column.
       [[var]]
-
-      name = "some_other_column"
+      name = ...
+      description = ...
+      distribution = ...
 
 
 Description: ``description``
@@ -196,8 +204,8 @@ in the data.
 
    .. code-block:: python
 
-      # You have to put the specifications in the ...
-      MetaFrame.fit_dataframe(df, var_specs=[{"name": "Cabin", "description": "some description"}])
+      specs = [ VarSpec(name="Cabin", description="Cabin number of the passenger.") ]
+      MetaFrame.fit_dataframe(df, var_specs=specs)
 
 .. tab:: Configuration file
 
@@ -205,7 +213,7 @@ in the data.
 
       [[var]]
       name = "Cabin"
-      description = "some_description"
+      description = "Cabin number of the passenger."
 
 
 Missing values: ``prop_missing``
@@ -218,8 +226,8 @@ overwrite this with the ``prop_missing`` parameter:
 
    .. code-block:: python
 
-      # You have to put the specifications in the ...
-      MetaFrame.fit_dataframe(df, var_specs=[{"name": "Cabin", "prop_missing": 0.2}])
+      specs = [ VarSpec(name="Cabin", prop_missing=0.2) ]
+      MetaFrame.fit_dataframe(df, var_specs=specs)
 
 .. tab:: Configuration file
 
@@ -239,8 +247,10 @@ You can set the privacy only for specific columns:
 
    .. code-block:: python
 
-      # You have to put the specifications in the ...
-      MetaFrame.fit_dataframe(df, var_specs=[{"name": "Cabin", "privacy": "disclosure"}])
+      from metasyncontrib.disclosure import DisclosurePrivacy
+
+      specs = [ VarSpec(name="Cabin", privacy=DisclosurePrivacy()) ]
+      MetaFrame.fit_dataframe(df, var_specs=specs)
 
 .. tab:: Configuration file
 
@@ -263,8 +273,8 @@ increasing. When the column represents a variable that is known to be unique (su
 
    .. code-block:: python
 
-      # You have to put the specifications in the ...
-      MetaFrame.fit_dataframe(df, var_specs=[{"name": "Cabin", "unique": True}])
+      specs = [ VarSpec(name="Cabin", unique=True) ]
+      MetaFrame.fit_dataframe(df, var_specs=specs)
 
 .. tab:: Configuration file
 
@@ -286,11 +296,11 @@ and let metasyn find the parameters or specify both the type and parameters of t
 
    .. code-block:: python
 
-      # You have to put the specifications in the ...
-      MetaFrame.fit_dataframe(df, var_specs=[
-         {"name": "Cabin",
-          "distribution": {"parameters": {"regex_data": "[A-F][0-9]{2,3}"}}
-         }])
+      from metasyn.distribution import RegexDistribution
+
+      cabin_dist = RegexDistribution("[A-F][0-9]{2,3}")
+      specs = [ VarSpec(name="Cabin", distribution=cabin_dist) ]
+      MetaFrame.fit_dataframe(df, var_specs=specs)
 
 .. tab:: Configuration file
 
