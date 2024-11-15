@@ -1,5 +1,5 @@
-Overview
-========
+Metasyn package overview
+========================
 
 This page aims to introduce the main classes and modules of the ``metasyn`` package. It is intended to be a high-level overview of the package's structure and functionality. For a thorough overview, please refer to the :doc:`API reference </api/metasyn>`. Clicking on a class or module name will automatically take you to its API reference section.
 

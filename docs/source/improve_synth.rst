@@ -188,9 +188,9 @@ The most common use-case for this is to set the distribution type and/or paramet
       prop_missing = 0.2
 
       [[var]]
-      name = ...
-      description = ...
-      distribution = ...
+      name = "Another column name"
+      description = "With descriptions."
+      # And more specifications for that column after this.
 
 
 Description: ``description``

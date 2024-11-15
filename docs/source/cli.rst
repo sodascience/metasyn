@@ -134,26 +134,7 @@ The ``create-meta`` command also takes one optional argument:
 
 .. admonition:: Generating a GMF file without a dataset
 
-   It is also possible to create a GMF file (and to generate synthetic data from there) without every inputting a dataset. Adding columns not present in the input dataset is also possible using the same method.
-
-   This can be done by supplying a configuration file that fully specifies the columns that should be generated. For each to be generated column, you need also need to set the `data_free` parameter to `true`.
-
-   It is also required to set the number of rows under the `general` section.
-   
-   For example, to create a GMF file that can be used to generate 100 rows of synthetic data with a single column `PassengerId`, that is unique and has a discrete distribution, you can use the following configuration file:
-
-      .. code-block:: toml
-
-         n_rows = 100
-
-         [[var]]
-
-         name = "PassengerId"
-         data_free = true
-         prop_missing = 0.0
-         description = "ID of the unfortunate passenger."
-         var_type = "discrete"
-         distribution = {implements = "core.unique_key", unique = true, parameters = {consecutive = true, low = 0}}
+   See our :doc:`section<datafree>` for how to create a configuration file without using a dataset. In this case, you will not need to supply any ``[input]`` to the ``create-meta`` command.
 
 
 Generating Synthetic Data
@@ -207,6 +188,7 @@ An example of how to use the ``synthesize`` subcommand is as follows:
 
 
 The ``synthesize`` command also takes two optional arguments:
+
 - ``-n [rows]`` or ``--num_rows [rows]``: To generate a specific number of data rows.
 - ``-p`` or ``--preview``: To preview the first six rows of synthesized data. This can be extremely useful for quick data validation without saving it to a file.
 
