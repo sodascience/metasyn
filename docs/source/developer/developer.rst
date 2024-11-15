@@ -1,4 +1,4 @@
-Developer Guide
+Developer guide
 =================
 
 This guide is mainly directed at developers working on the ``metasyn`` package, but it may be useful for users that want

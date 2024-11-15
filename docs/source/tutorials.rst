@@ -1,4 +1,4 @@
-Interactive Tutorials
+Interactive tutorials
 =====================
 
 If you're new to Python or simply want to quickly explore the basic features of metasyn,

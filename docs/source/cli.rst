@@ -81,7 +81,7 @@ The ``metasyn`` CLI should now be up and running within the Docker container and
             docker run -v $(pwd):/wd sodateam/metasyn:v1.0.3 --help
 
 
-Creating Generative Metadata
+Creating generative metadata
 ----------------------------
 The ``create-meta`` subcommand combines the estimation and serialization steps in the pipeline into one, this allows you to generate generative metadata for a tabular dataset (in CSV format), and store it in a GMF (Generative Metadata Format) file.
 
@@ -137,7 +137,7 @@ The ``create-meta`` command also takes one optional argument:
    See our :doc:`section<datafree>` for how to create a configuration file without using a dataset. In this case, you will not need to supply any ``[input]`` to the ``create-meta`` command.
 
 
-Generating Synthetic Data
+Generating synthetic data
 -------------------------
 The ``synthesize`` subcommand combines the deserialization and generation steps in the pipeline into one, and allows you to generate a synthetic dataset from a previously saved MetaFrame (stored as GMF file). 
 
@@ -199,7 +199,7 @@ The ``synthesize`` command also takes two optional arguments:
 
 
 
-Creating Validation schemas
+Creating validation schemas
 ---------------------------
 
 The ``schema`` subcommand generates a schema that describes the expected format of the GMF files. These can be used to validate GMF files before importing and loading them into a :obj:`MetaFrame<metasyn.metaframe.MetaFrame>`.

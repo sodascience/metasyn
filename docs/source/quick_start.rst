@@ -6,7 +6,7 @@ In this concise demonstration, you'll learn the basic functionality of metasyn b
 .. note:: 
    A more elaborate version of this page is also available as an interactive tutorial available on the :doc:`/tutorials` page.
 
-Importing Libraries
+Importing libraries
 -------------------
 
 The first step is to import the required Python libraries. For this example, we will need Polars (for dataframes) and metasyn.
@@ -18,7 +18,7 @@ The first step is to import the required Python libraries. For this example, we 
    from metasyn import MetaFrame, demo_file
 
 
-Loading the Dataset
+Loading the dataset
 -------------------
 
 Next, load the Titanic CSV file, for this we can use the built-in :meth:`metasyn.demo_file` function.
@@ -107,7 +107,7 @@ We can inspect the MetaFrame by printing it (``print(mf)``). This will produce t
 
 
 
-Saving and Loading the MetaFrame
+Saving and loading the MetaFrame
 --------------------------------
 
 The MetaFrame can be saved to a JSON file for future use, to do so we use the :func:`~metasyn.metaframe.MetaFrame.save` method on the MetaFrame (which in our case is named ``mf``), and pass in the desired filepath as a parameter. The following code saves the MetaFrame to a JSON file named "saved_metaframe.json":
@@ -122,7 +122,7 @@ Inversely, we can load a MetaFrame from a JSON file using the :func:`~metasyn.me
 
    mf = MetaFrame.load("saved_metaframe.json")
 
-Synthesizing the Data
+Synthesizing the data
 ---------------------
 
 With the :obj:`MetaFrame <metasyn.metaframe.MetaFrame>` loaded, you can synthesize new data. To do so, we simply call the :meth:`~metasyn.metaframe.MetaFrame.synthesize` method on the MetaFrame, and pass in the number of rows you would like to generate as a parameter. For example, to generate five rows of synthetic data we can use: 

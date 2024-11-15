@@ -3,7 +3,7 @@ About
 
 .. _contact us:
 
-Contact Us
+Contact us
 ----------
 
 **Metasyn** is a project by the `ODISSEI Social Data Science (SoDa) <https://odissei-data.nl/nl/soda/>`_ team and is currently being maintained by Erik-Jan van Kesteren, Raoul Schram and Samuel Spithorst.
@@ -16,7 +16,7 @@ Contact Us
 
 Do you have questions, suggestions, or remarks on the technical implementation? We welcome your feedback and contributions!
 
-GitHub Repository and Issue Tracker
+GitHub repository and issue tracker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Feel free to check out our `GitHub repository <https://github.com/sodascience/metasyn>`_ for the latest updates and to browse the source code.

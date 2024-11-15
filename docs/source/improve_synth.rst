@@ -95,7 +95,7 @@ situations such as outliers.
       parameters = {partition_size = 11}
 
 
-Number of Rows: ``n_rows``
+Number of rows: ``n_rows``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 By default metasyn will set the number of rows to the number of rows of your dataframe. This can be disclosive
@@ -117,7 +117,7 @@ or undesirable. In this case you can specify it manually:
       n_rows = 100
 
 
-Distribution Providers: ``dist_providers``
+Distribution providers: ``dist_providers``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Extra distribution providers can be added using plugins. By default all installed distribution providers
