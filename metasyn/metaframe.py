@@ -118,7 +118,7 @@ class MetaFrame():
         if dist_providers is not None:
             meta_config.dist_providers = dist_providers  # type: ignore
         if privacy is not None:
-            meta_config.defaults["privacy"] = privacy  # type: ignore
+            meta_config.defaults.privacy = privacy  # type: ignore
 
         if df is not None and not isinstance(df, pl.DataFrame):
             if isinstance(df, (str, pathlib.Path)):

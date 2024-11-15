@@ -1,12 +1,8 @@
-Developer Guide
+Developer guide
 =================
 
 This guide is mainly directed at developers working on the ``metasyn`` package, but it may be useful for users that want
 more control over the workings of the ``metasyn`` package.
-
-.. warning:: 
-    This section is intended for developers and advanced users. If you are new to ``metasyn``, please refer to the :doc:`/usage/usage` first. 
-
 
 .. toctree::
    :maxdepth: 1
@@ -14,7 +10,6 @@ more control over the workings of the ``metasyn`` package.
    
    contributing
    overview
-   GMF
    distributions
    plugins
 

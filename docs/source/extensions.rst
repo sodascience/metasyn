@@ -21,8 +21,7 @@ Custom privacy plug-ins
 If you wish to create a custom distribution plugin, please refer to the :ref:`privacy_plugin` section on the :doc:`/developer/plugins` developer documentation page.
 
 
-
-Distribution Plug-ins
+Distribution plug-ins
 ---------------------
 It is possible to add additional distribution types through plug-ins. Unfortunately, at this moment, no additional packages with distributions are publicly available. However, we encourage developers and users to explore the possibilities and contribute their custom distributions to enrich the ``metasyn`` ecosystem further. 
 

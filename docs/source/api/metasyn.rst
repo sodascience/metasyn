@@ -1,4 +1,4 @@
-API Reference
+API reference
 =============
 
 This section aims to give an overview of all classes, functions and methods in the metasyn package. 

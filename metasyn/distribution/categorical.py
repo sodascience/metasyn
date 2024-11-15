@@ -26,7 +26,7 @@ class MultinoulliDistribution(BaseDistribution):
     labels : list of str
         The labels for each category in the distribution, representing
         the possible outcomes.
-    probs : list of int
+    probs : list of float
         The probabilities or frequencies of each category. These will be
         normalized internally.
 
