@@ -65,6 +65,16 @@ class BasePrivacy(ABC):
         """
         return "Above are the parameters for the column {var.name}"
 
+    # def comment_general(self):
+    #     return (
+    #         "The parameters in the file were (unless otherwise stated) fitted with the default "
+    #         "# metasyn fitting scheme, which tries to find the most likely distribution for each\n"
+    #         "# of the columns. This may include disclosing the upper and lower bounds of columns.\n"
+    #         "# If this is not wanted, you should edit these values or use a different privacy"
+    #         " plugin.\n"
+    #         "# There will be no correlation/relation between the syntesized columns."
+    #     )
+
 class BasicPrivacy(BasePrivacy):
     """Class representing no privacy level.
 

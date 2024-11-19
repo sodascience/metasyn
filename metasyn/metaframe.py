@@ -370,8 +370,17 @@ class MetaFrame():
             validate_gmf_dict(self_dict)
 
         doc = tomlkit.loads(tomlkit.dumps(self_dict))
+        # doc.comment(
+        #     "The parameters in the file were (unless otherwise stated) fitted with the default "
+        #     "# metasyn fitting scheme, which tries to find the most suitable distribution for"
+        #     "\n# each of the columns."
+        #     "# There will be no correlation/relation between the synthesized columns."
+        # )
         doc["n_rows"].comment("Number of rows")
-        doc["n_columns"].comment("Number of columns")
+        doc["n_columns"].comment(
+            "Number of columns\n\n"
+            "# There will be no correlation/relation between the synthesized columns."
+        )
         for i in range(self.n_columns):
             var = self.meta_vars[i]
             doc["vars"][i].comment(f"Metadata for column with name {var.name}")
@@ -388,7 +397,6 @@ class MetaFrame():
                 and
                 np.all(var.distribution.labels == var.distribution.default_distribution().labels)
             )
-            print(var.name, multi_default)
             if "parameters" in var.creation_method:
                 parameter_comments.append(f"The above parameters for column '{var.name}' were "
                                            "manually set by the user, no data was (directly) used.")
