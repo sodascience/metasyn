@@ -377,7 +377,7 @@ class MetaFrame():
 # a dataset. No information about correlations or other relationships between columns is included.
 # This file can be used to generate privacy-conscious synthetic data, which consequently has zero
 # expected correlations and relationships between columns.
-# For each column, the statistics can be either manually specified or estimated from real data. 
+# For each column, the statistics can be either manually specified or estimated from real data.
 # This information, including how the estimation was done, is shown in the metadata below.
 #
 # For more information, see https://github.com/sodascience/metasyn
