@@ -370,16 +370,18 @@ class MetaFrame():
             validate_gmf_dict(self_dict)
 
         doc = tomlkit.loads(tomlkit.dumps(self_dict))
-        # doc.comment(
-        #     "The parameters in the file were (unless otherwise stated) fitted with the default "
-        #     "# metasyn fitting scheme, which tries to find the most suitable distribution for"
-        #     "\n# each of the columns."
-        #     "# There will be no correlation/relation between the synthesized columns."
-        # )
         doc["n_rows"].comment("Number of rows")
-        doc["n_columns"].comment(
-            "Number of columns\n\n"
-            "# There will be no correlation/relation between the synthesized columns."
+        doc["n_columns"].comment("""Number of columns
+
+# This is a metadata file with (limited) statistical information about each column separately in
+# a dataset. No information about correlations or other relationships between columns is included.
+# This file can be used to generate privacy-conscious synthetic data, which consequently has zero
+# expected correlations and relationships between columns.
+# For each column, the statistics can be either manually specified or estimated from real data. 
+# This information, including how the estimation was done, is shown in the metadata below.
+#
+# For more information, see https://github.com/sodascience/metasyn
+"""
         )
         for i in range(self.n_columns):
             var = self.meta_vars[i]
@@ -398,8 +400,10 @@ class MetaFrame():
                 np.all(var.distribution.labels == var.distribution.default_distribution().labels)
             )
             if "parameters" in var.creation_method:
-                parameter_comments.append(f"The above parameters for column '{var.name}' were "
-                                           "manually set by the user, no data was (directly) used.")
+                parameters = ", ".join(var.creation_method["parameters"])
+                parameter_comments.append(
+                    f"The parameters {parameters} for column '{var.name}' were "
+                    "manually set by the user, no data was (directly) used.")
             elif (var.distribution.matches_name("multinoulli") and multi_default):
                 parameter_comments.append("This mulinoulli distribution is the default one, no data"
                                           " was used.")
@@ -409,8 +413,6 @@ class MetaFrame():
             if (var.distribution.matches_name("multinoulli") and not multi_default):
                 counts = (var.distribution.probs*(1-var.prop_missing)*self.n_rows).round()
                 parameter_comments.append(f"Counts: {counts.astype(int)}\n")
-                # doc["vars"][i]["distribution"].add(tomlkit.comment(
-                    # f"Counts: {counts.astype(int)}\n"))
             par_comment = "\n# ".join(parameter_comments) + "\n\n"
             doc["vars"][i]["distribution"]["parameters"].add(tomlkit.comment(par_comment))
         if fp is None:
