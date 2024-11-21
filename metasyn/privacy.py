@@ -65,6 +65,7 @@ class BasePrivacy(ABC):
         """
         return "Above are the parameters for the column {var.name}"
 
+
 class BasicPrivacy(BasePrivacy):
     """Class representing no privacy level.
 
