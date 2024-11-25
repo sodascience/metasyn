@@ -1,4 +1,4 @@
-Developer Reference
+Developer reference
 ===================
 
 This section is intended for those that want to contribute to the metasyn package, or simply want a deeper understanding of how it works. It contains the classes, functions and modules that are not in the rest of the reference API. These are mostly elements that are not directly used by users, but are important for developers of the metasyn package to understand the architecture.

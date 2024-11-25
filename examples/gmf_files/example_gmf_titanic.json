@@ -4,9 +4,9 @@
     "provenance": {
         "created by": {
             "name": "metasyn",
-            "version": "1.0.1"
+            "version": "1.0.2.dev34+gd68929e"
         },
-        "creation time": "2024-07-11T12:03:55.877693"
+        "creation time": "2024-10-18T10:35:19.433034"
     },
     "vars": [
         {
@@ -15,14 +15,14 @@
             "dtype": "Int64",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.uniform",
+                "implements": "core.unique_key",
                 "version": "1.0",
                 "provenance": "builtin",
-                "class_name": "DiscreteUniformDistribution",
-                "unique": false,
+                "class_name": "UniqueKeyDistribution",
+                "unique": true,
                 "parameters": {
                     "lower": 1,
-                    "upper": 892
+                    "consecutive": true
                 }
             },
             "creation_method": {

@@ -8,7 +8,7 @@ a series of values, and for generating synthetic data based on the fitted
 distribution. Each distribution class also provides a way to calculate the
 information criterion, used for selecting the best distribution for
 a given set of values.
-"""  # pylint: disable=invalid-name
+"""
 
 from metasyn.distribution.categorical import MultinoulliDistribution
 from metasyn.distribution.continuous import (

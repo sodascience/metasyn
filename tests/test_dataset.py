@@ -1,3 +1,4 @@
+"""Testing module for fitting dataframes for both pandas and polars."""
 from pathlib import Path
 from random import random
 
@@ -6,6 +7,7 @@ import polars as pl
 import pytest
 from pytest import mark
 
+from metasyn.demo.dataset import _AVAILABLE_DATASETS, _get_demo_class, demo_dataframe, demo_file
 from metasyn.metaframe import MetaFrame
 from metasyn.provider import get_distribution_provider
 from metasyn.var import MetaVar
@@ -31,12 +33,14 @@ def _read_csv(fp, dataframe_lib):
         df = pd.read_csv(fp, dtype=dtypes)
         return df.iloc[:100]
     else:
-        df = pl.read_csv(fp, schema_overrides={x: pl.Categorical for x, x_type in dtypes.items() if x_type == "category"})
+        df = pl.read_csv(fp, schema_overrides={x: pl.Categorical for x, x_type in dtypes.items()
+                                               if x_type == "category"})
         return df[:100]
 
 
 @mark.parametrize("dataframe_lib", ["polars", "pandas"])
 def test_dataset(tmp_path, dataframe_lib):
+    """Integration test that loads the CSV, and creates a MetaFrame from that."""
     titanic_fp = Path("tests", "data", "titanic.csv")
     tmp_fp = tmp_path / "tmp.json"
     df = _read_csv(titanic_fp, dataframe_lib)
@@ -77,10 +81,11 @@ def test_dataset(tmp_path, dataframe_lib):
         dataset.n_rows = 100
 
     check_dataset(dataset)
-    dataset.to_json(tmp_fp)
-    dataset = MetaFrame.from_json(tmp_fp)
+    dataset.save_json(tmp_fp)
+    dataset = MetaFrame.load_json(tmp_fp)
     check_dataset(dataset)
 
+    # Check the description functionality of metasyn.
     dataset.descriptions = {"Embarked": "Some description", "Sex": "Other description"}
     assert dataset.descriptions["Embarked"] == "Some description"
     with pytest.raises(AssertionError):
@@ -105,6 +110,7 @@ def test_dataset(tmp_path, dataframe_lib):
 
 
 def test_distributions(tmp_path):
+    """Create all available distributions and save a metaframe with it."""
     tmp_fp = tmp_path / "tmp.json"
 
     provider = get_distribution_provider()
@@ -113,4 +119,42 @@ def test_distributions(tmp_path):
             var = MetaVar(name="None", var_type=var_type, distribution=dist.default_distribution(),
                           prop_missing=random())
             dataset = MetaFrame([var], n_rows=10)
-            dataset.to_json(tmp_fp)
+            dataset.save_json(tmp_fp)
+
+@mark.parametrize(
+    "dataset_name", list(_AVAILABLE_DATASETS)
+)
+def test_demo_datasets(tmp_path, dataset_name):
+    """Test all built-in demo datasets and see if they can be synthesized."""
+    demo_fp = demo_file(dataset_name)
+    demo_df = demo_dataframe(dataset_name)
+    demo_class = _get_demo_class(dataset_name)
+
+    assert demo_fp.is_file()
+    assert isinstance(demo_df, pl.DataFrame)
+
+    mf = MetaFrame.fit_dataframe(demo_df, var_specs=demo_class.var_specs)
+    assert isinstance(mf, MetaFrame)
+
+    tmp_file = tmp_path / "gmf.json"
+    mf.save_json(tmp_file)
+    mf = MetaFrame.load_json(tmp_file)
+
+    df_syn = mf.synthesize(100)
+
+    for col, dtype in demo_class.schema.items():
+        assert dtype == df_syn[col].dtype
+
+
+def test_demo_non_exist():
+    """Check that trying to get a demo dataset that doesn't exist raises an error."""
+    with pytest.raises(ValueError):
+        demo_file("non-existing-dataset")
+
+
+def test_create_dataset(tmpdir):
+    """Test re-creation of the test dataset."""
+    test_class = _get_demo_class("test")
+    test_class.create(tmpdir/"test.csv")
+    df = pl.read_csv(Path(tmpdir/"test.csv"))
+    assert isinstance(df, pl.DataFrame)

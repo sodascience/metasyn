@@ -9,12 +9,12 @@ import polars as pl
 from metasyn.distribution.base import BaseDistribution, metadist
 
 
-@metadist(implements="core.na", var_type="string")
+@metadist(implements="core.na", var_type=["continuous", "discrete", "categorical", "string"])
 class NADistribution(BaseDistribution):
     """Distribution that always returns NA values (None)."""
 
     @classmethod
-    def _fit(cls, values: pl.Series) -> BaseDistribution:
+    def _fit(cls, values: pl.Series) -> BaseDistribution: # noqa: ARG003
         return cls()
 
     @classmethod
@@ -31,5 +31,5 @@ class NADistribution(BaseDistribution):
     def _param_schema(cls):
         return {}
 
-    def information_criterion(self, values):  # pylint: disable=unused-argument
+    def information_criterion(self, values): # noqa: ARG002
         return 1e10

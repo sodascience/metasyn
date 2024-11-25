@@ -7,6 +7,7 @@ from typing import Any, Optional, Union
 
 from metasyn.distribution.base import BaseDistribution
 from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
+from metasyn.util import ALL_VAR_TYPES
 
 
 @dataclass
@@ -164,7 +165,7 @@ class VarSpec():  # pylint: disable=too-few-public-methods
             privacy: Optional[BasePrivacy] = None,
             prop_missing: Optional[float] = None,
             description: Optional[str] = None,
-            data_free: bool = False,
+            data_free: Optional[bool] = None,
             var_type: Optional[str] = None):
 
         self.name = name
@@ -183,6 +184,9 @@ class VarSpec():  # pylint: disable=too-few-public-methods
         if self.data_free and not self.dist_spec.fully_specified:
             raise ValueError("Error creating variable specification: data free variable should have"
                             f" 'implements' and 'parameters'. {self}")
+        if self.var_type is not None and self.var_type not in ALL_VAR_TYPES:
+            raise ValueError(f"Cannot create variable '{self.name}': unknown variable type "
+                             f"'{self.var_type}'. Choose from {ALL_VAR_TYPES}.")
 
     @classmethod
     def from_dict(cls, var_dict: dict) -> VarSpec:
@@ -198,3 +202,32 @@ class VarSpec():  # pylint: disable=too-few-public-methods
             A VarSpec instance.
         """
         return cls(**var_dict)
+
+
+@dataclass
+class VarDefaults():
+    """Dataclass for variable defaults.
+
+    Parameters
+    ----------
+    data_free:
+        Whether the variable is completely synthetic or is based on real data.
+    prop_missing:
+        Proportion of missing values.
+    distribution:
+        Dictionary containing default distributions for each variable type.
+    privacy:
+        Privacy to be used by default for estimating distributions.
+    """
+
+    data_free: bool = False
+    prop_missing: Optional[float] = None
+    distribution: Optional[dict] = None
+    privacy: Optional[BasePrivacy] = None
+
+    def __post_init__(self):
+        if isinstance(self.privacy, dict):
+            self.privacy = get_privacy(**self.privacy)
+        elif not isinstance(self.privacy, BasePrivacy):
+            self.privacy = get_privacy("none")
+

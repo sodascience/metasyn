@@ -6,7 +6,7 @@ from typing import Iterable, Optional, Union
 # from lingua._constant import LETTERS, PUNCTUATION
 import regex
 from faker import Faker
-from lingua import LanguageDetectorBuilder  # pylint: disable=no-name-in-module
+from lingua import LanguageDetectorBuilder
 from regexmodel import NotFittedError, RegexModel
 from scipy.stats import poisson
 
@@ -40,6 +40,7 @@ class FakerDistribution(BaseDistribution):
     --------
     >>> FakerDistribution(faker_type="city", locale="en_US")
     >>> FakerDistribution(faker_type="address", locale="nl_NL")
+
     """
 
     def __init__(self, faker_type: str, locale: str = "en_US"):
@@ -48,15 +49,14 @@ class FakerDistribution(BaseDistribution):
         self.fake: Faker = Faker(locale=locale)
 
     @classmethod
-    def _fit(cls, values, faker_type: str = "city", locale: str = "en_US"):  \
-            # pylint: disable=arguments-differ
+    def _fit(cls, values, faker_type: str = "city", locale: str = "en_US"): # noqa: ARG003
         """Select the appropriate faker function and locale."""
         return cls(faker_type, locale)
 
     def draw(self):
         return getattr(self.fake, self.faker_type)()
 
-    def information_criterion(self, values: Iterable) -> float:
+    def information_criterion(self, values: Iterable) -> float: # noqa: ARG002
         return 99999
 
     @classmethod
@@ -102,6 +102,7 @@ class FreeTextDistribution(BaseDistribution):
         if None do not make sentences.
     avg_words:
         Average number of words per (non-NA) row.
+
     """
 
     def __init__(self, locale: str, avg_sentences: Optional[float], avg_words: float):
@@ -146,6 +147,7 @@ class FreeTextDistribution(BaseDistribution):
         -------
         language:
             Two letter ISO code to represent the language, or None if it could not be determined.
+
         """
         detector = LanguageDetectorBuilder.from_all_languages().with_low_accuracy_mode().build()
         lang = detector.detect_language_of("\n".join(values))
@@ -209,6 +211,7 @@ class StringConstantDistribution(BaseConstantDistribution):
     Examples
     --------
     >>> ConstantDistribution("some_string")
+
     """
 
     @classmethod
@@ -328,6 +331,12 @@ class RegexDistribution(BaseDistribution):
     def default_distribution(cls):
         return cls(r"[ABC][0-9]{3,4}")
 
+    def information_criterion(self, values):
+        mean_len = values.str.len_chars().mean()
+        diff = ((values.str.len_chars() - mean_len)**2).mean()
+        if mean_len > 3 and diff < 1:
+            return -2
+        return 0
 
 @metadist(implements="core.regex", var_type="string")
 class UniqueRegexDistribution(UniqueDistributionMixin, RegexDistribution):

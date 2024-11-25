@@ -151,3 +151,6 @@ docs/paper/media
 
 # Generated api docs stuff
 docs/source/api/generated
+
+# uv stuff
+uv.lock

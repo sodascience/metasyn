@@ -1,3 +1,4 @@
+"""Module with tests for the command line interface."""
 import json
 import subprocess
 import sys
@@ -15,6 +16,7 @@ TMP_DIR_PATH = None
 
 @fixture(scope="module")
 def tmp_dir(tmp_path_factory) -> Path:
+    """Directory with a configuration, dataset and GMF file."""
     global TMP_DIR_PATH
     if TMP_DIR_PATH is None:
         # Create a temporary input file
@@ -36,8 +38,9 @@ def tmp_dir(tmp_path_factory) -> Path:
             "Fare": float
         }
         data_frame = pl.read_csv(csv_fp, schema_overrides=csv_dt)[:100]
-        meta_frame = MetaFrame.fit_dataframe(data_frame, var_specs=[{"name": "PassengerId", "distribution": {"unique": True}}])
-        meta_frame.to_json(json_path)
+        meta_frame = MetaFrame.fit_dataframe(data_frame, var_specs=[
+            {"name": "PassengerId", "distribution": {"unique": True}}])
+        meta_frame.save_json(json_path)
         config_fp = TMP_DIR_PATH / "config.ini"
         with open(config_fp, "w") as handle:
             handle.write("""
@@ -55,8 +58,7 @@ distribution = {implements = "lognormal"}
 
 @mark.parametrize("ext", [".csv", ".feather", ".parquet", ".pkl", ".xlsx"])
 def test_cli(tmp_dir, ext):
-    """A simple integration test for reading and writing using the CLI"""
-
+    """A simple integration test for creating synthetic data from a GMF file."""
     # create out file path with correct extension
     out_file = tmp_dir / f"titanic{ext}"
 
@@ -82,6 +84,7 @@ def test_cli(tmp_dir, ext):
 
 @mark.parametrize("config", [True, False])
 def test_create_meta(tmp_dir, config):
+    """CLI test on creating metadata from a csv."""
     out_file = tmp_dir / "test.json"
     cmd = [
         Path(sys.executable).resolve(),     # the python executable
@@ -96,11 +99,12 @@ def test_create_meta(tmp_dir, config):
     result = subprocess.run(cmd, check=False, capture_output=True)
     assert result.returncode == 0
     assert out_file.is_file()
-    meta_frame = MetaFrame.from_json(out_file)
+    meta_frame = MetaFrame.load_json(out_file)
     assert len(meta_frame.meta_vars) == 12
 
 
 def test_schema_list():
+    """Test whether all plugins/schemas are listed."""
     cmd = [
         Path(sys.executable).resolve(),     # the python executable
         Path("metasyn", "__main__.py"),     # the cli script
@@ -113,6 +117,7 @@ def test_schema_list():
 
 
 def test_schema_gen(tmp_dir):
+    """Test whether the metadata schemas can be created."""
     titanic_json = tmp_dir / "titanic.json"
     cmd = [
         Path(sys.executable).resolve(),     # the python executable
@@ -134,6 +139,7 @@ def test_schema_gen(tmp_dir):
 
 
 def test_datafree(tmp_dir):
+    """Test generating synthetic data from only a configuration file and no real data."""
     gmf_fp = tmp_dir / "gmf_out.json"
     syn_fp = tmp_dir / "test_out.csv"
     cmd = [
@@ -145,7 +151,7 @@ def test_datafree(tmp_dir):
     ]
     result = subprocess.run(cmd, check=False, capture_output=True)
     assert result.returncode == 0
-    meta_frame = MetaFrame.from_json(gmf_fp)
+    meta_frame = MetaFrame.load_json(gmf_fp)
     assert meta_frame.n_rows == 100
     assert len(meta_frame.meta_vars) == 3
     cmd2 = [

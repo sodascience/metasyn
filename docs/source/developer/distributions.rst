@@ -62,10 +62,6 @@ If the distribution has subsequently draws that are not independent, it is recom
 
 It is recommended to also implement :meth:`~metasyn.distribution.base.BaseDistribution.information_criterion`. This is a class method used to determine which distribution gets selected during the fitting process for a series of values. The distribution with the lowest information criterion of the correct variable type will be selected. For discrete and continuous distributions it is currently implemented as `BIC <https://en.wikipedia.org/wiki/Bayesian_information_criterion>`_). 
 
-.. warning:: 
-
-    Despite not being an abstract method in :class:`~metasyn.distribution.base.BaseDistribution`, it is recommended to implement a constructor (``__init__``) method in derived classes to initialize a distribution with a set of (distribution specific) parameters. 
-
 There are more methods, but this is a good starting point when implementing a new distribution.
 For an overview of the rest of the methods and implementation details, refer to the :class:`~metasyn.distribution.base.BaseDistribution` class.
 
@@ -120,10 +116,6 @@ For example, the unique variants of the :class:`~metasyn.distribution.regex.Rege
 
     @metadist(implements="core.faker", var_type="string")
     class UniqueFakerDistribution(UniqueDistributionMixin, FakerDistribution):
-
-.. warning:: 
-    
-    This mixin class has a default implementation that will work for many distributions, but it may not be appropriate for all. Be sure to check the implementation before using it. 
 
 
 Other modules

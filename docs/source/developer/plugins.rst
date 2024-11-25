@@ -1,7 +1,7 @@
 Creating plug-ins 
 ==================
 
-As seen on the :doc:`/usage/extensions` page, metasyn can be extended by plug-ins. This page describes how to create your own plug-ins.
+As seen on the :doc:`/extensions` page, metasyn can be extended by plug-ins. This page describes how to create your own plug-ins.
 
 .. _privacy_plugin:
 

@@ -50,10 +50,10 @@ class MetaVar:
         it will be assumed to have been created by the user.
     """
 
-    def __init__(
-        self,  # pylint: disable=too-many-arguments
+    def __init__( # noqa: PLR0913
+        self,
         name: str,
-        var_type: str,
+        var_type: Optional[str],
         distribution: BaseDistribution,
         dtype: str = "unknown",
         description: Optional[str] = None,
@@ -61,6 +61,11 @@ class MetaVar:
         creation_method: Optional[dict] = None,
     ):
         self.name = name
+        if var_type is None:
+            if not isinstance(distribution.var_type, str):
+                raise ValueError("Failed to infer variable type for variable '{name}'"
+                                 " supply var_type or a different distribution.")
+            var_type = distribution.var_type
         self.var_type = var_type
         self.distribution = distribution
         self.dtype = dtype
@@ -74,6 +79,11 @@ class MetaVar:
                 f"Cannot create variable '{self.name}' with proportion missing "
                 "outside range [0, 1]"
             )
+        if self.dtype == "unknown":
+            if self.var_type == "categorical":
+                self.dtype = "Categorical"
+            else:
+                self.dtype = str(pl.Series([self.distribution.draw()]).dtype)
 
     @staticmethod
     def get_var_type(series: pl.Series) -> str:
@@ -155,6 +165,8 @@ class MetaVar:
             f"- Proportion of Missing Values: {self.prop_missing:.4f}\n"
             f"- Distribution:\n{distribution_formatted}\n"
         )
+    def __repr__(self) -> str:
+        return f"MetaVar <{self.name}, {self.distribution.implements}>"
 
     @classmethod
     def fit(
@@ -232,9 +244,14 @@ class MetaVar:
         """
         self.distribution.draw_reset()
         value_list = [self.draw() for _ in range(n)]
-        if "Categorical" in self.dtype:
-            return pl.Series(value_list, dtype=pl.Categorical)
-        return pl.Series(value_list)
+        pl_type = self.dtype.split("(")[0]
+
+        # Workaround for polars issue with numpy 2.0
+        if pl_type == "Boolean":
+            value_list = [None if x is None else bool(x) for x in value_list]
+
+        # Some dtypes have extra information, discard that
+        return pl.Series(value_list, dtype=getattr(pl, pl_type))
 
     @classmethod
     def from_dict(

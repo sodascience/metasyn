@@ -26,7 +26,7 @@ def convert_numpy_datetime(time_obj: np.datetime64) -> dt.datetime:
     unix_epoch = np.datetime64(0, 's')
     one_second = np.timedelta64(1, 's')
     seconds_since_epoch = (time_obj - unix_epoch) / one_second
-    return dt.datetime.utcfromtimestamp(float(seconds_since_epoch))
+    return dt.datetime.fromtimestamp(float(seconds_since_epoch))
 
 
 class BaseUniformDistribution(BaseDistribution):
@@ -97,7 +97,7 @@ class BaseUniformDistribution(BaseDistribution):
         """Get the minimum time delta."""
         return dt.timedelta(**{self.precision: 1})
 
-    def information_criterion(self, values):
+    def information_criterion(self, values): # noqa: ARG002
         return 0.0
 
     def _param_dict(self):

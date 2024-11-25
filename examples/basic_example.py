@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from metasyn import MetaFrame, demo_dataframe
 from metasyn.config import VarSpec
 
@@ -14,12 +16,13 @@ specs = [
 mf = MetaFrame.fit_dataframe(df, var_specs=specs)
 
 # write to json
-mf.export("example_gmf_simple.json")
+gmf_path = Path("examples", "gmf_files", "example_gmf_simple.json")
+mf.save(gmf_path)
 
 # then, export json from secure environment
 
 # outside secure environment, load json
-mf_out = MetaFrame.from_json("example_gmf_simple.json")
+mf_out = MetaFrame.load_json(gmf_path)
 
 # create a fake dataset
 df_syn = mf_out.synthesize(10)

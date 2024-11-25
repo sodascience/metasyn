@@ -1,3 +1,5 @@
+"""Module for testing parsing configurations (from file or otherwise)."""
+
 from pathlib import Path
 
 import pytest
@@ -25,6 +27,7 @@ from metasyn.varspec import DistributionSpec, VarSpec
     ]
 )
 def test_dist_spec(input, error):
+    """Test parsing distribution parameters for different inputs."""
     if error:
         with pytest.raises(Exception):
             DistributionSpec.parse(input)
@@ -33,6 +36,7 @@ def test_dist_spec(input, error):
         assert isinstance(dist_spec, DistributionSpec)
 
 def test_var_spec():
+    """Test various ways to initialize the VarSpec class."""
     var_spec = VarSpec("test", privacy={"name": "none", "parameters": {}})
     assert var_spec.name == "test"
     assert isinstance(var_spec.privacy, BasePrivacy)
@@ -47,6 +51,7 @@ def test_var_spec():
 
 
 def test_meta_config_datafree():
+    """Test for creating a MetaConfig class from a .toml file without data."""
     meta_config = MetaConfig.from_toml(Path("tests", "data", "no_data_config.toml"))
     assert meta_config.n_rows == 100
     assert len(meta_config.var_specs) == 3
@@ -69,6 +74,7 @@ def test_meta_config_datafree():
 
 
 def test_meta_config():
+    """Test the creation of a MetaConfig class that is not data free."""
     meta_config = MetaConfig.from_toml(Path("tests", "data", "example_config.toml"))
     assert len(meta_config.var_specs) == 5
     var_spec = meta_config.get("Cabin")

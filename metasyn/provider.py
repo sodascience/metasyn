@@ -155,6 +155,7 @@ class BuiltinDistributionProvider(BaseDistributionProvider):
         DateTimeConstantDistribution,
         DateConstantDistribution,
         TimeConstantDistribution,
+        NADistribution,
     ]
     legacy_distributions = []
 
@@ -241,7 +242,8 @@ class DistributionProviderList():
         """
         dist_spec = var_spec.dist_spec
         unique = dist_spec.unique if dist_spec.unique else False
-        assert dist_spec.implements is not None and var_spec.var_type is not None
+        if dist_spec.implements is None:
+            raise ValueError("Cannot create distribution without specifying the 'implements' key.")
         dist_class = self.find_distribution(
             dist_spec.implements, var_spec.var_type,
             privacy=BasicPrivacy(), unique=unique)
@@ -284,21 +286,27 @@ class DistributionProviderList():
             if len(dist_list_unq) > 0:
                 dist_inst_unq = [d.fit(series, **privacy.fit_kwargs) for d in dist_list_unq]
                 dist_bic_unq = [d.information_criterion(series) for d in dist_inst_unq]
-                if np.min(dist_bic_unq) < np.min(dist_bic):
+                # We don't want to warn about potential uniqueness too easily
+                # The offset is a heuristic that ensures about 12 rows are needed for uniqueness
+                # Or 5 rows for consecutive values.
+                if np.min(dist_bic_unq) + 16 < np.min(dist_bic):
+                    best_dist = dist_inst_unq[np.argmin(dist_bic_unq)]
+                    if best_dist.implements == "core.unique_key" and best_dist.consecutive:  # type: ignore
+                        return best_dist
                     warnings.warn(
-                        f"\nVariable '{series.name}' was detected to be unique, but has not"
-                        f" explicitly been set to unique.\n"
-                        f"To generate only unique values for column '{series.name}', "
-                        f"set unique to True.\n"
-                        f"To dismiss this warning, set unique to False.",
+                        f"\nMetasyn detected that variable '{series.name}' is potentially unique.\n"
+                        f"Use var_spec=[VarSpec(\"{series.name}\", unique=True)] to make it unique."
+                        f"\nTo dismiss this warning use [VarSpec(\"{series.name}\", unique=False)]."
+                        "\nIf you are using a configuration file add distribution = {unique = True}"
+                        f" for the variable with name '{series.name}'.",
                         UserWarning
                     )
 
         return dist_instances[np.argmin(dist_bic)]
 
-    def find_distribution(self,  # pylint: disable=too-many-branches
+    def find_distribution(self,
                           dist_name: str,
-                          var_type: str,
+                          var_type: Optional[str],
                           privacy: Optional[BasePrivacy] = BasicPrivacy(),
                           unique: bool = False,
                           version: Optional[str] = None) -> type[BaseDistribution]:
@@ -324,12 +332,9 @@ class DistributionProviderList():
         tuple[Type[BaseDistribution], dict[str, Any]]:
             A distribution and the arguments to create an instance.
         """
-        if NADistribution.matches_name(dist_name):
-            return NADistribution
-
         versions_found = []
         for dist_class in self.get_distributions(
-                privacy, var_type=var_type, unique=unique) + [NADistribution]:
+                privacy, var_type=var_type, unique=unique):
             if dist_class.matches_name(dist_name):
                 if version is None or version == dist_class.version:
                     return dist_class
@@ -344,18 +349,7 @@ class DistributionProviderList():
             if dist_class.matches_name(dist_name)]
 
         if len(legacy_distribs + versions_found) == 0:
-            registry = get_registry()
-            available = {}
-            for plugin, meta in registry.items():
-                if dist_name in meta["distributions"]:
-                    available[plugin] = meta["url"]
-            if len(available) > 0:
-                avail_str = "\n".join("{plugin}: {url}" for plugin, url in available.items())
-                raise ValueError(f"You are trying to use a distribution named '{dist_name}', \n"
-                                 f"but it is not installed.\n"
-                                 f"\n"
-                                 f"{dist_name} is available from:\n\n{avail_str}\n")
-            raise ValueError(f"Cannot find distribution with name '{dist_name}'.")
+            self._handle_distribution_not_found(dist_name, var_type, privacy, unique, version)
 
         if len(versions_found) == 0:
             warnings.warn("Distribution with name '{dist_name}' is deprecated and "
@@ -393,6 +387,30 @@ class DistributionProviderList():
         warnings.warn("Version mismatch ({version}) versus ({all_dist[i_max].version}))")
         return all_dist[i_max]
 
+    def _handle_distribution_not_found(self, dist_name, var_type, privacy, unique, version):
+        """Raise a ValueError with extra information."""
+        registry = get_registry()
+        available = {}
+        for plugin, meta in registry.items():
+            if dist_name in meta["distributions"]:
+                available[plugin] = meta["url"]
+        if len(available) > 0:
+            avail_str = "\n".join("{plugin}: {url}" for plugin, url in available.items())
+            raise ValueError(f"You are trying to use a distribution named '{dist_name}', \n"
+                                f"but it is not installed.\n"
+                                f"\n"
+                                f"{dist_name} is available from:\n\n{avail_str}\n")
+        if var_type is not None:
+            dist_other_type = self.find_distribution(dist_name, var_type=None,
+                                                        privacy=privacy, unique=unique,
+                                                        version=version)
+            extra_info = ("Distribution is available with different type(s):"
+                            f" {dist_other_type.var_type}")
+        else:
+            extra_info = ""
+        raise ValueError(f"Cannot find distribution with name '{dist_name}'. {extra_info}")
+
+
     def _fit_distribution(self, series: pl.Series,
                           dist_spec: DistributionSpec,
                           var_type: str,
@@ -429,11 +447,8 @@ class DistributionProviderList():
         dist_class = self.find_distribution(dist_spec.implements, var_type, privacy=privacy,
                                             unique=unique)
 
-        if issubclass(dist_class, NADistribution):
-            dist_instance = dist_class.default_distribution()
-        else:
-            fit_kwargs = dist_spec.fit_kwargs
-            dist_instance = dist_class.fit(series, **privacy.fit_kwargs, **fit_kwargs)
+        fit_kwargs = dist_spec.fit_kwargs
+        dist_instance = dist_class.fit(series, **privacy.fit_kwargs, **fit_kwargs)
         return dist_instance
 
     def get_distributions(self, privacy: Optional[BasePrivacy] = None,

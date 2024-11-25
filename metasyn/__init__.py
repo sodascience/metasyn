@@ -7,7 +7,7 @@ A MetaFrame is metadata describing a table, augmented with statistical
 information on the columns. It captures individual distributions and
 features and enables generation of synthetic data based on it.
 
-2. Serialization and deserialization: Metasyn can export a
+2. Serialization and deserialization: Metasyn can save a
 MetaFrame into an easy to read GMF file. This allows users to audit,
 understand, and modify their data generation model. These GMF files
 can also be imported back into Metasyn to generate synthetic data.
