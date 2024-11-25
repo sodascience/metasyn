@@ -145,12 +145,13 @@ class MetaFrame():
                     f"Column with name '{var_spec.name}' not found and not declared as "
                      "data_free.")
             distribution = meta_config.dist_providers.create(var_spec)
+            prop_missing = 0.0 if var_spec.prop_missing is None else var_spec.prop_missing
             var = MetaVar(
                 var_spec.name,
                 var_spec.var_type,
                 distribution,
                 description=var_spec.description,
-                prop_missing=var_spec.prop_missing,
+                prop_missing=prop_missing,
             )
             all_vars.append(var)
         if df is None:
