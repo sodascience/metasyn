@@ -251,10 +251,10 @@ class DistributionProviderList():
         try:
             return dist_class(**dist_spec.parameters)
         except TypeError as err:
-            dist_param = set(signature(dist_class.__init__).parameters) - {"self"}
+            dist_param = set(signature(dist_class.__init__).parameters) - {"self"}  # type: ignore
             if "args" in dist_param or "kwargs" in dist_param:
                 raise err
-            unknown_param = set(dist_spec.parameters) - dist_param
+            unknown_param = set(dist_spec.parameters) - dist_param  # type: ignore
             if len(unknown_param) > 0:
                 raise TypeError(f"Unknown parameters {unknown_param} for variable {var_spec.name}.")
             raise err
