@@ -21,17 +21,17 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "License :: OSI Approved :: MIT License",
 ]
 
 dependencies = [
     "polars>=1",
     "tqdm",
-    "numpy>=1.20",
+    "numpy>=1.20;python_version<'3.12'",
+    "numpy>1.24.4;python_version>='3.12'",
     "pyarrow", # Dependency of polars since we're converting from pandas.
     "scipy",
-    "numpy>=1.20",
     "faker",
     "lingua-language-detector",
     "regex",

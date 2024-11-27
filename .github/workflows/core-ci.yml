@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     runs-on: "ubuntu-latest"
     steps:
       - uses: actions/checkout@v4
@@ -35,12 +35,12 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
         include:
             - os: macos-latest
-              python-version: "3.12"
+              python-version: "3.13"
             - os: windows-latest
-              python-version: "3.12"
+              python-version: "3.13"
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
