@@ -7,13 +7,10 @@ RUN apt update && apt install -y git
 
 # Install metasyn
 COPY . metasyn/
-RUN pip install metasyn/
+RUN pip install ./metasyn[extra]
 
 # Remove metasyn folder
 RUN rm -r metasyn/
-
-# For excel output use optional XlsxWriter package
-RUN pip install XlsxWriter
 
 # Remove system dependencies
 RUN apt remove -y git && apt autoremove -y
