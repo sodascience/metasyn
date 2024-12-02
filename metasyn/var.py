@@ -104,24 +104,27 @@ class MetaVar:
         """
         if not isinstance(series, pl.Series):
             series = pl.Series(series)
-        if series.dtype.base_type() in [pl.Categorical, pl.Enum]:
-            polars_dtype = "categorical"
-        else:
-            try:
-                polars_dtype = pl.datatypes.dtype_to_py_type(series.dtype).__name__
-            except NotImplementedError:
-                polars_dtype = pl.datatypes.dtype_to_ffiname(series.dtype)
+        polars_dtype = str(series.dtype.base_type())
 
         convert_dict = {
-            "int": "discrete",
-            "float": "continuous",
-            "date": "date",
-            "datetime": "datetime",
-            "time": "time",
-            "str": "string",
-            "categorical": "categorical",
-            "bool": "categorical",
-            "NoneType": "continuous",
+            "Int8": "discrete",
+            "Int16": "discrete",
+            "Int32": "discrete",
+            "Int64": "discrete",
+            "UInt8": "discrete",
+            "UInt16": "discrete",
+            "UInt32": "discrete",
+            "UInt64": "discrete",
+            "Float32": "continuous",
+            "Float64": "continuous",
+            "Date": "date",
+            "Datetime": "datetime",
+            "Time": "time",
+            "String": "string",
+            "Categorical": "categorical",
+            "Enum": "categorical",
+            "Boolean": "categorical",
+            "Null": "continuous",
         }
         try:
             return convert_dict[polars_dtype]
