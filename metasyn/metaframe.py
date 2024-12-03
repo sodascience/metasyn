@@ -101,6 +101,10 @@ class MetaFrame():
             of rows in the input dataframe.
         progress_bar:
             Whether to create a progress bar.
+        config:
+            A path or MetaConfig object that contains information about the variable specifications
+            , defaults, etc. Variable specs in the config parameter will be overwritten by the
+            var_specs parameter.
 
         Returns
         -------

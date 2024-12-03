@@ -55,7 +55,7 @@ class MetaConfig():
         self.config_version = config_version
 
     @staticmethod
-    def _parse_var_spec(var_spec):
+    def _parse_var_spec(var_spec) -> VarSpec:
         if isinstance(var_spec, VarSpec):
             return var_spec
         return VarSpec.from_dict(var_spec)
@@ -72,7 +72,7 @@ class MetaConfig():
         else:
             self._dist_providers = dist_providers
 
-    def update_varspecs(self, new_var_specs: Optional[list[dict], list[VarSpec]]):
+    def update_varspecs(self, new_var_specs: Union[list[dict], list[VarSpec]]):
         new_var_specs = [self._parse_var_spec(v) for v in new_var_specs]
         for cur_new_var_spec in new_var_specs:
             # Check if currently in varspecs and pop if it exists.
