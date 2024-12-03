@@ -55,7 +55,7 @@ class MetaConfig():
         self.config_version = config_version
 
     @staticmethod
-    def _parse_var_spec(var_spec):
+    def _parse_var_spec(var_spec) -> VarSpec:
         if isinstance(var_spec, VarSpec):
             return var_spec
         return VarSpec.from_dict(var_spec)
@@ -71,6 +71,16 @@ class MetaConfig():
             self._dist_providers = DistributionProviderList(dist_providers)
         else:
             self._dist_providers = dist_providers
+
+    def update_varspecs(self, new_var_specs: Union[list[dict], list[VarSpec]]):
+        new_var_specs = [self._parse_var_spec(v) for v in new_var_specs]
+        for cur_new_var_spec in new_var_specs:
+            # Check if currently in varspecs and pop if it exists.
+            for i_var, old_var_spec in enumerate(self.var_specs):
+                if old_var_spec.name == cur_new_var_spec.name:
+                    self.var_specs.pop(i_var)
+                    break
+            self.var_specs.append(cur_new_var_spec)
 
     @classmethod
     def from_toml(cls, config_fp: Union[str, Path]) -> MetaConfig:
