@@ -72,6 +72,16 @@ class MetaConfig():
         else:
             self._dist_providers = dist_providers
 
+    def update_varspecs(self, new_var_specs: Optional[list[dict], list[VarSpec]]):
+        new_var_specs = [self._parse_var_spec(v) for v in new_var_specs]
+        for cur_new_var_spec in new_var_specs:
+            # Check if currently in varspecs and pop if it exists.
+            for i_var, old_var_spec in enumerate(self.var_specs):
+                if old_var_spec.name == cur_new_var_spec.name:
+                    self.var_specs.pop(i_var)
+                    break
+            self.var_specs.append(cur_new_var_spec)
+
     @classmethod
     def from_toml(cls, config_fp: Union[str, Path]) -> MetaConfig:
         """Create a MetaConfig class from a .toml file.

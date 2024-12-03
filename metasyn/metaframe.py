@@ -68,11 +68,12 @@ class MetaFrame():
     def fit_dataframe(  # noqa: PLR0912
             cls,
             df: Optional[pl.DataFrame],
-            var_specs: Optional[Union[list[VarSpec], pathlib.Path, str, MetaConfig]] = None,
+            var_specs: Optional[Union[list[VarSpec]]] = None,
             dist_providers: Optional[list[str]] = None,
             privacy: Optional[Union[BasePrivacy, dict]] = None,
             n_rows: Optional[int] = None,
-            progress_bar: bool = True):
+            progress_bar: bool = True,
+            config: Optional[Union[pathlib.Path, str, MetaConfig]] = None):
         """Create a metasyn object from a polars (or pandas) dataframe.
 
         The Polars dataframe should be formatted already with the correct
@@ -106,15 +107,24 @@ class MetaFrame():
         MetaFrame:
             Initialized metasyn metaframe.
         """
+        if isinstance(var_specs, (str, pathlib.Path, MetaConfig)) and config is None:
+            warn("Supplying the configuration through var_specs is deprecated and will be removed"
+                 f" in metasyn version 2.0. Use config={var_specs} instead.",
+                 DeprecationWarning, stacklevel=2)
+            config = var_specs
+            var_specs = None
         # Parse the var_specs into a MetaConfig instance.
-        if isinstance(var_specs, (pathlib.Path, str)):
-            meta_config = MetaConfig.from_toml(var_specs)
-        elif isinstance(var_specs, MetaConfig):
-            meta_config = var_specs
-        elif var_specs is None:
+        if config is None:
             meta_config = MetaConfig([], dist_providers, defaults = {"privacy": privacy})
+        elif isinstance(config, (pathlib.Path, str)):
+            meta_config = MetaConfig.from_toml(config)
         else:
-            meta_config = MetaConfig(var_specs, dist_providers, defaults = {"privacy": privacy})
+            meta_config = config
+
+        # var_specs overrules variable specifications in the configuration (file).
+        if var_specs is not None:
+            meta_config.update_varspecs(var_specs)
+
         if dist_providers is not None:
             meta_config.dist_providers = dist_providers  # type: ignore
         if privacy is not None:
@@ -174,7 +184,7 @@ class MetaFrame():
         -------
             A created MetaFrame.
         """
-        return cls.fit_dataframe(None, meta_config)
+        return cls.fit_dataframe(None, config=meta_config)
 
     def to_dict(self) -> Dict[str, Any]:
         """Create dictionary with the properties for recreation."""

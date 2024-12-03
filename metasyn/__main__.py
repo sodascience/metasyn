@@ -134,7 +134,7 @@ Examples:
         data_frame = pl.read_csv(args.input, try_parse_dates=True, infer_schema_length=10000,
                                  null_values=["", "na", "NA", "N/A", "Na"],
                                  ignore_errors=True)
-        meta_frame = MetaFrame.fit_dataframe(data_frame, meta_config)
+        meta_frame = MetaFrame.fit_dataframe(data_frame, config=meta_config)
     meta_frame.save(args.output)
 
 
