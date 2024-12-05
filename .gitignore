@@ -154,3 +154,7 @@ docs/source/api/generated
 
 # uv stuff
 uv.lock
+
+# Schema stuff
+create_schema.py
+schemas/
