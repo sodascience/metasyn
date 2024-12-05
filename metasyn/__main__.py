@@ -236,8 +236,14 @@ def schema() -> None:
         action="store_true",
     )
 
+    parser.add_argument(
+        "-o", "--output",
+        help="File to write the schema to.",
+        type=pathlib.Path,
+    )
+
     # parse the args without the subcommand
-    args, _ = parser.parse_known_args()
+    args = parser.parse_args()
 
     # deduplicated list of plugins for schema
     plugins_avail = {entry.name for entry in entry_points(group="metasyn.distribution_provider")}
@@ -257,7 +263,11 @@ def schema() -> None:
         )
         parser.error(errmsg)
     jsonschema = create_schema(list(plugins))
-    print(json.dumps(jsonschema, indent=2))
+    if args.output is None:
+        print(json.dumps(jsonschema, indent=4))
+    else:
+        with open(args.output, "w") as handle:
+            json.dump(jsonschema, handle, indent=4)
 
 
 if __name__ == "__main__":
