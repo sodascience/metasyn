@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import warnings
 from abc import ABC
+from inspect import signature
 from typing import TYPE_CHECKING, Any, List, Optional, Type, Union
 
 try:
@@ -247,7 +248,16 @@ class DistributionProviderList():
         dist_class = self.find_distribution(
             dist_spec.implements, var_spec.var_type,
             privacy=BasicPrivacy(), unique=unique)
-        return dist_class(**dist_spec.parameters)
+        try:
+            return dist_class(**dist_spec.parameters)
+        except TypeError as err:
+            dist_param = set(signature(dist_class.__init__).parameters) - {"self"}  # type: ignore
+            if "args" in dist_param or "kwargs" in dist_param:
+                raise err
+            unknown_param = set(dist_spec.parameters) - dist_param  # type: ignore
+            if len(unknown_param) > 0:
+                raise TypeError(f"Unknown parameters {unknown_param} for variable {var_spec.name}.")
+            raise err
 
     def _find_best_fit(self, series: pl.Series, var_type: str,
                        unique: Optional[bool],
