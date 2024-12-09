@@ -36,7 +36,7 @@ use the configuration file is a more appropriate interface (see also our :doc:`c
 
       MetaFrame.fit_dataframe(
          df,
-         var_specs="your_config_file.toml"
+         config="your_config_file.toml"
       )
 
    This refers to a configuration file called ``your_config_file.toml``:
@@ -177,7 +177,7 @@ The most common use-case for this is to set the distribution type and/or paramet
    .. code-block:: python
 
       # In this example you put the specifications in the toml file.
-      MetaFrame.fit_dataframe(df, var_specs="your_config_file.toml")
+      MetaFrame.fit_dataframe(df, config="your_config_file.toml")
 
    .. code-block:: toml
 
