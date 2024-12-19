@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import random
 from typing import Any, Dict, Optional, Union
 
 import numpy as np
@@ -247,6 +248,7 @@ class MetaVar:
         """
         if seed is not None:
             np.random.seed(seed)
+            random.seed(seed)
         self.distribution.draw_reset()
         value_list = [self.draw() for _ in range(n)]
         pl_type = self.dtype.split("(")[0]

@@ -148,7 +148,7 @@ def create_md_report(file_name, out_md_file):
             examples = np.random.permutation([str(var.distribution.draw()) for _ in range(3)] +
                                              ["NA", "NA"])
         else:
-            examples = [str(x) for x in var.draw_series(5)]
+            examples = [str(x) for x in var.draw_series(5, None)]
 
         if "privacy" in var_dict["creation_method"]:
             partition_size = var_dict["creation_method"]["privacy"]["parameters"]["partition_size"]
