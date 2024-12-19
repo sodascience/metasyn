@@ -64,6 +64,13 @@ jobs:
         pip install git+https://github.com/sodascience/metasyn-disclosure-control
         pip install .
         metasyn create-meta metasyn/demo/demo_titanic.csv --config examples/config_files/example_config.toml
+    - name: Test GMF file
+      run: |
+        metasyn schema -o current_schema.json
+        MD5_DATA=(`md5sum current_schema.json`)
+        [[ ${MD5_DATA[0]} == "ca057b145b035ff1f2b4032d414d1be9" ]]
+
+
 
   build-docs:
     name: Build documentation
