@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import random
 from typing import Any, Dict, Optional, Union
 
 import numpy as np
@@ -232,7 +233,7 @@ class MetaVar:
             return None
         return self.distribution.draw()
 
-    def draw_series(self, n: int) -> pl.Series:
+    def draw_series(self, n: int, seed: Optional[int]) -> pl.Series:
         """Draw a new synthetic series from the metadata.
 
         Parameters
@@ -245,6 +246,9 @@ class MetaVar:
         polars.Series:
             Polars series with the synthetic data.
         """
+        if seed is not None:
+            np.random.seed(seed)
+            random.seed(seed)
         self.distribution.draw_reset()
         value_list = [self.draw() for _ in range(n)]
         pl_type = self.dtype.split("(")[0]

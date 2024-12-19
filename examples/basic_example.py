@@ -25,4 +25,4 @@ mf.save(gmf_path)
 mf_out = MetaFrame.load_json(gmf_path)
 
 # create a fake dataset
-df_syn = mf_out.synthesize(10)
+df_syn = mf_out.synthesize(10, seed=1234)
