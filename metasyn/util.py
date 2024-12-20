@@ -1,6 +1,10 @@
 """Utility module for metasyn."""
 from __future__ import annotations
 
+import numpy as np
+import random
+import faker
+
 try:
     import tomllib
 except ImportError:
@@ -27,3 +31,8 @@ def get_registry() -> dict:
     with open(registry_fp, "rb") as handle:
         registry = tomllib.load(handle)
     return registry
+
+def set_global_seeds(seed: int):
+    np.random.seed(seed)
+    random.seed(seed)
+    faker.Faker.seed(seed)

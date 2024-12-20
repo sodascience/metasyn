@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import random
 from typing import Any, Dict, Optional, Union
 
 import numpy as np
@@ -11,6 +10,7 @@ import polars as pl
 from metasyn.distribution.base import BaseDistribution
 from metasyn.privacy import BasePrivacy, BasicPrivacy
 from metasyn.provider import BaseDistributionProvider, DistributionProviderList
+from metasyn.util import set_global_seeds
 from metasyn.varspec import DistributionSpec
 
 
@@ -247,8 +247,8 @@ class MetaVar:
             Polars series with the synthetic data.
         """
         if seed is not None:
-            np.random.seed(seed)
-            random.seed(seed)
+            set_global_seeds(seed)
+
         self.distribution.draw_reset()
         value_list = [self.draw() for _ in range(n)]
         pl_type = self.dtype.split("(")[0]
