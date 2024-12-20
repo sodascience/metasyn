@@ -70,7 +70,9 @@ def test_cli(tmp_dir, ext):
         "-n 25",                          # only generate 25 samples
         tmp_dir / "titanic.json",         # the input file
         "-o",
-        out_file                          # the output file
+        out_file,                         # the output file
+        "--seed",
+        str(1234),
     ]
 
     # Run the cli with different extensions

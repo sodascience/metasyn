@@ -22,6 +22,7 @@ from tqdm import tqdm
 
 from metasyn.config import MetaConfig
 from metasyn.privacy import BasePrivacy, get_privacy
+from metasyn.util import set_global_seeds
 from metasyn.validation import validate_gmf_dict
 from metasyn.var import MetaVar
 from metasyn.varspec import VarSpec
@@ -449,7 +450,7 @@ class MetaFrame():
         meta_vars = [MetaVar.from_dict(d) for d in self_dict["vars"]]
         return cls(meta_vars, n_rows)
 
-    def synthesize(self, n: Optional[int] = None) -> pl.DataFrame:
+    def synthesize(self, n: Optional[int] = None, seed: Optional[int] = None) -> pl.DataFrame:
         """Create a synthetic Polars dataframe.
 
         Parameters
@@ -467,7 +468,9 @@ class MetaFrame():
                 raise ValueError("Cannot synthesize DataFrame, since number of rows is unknown."
                                  "Please specify the number of rows to synthesize.")
             n = self.n_rows
-        synth_dict = {var.name: var.draw_series(n) for var in self.meta_vars}
+        if seed is not None:
+            set_global_seeds(seed)
+        synth_dict = {var.name: var.draw_series(n, seed=None) for var in self.meta_vars}
         return pl.DataFrame(synth_dict)
 
     def __repr__(self) -> str:

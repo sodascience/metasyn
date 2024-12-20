@@ -141,6 +141,10 @@ def test_demo_datasets(tmp_path, dataset_name):
     mf = MetaFrame.load_json(tmp_file)
 
     df_syn = mf.synthesize(100)
+    df_syn_1 = mf.synthesize(100, seed=1234)
+    df_syn_2 = mf.synthesize(100, seed=1234)
+    for col in df_syn.columns:
+        assert all(df_syn_1[col].drop_nulls() == df_syn_2[col].drop_nulls())
 
     for col, dtype in demo_class.schema.items():
         assert dtype == df_syn[col].dtype

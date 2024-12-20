@@ -168,6 +168,13 @@ Example: {EXAMPLE_SYNTHESIZE}
         required=False,
     )
     parser.add_argument(
+        "-s", "--seed",
+        help="Seed for the generation of synthetic data.",
+        type=int,
+        default=None,
+        required=False,
+    )
+    parser.add_argument(
         "-p", "--preview",
         help="preview six-row synthesized data frame in console and exit",
         action="store_true",
@@ -192,11 +199,11 @@ Example: {EXAMPLE_SYNTHESIZE}
 
     if args.preview:
         # only print six rows and exit
-        print(meta_frame.synthesize(6))
+        print(meta_frame.synthesize(6, seed=args.seed))
         return
 
     # Generate a data frame
-    data_frame = meta_frame.synthesize(args.num_rows)
+    data_frame = meta_frame.synthesize(args.num_rows, seed=args.seed)
 
     # Store the dataframe to file
     if args.output.suffix == ".csv":

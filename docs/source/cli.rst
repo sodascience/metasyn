@@ -191,6 +191,7 @@ The ``synthesize`` command also takes two optional arguments:
 
 - ``-n [rows]`` or ``--num_rows [rows]``: To generate a specific number of data rows.
 - ``-p`` or ``--preview``: To preview the first six rows of synthesized data. This can be extremely useful for quick data validation without saving it to a file.
+- ``-s [seed]`` or ``--seed [seed]``: Set the seed for the generation of synthetic data.
 
 .. note::
 
