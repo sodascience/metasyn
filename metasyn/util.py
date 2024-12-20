@@ -1,9 +1,10 @@
 """Utility module for metasyn."""
 from __future__ import annotations
 
-import numpy as np
 import random
+
 import faker
+import numpy as np
 
 try:
     import tomllib
@@ -33,6 +34,13 @@ def get_registry() -> dict:
     return registry
 
 def set_global_seeds(seed: int):
+    """Set the global seeds for all random number generators.
+
+    Parameters
+    ----------
+    seed
+        The seed to use for the random number generators.
+    """
     np.random.seed(seed)
     random.seed(seed)
     faker.Faker.seed(seed)
