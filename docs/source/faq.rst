@@ -71,3 +71,22 @@ Metasyn's synthetically generated datasets are classified as `Synthetically-Augm
    * Disclosure control evaluation is necessary case by case, special care to be taken with names and so on.
    * To be used for extended code testing, minimal analytical value, non-negligible disclosure risk.
 
+**Can I make the generation of synthetic data reproducible?**
+-------------------------------------------------------------
+To some extent, the answer is yes. You can set the seed for the generation of synthetic data as follows:
+
+.. tab:: Python
+
+   .. code-block:: python
+
+      mf.synthesize(10, seed=1234)
+
+.. tab:: CLI
+
+   .. code-block:: bash
+
+      metasyn synthesize gmf_file.json --preview --seed 1234
+
+This should give the same results when you run it multiple times on your machine. However,
+we cannot guarantee reproducibility across different versions of Python, Numpy, Faker. Different
+CPU architectures will also most likely produce different results.
