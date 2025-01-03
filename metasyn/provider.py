@@ -249,7 +249,7 @@ class DistributionProviderList():
             dist_spec.implements, var_spec.var_type,
             privacy=BasicPrivacy(), unique=unique)
         try:
-            return dist_class(**dist_spec.parameters)
+            return dist_class(**dist_spec.parameters)  # type: ignore
         except TypeError as err:
             dist_param = set(signature(dist_class.__init__).parameters) - {"self"}  # type: ignore
             if "args" in dist_param or "kwargs" in dist_param:
