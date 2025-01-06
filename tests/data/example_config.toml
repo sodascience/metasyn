@@ -1,6 +1,7 @@
 # Example toml file as input for metasyn
 dist_providers = ["builtin"]
-
+config_version = "1.0"
+privacy = "none"
 
 [[var]]
 name = "PassengerId"

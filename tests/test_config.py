@@ -75,6 +75,8 @@ def test_meta_config_datafree():
 
 def test_meta_config():
     """Test the creation of a MetaConfig class that is not data free."""
+    with pytest.raises(ValueError):
+        MetaConfig.from_toml(Path("tests", "data", "titanic.csv"))
     meta_config = MetaConfig.from_toml(Path("tests", "data", "example_config.toml"))
     assert len(meta_config.var_specs) == 5
     var_spec = meta_config.get("Cabin")

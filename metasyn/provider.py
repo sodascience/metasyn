@@ -252,11 +252,14 @@ class DistributionProviderList():
             return dist_class(**dist_spec.parameters)
         except TypeError as err:
             dist_param = set(signature(dist_class.__init__).parameters) - {"self"}  # type: ignore
-            if "args" in dist_param or "kwargs" in dist_param:
-                raise err
             unknown_param = set(dist_spec.parameters) - dist_param  # type: ignore
+            missing_param = dist_param - set(dist_spec.parameters)
             if len(unknown_param) > 0:
-                raise TypeError(f"Unknown parameters {unknown_param} for variable {var_spec.name}.")
+                raise TypeError(f"Unknown parameters {unknown_param} for variable {var_spec.name}."
+                                f"Available parameters: {dist_param}")
+            if len(missing_param) > 0:
+                raise ValueError(f"Missing parameters for variable {var_spec.name}:"
+                                 f" {missing_param}.")
             raise err
 
     def _find_best_fit(self, series: pl.Series, var_type: str,

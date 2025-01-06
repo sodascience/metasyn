@@ -1,9 +1,15 @@
 """Test the string type distribution inference."""
 import pandas as pd
 import polars as pl
+import pytest
 from pytest import mark
 
-from metasyn.distribution.string import FakerDistribution, FreeTextDistribution
+from metasyn.distribution.string import (
+    FakerDistribution,
+    FreeTextDistribution,
+    UniqueFakerDistribution,
+    UniqueRegexDistribution,
+)
 from metasyn.var import MetaVar
 
 
@@ -44,3 +50,21 @@ def test_free_text(series, lang, avg_sentences, avg_words):
     series_1 = var.draw_series(100, seed=1234)
     series_2 = var.draw_series(100, seed=1234)
     assert all(series_1 == series_2)
+
+
+def test_unique_regex():
+    dist = UniqueRegexDistribution(r"[0-9]")
+    var = MetaVar("some_var", "string", dist, prop_missing=0.0)
+
+    series = var.draw_series(10, None)
+    assert len(series.unique()) == 10
+
+    with pytest.raises(ValueError):
+        var.draw()
+
+def test_unique_faker():
+    dist = UniqueFakerDistribution("city")
+    var = MetaVar("some_var", "string", dist, prop_missing=0.0)
+
+    series = var.draw_series(1000, None)
+    assert len(series.unique()) == 1000

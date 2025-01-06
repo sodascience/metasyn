@@ -241,11 +241,11 @@ def test_invalid_prop(prop_missing):
         MetaVar("test", "discrete", DiscreteUniformDistribution.default_distribution(),
                 prop_missing=prop_missing)
 
-
 @mark.parametrize(
     "series,var_type",
     [
         (pl.Series([1, 2, 3]), "discrete"),
+        (pd.Series([1, 2, 3]), "discrete"),
         (pl.Series([1.0, 2.0, 3.0]), "continuous"),
         (pl.Series(["1", "2", "3"]), "string"),
         (pl.Series(["1", "2", "3"], dtype=pl.Categorical), "categorical"),
@@ -261,6 +261,13 @@ def test_invalid_prop(prop_missing):
 def test_get_var_type(series, var_type):
     """Test get_var_type method of MetaVar."""
     assert MetaVar.get_var_type(series) == var_type
+
+
+def test_unsupported_type():
+    series = pl.Series([MetaVar])
+    print(series.dtype)
+    with pytest.raises(TypeError):
+        MetaVar.get_var_type(series)
 
 
 @mark.parametrize(

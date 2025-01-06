@@ -332,9 +332,10 @@ class UniqueDistributionMixin(BaseDistribution):
     variations, such as `UniqueFakerDistribution` and `UniqueRegexDistribution`.
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.key_set: set = set()
+    def __new__(cls, *args, **kwargs):
+        instance = super().__new__(cls)
+        instance.key_set: set = set()
+        return instance
 
     def draw_reset(self):
         self.key_set = set()
