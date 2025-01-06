@@ -51,7 +51,7 @@ documentation = "https://metasyn.readthedocs.io/en/latest/index.html"
 [project.optional-dependencies]
 extra = ["xlsxwriter", "pandas", "tomlkit"]
 check = ["ruff", "mypy", "types-tqdm", "types-regex"]
-test = ["pytest", "nbval"]
+test = ["pytest", "nbval", "pytest-cov"]
 docs = [
     "sphinx<9.0.0", "sphinx-rtd-theme", "sphinxcontrib-napoleon",
     "sphinx-autodoc-typehints", "sphinx_inline_tabs", "sphinx_copybutton",

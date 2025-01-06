@@ -70,6 +70,9 @@ jobs:
         metasyn schema -o current_schema.json
         MD5_DATA=(`md5sum current_schema.json`)
         [[ ${MD5_DATA[0]} == "c2a69330cec7a147ab775f5f0e037d8b" ]]
+    - name: Test coverage >= 95%
+      if: ${{ matrix.python-version == '3.12' }}
+      run: pytest --cov=metasyn tests/ --cov-report=term-missing --cov-fail-under=95
 
 
 
