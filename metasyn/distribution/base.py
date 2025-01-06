@@ -332,7 +332,7 @@ class UniqueDistributionMixin(BaseDistribution):
     variations, such as `UniqueFakerDistribution` and `UniqueRegexDistribution`.
     """
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args, **kwargs):  # noqa
         instance = super().__new__(cls)
         instance.key_set: set = set()
         return instance
