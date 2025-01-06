@@ -253,7 +253,7 @@ class DistributionProviderList():
         except TypeError as err:
             dist_param = set(signature(dist_class.__init__).parameters) - {"self"}  # type: ignore
             unknown_param = set(dist_spec.parameters) - dist_param  # type: ignore
-            missing_param = dist_param - set(dist_spec.parameters)
+            missing_param = dist_param - set(dist_spec.parameters)  # type: ignore
             if len(unknown_param) > 0:
                 raise TypeError(f"Unknown parameters {unknown_param} for variable {var_spec.name}."
                                 f"Available parameters: {dist_param}")
