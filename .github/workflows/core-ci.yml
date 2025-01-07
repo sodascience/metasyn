@@ -53,6 +53,7 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install -e ".[test,extra]"
     - name: Test with pytest
+      if: ${{ matrix.python-version != '3.12' }}  # Either do coverage testing or pytest only
       run: pytest tests
     - name: Test coverage >= 95%
       if: ${{ matrix.python-version == '3.12' }}
