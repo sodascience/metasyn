@@ -65,10 +65,6 @@ class MetaVar:
         if var_type is None:
             var_type = MetaVar.get_var_type(pl.Series([distribution.draw()]))
             distribution.draw_reset()
-            # if not isinstance(distribution.var_type, str):
-                # raise ValueError("Failed to infer variable type for variable '{name}'"
-                                #  " supply var_type or a different distribution.")
-            # var_type = distribution.var_type
         self.var_type = var_type
         self.distribution = distribution
         self.dtype = dtype
