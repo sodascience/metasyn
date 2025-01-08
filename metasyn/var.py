@@ -63,10 +63,8 @@ class MetaVar:
     ):
         self.name = name
         if var_type is None:
-            if not isinstance(distribution.var_type, str):
-                raise ValueError("Failed to infer variable type for variable '{name}'"
-                                 " supply var_type or a different distribution.")
-            var_type = distribution.var_type
+            var_type = MetaVar.get_var_type(pl.Series([distribution.draw()]))
+            distribution.draw_reset()
         self.var_type = var_type
         self.distribution = distribution
         self.dtype = dtype
@@ -89,9 +87,6 @@ class MetaVar:
     @staticmethod
     def get_var_type(series: pl.Series) -> str:
         """Convert polars dtype to metasyn variable type.
-
-        This method uses internal polars methods, so this might break at some
-        point.
 
         Parameters
         ----------
@@ -130,7 +125,7 @@ class MetaVar:
         try:
             return convert_dict[polars_dtype]
         except KeyError as exc:
-            raise ValueError(f"Unsupported polars type '{polars_dtype}'") from exc
+            raise TypeError(f"Unsupported polars type '{polars_dtype}'") from exc
 
     def to_dict(self) -> Dict[str, Any]:
         """Create a dictionary from the variable."""

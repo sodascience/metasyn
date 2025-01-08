@@ -86,6 +86,10 @@ def check_distribution(distribution: type[BaseDistribution], privacy: BasePrivac
     assert isinstance(new_dist, distribution)
     assert set(list(new_dist.to_dict())) >= set(
         ("implements", "provenance", "class_name", "parameters"))
+    empty_series = pl.Series([], dtype=series.dtype)
+    new_dist = distribution.fit(empty_series, **privacy.fit_kwargs)
+    assert isinstance(new_dist, distribution)
+
 
 
 

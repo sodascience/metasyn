@@ -79,3 +79,9 @@ def test_toml_err():
 
     with pytest.raises(tomllib.TOMLDecodeError):
         MetaFrame.from_config(Path("tests", "data", "bad_config.toml"))
+
+    with pytest.raises(ValueError):
+        MetaFrame.from_config(Path("tests", "data", "unsupported_config.toml"))
+
+    with pytest.raises(ValueError):
+        MetaFrame.from_config(Path("tests", "data", "incompatible_config.toml"))

@@ -13,6 +13,7 @@ from metasyn.distribution.string import (
     UniqueRegexDistribution,
 )
 from metasyn.provider import BuiltinDistributionProvider, DistributionProviderList
+from metasyn.varspec import DistributionSpec, VarSpec
 
 
 @mark.parametrize("input", ["builtin", "fake-name", BuiltinDistributionProvider,
@@ -112,3 +113,25 @@ def test_find_distribution(dist_str, var_type, is_unique, dist):
     new_class = provider_list.find_distribution(dist_class.__name__, var_type=var_type,
                                                 unique=is_unique)
     assert new_class == dist_class
+
+def test_create_distribution():
+    dist_spec = DistributionSpec("uniform", False, parameters={"lower": 10, "upper": 20})
+    var_spec = VarSpec("test", dist_spec, var_type="continuous")
+    provider_list = DistributionProviderList("builtin")
+
+    assert isinstance(provider_list.create(var_spec), UniformDistribution)
+
+    # Error with missing parameters
+    var_spec.dist_spec.parameters.pop("lower")
+    with pytest.raises(ValueError):
+        provider_list.create(var_spec)
+
+    # Error with unknown parameters
+    with pytest.raises(TypeError):
+        var_spec.dist_spec.parameters["unknown"] = 1
+        provider_list.create(var_spec)
+
+    # Error when implements is not given.
+    with pytest.raises(ValueError):
+        var_spec.dist_spec.implements = None
+        provider_list.create(var_spec)

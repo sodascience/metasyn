@@ -1,0 +1,4 @@
+privacy = "disclosure"
+
+[defaults]
+privacy = "builtin"
