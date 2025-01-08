@@ -88,9 +88,6 @@ class MetaVar:
     def get_var_type(series: pl.Series) -> str:
         """Convert polars dtype to metasyn variable type.
 
-        This method uses internal polars methods, so this might break at some
-        point.
-
         Parameters
         ----------
         series:
