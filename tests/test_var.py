@@ -265,7 +265,6 @@ def test_get_var_type(series, var_type):
 
 def test_unsupported_type():
     series = pl.Series([MetaVar])
-    print(series.dtype)
     with pytest.raises(TypeError):
         MetaVar.get_var_type(series)
 
