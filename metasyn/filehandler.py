@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Optional
 
 import polars as pl
-import pyreadstat
 
 _AVAILABLE_FILE_HANDLERS = {}
 
@@ -64,6 +63,12 @@ class SavFileHandler(BaseFileHandler):
 
     @classmethod
     def _get_df_metadata(cls, fp):
+        try:
+            import pyreadstat
+        except ImportError as err:
+            raise ImportError(
+                "Please install pyreadstat to use the .sav/.zsav file handler.") from err
+
         pandas_df, prs_metadata = pyreadstat.read_sav(fp, apply_value_formats=True)
         df = pl.DataFrame(pandas_df)
         for col in df.columns:
@@ -100,6 +105,12 @@ class SavFileHandler(BaseFileHandler):
         return df, cls(metadata, Path(fp).name)
 
     def _write_synthetic(self, df, out_fp):
+        try:
+            import pyreadstat
+        except ImportError as err:
+            raise ImportError(
+                "Please install pyreadstat to use the .sav/.zsav file handler.") from err
+
         for col in df.columns:
             col_format = self.metadata["variable_format"][col]
             if (col_format.startswith("F") and not col_format.endswith(".0")
