@@ -1,9 +1,11 @@
+import json
 import warnings
+from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import Optional
 
 import polars as pl
 import pyreadstat
-import json
 
 _AVAILABLE_FILE_HANDLERS = {}
 
@@ -17,22 +19,37 @@ def filehandler(*args):
 
     return _wrap(*args)
 
-class BaseFileHandler():
+class BaseFileHandler(ABC):
     name = "base"
     extensions = []
 
-    def __init__(self, metadata):
+    def __init__(self, metadata, file_name: str):
         self.metadata = metadata
+        self.file_name = file_name
 
     def to_dict(self):
         return {
             "file_handler_name": self.name,
-            "kwargs": self.metadata,
+            "format_metadata": self.metadata,
+            "file_name": self.file_name,
         }
 
     def save(self, handler_file):
         with open(handler_file, "w", encoding="utf-8") as handle:
             json.dump(self.to_dict(), handle, indent=4)
+
+    @abstractmethod
+    def _write_synthetic(self, df, fp):
+        ...
+
+    def write_synthetic(self, df, fp = None):
+        if fp is None:
+            fp = self.file_name
+        if Path(fp).is_file():
+            raise FileExistsError(f"File '{fp}' already exists, choose a different name or write "
+                                  "to a different directory.")
+        self._write_synthetic(df, fp)
+
 
 @filehandler
 class SavFileHandler(BaseFileHandler):
@@ -80,9 +97,9 @@ class SavFileHandler(BaseFileHandler):
             "variable_value_labels": prs_metadata.variable_value_labels,
             "variable_measure": prs_metadata.variable_measure,
         }
-        return df, cls(metadata)
+        return df, cls(metadata, Path(fp).name)
 
-    def write_synthetic(self, df, out_fp):
+    def _write_synthetic(self, df, out_fp):
         for col in df.columns:
             col_format = self.metadata["variable_format"][col]
             if (col_format.startswith("F") and not col_format.endswith(".0")
@@ -132,25 +149,32 @@ class CsvFileHandler(BaseFileHandler):
             "quote_char": quote_char,
             "null_value": null_values[0],
         }
-        return df, cls(metadata)
+        return df, cls(metadata, Path(fp).name)
 
-    def write_synthetic(self, df, out_fp):
+    def _write_synthetic(self, df, out_fp):
         df.write_csv(out_fp, **self.metadata)
 
+
+def file_handler_from_dict(file_format_dict):
+    for handler_name, handler in _AVAILABLE_FILE_HANDLERS.items():
+        if file_format_dict["file_handler_name"] == handler_name:
+            return handler(metadata=file_format_dict["format_metadata"],
+                           file_name=file_format_dict["file_name"])
+    raise ValueError(f"Cannot find file handler with name '{handler_name}'.")
 
 def get_file_handler(fp):
     suffix = Path(fp).suffix
 
     for handler_name, handler in _AVAILABLE_FILE_HANDLERS.items():
         if suffix in handler.extensions:
-            return handler
+            return handler.from_file(fp)
     raise ValueError(f"Cannot find handler for files with extension '{suffix}'.")
 
 
-def load_file_handler(fp):
-    with open(fp, "r", encoding="utf-8") as handle:
-        metadict = json.load(handle)
-    for handler_name, handler_class in _AVAILABLE_FILE_HANDLERS.items():
-        if handler_class.name == metadict["file_handler_name"]:
-            return handler_class(metadict["kwargs"])
-    raise ValueError(f"Cannot find handler with name '{metadict['filehandler']}'")
+# def load_file_handler(fp):
+#     with open(fp, "r", encoding="utf-8") as handle:
+#         metadict = json.load(handle)
+#     for handler_name, handler_class in _AVAILABLE_FILE_HANDLERS.items():
+#         if handler_class.name == metadict["file_handler_name"]:
+#             return handler_class(metadict["kwargs"])
+#     raise ValueError(f"Cannot find handler with name '{metadict['filehandler']}'")

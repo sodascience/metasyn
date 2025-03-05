@@ -19,7 +19,7 @@ import polars as pl
 
 from metasyn import MetaFrame
 from metasyn.config import MetaConfig
-from metasyn.filehandler import get_file_handler, load_file_handler
+from metasyn.filehandler import get_file_handler
 from metasyn.validation import create_schema
 
 EXAMPLE_CREATE_META="metasyn create-meta your_dataset.csv -o your_gmf_file.json --config your_config.toml" # noqa: E501
@@ -78,8 +78,6 @@ def main() -> None:
         synthesize()
     elif subcommand == "schema":
         schema()
-    elif subcommand == "fileformat":
-        create_file_formatter()
     elif subcommand == "create-meta":
         create_metadata()
     else:
@@ -133,33 +131,14 @@ Examples:
             raise ValueError("Please supply either an input dataset or a configuration file.")
         meta_frame = MetaFrame.from_config(meta_config)
     else:
-        handler_class = get_file_handler(args.input)
-        data_frame, _ = handler_class.from_file(args.input)
+        data_frame, file_handler = get_file_handler(args.input)
+        # data_frame, file_handler = handler_class.from_file(args.input)
         # data_frame = pl.read_csv(args.input, try_parse_dates=True, infer_schema_length=10000,
                                 #  null_values=["", "na", "NA", "N/A", "Na"],
                                 #  ignore_errors=True)
         meta_frame = MetaFrame.fit_dataframe(data_frame, config=meta_config)
+        meta_frame.file_format = file_handler
     meta_frame.save(args.output)
-
-def create_file_formatter() -> None:
-    parser = argparse.ArgumentParser(
-        prog="metasyn fileformat",
-        description="Create file formatter for synthetic output.")
-
-    parser.add_argument(
-        "dataset",
-        help="input file; the dataset for which to create a file formatter.",
-        type=pathlib.Path,
-    )
-    parser.add_argument(
-        "format_file",
-        help="TOML file that stores the file format and existing metadata.",
-        type=pathlib.Path,
-    )
-    args = parser.parse_args()
-    handler_class = get_file_handler(args.dataset)
-    _df, handler = handler_class.from_file(args.dataset)
-    handler.save(args.format_file)
 
 
 def synthesize() -> None:
@@ -203,11 +182,6 @@ Example: {EXAMPLE_SYNTHESIZE}
         help="preview six-row synthesized data frame in console and exit",
         action="store_true",
     )
-    parser.add_argument(
-        "--filehandler",
-        help="Use file handler to set the format of the output file.",
-        default=None,
-    )
 
     # parse the args without the subcommand
     args, _ = parser.parse_known_args()
@@ -231,29 +205,28 @@ Example: {EXAMPLE_SYNTHESIZE}
         print(meta_frame.synthesize(6, seed=args.seed))
         return
 
-    # Generate a data frame
-    data_frame = meta_frame.synthesize(args.num_rows, seed=args.seed)
 
-    if args.filehandler is not None:
-        handler = load_file_handler(args.filehandler)
-        handler.write_synthetic(data_frame, args.output)
-        # Store the dataframe to file
-    elif args.output.suffix == ".csv":
-        data_frame.write_csv(args.output)
-    elif args.output.suffix == ".feather":
-        data_frame.write_ipc(args.output)
-    elif args.output.suffix == ".parquet":
-        data_frame.write_parquet(args.output)
-    elif args.output.suffix == ".xlsx":
-        data_frame.write_excel(args.output)
-    elif args.output.suffix == ".pkl":
-        with args.output.open("wb") as pkl_file:
-            pickle.dump(data_frame, file=pkl_file)
+    # Store the dataframe to file
+    if meta_frame.file_format is not None:
+        meta_frame.write_synthetic(args.output, n=args.num_rows, seed=args.seed)
     else:
-        parser.error(
-            f"Unsupported output file format ({args.output.suffix})."
-            "Use .csv, .feather, .parquet, .pkl, or .xlsx.",
-        )
+        data_frame = meta_frame.synthesize(n=args.num_rows, seed=args.seed)
+        if args.output.suffix == ".csv":
+            data_frame.write_csv(args.output)
+        elif args.output.suffix == ".feather":
+            data_frame.write_ipc(args.output)
+        elif args.output.suffix == ".parquet":
+            data_frame.write_parquet(args.output)
+        elif args.output.suffix == ".xlsx":
+            data_frame.write_excel(args.output)
+        elif args.output.suffix == ".pkl":
+            with args.output.open("wb") as pkl_file:
+                pickle.dump(data_frame, file=pkl_file)
+        else:
+            parser.error(
+                f"Unsupported output file format ({args.output.suffix})."
+                "Use .csv, .feather, .parquet, .pkl, or .xlsx.",
+            )
 
 
 def schema() -> None:
