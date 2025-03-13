@@ -9,7 +9,7 @@ import polars as pl
 _AVAILABLE_FILE_HANDLERS = {}
 
 
-def filehandler(*args):
+def filereader(*args):
     """Register a dataset so that it can be found by name."""
 
     def _wrap(cls):
@@ -18,7 +18,7 @@ def filehandler(*args):
 
     return _wrap(*args)
 
-class BaseFileHandler(ABC):
+class BaseFileReader(ABC):
     name = "base"
     extensions = []
 
@@ -50,8 +50,8 @@ class BaseFileHandler(ABC):
         self._write_synthetic(df, fp)
 
 
-@filehandler
-class SavFileHandler(BaseFileHandler):
+@filereader
+class SavFileReader(BaseFileReader):
     name = "spss-sav"
     extensions = [".sav", ".zsav"]
 
@@ -119,8 +119,8 @@ class SavFileHandler(BaseFileHandler):
                 df = df.with_columns(pl.col(col).round(n_round))
         pyreadstat.write_sav(df.to_pandas(), out_fp, **self.metadata)
 
-@filehandler
-class CsvFileHandler(BaseFileHandler):
+@filereader
+class CsvFileReader(BaseFileReader):
     name = "csv"
     extensions = [".csv", ".tsv"]
 
@@ -146,14 +146,18 @@ class CsvFileHandler(BaseFileHandler):
         if isinstance(null_values, str):
             null_values = [null_values]
 
-        df = pl.read_csv(
-            fp, try_parse_dates=True, infer_schema_length=10000,
+        pl_keywords = dict(
+            try_parse_dates=True,
+            infer_schema_length=10000,
             null_values=null_values,
             ignore_errors=True,
             separator=separator,
             quote_char=quote_char,
             eol_char=eol_char,
-            **kwargs)
+        )
+        pl_keywords.update(kwargs)
+
+        df = pl.read_csv(fp, **pl_keywords)
         metadata = {
             "separator": separator,
             "line_terminator": eol_char,
@@ -181,6 +185,16 @@ def get_file_handler(fp):
             return handler.from_file(fp)
     raise ValueError(f"Cannot find handler for files with extension '{suffix}'.")
 
+
+def read_csv(fp, separator=None, eol_char="\n", quote_char='"', null_values=None, **kwargs):
+    return CsvFileReader.from_file(fp, separator=separator, eol_char=eol_char,
+                                   quote_char=quote_char, null_values=null_values, **kwargs)
+
+def read_tsv(*args, **kwargs):
+    read_csv(*args, **kwargs)
+
+def read_sav(fp):
+    return SavFileReader(fp)
 
 # def load_file_handler(fp):
 #     with open(fp, "r", encoding="utf-8") as handle:

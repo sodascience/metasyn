@@ -21,7 +21,7 @@ except ImportError:
 from tqdm import tqdm
 
 from metasyn.config import MetaConfig
-from metasyn.filehandler import BaseFileHandler, file_handler_from_dict
+from metasyn.filereader import BaseFileReader, file_handler_from_dict
 from metasyn.privacy import BasePrivacy, get_privacy
 from metasyn.util import set_global_seeds
 from metasyn.validation import validate_gmf_dict
@@ -77,7 +77,8 @@ class MetaFrame():
             privacy: Optional[Union[BasePrivacy, dict]] = None,
             n_rows: Optional[int] = None,
             progress_bar: bool = True,
-            config: Optional[Union[pathlib.Path, str, MetaConfig]] = None):
+            config: Optional[Union[pathlib.Path, str, MetaConfig]] = None,
+            file_format: Union[dict, BaseFileReader, None] = None):
         """Create a metasyn object from a polars (or pandas) dataframe.
 
         The Polars dataframe should be formatted already with the correct
@@ -176,9 +177,9 @@ class MetaFrame():
             if meta_config.n_rows is None:
                 raise ValueError("Please provide the number of rows in the configuration, "
                                  "or supply a DataFrame.")
-            return cls(all_vars, meta_config.n_rows)
+            return cls(all_vars, meta_config.n_rows, file_format)
         n_rows = len(df) if n_rows is None else n_rows
-        return cls(all_vars, n_rows)
+        return cls(all_vars, n_rows, file_format)
 
     @classmethod
     def from_config(cls, meta_config: MetaConfig) -> MetaFrame:
@@ -242,8 +243,8 @@ class MetaFrame():
         return self._file_format
 
     @file_format.setter
-    def file_format(self, new_file_format: Union[None, dict, BaseFileHandler]):
-        if isinstance(new_file_format, BaseFileHandler):
+    def file_format(self, new_file_format: Union[None, dict, BaseFileReader]):
+        if isinstance(new_file_format, BaseFileReader):
             new_file_format = new_file_format.to_dict()
         self._file_format = new_file_format
 
@@ -490,7 +491,7 @@ class MetaFrame():
 
     def write_synthetic(self, file_name: Union[None, Path, str] = None,
                         n: Optional[int] = None, seed: Optional[int] = None,
-                        file_format: Union[None, dict, BaseFileHandler] = None):
+                        file_format: Union[None, dict, BaseFileReader] = None):
         syn_df = self.synthesize(n, seed)
         if file_format is not None:
             self.file_format = file_format
