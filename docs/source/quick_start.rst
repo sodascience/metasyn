@@ -16,6 +16,7 @@ The first step is to import the required Python libraries. For this example, we 
 
    import polars as pl
    from metasyn import MetaFrame, demo_file
+   import metasyn as ms
 
 
 Loading the dataset
@@ -42,14 +43,23 @@ with the column names that we want to specify as categorical. For this example, 
       "Married since": pl.DateTime,
    }
 
-To finish loading the dataset, we simply use the :meth:`polars.read_csv` function, passing in our CSV file and the ``data_types`` dictionary as an argument. 
+To finish loading the dataset, we can either use the :meth:`polars.read_csv` function or the ``metasyn``
+:func:`metasyn.filereader.read_csv` function. The advantage of the latter is that with it metasyn will remember the
+specifics of the file format of your file (for example if your separator between columns was a `,` or `;`)
+and when writing the synthetic data file, this can be reused.
+
+.. note::
+   Metasyn also supports sav files (:func:`metasyn.filereader.read_sav`) and tsv files (:func:`metasyn.filereader.read_tsv`).
+
+For reading a CSV file, you should give the ``data_types`` dictionary as an argument. 
 
 .. code-block:: python
 
-   df = pl.read_csv(csv_path, schema_overrides=data_types)
+   df, file_reader = ms.read_csv(csv_path, schema_overrides=data_types)
 
 
-This converts the CSV file into a DataFrame named ``df``.
+This converts the CSV file into a DataFrame named ``df``. Additionally, we have a ``file_reader`` object
+that remembers the name of your file, that it was a CSV file and more.
 
 .. note:: 
 	In this example, we used a Polars DataFrame, but Pandas DataFrames are also supported by metasyn. 
@@ -80,9 +90,10 @@ With the DataFrame loaded, you can now generate a :obj:`MetaFrame <metasyn.metaf
 
 .. code-block:: python
 
-   mf = MetaFrame.fit_dataframe(df)
+   mf = MetaFrame.fit_dataframe(df, file_reader=file_reader)
 
-This creates a MetaFrame named ``mf``.
+This creates a MetaFrame named ``mf``. Note that you don't have to supply the ``file_reader`` argument.
+However, you will have to write the synthetic file manually.
 
 We can inspect the MetaFrame by printing it (``print(mf)``). This will produce the following output:
 
@@ -150,6 +161,15 @@ We can inspect our synthesized data by printing it (``print(synthetic_data)``). 
 +-------------+------------------------------------+--------+-----+-------+----------+-----------+-------+----------+------------+------------+---------------------+---------+
 
 Of course, it's easy to see some flaws with the generated dataset, such as the names not making a lot of sense. The page on :doc:`improve_synth` shows how to improve the quality of the synthesized data, such as for example generating fake names using Faker.
+
+Writing synthetic data
+----------------------
+
+If you used :func:`metasyn.read_csv` to read in your file, you can also write the synthetic data directly to a file:
+
+.. code-block:: python
+
+   mf.write_synthetic("some_file_name.csv")
 
 Conclusion
 ----------

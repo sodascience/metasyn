@@ -21,7 +21,7 @@ except ImportError:
 from tqdm import tqdm
 
 from metasyn.config import MetaConfig
-from metasyn.filereader import BaseFileReader, file_handler_from_dict
+from metasyn.filereader import BaseFileReader, file_reader_from_dict
 from metasyn.privacy import BasePrivacy, get_privacy
 from metasyn.util import set_global_seeds
 from metasyn.validation import validate_gmf_dict
@@ -491,14 +491,45 @@ class MetaFrame():
 
     def write_synthetic(self, file_name: Union[None, Path, str] = None,
                         n: Optional[int] = None, seed: Optional[int] = None,
-                        file_format: Union[None, dict, BaseFileReader] = None):
-        syn_df = self.synthesize(n, seed)
-        if file_format is not None:
-            self.file_format = file_format
+                        file_reader: Union[None, dict, BaseFileReader] = None):
+        """Write a synthetic dataset to a file.
+
+        To write a synthetic dataset, by default it will try to create a file that has
+        the same format as the original one. For example, if the separator of the CSV
+        file was a comma, then it will write the synthetic data with the same separator.
+        If the file format is not available (GMF files with older versions of metasyn
+        or custom file readers), then you will have to supply your own file reader.
+
+        Parameters
+        ----------
+        file_name:
+            The filename to write the synthetic data to, by default None in which case
+            the same filename will be used as for the original filename if available.
+        n:
+            Number of rows to be written for the new synthetic file, by default None
+            in which case the number of rows of the original dataset will be used.
+        seed:
+            Set the seed for creating the synthetic dataset, by default None
+        file_reader:
+            File reader to write the file with. This is for example an instance of
+            :class:`metasyn.filereader.CsvFileReader`
+            or :class:`metasyn.filereader.SavFileReader`, by default None in which case the file
+            reader that was in the GMF file was used.
+
+        Raises
+        ------
+        ValueError:
+            If the file reader is None, and the MetaFrame object itself does not have a file reader
+            either.
+
+        """
+        if file_reader is not None:
+            self.file_format = file_reader
         if self.file_format is None:
             raise ValueError("Cannot write synthetic dataset without file handler."
                              " Use write_synthetic(..., file_handler=your_file_handler)")
-        file_handler = file_handler_from_dict(self.file_format)
+        syn_df = self.synthesize(n, seed)
+        file_handler = file_reader_from_dict(self.file_format)
         file_handler.write_synthetic(syn_df, file_name)
 
     def __repr__(self) -> str:

@@ -1,8 +1,9 @@
-import json
+"""File readers to read dataset and write synthetic datasets."""
+
 import warnings
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional, Union
 
 import polars as pl
 
@@ -19,32 +20,81 @@ def filereader(*args):
     return _wrap(*args)
 
 class BaseFileReader(ABC):
+    """Abstract file reader class to derive specific implementations from.
+
+    The implementation class should have at least two class attributes: a :code:`name`
+    for the implementation and :code:`extensions`, which is a list of extensions to be
+    associated with the implementation. For example :code:`[".csv", ".tsv"]`.
+    """
+
     name = "base"
     extensions = []
 
-    def __init__(self, metadata, file_name: str):
+    def __init__(self, metadata: dict[str, Any], file_name: str):
+        """Initialize the file reader with metadata and the original file name.
+
+        Parameters
+        ----------
+        metadata:
+            A dictionary containing all the information such as metadata and
+            file format directives. The structure of the metadata is determined
+            by the implementation of the BaseFileReader and can be empty.
+        file_name:
+            file name of the original dataset.
+        """
         self.metadata = metadata
         self.file_name = file_name
 
     def to_dict(self):
+        """Convert the class instance to a dictionary.
+
+        Returns
+        -------
+            A dictionary containing all information to reconstruct the file reader.
+        """
         return {
             "file_handler_name": self.name,
             "format_metadata": self.metadata,
             "file_name": self.file_name,
         }
 
-    def save(self, handler_file):
-        with open(handler_file, "w", encoding="utf-8") as handle:
-            json.dump(self.to_dict(), handle, indent=4)
-
     @abstractmethod
-    def _write_synthetic(self, df, fp):
-        ...
+    def _write_synthetic(self, df: pl.DataFrame, fp: Union[Path, str]):
+        """Write synthetic file, to be implemented by file reader implementations.
 
-    def write_synthetic(self, df, fp = None):
+        Parameters
+        ----------
+        df:
+            Polars dataframe to be written to a file.
+        fp:
+            Name of the file to be written to.
+
+        """
+        raise NotImplementedError("Write synthetic is not implemented for the BaseFileReader.")
+
+    def write_synthetic(self, df: pl.DataFrame, fp: Union[None, Path, str] = None,
+                        overwrite: bool = False):
+        """Write the synthetic dataframe to a file.
+
+        Parameters
+        ----------
+        df
+            Dataframe to be written to a file.
+        fp:
+            File to write the dataframe to, by default None in which case
+            the file will be the same as the original filename in the current
+            working directory.
+        overwrite:
+            Allow overwriting of the file if it already exists, by default False.
+
+        Raises
+        ------
+        FileExistsError
+            If the file already exists and the overwrite argument is False.
+        """
         if fp is None:
             fp = self.file_name
-        if Path(fp).is_file():
+        if Path(fp).is_file() and not overwrite:
             raise FileExistsError(f"File '{fp}' already exists, choose a different name or write "
                                   "to a different directory.")
         self._write_synthetic(df, fp)
@@ -52,17 +102,23 @@ class BaseFileReader(ABC):
 
 @filereader
 class SavFileReader(BaseFileReader):
+    """File reader for .sav and .zsav files.
+
+    Also stores the descriptions of the columns and makes sure that F.0 columns
+    are converted to integers.
+    """
+
     name = "spss-sav"
     extensions = [".sav", ".zsav"]
 
-    def read_dataset(self, fp):
-        df, _prs_metadata = self._get_df_metadata(fp)
+    def read_dataset(self, fp: Union[Path, str]):
+        """Read the dataset without the metadata."""
+        df, _ = self._get_df_metadata(fp)
         return df
-        # df, prs_metadata = pyreadstat.read_sav(fp, apply_value_formats=True)
-        # return pl.DataFrame(df)
 
     @classmethod
-    def _get_df_metadata(cls, fp):
+    def _get_df_metadata(cls, fp: Union[Path, str]):
+        """Read the dataset including the metadata."""
         try:
             import pyreadstat
         except ImportError as err:
@@ -79,7 +135,21 @@ class SavFileReader(BaseFileReader):
         return df, prs_metadata
 
     @classmethod
-    def from_file(cls, fp):
+    def from_file(cls, fp: Union[Path, str]):
+        """Create the file reader from a .sav or .zsav file.
+
+        Parameters
+        ----------
+        fp:
+            File to read the dataframe and metadata from.
+
+        Returns
+        -------
+        df:
+            Polars dataframe with the converted columns.
+        file_reader:
+            An instance of the :class:`SavFileReader` with the appropriate metadata.
+        """
         if Path(fp).suffix not in [".sav", ".zsav"]:
             warnings.warn(f"Trying to read file '{fp}' with extension different from .sav or .zsav")
         if Path(fp).suffix == ".zsav":
@@ -121,10 +191,22 @@ class SavFileReader(BaseFileReader):
 
 @filereader
 class CsvFileReader(BaseFileReader):
+    """File reader to read and write CSV files."""
+
     name = "csv"
     extensions = [".csv", ".tsv"]
 
     def read_dataset(self, fp, **kwargs):
+        """Read CSV file.
+
+        Parameters
+        ----------
+        fp:
+            File to be read with the file reader.
+        kwargs:
+            Extra keyword arguments to be passed to polars.
+
+        """
         df = pl.read_csv(
             fp, try_parse_dates=True, infer_schema_length=10000,
             null_values=self.null_values,
@@ -136,7 +218,32 @@ class CsvFileReader(BaseFileReader):
         return df
 
     @classmethod
-    def from_file(cls, fp, separator=None, eol_char="\n", quote_char='"', null_values=None, **kwargs):
+    def from_file(cls, fp: Union[Path, str], separator: Optional[str] = None, eol_char: str = "\n",
+                  quote_char: str = '"', null_values: Optional[list] = None, **kwargs):
+        r"""Read a csv file.
+
+        See :func:`read_csv` for more detail.
+
+        Parameters
+        ----------
+        fp:
+            File to be read.
+        separator:
+            Separator, by default None
+        eol_char:
+            End of line character, by default "\\n"
+        quote_char:
+            Quotation character, by default '"'
+        null_values:
+            Null values, by default None
+
+        Returns
+        -------
+        df:
+            Polars dataframe for the file.
+        file_reader:
+            File reader that read the dataset.
+        """
         if Path(fp).suffix == ".tsv" and separator is None:
             separator = "\t"
         if separator is None:
@@ -170,36 +277,103 @@ class CsvFileReader(BaseFileReader):
         df.write_csv(out_fp, **self.metadata)
 
 
-def file_handler_from_dict(file_format_dict):
+def file_reader_from_dict(file_format_dict):
+    """Create a file reader from a dictionary.
+
+    Parameters
+    ----------
+    file_format_dict:
+        Dictionary containing information to create the file reader.
+    """
     for handler_name, handler in _AVAILABLE_FILE_HANDLERS.items():
         if file_format_dict["file_handler_name"] == handler_name:
             return handler(metadata=file_format_dict["format_metadata"],
                            file_name=file_format_dict["file_name"])
-    raise ValueError(f"Cannot find file handler with name '{handler_name}'.")
+    raise ValueError(f"Cannot find file reader with name '{handler_name}'.")
 
-def get_file_handler(fp):
+def get_file_reader(fp):
+    """Attempt to create file reader from a dataset.
+
+    Default options will be used to read in the file.
+
+    Parameters
+    ----------
+    fp
+        Filename of the dataset to be read.
+
+    Returns
+    -------
+    df:
+        Dataframe with the dataset.
+    file_reader:
+        The file reader that has created the dataframe.
+
+    Raises
+    ------
+    ValueError
+        When the extension is unknown.
+    """
     suffix = Path(fp).suffix
 
     for handler_name, handler in _AVAILABLE_FILE_HANDLERS.items():
         if suffix in handler.extensions:
             return handler.from_file(fp)
-    raise ValueError(f"Cannot find handler for files with extension '{suffix}'.")
+    raise ValueError(f"Files with extension '{suffix}' are not supported.")
 
 
 def read_csv(fp, separator=None, eol_char="\n", quote_char='"', null_values=None, **kwargs):
+    r"""Create the file reader from a file.
+
+    This function is a wrapper around
+    `polars.read_csv <https://docs.pola.rs/api/python/dev/reference/api/polars.read_csv.html>`
+    with different defaults for some of the keywords, but all keywords should be passed through.
+
+    Parameters
+    ----------
+    fp:
+        File to be read.
+    separator
+        Separator for the csv file, by default None in which case
+        the separator will be a "," for .csv files and a "\\t" for
+        .tsv files.
+    eol_char:
+        End of line character, by default "\\n"
+    quote_char:
+        Quotation character, by default '"'
+    null_values:
+        Values that will be replaced by nulls, by default None in which
+        case the defaults of polars will be used ["", "na", "NA", "N/A", "Na"].
+    kwargs:
+        Extra keyword arguments to be passed through to polars.
+
+    Returns
+    -------
+    df:
+        Data frame read from the files.
+    cls:
+        CsvFileReader instance containing information on how to write CSV files.
+
+    """
     return CsvFileReader.from_file(fp, separator=separator, eol_char=eol_char,
                                    quote_char=quote_char, null_values=null_values, **kwargs)
 
 def read_tsv(*args, **kwargs):
+    """Alias for :func:`read_csv`."""
     read_csv(*args, **kwargs)
 
 def read_sav(fp):
-    return SavFileReader(fp)
+    """Create the file reader from a .sav or .zsav file.
 
-# def load_file_handler(fp):
-#     with open(fp, "r", encoding="utf-8") as handle:
-#         metadict = json.load(handle)
-#     for handler_name, handler_class in _AVAILABLE_FILE_HANDLERS.items():
-#         if handler_class.name == metadict["file_handler_name"]:
-#             return handler_class(metadict["kwargs"])
-#     raise ValueError(f"Cannot find handler with name '{metadict['filehandler']}'")
+    Parameters
+    ----------
+    fp:
+        File to read the dataframe and metadata from.
+
+    Returns
+    -------
+    df:
+        Polars dataframe with the converted columns.
+    file_reader:
+        An instance of the :class:`SavFileReader` with the appropriate metadata.
+    """
+    return SavFileReader(fp)

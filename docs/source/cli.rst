@@ -4,7 +4,7 @@ Metasyn provides a command-line interface (CLI) for accessing core functionality
 
 The CLI currently has three subcommands:
 
-* The ``create-meta`` subcommand, which allows you to **create generative metadata** from a ``.csv file`` and/or a ``.toml`` configuration file.
+* The ``create-meta`` subcommand, which allows you to **create generative metadata** from a dataset file and/or a ``.toml`` configuration file.
 * The ``synthesize`` subcommand, which allows you to **generate synthetic data** from a ``GMF file``
 * The ``schema`` subcommand, which allows you to **create validation schemas** for GMF files.
 
@@ -18,11 +18,12 @@ At any point, you can also use the help command to get more information about th
 
 .. admonition:: When should I (not) use the CLI
 
-   The CLI is mostly feature complete from creating synthetic data from ``.csv files``, but there are some limitations. The main limitation is that it needs to read the
-   csv file, for which it tries to use sensible default settings. However, this can result in errors. If you encounter errors, might want to either preprocess your data
+   The CLI is mostly feature complete from creating synthetic data from files, but there are some limitations. Currently, it can read ``.sav``, ``.zsav`` and ``.csv``
+   files. The main limitation is that it needs to read the
+   file, for which it tries to use sensible default settings. However, this can result in errors. If you encounter errors, might want to either preprocess your data
    so that it can be read with the default settings, or use the python API instead.
    
-   Another limitation is that you cannot specify which columns should be categorical.
+   Another limitation is that you cannot specify which columns should be categorical for ``.csv`` files.
 
 Accessing the CLI
 -----------------
@@ -83,7 +84,12 @@ The ``metasyn`` CLI should now be up and running within the Docker container and
 
 Creating generative metadata
 ----------------------------
-The ``create-meta`` subcommand combines the estimation and serialization steps in the pipeline into one, this allows you to generate generative metadata for a tabular dataset (in CSV format), and store it in a GMF (Generative Metadata Format) file.
+The ``create-meta`` subcommand combines the estimation and serialization steps in the pipeline into one, this allows you to generate generative metadata for a tabular dataset,
+and store it in a GMF (Generative Metadata Format) file.
+
+.. note::
+
+   To read ``.sav`` and ``.zsav`` files, you will need to install the ``pyreadstat`` package.
 
 .. image:: /images/pipeline_cli_create_meta.png
    :alt: Creating Generative Metadata using the CLI
@@ -97,13 +103,13 @@ The ``create-meta`` command can be used as follows:
 
 This will:
 
-1. Read the CSV file from the `[input]` filepath
+1. Read the file from the `[input]` filepath
 2. Estimate the metadata from the data
 3. Serialize the metadata into a GMF file and save it at the `[output]` filepath
 
 The ``create-meta`` command takes two positional arguments:
 
-* ``[input]``: The filepath and name of the CSV file from which the metadata will be generated.
+* ``[input]``: The filepath and name of the file from which the metadata will be generated.
 * ``[output]``: The filepath and name of the output JSON file that will contain the generative metadata.
 
 An example of how to use the ``create-meta`` subcommand is as follows:
@@ -161,7 +167,7 @@ This will:
 The ``synthesize`` command takes two positional arguments:
 
 * ``[input]``: The filepath and name of the GMF file.
-* ``[output]``: The Filepath and name of the desired synthetic data output file. The file extension determines the output format. Currently supported file types are ``.csv``, ``.feather``, ``.parquet``, ``.pkl`` and ``.xlsx``.
+* ``[output]``: The Filepath and name of the desired synthetic data output file. The file extension determines the output format. Currently supported file types are ``.csv``, ``.sav``, ``.zsav``, ``.feather``, ``.parquet``, ``.pkl`` and ``.xlsx``.
 
 An example of how to use the ``synthesize`` subcommand is as follows:
 
