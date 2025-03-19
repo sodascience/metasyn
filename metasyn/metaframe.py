@@ -58,10 +58,11 @@ class MetaFrame():
 
     def __init__(self, meta_vars: List[MetaVar],
                  n_rows: Optional[int] = None,
-                 file_format: Optional[dict] = None):
+                 file_format: Union[None, BaseFileReader, dict[str, Any]] = None):
         self.meta_vars = meta_vars
         self.n_rows = n_rows
-        self.file_format = file_format
+        self.file_format = file_format  # type: ignore
+        self._file_format: Union[None, dict[str, Any]]
 
     @property
     def n_columns(self) -> int:
@@ -78,7 +79,7 @@ class MetaFrame():
             n_rows: Optional[int] = None,
             progress_bar: bool = True,
             config: Optional[Union[pathlib.Path, str, MetaConfig]] = None,
-            file_format: Union[dict, BaseFileReader, None] = None):
+            file_format: Union[dict[str, Any], BaseFileReader, None] = None):
         """Create a metasyn object from a polars (or pandas) dataframe.
 
         The Polars dataframe should be formatted already with the correct
@@ -239,14 +240,17 @@ class MetaFrame():
         )
 
     @property
-    def file_format(self) -> dict[str, Any]:
+    def file_format(self) -> Optional[dict[str, Any]]:
         return self._file_format
 
     @file_format.setter
-    def file_format(self, new_file_format: Union[None, dict, BaseFileReader]):
+    def file_format(self, new_file_format: Union[None, dict[str, Any], BaseFileReader]):
         if isinstance(new_file_format, BaseFileReader):
-            new_file_format = new_file_format.to_dict()
-        self._file_format = new_file_format
+            out_file_format = new_file_format.to_dict()
+        else:
+            out_file_format = new_file_format
+
+        self._file_format = out_file_format
 
     @property
     def descriptions(self) -> dict[str, str]:
@@ -401,6 +405,8 @@ class MetaFrame():
         if validate:
             validate_gmf_dict(self_dict)
 
+        if self.file_format is None:
+            self_dict.pop("file_format")
         doc = tomlkit.loads(tomlkit.dumps(self_dict))
         doc["n_rows"].comment("Number of rows")
         doc["n_columns"].comment("""Number of columns
@@ -524,7 +530,7 @@ class MetaFrame():
 
         """
         if file_reader is not None:
-            self.file_format = file_reader
+            self.file_format = file_reader  # type: ignore
         if self.file_format is None:
             raise ValueError("Cannot write synthetic dataset without file handler."
                              " Use write_synthetic(..., file_handler=your_file_handler)")

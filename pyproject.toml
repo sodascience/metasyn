@@ -90,6 +90,7 @@ module = [
     "wget.*",
     "lingua.*",
     "tomllib.*",
+    "pyreadstat.*",
 ]
 ignore_missing_imports = true
 

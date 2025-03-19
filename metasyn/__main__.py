@@ -15,11 +15,10 @@ try:  # Python < 3.10 (backport)
 except ImportError:
     from importlib.metadata import entry_points, version  # type: ignore [assignment]
 
-import polars as pl
 
 from metasyn import MetaFrame
 from metasyn.config import MetaConfig
-from metasyn.filehandler import get_file_handler
+from metasyn.filereader import get_file_reader
 from metasyn.validation import create_schema
 
 EXAMPLE_CREATE_META="metasyn create-meta your_dataset.csv -o your_gmf_file.json --config your_config.toml" # noqa: E501
@@ -131,7 +130,7 @@ Examples:
             raise ValueError("Please supply either an input dataset or a configuration file.")
         meta_frame = MetaFrame.from_config(meta_config)
     else:
-        data_frame, file_handler = get_file_handler(args.input)
+        data_frame, file_handler = get_file_reader(args.input)
         # data_frame, file_handler = handler_class.from_file(args.input)
         # data_frame = pl.read_csv(args.input, try_parse_dates=True, infer_schema_length=10000,
                                 #  null_values=["", "na", "NA", "N/A", "Na"],

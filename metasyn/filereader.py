@@ -28,7 +28,7 @@ class BaseFileReader(ABC):
     """
 
     name = "base"
-    extensions = []
+    extensions: list[str] = []
 
     def __init__(self, metadata: dict[str, Any], file_name: str):
         """Initialize the file reader with metadata and the original file name.
@@ -219,7 +219,7 @@ class CsvFileReader(BaseFileReader):
 
     @classmethod
     def from_file(cls, fp: Union[Path, str], separator: Optional[str] = None, eol_char: str = "\n",
-                  quote_char: str = '"', null_values: Optional[list] = None, **kwargs):
+                  quote_char: str = '"', null_values: Union[None, str, list[str]] = None, **kwargs):
         r"""Read a csv file.
 
         See :func:`read_csv` for more detail.
@@ -263,8 +263,8 @@ class CsvFileReader(BaseFileReader):
             eol_char=eol_char,
         )
         pl_keywords.update(kwargs)
+        df = pl.read_csv(fp, **pl_keywords)  # type: ignore
 
-        df = pl.read_csv(fp, **pl_keywords)
         metadata = {
             "separator": separator,
             "line_terminator": eol_char,
@@ -321,7 +321,9 @@ def get_file_reader(fp):
     raise ValueError(f"Files with extension '{suffix}' are not supported.")
 
 
-def read_csv(fp, separator=None, eol_char="\n", quote_char='"', null_values=None, **kwargs):
+def read_csv(fp: Union[Path, str], separator: Optional[str] = None, eol_char: str = "\n",
+             quote_char: str = '"', null_values: Union[str, list[str], None]=None,
+             **kwargs):
     r"""Create the file reader from a file.
 
     This function is a wrapper around
@@ -361,7 +363,7 @@ def read_tsv(*args, **kwargs):
     """Alias for :func:`read_csv`."""
     read_csv(*args, **kwargs)
 
-def read_sav(fp):
+def read_sav(fp: Union[Path, str]):
     """Create the file reader from a .sav or .zsav file.
 
     Parameters
@@ -376,4 +378,4 @@ def read_sav(fp):
     file_reader:
         An instance of the :class:`SavFileReader` with the appropriate metadata.
     """
-    return SavFileReader(fp)
+    return SavFileReader.from_file(fp)
