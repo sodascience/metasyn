@@ -199,7 +199,7 @@ class MetaFrame():
 
     def to_dict(self) -> Dict[str, Any]:
         """Create dictionary with the properties for recreation."""
-        return {
+        self_dict = {
             "gmf_version": "1.1",
             "n_rows": self.n_rows,
             "n_columns": self.n_columns,
@@ -213,6 +213,9 @@ class MetaFrame():
             "file_format": self.file_format,
             "vars": [var.to_dict() for var in self.meta_vars],
         }
+        if self.file_format is None:
+            self_dict.pop("file_format")
+        return self_dict
 
     def __getitem__(self, key: Union[int, str]) -> MetaVar:
         """Return meta var either by variable name or index."""
@@ -405,8 +408,6 @@ class MetaFrame():
         if validate:
             validate_gmf_dict(self_dict)
 
-        if self.file_format is None:
-            self_dict.pop("file_format")
         doc = tomlkit.loads(tomlkit.dumps(self_dict))
         doc["n_rows"].comment("Number of rows")
         doc["n_columns"].comment("""Number of columns
