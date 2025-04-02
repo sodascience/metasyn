@@ -61,8 +61,8 @@ class MetaFrame():
                  file_format: Union[None, BaseFileReader, dict[str, Any]] = None):
         self.meta_vars = meta_vars
         self.n_rows = n_rows
-        self.file_format = file_format  # type: ignore
         self._file_format: Union[None, dict[str, Any]]
+        self.file_format = file_format  # type: ignore
 
     @property
     def n_columns(self) -> int:
@@ -498,7 +498,7 @@ class MetaFrame():
 
     def write_synthetic(self, file_name: Union[None, Path, str] = None,
                         n: Optional[int] = None, seed: Optional[int] = None,
-                        file_reader: Union[None, dict, BaseFileReader] = None):
+                        file_format: Union[None, dict, BaseFileReader] = None):
         """Write a synthetic dataset to a file.
 
         To write a synthetic dataset, by default it will try to create a file that has
@@ -517,24 +517,32 @@ class MetaFrame():
             in which case the number of rows of the original dataset will be used.
         seed:
             Set the seed for creating the synthetic dataset, by default None
-        file_reader:
-            File reader to write the file with. This is for example an instance of
-            :class:`metasyn.filereader.CsvFileReader`
-            or :class:`metasyn.filereader.SavFileReader`, by default None in which case the file
-            reader that was in the GMF file was used.
+        file_format:
+            File format that determines how the file will be written. This is a dictionary
+            that can be created by a file reader with the
+            :meth:`metasyn.filereader.BaseFileReader.to_dict` method. Example file reader
+            classes are :class:`metasyn.filereader.CsvFileReader` and
+            class:`metasyn.filereader.SavFileReader`. By default the file_format is None,
+            in which case the file reader from the GMF file will be used, otherwise an error
+            will be thrown.
 
         Raises
         ------
         ValueError:
-            If the file reader is None, and the MetaFrame object itself does not have a file reader
+            If the file format is None, and the MetaFrame object itself does not have a file format
             either.
 
         """
-        if file_reader is not None:
-            self.file_format = file_reader  # type: ignore
+        if file_format is not None:
+            if self.file_format is not None:
+                if self.file_format["file_reader_name"] != file_format["file_read_name"]:
+                    warn("Writing the synthetic file with a different format as the original "
+                         f"dataset. Original: {self.file_format['file_reader_name']}, "
+                         f"Synthetic: {file_format['file_reader_name']}")
+            self.file_format = file_format  # type: ignore
         if self.file_format is None:
             raise ValueError("Cannot write synthetic dataset without file handler."
-                             " Use write_synthetic(..., file_handler=your_file_handler)")
+                             " Use write_synthetic(..., file_format=your_file_handler.to_dict())")
         syn_df = self.synthesize(n, seed)
         file_handler = file_reader_from_dict(self.file_format)
         file_handler.write_synthetic(syn_df, file_name)

@@ -11,7 +11,5 @@ more control over the workings of the ``metasyn`` package.
    contributing
    overview
    distributions
+   filereaders
    plugins
-
-
-

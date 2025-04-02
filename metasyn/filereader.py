@@ -45,15 +45,18 @@ class BaseFileReader(ABC):
         self.metadata = metadata
         self.file_name = file_name
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, Any]:
         """Convert the class instance to a dictionary.
 
         Returns
         -------
             A dictionary containing all information to reconstruct the file reader.
         """
+        if self.name not in _AVAILABLE_FILE_HANDLERS:
+            warnings.warn(f"Current file reader {self.name} is not available, did you forget to use"
+                          f" the decorator @filereader for the class {self.__class__}?")
         return {
-            "file_handler_name": self.name,
+            "file_reader_name": self.name,
             "format_metadata": self.metadata,
             "file_name": self.file_name,
         }
@@ -123,7 +126,7 @@ class SavFileReader(BaseFileReader):
             import pyreadstat
         except ImportError as err:
             raise ImportError(
-                "Please install pyreadstat to use the .sav/.zsav file handler.") from err
+                "Please install pyreadstat to use the .sav/.zsav file reader.") from err
 
         pandas_df, prs_metadata = pyreadstat.read_sav(fp, apply_value_formats=True)
         df = pl.DataFrame(pandas_df)
@@ -286,7 +289,7 @@ def file_reader_from_dict(file_format_dict):
         Dictionary containing information to create the file reader.
     """
     for handler_name, handler in _AVAILABLE_FILE_HANDLERS.items():
-        if file_format_dict["file_handler_name"] == handler_name:
+        if file_format_dict["file_reader_name"] == handler_name:
             return handler(metadata=file_format_dict["format_metadata"],
                            file_name=file_format_dict["file_name"])
     raise ValueError(f"Cannot find file reader with name '{handler_name}'.")
