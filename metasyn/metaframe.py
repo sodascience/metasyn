@@ -249,7 +249,7 @@ class MetaFrame():
     @file_format.setter
     def file_format(self, new_file_format: Union[None, dict[str, Any], BaseFileReader]):
         if isinstance(new_file_format, BaseFileReader):
-            out_file_format = new_file_format.to_dict()
+            out_file_format: Optional[dict[str, Any]] = new_file_format.to_dict()
         else:
             out_file_format = new_file_format
 
@@ -534,8 +534,10 @@ class MetaFrame():
 
         """
         if file_format is not None:
+            if isinstance(file_format, BaseFileReader):
+                file_format = file_format.to_dict()
             if self.file_format is not None:
-                if self.file_format["file_reader_name"] != file_format["file_read_name"]:
+                if self.file_format["file_reader_name"] != file_format["file_reader_name"]:
                     warn("Writing the synthetic file with a different format as the original "
                          f"dataset. Original: {self.file_format['file_reader_name']}, "
                          f"Synthetic: {file_format['file_reader_name']}")

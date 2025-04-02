@@ -55,10 +55,10 @@ For reading a CSV file, you should give the ``data_types`` dictionary as an argu
 
 .. code-block:: python
 
-   df, file_reader = ms.read_csv(csv_path, schema_overrides=data_types)
+   df, file_format = ms.read_csv(csv_path, schema_overrides=data_types)
 
 
-This converts the CSV file into a DataFrame named ``df``. Additionally, we have a ``file_reader`` object
+This converts the CSV file into a DataFrame named ``df``. Additionally, we have a ``file_format`` object
 that remembers the name of your file, that it was a CSV file and more.
 
 .. note:: 
@@ -90,9 +90,9 @@ With the DataFrame loaded, you can now generate a :obj:`MetaFrame <metasyn.metaf
 
 .. code-block:: python
 
-   mf = MetaFrame.fit_dataframe(df, file_reader=file_reader)
+   mf = MetaFrame.fit_dataframe(df, file_format=file_format)
 
-This creates a MetaFrame named ``mf``. Note that you don't have to supply the ``file_reader`` argument.
+This creates a MetaFrame named ``mf``. Note that you don't have to supply the ``file_format`` argument.
 However, you will have to write the synthetic file manually.
 
 We can inspect the MetaFrame by printing it (``print(mf)``). This will produce the following output:
