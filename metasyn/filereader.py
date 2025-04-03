@@ -55,6 +55,9 @@ class BaseFileReader(ABC):
         if self.name not in _AVAILABLE_FILE_HANDLERS:
             warnings.warn(f"Current file reader {self.name} is not available, did you forget to use"
                           f" the decorator @filereader for the class {self.__class__}?")
+        if self.name == "base":
+            warnings.warn(f"Class attribute for {self.__class__} should not be 'base'."
+                           " Please give another name to your file reader.")
         return {
             "file_reader_name": self.name,
             "format_metadata": self.metadata,
@@ -100,6 +103,8 @@ class BaseFileReader(ABC):
         if Path(fp).is_file() and not overwrite:
             raise FileExistsError(f"File '{fp}' already exists, choose a different name or write "
                                   "to a different directory.")
+        elif Path(fp).is_dir():
+            fp = Path(fp) / self.file_name
         self._write_synthetic(df, fp)
 
 
@@ -116,11 +121,11 @@ class SavFileReader(BaseFileReader):
 
     def read_dataset(self, fp: Union[Path, str]):
         """Read the dataset without the metadata."""
-        df, _ = self._get_df_metadata(fp)
+        df, _ = SavFileReader._get_df_metadata(fp)
         return df
 
-    @classmethod
-    def _get_df_metadata(cls, fp: Union[Path, str]):
+    @staticmethod
+    def _get_df_metadata(fp: Union[Path, str]):
         """Read the dataset including the metadata."""
         try:
             import pyreadstat
@@ -212,11 +217,11 @@ class CsvFileReader(BaseFileReader):
         """
         df = pl.read_csv(
             fp, try_parse_dates=True, infer_schema_length=10000,
-            null_values=self.null_values,
+            null_values=self.metadata["null_value"],
             ignore_errors=True,
-            separator=self.separator,
-            quote_char=self.quote_char,
-            eol_char=self.eol_char,
+            separator=self.metadata["separator"],
+            quote_char=self.metadata["quote_char"],
+            # eol_char=self.metadata["eol_char"],
             **kwargs)
         return df
 
@@ -364,7 +369,7 @@ def read_csv(fp: Union[Path, str], separator: Optional[str] = None, eol_char: st
 
 def read_tsv(*args, **kwargs):
     """Alias for :func:`read_csv`."""
-    read_csv(*args, **kwargs)
+    return read_csv(*args, **kwargs)
 
 def read_sav(fp: Union[Path, str]):
     """Create the file reader from a .sav or .zsav file.
