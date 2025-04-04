@@ -136,7 +136,7 @@ Examples:
                                 #  null_values=["", "na", "NA", "N/A", "Na"],
                                 #  ignore_errors=True)
         meta_frame = MetaFrame.fit_dataframe(data_frame, config=meta_config)
-        meta_frame.file_format = file_handler
+        meta_frame.file_format = file_handler.to_dict()
     meta_frame.save(args.output)
 
 
