@@ -299,7 +299,7 @@ def file_reader_from_dict(file_format_dict):
                            file_name=file_format_dict["file_name"])
     raise ValueError(f"Cannot find file reader with name '{handler_name}'.")
 
-def get_file_reader(fp):
+def get_file_reader(fp) -> tuple[pl.DataFrame, BaseFileReader]:
     """Attempt to create file reader from a dataset.
 
     Default options will be used to read in the file.
@@ -331,7 +331,7 @@ def get_file_reader(fp):
 
 def read_csv(fp: Union[Path, str], separator: Optional[str] = None, eol_char: str = "\n",
              quote_char: str = '"', null_values: Union[str, list[str], None]=None,
-             **kwargs):
+             **kwargs) -> tuple[pl.DataFrame, CsvFileReader]:
     r"""Create the file reader from a file.
 
     This function is a wrapper around
@@ -367,11 +367,11 @@ def read_csv(fp: Union[Path, str], separator: Optional[str] = None, eol_char: st
     return CsvFileReader.from_file(fp, separator=separator, eol_char=eol_char,
                                    quote_char=quote_char, null_values=null_values, **kwargs)
 
-def read_tsv(*args, **kwargs):
+def read_tsv(*args, **kwargs) -> tuple[pl.DataFrame, CsvFileReader]:
     """Alias for :func:`read_csv`."""
     return read_csv(*args, **kwargs)
 
-def read_sav(fp: Union[Path, str]):
+def read_sav(fp: Union[Path, str]) -> tuple[pl.DataFrame, SavFileReader]:
     """Create the file reader from a .sav or .zsav file.
 
     Parameters
