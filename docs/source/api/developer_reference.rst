@@ -68,6 +68,13 @@ metasyn.util module
    :undoc-members:
    :show-inheritance:
 
+metasyn.filereader module
+^^^^^^^^^^^^^^^^^^^^^^^^^
+.. automodule:: metasyn.filereader
+   :members:
+   :private-members:
+   :undoc-members:
+   :show-inheritance:
 
 metasyn.distribution.base module
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -76,3 +83,4 @@ metasyn.distribution.base module
    :members:
    :show-inheritance:
    :private-members:
+

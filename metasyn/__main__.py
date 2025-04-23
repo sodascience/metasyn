@@ -15,10 +15,10 @@ try:  # Python < 3.10 (backport)
 except ImportError:
     from importlib.metadata import entry_points, version  # type: ignore [assignment]
 
-import polars as pl
 
 from metasyn import MetaFrame
 from metasyn.config import MetaConfig
+from metasyn.filereader import get_file_reader
 from metasyn.validation import create_schema
 
 EXAMPLE_CREATE_META="metasyn create-meta your_dataset.csv -o your_gmf_file.json --config your_config.toml" # noqa: E501
@@ -77,7 +77,6 @@ def main() -> None:
         synthesize()
     elif subcommand == "schema":
         schema()
-
     elif subcommand == "create-meta":
         create_metadata()
     else:
@@ -131,10 +130,13 @@ Examples:
             raise ValueError("Please supply either an input dataset or a configuration file.")
         meta_frame = MetaFrame.from_config(meta_config)
     else:
-        data_frame = pl.read_csv(args.input, try_parse_dates=True, infer_schema_length=10000,
-                                 null_values=["", "na", "NA", "N/A", "Na"],
-                                 ignore_errors=True)
+        data_frame, file_handler = get_file_reader(args.input)
+        # data_frame, file_handler = handler_class.from_file(args.input)
+        # data_frame = pl.read_csv(args.input, try_parse_dates=True, infer_schema_length=10000,
+                                #  null_values=["", "na", "NA", "N/A", "Na"],
+                                #  ignore_errors=True)
         meta_frame = MetaFrame.fit_dataframe(data_frame, config=meta_config)
+        meta_frame.file_format = file_handler.to_dict()
     meta_frame.save(args.output)
 
 
@@ -202,26 +204,28 @@ Example: {EXAMPLE_SYNTHESIZE}
         print(meta_frame.synthesize(6, seed=args.seed))
         return
 
-    # Generate a data frame
-    data_frame = meta_frame.synthesize(args.num_rows, seed=args.seed)
 
     # Store the dataframe to file
-    if args.output.suffix == ".csv":
-        data_frame.write_csv(args.output)
-    elif args.output.suffix == ".feather":
-        data_frame.write_ipc(args.output)
-    elif args.output.suffix == ".parquet":
-        data_frame.write_parquet(args.output)
-    elif args.output.suffix == ".xlsx":
-        data_frame.write_excel(args.output)
-    elif args.output.suffix == ".pkl":
-        with args.output.open("wb") as pkl_file:
-            pickle.dump(data_frame, file=pkl_file)
+    if meta_frame.file_format is not None:
+        meta_frame.write_synthetic(args.output, n=args.num_rows, seed=args.seed)
     else:
-        parser.error(
-            f"Unsupported output file format ({args.output.suffix})."
-            "Use .csv, .feather, .parquet, .pkl, or .xlsx.",
-        )
+        data_frame = meta_frame.synthesize(n=args.num_rows, seed=args.seed)
+        if args.output.suffix == ".csv":
+            data_frame.write_csv(args.output)
+        elif args.output.suffix == ".feather":
+            data_frame.write_ipc(args.output)
+        elif args.output.suffix == ".parquet":
+            data_frame.write_parquet(args.output)
+        elif args.output.suffix == ".xlsx":
+            data_frame.write_excel(args.output)
+        elif args.output.suffix == ".pkl":
+            with args.output.open("wb") as pkl_file:
+                pickle.dump(data_frame, file=pkl_file)
+        else:
+            parser.error(
+                f"Unsupported output file format ({args.output.suffix})."
+                "Use .csv, .feather, .parquet, .pkl, or .xlsx.",
+            )
 
 
 def schema() -> None:

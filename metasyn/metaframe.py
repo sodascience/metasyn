@@ -21,6 +21,7 @@ except ImportError:
 from tqdm import tqdm
 
 from metasyn.config import MetaConfig
+from metasyn.filereader import BaseFileReader, file_reader_from_dict
 from metasyn.privacy import BasePrivacy, get_privacy
 from metasyn.util import set_global_seeds
 from metasyn.validation import validate_gmf_dict
@@ -56,9 +57,12 @@ class MetaFrame():
     """
 
     def __init__(self, meta_vars: List[MetaVar],
-                 n_rows: Optional[int] = None):
+                 n_rows: Optional[int] = None,
+                 file_format: Union[None, BaseFileReader, dict[str, Any]] = None):
         self.meta_vars = meta_vars
         self.n_rows = n_rows
+        self._file_format: Union[None, dict[str, Any]]
+        self.file_format = file_format  # type: ignore
 
     @property
     def n_columns(self) -> int:
@@ -74,7 +78,8 @@ class MetaFrame():
             privacy: Optional[Union[BasePrivacy, dict]] = None,
             n_rows: Optional[int] = None,
             progress_bar: bool = True,
-            config: Optional[Union[pathlib.Path, str, MetaConfig]] = None):
+            config: Optional[Union[pathlib.Path, str, MetaConfig]] = None,
+            file_format: Union[dict[str, Any], BaseFileReader, None] = None):
         """Create a metasyn object from a polars (or pandas) dataframe.
 
         The Polars dataframe should be formatted already with the correct
@@ -173,9 +178,9 @@ class MetaFrame():
             if meta_config.n_rows is None:
                 raise ValueError("Please provide the number of rows in the configuration, "
                                  "or supply a DataFrame.")
-            return cls(all_vars, meta_config.n_rows)
+            return cls(all_vars, meta_config.n_rows, file_format)
         n_rows = len(df) if n_rows is None else n_rows
-        return cls(all_vars, n_rows)
+        return cls(all_vars, n_rows, file_format)
 
     @classmethod
     def from_config(cls, meta_config: MetaConfig) -> MetaFrame:
@@ -194,7 +199,8 @@ class MetaFrame():
 
     def to_dict(self) -> Dict[str, Any]:
         """Create dictionary with the properties for recreation."""
-        return {
+        self_dict = {
+            "gmf_version": "1.1",
             "n_rows": self.n_rows,
             "n_columns": self.n_columns,
             "provenance": {
@@ -204,8 +210,12 @@ class MetaFrame():
                 },
                 "creation time": datetime.now().isoformat()
             },
+            "file_format": self.file_format,
             "vars": [var.to_dict() for var in self.meta_vars],
         }
+        if self.file_format is None:
+            self_dict.pop("file_format")
+        return self_dict
 
     def __getitem__(self, key: Union[int, str]) -> MetaVar:
         """Return meta var either by variable name or index."""
@@ -231,6 +241,19 @@ class MetaFrame():
             f"# Columns: {self.n_columns}\n\n"
             f"{vars_formatted}\n"
         )
+
+    @property
+    def file_format(self) -> Optional[dict[str, Any]]:
+        return self._file_format
+
+    @file_format.setter
+    def file_format(self, new_file_format: Union[None, dict[str, Any], BaseFileReader]):
+        if isinstance(new_file_format, BaseFileReader):
+            out_file_format: Optional[dict[str, Any]] = new_file_format.to_dict()
+        else:
+            out_file_format = new_file_format
+
+        self._file_format = out_file_format
 
     @property
     def descriptions(self) -> dict[str, str]:
@@ -348,7 +371,7 @@ class MetaFrame():
 
         n_rows = self_dict["n_rows"]
         meta_vars = [MetaVar.from_dict(d) for d in self_dict["vars"]]
-        return cls(meta_vars, n_rows)
+        return cls(meta_vars, n_rows, self_dict.get("file_format"))
 
     def to_json(self, fp: Union[pathlib.Path, str], validate: bool = True) -> None:
         """Export, deprecated method, use Metaframe.save_json instead."""
@@ -375,7 +398,7 @@ class MetaFrame():
 
     @no_type_check
     def save_toml(self, fp: Optional[Union[pathlib.Path, str]],
-                       validate: bool = True) -> None:
+                        validate: bool = True) -> None:
         try:
             import tomlkit
         except ImportError:
@@ -448,7 +471,7 @@ class MetaFrame():
 
         n_rows = self_dict["n_rows"]
         meta_vars = [MetaVar.from_dict(d) for d in self_dict["vars"]]
-        return cls(meta_vars, n_rows)
+        return cls(meta_vars, n_rows, self_dict.get("file_format"))
 
     def synthesize(self, n: Optional[int] = None, seed: Optional[int] = None) -> pl.DataFrame:
         """Create a synthetic Polars dataframe.
@@ -472,6 +495,59 @@ class MetaFrame():
             set_global_seeds(seed)
         synth_dict = {var.name: var.draw_series(n, seed=None) for var in self.meta_vars}
         return pl.DataFrame(synth_dict)
+
+    def write_synthetic(self, file_name: Union[None, Path, str] = None,
+                        n: Optional[int] = None, seed: Optional[int] = None,
+                        file_format: Union[None, dict, BaseFileReader] = None):
+        """Write a synthetic dataset to a file.
+
+        To write a synthetic dataset, by default it will try to create a file that has
+        the same format as the original one. For example, if the separator of the CSV
+        file was a comma, then it will write the synthetic data with the same separator.
+        If the file format is not available (GMF files with older versions of metasyn
+        or custom file readers), then you will have to supply your own file reader.
+
+        Parameters
+        ----------
+        file_name:
+            The filename to write the synthetic data to, by default None in which case
+            the same filename will be used as for the original filename if available.
+        n:
+            Number of rows to be written for the new synthetic file, by default None
+            in which case the number of rows of the original dataset will be used.
+        seed:
+            Set the seed for creating the synthetic dataset, by default None
+        file_format:
+            File format that determines how the file will be written. This is a dictionary
+            that can be created by a file reader with the
+            :meth:`metasyn.filereader.BaseFileReader.to_dict` method. Example file reader
+            classes are :class:`metasyn.filereader.CsvFileReader` and
+            class:`metasyn.filereader.SavFileReader`. By default the file_format is None,
+            in which case the file reader from the GMF file will be used, otherwise an error
+            will be thrown.
+
+        Raises
+        ------
+        ValueError:
+            If the file format is None, and the MetaFrame object itself does not have a file format
+            either.
+
+        """
+        if file_format is not None:
+            if isinstance(file_format, BaseFileReader):
+                file_format = file_format.to_dict()
+            if self.file_format is not None:
+                if self.file_format["file_reader_name"] != file_format["file_reader_name"]:
+                    warn("Writing the synthetic file with a different format as the original "
+                         f"dataset. Original: {self.file_format['file_reader_name']}, "
+                         f"Synthetic: {file_format['file_reader_name']}")
+            self.file_format = file_format  # type: ignore
+        if self.file_format is None:
+            raise ValueError("Cannot write synthetic dataset without file handler."
+                             " Use write_synthetic(..., file_format=your_file_handler.to_dict())")
+        syn_df = self.synthesize(n, seed)
+        file_handler = file_reader_from_dict(self.file_format)
+        file_handler.write_synthetic(syn_df, file_name)
 
     def __repr__(self) -> str:
         """Return the MetaFrame as it would be output to JSON."""
