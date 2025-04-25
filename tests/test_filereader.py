@@ -4,8 +4,9 @@ import polars as pl
 import pytest
 from pytest import mark
 
-from metasyn.demo.dataset import _AVAILABLE_DATASETS, demo_file
+from metasyn.demo.dataset import _AVAILABLE_DATASETS, demo_dataframe, demo_file
 from metasyn.filereader import (
+    _AVAILABLE_FILE_READERS,
     BaseFileReader,
     CsvFileReader,
     SavFileReader,
@@ -160,3 +161,15 @@ def test_file_reader_errors():
 
     with pytest.raises(ValueError):
         get_file_reader(Path("tests", "test_filereader.py"))
+
+@mark.parametrize("reader_class",
+                  [x for x in _AVAILABLE_FILE_READERS.values() if not x.__name__.startswith("Bad")])
+def test_default_file_readers(reader_class, tmpdir):
+    df = demo_dataframe("test")
+    suffix = reader_class.extensions[0]
+    fp = Path(tmpdir/f"test_file{suffix}")
+    reader_class.default_reader(fp).write_synthetic(df, fp)
+
+    df_new, _ = reader_class.from_file(fp)
+    assert isinstance(df_new, pl.DataFrame)
+    assert df_new.shape == df.shape

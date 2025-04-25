@@ -214,14 +214,10 @@ Example: {EXAMPLE_SYNTHESIZE}
                                    file_format=file_reader)
     else:
         data_frame = meta_frame.synthesize(n=args.num_rows, seed=args.seed)
-        if args.output.suffix == ".csv":
-            data_frame.write_csv(args.output)
-        elif args.output.suffix == ".feather":
+        if args.output.suffix == ".feather":
             data_frame.write_ipc(args.output)
         elif args.output.suffix == ".parquet":
             data_frame.write_parquet(args.output)
-        elif args.output.suffix == ".xlsx":
-            data_frame.write_excel(args.output)
         elif args.output.suffix == ".pkl":
             with args.output.open("wb") as pkl_file:
                 pickle.dump(data_frame, file=pkl_file)

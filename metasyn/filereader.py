@@ -7,14 +7,14 @@ from typing import Any, Optional, Type, Union
 
 import polars as pl
 
-_AVAILABLE_FILE_HANDLERS = {}
+_AVAILABLE_FILE_READERS = {}
 
 
 def filereader(*args):
     """Register a dataset so that it can be found by name."""
 
     def _wrap(cls):
-        _AVAILABLE_FILE_HANDLERS[cls.name] = cls
+        _AVAILABLE_FILE_READERS[cls.name] = cls
         return cls
 
     return _wrap(*args)
@@ -52,7 +52,7 @@ class BaseFileReader(ABC):
         -------
             A dictionary containing all information to reconstruct the file reader.
         """
-        if self.name not in _AVAILABLE_FILE_HANDLERS:
+        if self.name not in _AVAILABLE_FILE_READERS:
             warnings.warn(f"Current file reader {self.name} is not available, did you forget to use"
                           f" the decorator @filereader for the class {self.__class__}?")
         if self.name == "base":
@@ -346,14 +346,14 @@ class ExcelFileReader(BaseFileReader):
     @classmethod
     def from_file(cls, fp: Union[Path, str], sheet_name: Optional[str] = None):
         df = pl.read_excel(source=str(fp), sheet_name=sheet_name)
-        return df, cls({"sheet_name": sheet_name}, Path(fp).name)
+        return df, cls({"worksheet": sheet_name}, Path(fp).name)
 
     def _write_synthetic(self, df, out_fp):
         df.write_excel(out_fp, **self.metadata)
 
     @classmethod
     def default_reader(cls, fp: Union[Path, str]):
-        return cls({"sheet_name": "Sheet1"}, Path(fp).name)
+        return cls({"worksheet": "Sheet1"}, Path(fp).name)
 
 
 def file_reader_from_dict(file_format_dict: dict) -> BaseFileReader:
@@ -364,7 +364,7 @@ def file_reader_from_dict(file_format_dict: dict) -> BaseFileReader:
     file_format_dict:
         Dictionary containing information to create the file reader.
     """
-    for handler_name, handler in _AVAILABLE_FILE_HANDLERS.items():
+    for handler_name, handler in _AVAILABLE_FILE_READERS.items():
         if file_format_dict["file_reader_name"] == handler_name:
             return handler(metadata=file_format_dict["format_metadata"],
                            file_name=file_format_dict["file_name"])
@@ -399,7 +399,7 @@ def get_file_reader_class(fp: Union[Path, str]) -> Type[BaseFileReader]:
     """Get the file reader class from a filename."""
     suffix = Path(fp).suffix
 
-    for handler_name, handler in _AVAILABLE_FILE_HANDLERS.items():
+    for handler_name, handler in _AVAILABLE_FILE_READERS.items():
         if suffix in handler.extensions:
             return handler
     raise ValueError(f"Files with extension '{suffix}' are not supported.")

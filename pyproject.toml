@@ -49,7 +49,7 @@ GitHub = "https://github.com/sodascience/metasyn"
 documentation = "https://metasyn.readthedocs.io/en/latest/index.html"
 
 [project.optional-dependencies]
-extra = ["xlsxwriter", "pandas", "tomlkit", "pyreadstat"]
+extra = ["pandas", "tomlkit", "pyreadstat", "fastexcel"]
 check = ["ruff", "mypy", "types-tqdm", "types-regex"]
 test = ["pytest", "nbval", "pytest-cov"]
 docs = [
