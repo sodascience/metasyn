@@ -22,11 +22,11 @@ from importlib.metadata import version
 
 from metasyn.demo.dataset import demo_dataframe, demo_file
 from metasyn.distribution.base import metadist
-from metasyn.filereader import read_csv, read_sav, read_tsv
+from metasyn.filereader import read_csv, read_excel, read_sav, read_tsv
 from metasyn.metaframe import MetaFrame
 from metasyn.var import MetaVar
 from metasyn.varspec import VarSpec
 
 __all__ = ["MetaVar", "MetaFrame", "demo_file", "demo_dataframe", "metadist", "VarSpec",
-           "read_csv", "read_sav", "read_tsv"]
+           "read_csv", "read_sav", "read_tsv", "read_excel"]
 __version__ = version("metasyn")

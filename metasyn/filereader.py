@@ -462,3 +462,21 @@ def read_sav(fp: Union[Path, str]) -> tuple[pl.DataFrame, SavFileReader]:
         An instance of the :class:`SavFileReader` with the appropriate metadata.
     """
     return SavFileReader.from_file(fp)
+
+
+def read_excel(fp: Union[Path, str]) -> tuple[pl.DataFrame, ExcelFileReader]:
+    """Read an excel file and create a file reader from that.
+
+    Parameters
+    ----------
+    fp
+        Excel file to read.
+
+    Returns
+    -------
+    df:
+        Polars dataframe representing the excel dataset.
+    file_reader:
+        An instance of the :class:`ExcelFileReader` used for writing excel files.
+    """
+    return ExcelFileReader.from_file(fp)
