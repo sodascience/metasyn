@@ -215,20 +215,6 @@ Example: {EXAMPLE_SYNTHESIZE}
         file_reader = get_file_reader_class(args.output).default_reader(args.output)
         meta_frame.write_synthetic(args.output, n=args.num_rows, seed=args.seed,
                                    file_format=file_reader)
-        # data_frame = meta_frame.synthesize(n=args.num_rows, seed=args.seed)
-        # reader_class
-        # if args.output.suffix == ".feather":
-        #     data_frame.write_ipc(args.output)
-        # elif args.output.suffix == ".parquet":
-        #     data_frame.write_parquet(args.output)
-        # elif args.output.suffix == ".pkl":
-        #     with args.output.open("wb") as pkl_file:
-        #         pickle.dump(data_frame, file=pkl_file)
-        # else:
-        #     parser.error(
-        #         f"Unsupported output file format ({args.output.suffix})."
-        #         "Use .csv, .feather, .parquet, .pkl, or .xlsx.",
-        #     )
 
 
 def schema() -> None:
