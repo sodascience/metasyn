@@ -107,6 +107,22 @@ class BaseFileReader(ABC):
             fp = Path(fp) / self.file_name
         self._write_synthetic(df, fp)
 
+    @classmethod
+    @abstractmethod
+    def default_reader(cls, fp):
+        """Create a defeault reader with the most likely settings for writing.
+
+        Parameters
+        ----------
+        fp
+            File for writing to by default.
+
+        Returns
+        -------
+            An instantiated file reader with default settings.
+        """
+        raise NotImplementedError("Default_reader method is not implemented for the base class.")
+
 
 @filereader
 class SavFileReader(BaseFileReader):
@@ -189,13 +205,24 @@ class SavFileReader(BaseFileReader):
             raise ImportError(
                 "Please install pyreadstat to use the .sav/.zsav file handler.") from err
 
-        for col in df.columns:
-            col_format = self.metadata["variable_format"][col]
-            if (col_format.startswith("F") and not col_format.endswith(".0")
-                    and df[col].dtype == pl.Float64):
-                n_round = int(col_format.split(".")[-1])
-                df = df.with_columns(pl.col(col).round(n_round))
-        pyreadstat.write_sav(df.to_pandas(), out_fp, **self.metadata)
+        if "variable_format" in self.metadata:
+            for col in df.columns:
+                col_format = self.metadata["variable_format"][col]
+                if (col_format.startswith("F") and not col_format.endswith(".0")
+                        and df[col].dtype == pl.Float64):
+                    n_round = int(col_format.split(".")[-1])
+                    df = df.with_columns(pl.col(col).round(n_round))
+
+        # Workaround bug/issue in pyreadstat, datetimes should be in ns or overflow will occur.
+        pd_df = df.to_pandas()
+        for col in pd_df.columns:
+            if df[col].dtype.base_type() == pl.Datetime:
+                pd_df[col] = pd_df[col].astype('datetime64[ns]')
+        pyreadstat.write_sav(pd_df, out_fp, **self.metadata)
+
+    @classmethod
+    def default_reader(cls, fp):
+        return cls({}, fp)
 
 @filereader
 class CsvFileReader(BaseFileReader):
@@ -221,7 +248,6 @@ class CsvFileReader(BaseFileReader):
             ignore_errors=True,
             separator=self.metadata["separator"],
             quote_char=self.metadata["quote_char"],
-            # eol_char=self.metadata["eol_char"],
             **kwargs)
         return df
 
@@ -284,6 +310,32 @@ class CsvFileReader(BaseFileReader):
     def _write_synthetic(self, df, out_fp):
         df.write_csv(out_fp, **self.metadata)
 
+    @classmethod
+    def default_reader(cls, fp: Union[Path, str]):
+        return cls({
+            "separator": ",",
+            "line_terminator": "\n",
+            "quote_char": '"',
+            "null_value": "",
+        }, fp)
+
+@filereader
+class ExcelFileReader(BaseFileReader):
+    name = "excel"
+    extensions = [".xlsx", ".xls", ".xlsb"]
+
+    @classmethod
+    def from_file(cls, fp: Union[Path, str], worksheet: Optional[str] = None):
+        df = pl.read_excel(fp, worksheet)
+        return df, cls({"worksheet": worksheet}, Path(fp).name)
+
+    def _write_synthetic(self, df, out_fp):
+        df.write_excel(out_fp, **self.metadata)
+
+    @classmethod
+    def default_reader(cls, fp: Union[Path, str]):
+        return cls({"worksheet": "Sheet1"}, fp)
+
 
 def file_reader_from_dict(file_format_dict):
     """Create a file reader from a dictionary.
@@ -321,13 +373,16 @@ def get_file_reader(fp) -> tuple[pl.DataFrame, BaseFileReader]:
     ValueError
         When the extension is unknown.
     """
+    return get_file_reader_class(fp).from_file(fp)
+
+
+def get_file_reader_class(fp):
     suffix = Path(fp).suffix
 
     for handler_name, handler in _AVAILABLE_FILE_HANDLERS.items():
         if suffix in handler.extensions:
-            return handler.from_file(fp)
+            return handler
     raise ValueError(f"Files with extension '{suffix}' are not supported.")
-
 
 def read_csv(fp: Union[Path, str], separator: Optional[str] = None, eol_char: str = "\n",
              quote_char: str = '"', null_values: Union[str, list[str], None]=None,
