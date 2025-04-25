@@ -10,6 +10,7 @@ from pytest import fixture, mark
 
 from metasyn import MetaFrame
 from metasyn.validation import validate_gmf_dict
+from metasyn.filereader import _AVAILABLE_FILE_READERS
 
 TMP_DIR_PATH = None
 
@@ -56,7 +57,7 @@ distribution = {implements = "lognormal"}
     return TMP_DIR_PATH
 
 
-@mark.parametrize("ext", [".csv", ".feather", ".parquet", ".pkl", ".xlsx"])
+@mark.parametrize("ext", [x.extensions[0] for x in _AVAILABLE_FILE_READERS.values()])
 def test_cli(tmp_dir, ext):
     """A simple integration test for creating synthetic data from a GMF file."""
     # create out file path with correct extension
