@@ -215,7 +215,7 @@ class SavFileReader(BaseFileReader):
         }
         return df, cls(metadata, Path(fp).name)
 
-    def _write_synthetic(self, df: pl.Dataframe, out_fp: Union[Path, str]):
+    def _write_synthetic(self, df: pl.DataFrame, out_fp: Union[Path, str]):
         try:
             import pyreadstat
         except ImportError as err:
