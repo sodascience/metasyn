@@ -3,7 +3,7 @@
 import warnings
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Optional, Type, Union
 
 import polars as pl
 
@@ -109,7 +109,7 @@ class BaseFileReader(ABC):
 
     @classmethod
     @abstractmethod
-    def default_reader(cls, fp):
+    def default_reader(cls, fp: Union[Path, str]):
         """Create a defeault reader with the most likely settings for writing.
 
         Parameters
@@ -122,6 +122,23 @@ class BaseFileReader(ABC):
             An instantiated file reader with default settings.
         """
         raise NotImplementedError("Default_reader method is not implemented for the base class.")
+
+    @classmethod
+    @abstractmethod
+    def from_file(cls, fp: Union[Path, str]):
+        """Create a file reader from a path.
+
+        Parameters
+        ----------
+        fp
+            Path to read the dataset from.build
+
+        Returns
+        -------
+            An initialized file reader.
+
+        """
+        raise NotImplementedError("from_file method is not implemented for the base class.")
 
 
 @filereader
@@ -198,7 +215,7 @@ class SavFileReader(BaseFileReader):
         }
         return df, cls(metadata, Path(fp).name)
 
-    def _write_synthetic(self, df, out_fp):
+    def _write_synthetic(self, df: pl.Dataframe, out_fp: Union[Path, str]):
         try:
             import pyreadstat
         except ImportError as err:
@@ -221,8 +238,8 @@ class SavFileReader(BaseFileReader):
         pyreadstat.write_sav(pd_df, out_fp, **self.metadata)
 
     @classmethod
-    def default_reader(cls, fp):
-        return cls({}, fp)
+    def default_reader(cls, fp: Union[str, Path]):
+        return cls({}, Path(fp).name)
 
 @filereader
 class CsvFileReader(BaseFileReader):
@@ -231,7 +248,7 @@ class CsvFileReader(BaseFileReader):
     name = "csv"
     extensions = [".csv", ".tsv"]
 
-    def read_dataset(self, fp, **kwargs):
+    def read_dataset(self, fp: Union[Path, str], **kwargs):
         """Read CSV file.
 
         Parameters
@@ -317,7 +334,7 @@ class CsvFileReader(BaseFileReader):
             "line_terminator": "\n",
             "quote_char": '"',
             "null_value": "",
-        }, fp)
+        }, Path(fp).name)
 
 @filereader
 class ExcelFileReader(BaseFileReader):
@@ -327,19 +344,19 @@ class ExcelFileReader(BaseFileReader):
     extensions = [".xlsx", ".xls", ".xlsb"]
 
     @classmethod
-    def from_file(cls, fp: Union[Path, str], worksheet: Optional[str] = None):
-        df = pl.read_excel(fp, worksheet)
-        return df, cls({"worksheet": worksheet}, Path(fp).name)
+    def from_file(cls, fp: Union[Path, str], sheet_name: Optional[str] = None):
+        df = pl.read_excel(source=str(fp), sheet_name=sheet_name)
+        return df, cls({"sheet_name": sheet_name}, Path(fp).name)
 
     def _write_synthetic(self, df, out_fp):
         df.write_excel(out_fp, **self.metadata)
 
     @classmethod
     def default_reader(cls, fp: Union[Path, str]):
-        return cls({"worksheet": "Sheet1"}, fp)
+        return cls({"sheet_name": "Sheet1"}, Path(fp).name)
 
 
-def file_reader_from_dict(file_format_dict):
+def file_reader_from_dict(file_format_dict: dict) -> BaseFileReader:
     """Create a file reader from a dictionary.
 
     Parameters
@@ -353,7 +370,7 @@ def file_reader_from_dict(file_format_dict):
                            file_name=file_format_dict["file_name"])
     raise ValueError(f"Cannot find file reader with name '{handler_name}'.")
 
-def get_file_reader(fp) -> tuple[pl.DataFrame, BaseFileReader]:
+def get_file_reader(fp: Union[Path, str]) -> tuple[pl.DataFrame, BaseFileReader]:
     """Attempt to create file reader from a dataset.
 
     Default options will be used to read in the file.
@@ -378,7 +395,7 @@ def get_file_reader(fp) -> tuple[pl.DataFrame, BaseFileReader]:
     return get_file_reader_class(fp).from_file(fp)
 
 
-def get_file_reader_class(fp):
+def get_file_reader_class(fp: Union[Path, str]) -> Type[BaseFileReader]:
     """Get the file reader class from a filename."""
     suffix = Path(fp).suffix
 
