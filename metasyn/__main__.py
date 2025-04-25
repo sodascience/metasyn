@@ -6,7 +6,6 @@ synthetic data from GMF files and creating json schemas for GMF files.
 import argparse
 import json
 import pathlib
-import pickle
 import sys
 from argparse import RawDescriptionHelpFormatter
 
@@ -214,7 +213,8 @@ Example: {EXAMPLE_SYNTHESIZE}
                                    file_format=file_reader)
     else:
         file_reader = get_file_reader_class(args.output).default_reader(args.output)
-        meta_frame.write_synthetic(args.output, n=args.num_rows, seed=args.seed, file_format=file_reader)
+        meta_frame.write_synthetic(args.output, n=args.num_rows, seed=args.seed,
+                                   file_format=file_reader)
         # data_frame = meta_frame.synthesize(n=args.num_rows, seed=args.seed)
         # reader_class
         # if args.output.suffix == ".feather":
