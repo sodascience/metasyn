@@ -18,7 +18,7 @@ except ImportError:
 
 from metasyn import MetaFrame
 from metasyn.config import MetaConfig
-from metasyn.filereader import get_file_reader, get_file_reader_class, file_reader_from_dict
+from metasyn.filereader import file_reader_from_dict, get_file_reader, get_file_reader_class
 from metasyn.validation import create_schema
 
 EXAMPLE_CREATE_META="metasyn create-meta your_dataset.csv -o your_gmf_file.json --config your_config.toml" # noqa: E501
@@ -210,7 +210,8 @@ Example: {EXAMPLE_SYNTHESIZE}
         file_reader = file_reader_from_dict(meta_frame.file_format)
         if args.output.suffix not in file_reader.extensions:
             file_reader = get_file_reader_class(args.output).default_reader(args.output)
-        meta_frame.write_synthetic(args.output, n=args.num_rows, seed=args.seed, file_format=file_reader)
+        meta_frame.write_synthetic(args.output, n=args.num_rows, seed=args.seed,
+                                   file_format=file_reader)
     else:
         data_frame = meta_frame.synthesize(n=args.num_rows, seed=args.seed)
         if args.output.suffix == ".csv":

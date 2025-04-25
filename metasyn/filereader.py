@@ -321,6 +321,8 @@ class CsvFileReader(BaseFileReader):
 
 @filereader
 class ExcelFileReader(BaseFileReader):
+    """File reader/writer for Microsoft Excel files."""
+
     name = "excel"
     extensions = [".xlsx", ".xls", ".xlsb"]
 
@@ -377,6 +379,7 @@ def get_file_reader(fp) -> tuple[pl.DataFrame, BaseFileReader]:
 
 
 def get_file_reader_class(fp):
+    """Get the file reader class from a filename."""
     suffix = Path(fp).suffix
 
     for handler_name, handler in _AVAILABLE_FILE_HANDLERS.items():
