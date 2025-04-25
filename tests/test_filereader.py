@@ -23,10 +23,34 @@ class BadFileReader1(BaseFileReader):
     def _write_synthetic(self, df, fp):
         pass
 
+    @classmethod
+    def default_reader(cls, fp):
+        pass
+
+    @classmethod
+    def from_file(cls, fp):
+        pass
+
 
 @filereader
 class BadFileReader2(BaseFileReader):
     def _write_synthetic(self, df, fp):
+        pass
+
+    @classmethod
+    def default_reader(cls, fp):
+        pass
+
+    @classmethod
+    def from_file(cls, fp):
+        pass
+
+    @classmethod
+    def default_reader(cls, fp):
+        pass
+
+    @classmethod
+    def from_file(cls, fp):
         pass
 
 @filereader
@@ -34,6 +58,14 @@ class BadFileReader3(BaseFileReader):
     name = "also_bad"
     def _write_synthetic(self, df, fp):
         super()._write_synthetic(df, fp)
+
+    @classmethod
+    def default_reader(cls, fp):
+        pass
+
+    @classmethod
+    def from_file(cls, fp):
+        pass
 
 def test_decorator_warning():
     with pytest.warns(UserWarning):
