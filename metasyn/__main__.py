@@ -6,7 +6,6 @@ synthetic data from GMF files and creating json schemas for GMF files.
 import argparse
 import json
 import pathlib
-import pickle
 import sys
 from argparse import RawDescriptionHelpFormatter
 
@@ -18,7 +17,7 @@ except ImportError:
 
 from metasyn import MetaFrame
 from metasyn.config import MetaConfig
-from metasyn.filereader import get_file_reader
+from metasyn.filereader import file_reader_from_dict, get_file_reader, get_file_reader_class
 from metasyn.validation import create_schema
 
 EXAMPLE_CREATE_META="metasyn create-meta your_dataset.csv -o your_gmf_file.json --config your_config.toml" # noqa: E501
@@ -207,25 +206,15 @@ Example: {EXAMPLE_SYNTHESIZE}
 
     # Store the dataframe to file
     if meta_frame.file_format is not None:
-        meta_frame.write_synthetic(args.output, n=args.num_rows, seed=args.seed)
+        file_reader = file_reader_from_dict(meta_frame.file_format)
+        if args.output.suffix not in file_reader.extensions:
+            file_reader = get_file_reader_class(args.output).default_reader(args.output)
+        meta_frame.write_synthetic(args.output, n=args.num_rows, seed=args.seed,
+                                   file_format=file_reader)
     else:
-        data_frame = meta_frame.synthesize(n=args.num_rows, seed=args.seed)
-        if args.output.suffix == ".csv":
-            data_frame.write_csv(args.output)
-        elif args.output.suffix == ".feather":
-            data_frame.write_ipc(args.output)
-        elif args.output.suffix == ".parquet":
-            data_frame.write_parquet(args.output)
-        elif args.output.suffix == ".xlsx":
-            data_frame.write_excel(args.output)
-        elif args.output.suffix == ".pkl":
-            with args.output.open("wb") as pkl_file:
-                pickle.dump(data_frame, file=pkl_file)
-        else:
-            parser.error(
-                f"Unsupported output file format ({args.output.suffix})."
-                "Use .csv, .feather, .parquet, .pkl, or .xlsx.",
-            )
+        file_reader = get_file_reader_class(args.output).default_reader(args.output)
+        meta_frame.write_synthetic(args.output, n=args.num_rows, seed=args.seed,
+                                   file_format=file_reader)
 
 
 def schema() -> None:

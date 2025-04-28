@@ -3,18 +3,18 @@
 import warnings
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Optional, Type, Union
 
 import polars as pl
 
-_AVAILABLE_FILE_HANDLERS = {}
+_AVAILABLE_FILE_READERS = {}
 
 
 def filereader(*args):
     """Register a dataset so that it can be found by name."""
 
     def _wrap(cls):
-        _AVAILABLE_FILE_HANDLERS[cls.name] = cls
+        _AVAILABLE_FILE_READERS[cls.name] = cls
         return cls
 
     return _wrap(*args)
@@ -52,7 +52,7 @@ class BaseFileReader(ABC):
         -------
             A dictionary containing all information to reconstruct the file reader.
         """
-        if self.name not in _AVAILABLE_FILE_HANDLERS:
+        if self.name not in _AVAILABLE_FILE_READERS:
             warnings.warn(f"Current file reader {self.name} is not available, did you forget to use"
                           f" the decorator @filereader for the class {self.__class__}?")
         if self.name == "base":
@@ -106,6 +106,39 @@ class BaseFileReader(ABC):
         elif Path(fp).is_dir():
             fp = Path(fp) / self.file_name
         self._write_synthetic(df, fp)
+
+    @classmethod
+    @abstractmethod
+    def default_reader(cls, fp: Union[Path, str]):
+        """Create a defeault reader with the most likely settings for writing.
+
+        Parameters
+        ----------
+        fp
+            File for writing to by default.
+
+        Returns
+        -------
+            An instantiated file reader with default settings.
+        """
+        raise NotImplementedError("Default_reader method is not implemented for the base class.")
+
+    @classmethod
+    @abstractmethod
+    def from_file(cls, fp: Union[Path, str]):
+        """Create a file reader from a path.
+
+        Parameters
+        ----------
+        fp
+            Path to read the dataset from.build
+
+        Returns
+        -------
+            An initialized file reader.
+
+        """
+        raise NotImplementedError("from_file method is not implemented for the base class.")
 
 
 @filereader
@@ -182,20 +215,31 @@ class SavFileReader(BaseFileReader):
         }
         return df, cls(metadata, Path(fp).name)
 
-    def _write_synthetic(self, df, out_fp):
+    def _write_synthetic(self, df: pl.DataFrame, out_fp: Union[Path, str]):
         try:
             import pyreadstat
         except ImportError as err:
             raise ImportError(
                 "Please install pyreadstat to use the .sav/.zsav file handler.") from err
 
-        for col in df.columns:
-            col_format = self.metadata["variable_format"][col]
-            if (col_format.startswith("F") and not col_format.endswith(".0")
-                    and df[col].dtype == pl.Float64):
-                n_round = int(col_format.split(".")[-1])
-                df = df.with_columns(pl.col(col).round(n_round))
-        pyreadstat.write_sav(df.to_pandas(), out_fp, **self.metadata)
+        if "variable_format" in self.metadata:
+            for col in df.columns:
+                col_format = self.metadata["variable_format"][col]
+                if (col_format.startswith("F") and not col_format.endswith(".0")
+                        and df[col].dtype == pl.Float64):
+                    n_round = int(col_format.split(".")[-1])
+                    df = df.with_columns(pl.col(col).round(n_round))
+
+        # Workaround bug/issue in pyreadstat, datetimes should be in ns or overflow will occur.
+        pd_df = df.to_pandas()
+        for col in pd_df.columns:
+            if df[col].dtype.base_type() == pl.Datetime:
+                pd_df[col] = pd_df[col].astype('datetime64[ns]')
+        pyreadstat.write_sav(pd_df, out_fp, **self.metadata)
+
+    @classmethod
+    def default_reader(cls, fp: Union[str, Path]):
+        return cls({}, Path(fp).name)
 
 @filereader
 class CsvFileReader(BaseFileReader):
@@ -204,7 +248,7 @@ class CsvFileReader(BaseFileReader):
     name = "csv"
     extensions = [".csv", ".tsv"]
 
-    def read_dataset(self, fp, **kwargs):
+    def read_dataset(self, fp: Union[Path, str], **kwargs):
         """Read CSV file.
 
         Parameters
@@ -221,7 +265,6 @@ class CsvFileReader(BaseFileReader):
             ignore_errors=True,
             separator=self.metadata["separator"],
             quote_char=self.metadata["quote_char"],
-            # eol_char=self.metadata["eol_char"],
             **kwargs)
         return df
 
@@ -284,8 +327,36 @@ class CsvFileReader(BaseFileReader):
     def _write_synthetic(self, df, out_fp):
         df.write_csv(out_fp, **self.metadata)
 
+    @classmethod
+    def default_reader(cls, fp: Union[Path, str]):
+        return cls({
+            "separator": ",",
+            "line_terminator": "\n",
+            "quote_char": '"',
+            "null_value": "",
+        }, Path(fp).name)
 
-def file_reader_from_dict(file_format_dict):
+@filereader
+class ExcelFileReader(BaseFileReader):
+    """File reader/writer for Microsoft Excel files."""
+
+    name = "excel"
+    extensions = [".xlsx", ".xls", ".xlsb"]
+
+    @classmethod
+    def from_file(cls, fp: Union[Path, str], sheet_name: Optional[str] = None):
+        df = pl.read_excel(source=str(fp), sheet_name=sheet_name)
+        return df, cls({"worksheet": sheet_name}, Path(fp).name)
+
+    def _write_synthetic(self, df, out_fp):
+        df.write_excel(out_fp, **self.metadata)
+
+    @classmethod
+    def default_reader(cls, fp: Union[Path, str]):
+        return cls({"worksheet": "Sheet1"}, Path(fp).name)
+
+
+def file_reader_from_dict(file_format_dict: dict) -> BaseFileReader:
     """Create a file reader from a dictionary.
 
     Parameters
@@ -293,13 +364,13 @@ def file_reader_from_dict(file_format_dict):
     file_format_dict:
         Dictionary containing information to create the file reader.
     """
-    for handler_name, handler in _AVAILABLE_FILE_HANDLERS.items():
+    for handler_name, handler in _AVAILABLE_FILE_READERS.items():
         if file_format_dict["file_reader_name"] == handler_name:
             return handler(metadata=file_format_dict["format_metadata"],
                            file_name=file_format_dict["file_name"])
     raise ValueError(f"Cannot find file reader with name '{handler_name}'.")
 
-def get_file_reader(fp) -> tuple[pl.DataFrame, BaseFileReader]:
+def get_file_reader(fp: Union[Path, str]) -> tuple[pl.DataFrame, BaseFileReader]:
     """Attempt to create file reader from a dataset.
 
     Default options will be used to read in the file.
@@ -321,13 +392,17 @@ def get_file_reader(fp) -> tuple[pl.DataFrame, BaseFileReader]:
     ValueError
         When the extension is unknown.
     """
+    return get_file_reader_class(fp).from_file(fp)
+
+
+def get_file_reader_class(fp: Union[Path, str]) -> Type[BaseFileReader]:
+    """Get the file reader class from a filename."""
     suffix = Path(fp).suffix
 
-    for handler_name, handler in _AVAILABLE_FILE_HANDLERS.items():
+    for handler_name, handler in _AVAILABLE_FILE_READERS.items():
         if suffix in handler.extensions:
-            return handler.from_file(fp)
+            return handler
     raise ValueError(f"Files with extension '{suffix}' are not supported.")
-
 
 def read_csv(fp: Union[Path, str], separator: Optional[str] = None, eol_char: str = "\n",
              quote_char: str = '"', null_values: Union[str, list[str], None]=None,
@@ -387,3 +462,21 @@ def read_sav(fp: Union[Path, str]) -> tuple[pl.DataFrame, SavFileReader]:
         An instance of the :class:`SavFileReader` with the appropriate metadata.
     """
     return SavFileReader.from_file(fp)
+
+
+def read_excel(fp: Union[Path, str]) -> tuple[pl.DataFrame, ExcelFileReader]:
+    """Read an excel file and create a file reader from that.
+
+    Parameters
+    ----------
+    fp
+        Excel file to read.
+
+    Returns
+    -------
+    df:
+        Polars dataframe representing the excel dataset.
+    file_reader:
+        An instance of the :class:`ExcelFileReader` used for writing excel files.
+    """
+    return ExcelFileReader.from_file(fp)
