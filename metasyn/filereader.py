@@ -3,6 +3,7 @@
 import warnings
 from abc import ABC, abstractmethod
 from pathlib import Path
+from pprint import pprint
 from typing import Any, Optional, Type, Union
 
 import polars as pl
@@ -141,39 +142,35 @@ class BaseFileReader(ABC):
         raise NotImplementedError("from_file method is not implemented for the base class.")
 
 
-@filereader
-class SavFileReader(BaseFileReader):
-    """File reader for .sav and .zsav files.
+class PrsReader(BaseFileReader, ABC):
+    """Abstract class to make it easier to create pyreadstat file readers."""
 
-    Also stores the descriptions of the columns and makes sure that F.0 columns
-    are converted to integers.
-    """
-
-    name = "spss-sav"
-    extensions = [".sav", ".zsav"]
+    reader_ext = "unknown"
 
     def read_dataset(self, fp: Union[Path, str]):
         """Read the dataset without the metadata."""
         df, _ = SavFileReader._get_df_metadata(fp)
         return df
 
-    @staticmethod
-    def _get_df_metadata(fp: Union[Path, str]):
-        """Read the dataset including the metadata."""
+    @classmethod
+    def _read_data(cls, fp):
         try:
             import pyreadstat
         except ImportError as err:
             raise ImportError(
-                "Please install pyreadstat to use the .sav/.zsav file reader.") from err
+                f"Please install pyreadstat to use the {'/'.join(cls.extensions)} file reader."
+                ) from err
 
-        pandas_df, prs_metadata = pyreadstat.read_sav(fp, apply_value_formats=True)
+        return getattr(pyreadstat, f"read_{cls.reader}")(fp, apply_value_formats=True)
+
+
+    @classmethod
+    def _get_df_metadata(cls, fp: Union[Path, str]):
+        """Read the dataset including the metadata."""
+        pandas_df, prs_metadata = cls._read_data(fp)
         df = pl.DataFrame(pandas_df)
-        for col in df.columns:
-            col_format = prs_metadata.original_variable_types[col]
-            if (col_format.startswith("F") and col_format.endswith(".0")
-                    and df[col].dtype == pl.Float64):
-                df = df.with_columns(pl.col(col).cast(pl.Int64))
-        return df, prs_metadata
+        return cls._convert_with_orig_format(df, prs_metadata), prs_metadata
+
 
     @classmethod
     def from_file(cls, fp: Union[Path, str]):
@@ -191,37 +188,83 @@ class SavFileReader(BaseFileReader):
         file_reader:
             An instance of the :class:`SavFileReader` with the appropriate metadata.
         """
-        if Path(fp).suffix not in [".sav", ".zsav"]:
-            warnings.warn(f"Trying to read file '{fp}' with extension different from .sav or .zsav")
-        if Path(fp).suffix == ".zsav":
-            compress = True
-        else:
-            compress = False
+        if Path(fp).suffix not in cls.extensions:
+            warnings.warn(f"Trying to read file '{fp}' with extension different from"
+                          f" {'/'.join(cls.extensions)}")
+
         df, prs_metadata = cls._get_df_metadata(fp)
-        # df, prs_metadata = pyreadstat.read_sav(fp, apply_value_formats=True)
-
-        file_label = "This is a synthetic dataset created by metasyn."
-        if prs_metadata.file_label is not None:
-            file_label += f" Original file label: {file_label}"
-
-        metadata = {
-            "column_labels": prs_metadata.column_labels,
-            "variable_format": prs_metadata.original_variable_types,
-            "compress": compress,
-            "variable_display_width": prs_metadata.variable_display_width,
-            "file_label": file_label,
-            "variable_value_labels": prs_metadata.variable_value_labels,
-            "variable_measure": prs_metadata.variable_measure,
-        }
-        return df, cls(metadata, Path(fp).name)
+        return df, cls(cls._extract_metadata(prs_metadata, fp), Path(fp).name)
 
     def _write_synthetic(self, df: pl.DataFrame, out_fp: Union[Path, str]):
         try:
             import pyreadstat
         except ImportError as err:
             raise ImportError(
-                "Please install pyreadstat to use the .sav/.zsav file handler.") from err
+                f"Please install pyreadstat to write {'/'.join(self.extensions)} files.") from err
+        pd_df = self._prep_df_for_writing(df)
+        getattr(pyreadstat, f"write_{self.reader}")(pd_df, out_fp, **self.metadata)
 
+    @classmethod
+    def default_reader(cls, fp: Union[str, Path]):
+        return cls({}, Path(fp).name)
+
+    @classmethod
+    @abstractmethod
+    def _convert_with_orig_format(cls, df, prs_metadata):
+        raise NotImplementedError()
+
+    @classmethod
+    @abstractmethod
+    def _extract_metadata(cls, prs_metadata, fp):
+        raise NotImplementedError()
+
+    @classmethod
+    @abstractmethod
+    def _prep_df_for_writing(cls, df):
+        raise NotImplementedError()
+
+
+@filereader
+class SavFileReader(PrsReader):
+    """File reader for .sav and .zsav files.
+
+    Also stores the descriptions of the columns and makes sure that F.0 columns
+    are converted to integers.
+    """
+
+    name = "spss-sav"
+    extensions = [".sav", ".zsav"]
+    reader = "sav"
+
+    @classmethod
+    def _convert_with_orig_format(cls, df, prs_metadata):
+        """Read the dataset including the metadata."""
+        for col in df.columns:
+            col_format = prs_metadata.original_variable_types[col]
+            if (col_format.startswith("F") and col_format.endswith(".0")
+                    and df[col].dtype == pl.Float64):
+                df = df.with_columns(pl.col(col).cast(pl.Int64))
+        return df
+
+    @classmethod
+    def _extract_metadata(cls, prs_metadata, fp):
+        if Path(fp).suffix == ".zsav":
+            compress = True
+        else:
+            compress = False
+        metadata = {
+            "column_labels": prs_metadata.column_labels,
+            "variable_format": prs_metadata.original_variable_types,
+            "compress": compress,
+            "variable_display_width": prs_metadata.variable_display_width,
+            "file_label": prs_metadata.file_label,
+            "variable_value_labels": prs_metadata.variable_value_labels,
+            "variable_measure": prs_metadata.variable_measure,
+        }
+        return metadata
+
+
+    def _prep_df_for_writing(self, df):
         if "variable_format" in self.metadata:
             for col in df.columns:
                 col_format = self.metadata["variable_format"][col]
@@ -229,17 +272,56 @@ class SavFileReader(BaseFileReader):
                         and df[col].dtype == pl.Float64):
                     n_round = int(col_format.split(".")[-1])
                     df = df.with_columns(pl.col(col).round(n_round))
-
-        # Workaround bug/issue in pyreadstat, datetimes should be in ns or overflow will occur.
         pd_df = df.to_pandas()
         for col in pd_df.columns:
             if df[col].dtype.base_type() == pl.Datetime:
                 pd_df[col] = pd_df[col].astype('datetime64[ns]')
-        pyreadstat.write_sav(pd_df, out_fp, **self.metadata)
+        return pd_df
+
 
     @classmethod
     def default_reader(cls, fp: Union[str, Path]):
         return cls({}, Path(fp).name)
+
+
+@filereader
+class StataFileReader(PrsReader):
+    """File reader for .dta files."""
+
+    name = "stata"
+    extensions = [".dta"]
+    reader = "dta"
+
+    @classmethod
+    def _convert_with_orig_format(cls, df, prs_metadata):
+        for col in df.columns:
+            col_format = prs_metadata.original_variable_types[col]
+            if col_format == "%8.0g":
+                df = df.with_columns(pl.col(col).cast(pl.Int32))
+            elif col_format == "%12.0g":
+                df = df.with_columns(pl.col(col).cast(pl.Int64))
+        return df
+
+    @classmethod
+    def _extract_metadata(cls, prs_metadata, fp):
+        metadata = {
+            "column_labels": prs_metadata.column_labels,
+            "variable_format": prs_metadata.original_variable_types,
+            "file_label": prs_metadata.file_label,
+            "variable_value_labels": prs_metadata.variable_value_labels,
+        }
+        return metadata
+
+    def _convert_integer_cols(self, df):
+        return df
+
+    def _prep_df_for_writing(self, df):
+        pd_df = df.to_pandas()
+        for col in pd_df.columns:
+            if df[col].dtype.base_type() == pl.Datetime:
+                pd_df[col] = pd_df[col].astype('datetime64[ns]')
+        return pd_df
+
 
 @filereader
 class CsvFileReader(BaseFileReader):
