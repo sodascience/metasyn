@@ -201,7 +201,16 @@ class PrsReader(BaseFileReader, ABC):
             raise ImportError(
                 f"Please install pyreadstat to write {'/'.join(self.extensions)} files.") from err
         pd_df = self._prep_df_for_writing(df)
-        getattr(pyreadstat, f"write_{self.reader}")(pd_df, out_fp, **self.metadata)
+        label_start = "This is a synthetic dataset created by metasyn. Original label: "
+        metadata = {k: v for k, v in self.metadata.items()}
+        orig_file_label = metadata.pop("file_label", None)
+        orig_file_label = "" if orig_file_label is None else orig_file_label
+        if not orig_file_label.startswith(label_start):
+            file_label = label_start + orig_file_label
+        else:
+            file_label = orig_file_label
+        getattr(pyreadstat, f"write_{self.reader}")(pd_df, out_fp, **metadata,
+                                                    file_label=file_label)
 
     @classmethod
     def default_reader(cls, fp: Union[str, Path]):
