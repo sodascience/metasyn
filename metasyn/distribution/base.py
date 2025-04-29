@@ -306,7 +306,16 @@ class ScipyDistribution(BaseDistribution):
         return self.par
 
     def draw(self):
-        return self.dist.rvs()
+        val = self.dist.rvs()
+        if self.var_type == "discrete":
+            return int(val)
+        return val
+
+    def draw_series(self, n):
+        values = self.dist.rvs(n)
+        if self.var_type == "discrete":
+            values = values.astype(np.int64)
+        return list(values)
 
     def information_criterion(self, values):
         vals = self._to_series(values)

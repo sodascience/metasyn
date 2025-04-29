@@ -250,10 +250,16 @@ class MetaVar:
             set_global_seeds(seed)
 
         self.distribution.draw_reset()
-        value_list = [
-            self.draw()
-            for _ in tqdm(range(n), disable=not progress_bar, leave=False, desc="synthesizing")
-        ]
+
+        # Draw the series vectorized if possible
+        if hasattr(self.distribution, "draw_series"):
+            value_list = self.distribution.draw_series(n)
+            if self.prop_missing is not None:
+                value_list = [x if np.random.rand() >= self.prop_missing else None
+                              for x in value_list]
+        else:
+            value_list = [self.draw() for _ in tqdm(range(n), disable=not progress_bar, leave=False,
+                                                    desc="synthesizing")]
         pl_type = self.dtype.split("(")[0]
 
         # Workaround for polars issue with numpy 2.0

@@ -146,7 +146,7 @@ class PoissonDistribution(ScipyDistribution):
 
 
 @metadist(implements="core.unique_key", var_type="discrete", unique=True)
-class UniqueKeyDistribution(ScipyDistribution):
+class UniqueKeyDistribution(BaseDistribution):
     """Unique key distribution for identifiers.
 
     Discrete distribution that ensures the uniqueness of the drawn values.
@@ -168,6 +168,28 @@ class UniqueKeyDistribution(ScipyDistribution):
         self.last_key = lower - 1
         self.key_set: Set[int] = set()
 
+    def _param_dict(self):
+        return self.par
+
+    def __getattr__(self, attr: str):
+        """Get attribute for easy access to parameters.
+
+        Parameters
+        ----------
+        attr:
+            Attribute to retrieve. If the attribute is a parameter
+            name, then retrieve that parameter, otherwise use the default
+            implementation for getting the attribute.
+
+        Returns
+        -------
+        object:
+            Parameter or attribute.
+        """
+        if attr != "par" and attr in self.par:
+            return self.par[attr]
+        return object.__getattribute__(self, attr)
+
     @classmethod
     def _fit(cls, values):
         lower = values.min()
@@ -186,12 +208,17 @@ class UniqueKeyDistribution(ScipyDistribution):
             return self.last_key
 
         while True:
-            random_number = np.random.randint(self.lower, self.lower+2*len(self.key_set)+2)
+            random_number = np.random.randint(self.lower,
+                                              self.lower+2*len(self.key_set)+2)
             if random_number not in self.key_set:
                 self.key_set.add(random_number)
                 return random_number
 
-    def _information_criterion(self, values):
+    def information_criterion(self, values):
+        values = self._to_series(values)
+        if len(values) == 0:
+            return 2 * 2
+
         if values.min() < self.lower:
             return 2*np.log(len(values))+999*len(values)
 
