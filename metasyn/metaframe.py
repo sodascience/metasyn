@@ -438,8 +438,8 @@ class MetaFrame:
             var = self.meta_vars[i]
             doc["vars"][i].comment(f"Metadata for column with name {var.name}")
             doc["vars"][i]["prop_missing"].comment(
-                f"Fraction of missing values, remaining: {round(self.n_rows * (1 - var.prop_missing))} "
-                "values"
+                "Fraction of missing values, remaining: ",
+                f"{round(self.n_rows * (1 - var.prop_missing))} values",
             )
             # The below comment does not work, a tomlkit bug?
             # doc["vars"][i]["distribution"]["unique"].add(tomlkit.comment(
