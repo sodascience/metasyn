@@ -29,7 +29,7 @@ from metasyn.var import MetaVar
 from metasyn.varspec import VarSpec
 
 
-class MetaFrame():
+class MetaFrame:
     """Container for statistical metadata describing a dataset.
 
     This class is used to fit a MetaFrame to a Polars DataFrame, serialize and
@@ -56,9 +56,12 @@ class MetaFrame():
         Package that supplies the distributions.
     """
 
-    def __init__(self, meta_vars: List[MetaVar],
-                 n_rows: Optional[int] = None,
-                 file_format: Union[None, BaseFileReader, dict[str, Any]] = None):
+    def __init__(
+        self,
+        meta_vars: List[MetaVar],
+        n_rows: Optional[int] = None,
+        file_format: Union[None, BaseFileReader, dict[str, Any]] = None,
+    ):
         self.meta_vars = meta_vars
         self.n_rows = n_rows
         self._file_format: Union[None, dict[str, Any]]
@@ -71,15 +74,16 @@ class MetaFrame():
 
     @classmethod
     def fit_dataframe(  # noqa: PLR0912
-            cls,
-            df: Optional[pl.DataFrame],
-            var_specs: Optional[Union[list[VarSpec]]] = None,
-            dist_providers: Optional[list[str]] = None,
-            privacy: Optional[Union[BasePrivacy, dict]] = None,
-            n_rows: Optional[int] = None,
-            progress_bar: bool = True,
-            config: Optional[Union[pathlib.Path, str, MetaConfig]] = None,
-            file_format: Union[dict[str, Any], BaseFileReader, None] = None):
+        cls,
+        df: Optional[pl.DataFrame],
+        var_specs: Optional[Union[list[VarSpec]]] = None,
+        dist_providers: Optional[list[str]] = None,
+        privacy: Optional[Union[BasePrivacy, dict]] = None,
+        n_rows: Optional[int] = None,
+        progress_bar: bool = True,
+        config: Optional[Union[pathlib.Path, str, MetaConfig]] = None,
+        file_format: Union[dict[str, Any], BaseFileReader, None] = None,
+    ):
         """Create a metasyn object from a polars (or pandas) dataframe.
 
         The Polars dataframe should be formatted already with the correct
@@ -106,7 +110,7 @@ class MetaFrame():
             Number of rows registered in the MetaFrame. If left at None, it will use the number
             of rows in the input dataframe.
         progress_bar:
-            Whether to create a progress bar.
+            Whether to display a progress bar.
         config:
             A path or MetaConfig object that contains information about the variable specifications
             , defaults, etc. Variable specs in the config parameter will be overwritten by the
@@ -118,14 +122,17 @@ class MetaFrame():
             Initialized metasyn metaframe.
         """
         if isinstance(var_specs, (str, pathlib.Path, MetaConfig)) and config is None:
-            warn("Supplying the configuration through var_specs is deprecated and will be removed"
-                 f" in metasyn version 2.0. Use config={var_specs} instead.",
-                 DeprecationWarning, stacklevel=2)
+            warn(
+                "Supplying the configuration through var_specs is deprecated and will be removed"
+                f" in metasyn version 2.0. Use config={var_specs} instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
             config = var_specs
             var_specs = None
         # Parse the var_specs into a MetaConfig instance.
         if config is None:
-            meta_config = MetaConfig([], dist_providers, defaults = {"privacy": privacy})
+            meta_config = MetaConfig([], dist_providers, defaults={"privacy": privacy})
         elif isinstance(config, (pathlib.Path, str)):
             meta_config = MetaConfig.from_toml(config)
         else:
@@ -155,15 +162,16 @@ class MetaFrame():
                     meta_config.dist_providers,
                     var_spec.privacy,
                     var_spec.prop_missing,
-                    var_spec.description)
+                    var_spec.description,
+                )
                 all_vars.append(var)
 
         # Data free columns to be appended
         for var_spec in meta_config.iter_var(exclude=columns):
             if not var_spec.data_free:
                 raise ValueError(
-                    f"Column with name '{var_spec.name}' not found and not declared as "
-                     "data_free.")
+                    f"Column with name '{var_spec.name}' not found and not declared as data_free."
+                )
             distribution = meta_config.dist_providers.create(var_spec)
             prop_missing = 0.0 if var_spec.prop_missing is None else var_spec.prop_missing
             var = MetaVar(
@@ -176,8 +184,9 @@ class MetaFrame():
             all_vars.append(var)
         if df is None:
             if meta_config.n_rows is None:
-                raise ValueError("Please provide the number of rows in the configuration, "
-                                 "or supply a DataFrame.")
+                raise ValueError(
+                    "Please provide the number of rows in the configuration, or supply a DataFrame."
+                )
             return cls(all_vars, meta_config.n_rows, file_format)
         n_rows = len(df) if n_rows is None else n_rows
         return cls(all_vars, n_rows, file_format)
@@ -208,7 +217,7 @@ class MetaFrame():
                     "name": "metasyn",
                     "version": version("metasyn"),
                 },
-                "creation time": datetime.now().isoformat()
+                "creation time": datetime.now().isoformat(),
             },
             "file_format": self.file_format,
             "vars": [var.to_dict() for var in self.meta_vars],
@@ -233,14 +242,9 @@ class MetaFrame():
     def __str__(self) -> str:
         """Return an easy to read formatted string for the metaframe."""
         vars_formatted = "\n".join(
-            f"Column {i + 1}: {str(var)}" for i,
-            var in enumerate(
-                self.meta_vars))
-        return (
-            f"# Rows: {self.n_rows}\n"
-            f"# Columns: {self.n_columns}\n\n"
-            f"{vars_formatted}\n"
+            f"Column {i + 1}: {str(var)}" for i, var in enumerate(self.meta_vars)
         )
+        return f"# Rows: {self.n_rows}\n# Columns: {self.n_columns}\n\n{vars_formatted}\n"
 
     @property
     def file_format(self) -> Optional[dict[str, Any]]:
@@ -258,19 +262,22 @@ class MetaFrame():
     @property
     def descriptions(self) -> dict[str, str]:
         """Return the descriptions of the columns."""
-        return {var.name: var.description for var in self.meta_vars
-                if var.name is not None and var.description is not None}
+        return {
+            var.name: var.description
+            for var in self.meta_vars
+            if var.name is not None and var.description is not None
+        }
 
     @descriptions.setter
-    def descriptions(
-            self, new_descriptions: Union[dict[str, str], Sequence[str]]):
+    def descriptions(self, new_descriptions: Union[dict[str, str], Sequence[str]]):
         if isinstance(new_descriptions, dict):
             for var_name, new_desc in new_descriptions.items():
                 self[var_name].description = new_desc
         else:
             assert len(new_descriptions) == self.n_columns, (
                 "Descriptions need to be either a dict or a "
-                "sequence with the length of the number of variables.")
+                "sequence with the length of the number of variables."
+            )
             for i_desc, new_desc in enumerate(new_descriptions):
                 self[i_desc].description = new_desc
 
@@ -323,9 +330,7 @@ class MetaFrame():
         else:
             return cls.load_json(fp, validate)
 
-
-    def save_json(self, fp: Optional[Union[pathlib.Path, str]],
-                  validate: bool = True) -> None:
+    def save_json(self, fp: Optional[Union[pathlib.Path, str]], validate: bool = True) -> None:
         """Serialize and save the MetaFrame to a JSON file, following the GMF format.
 
         Optionally, validate the saved JSON file against the JSON schema(s) included in the
@@ -375,35 +380,43 @@ class MetaFrame():
 
     def to_json(self, fp: Union[pathlib.Path, str], validate: bool = True) -> None:
         """Export, deprecated method, use Metaframe.save_json instead."""
-        warn("to_json method of MetaFrame is deprecated and will be removed in the future, "
-             "Use MetaFrame.save_json or MetaFrame.save instead.",
-             DeprecationWarning, stacklevel=2)
+        warn(
+            "to_json method of MetaFrame is deprecated and will be removed in the future, "
+            "Use MetaFrame.save_json or MetaFrame.save instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self.save_json(fp, validate)
 
     def export(self, fp: Union[pathlib.Path, str], validate: bool = True) -> None:
         """Export, deprecated method, use Metaframe.save instead."""
-        warn("Export method of MetaFrame is deprecated and will be removed in the future, "
-             "Use MetaFrame.save_json or MetaFrame.save instead.",
-             DeprecationWarning, stacklevel=2)
+        warn(
+            "Export method of MetaFrame is deprecated and will be removed in the future, "
+            "Use MetaFrame.save_json or MetaFrame.save instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self.save_json(fp, validate)
 
     @classmethod
-    def from_json(cls, fp: Union[pathlib.Path, str],
-                  validate: bool = True) -> MetaFrame:
+    def from_json(cls, fp: Union[pathlib.Path, str], validate: bool = True) -> MetaFrame:
         """Import, deprecated method, use Metaframe.load_json instead."""
-        warn("MetaFrame.from_json is deprecated and will be removed in the future, "
-             "use MetaFrame.load_json or MetaFrame.load instead.",
-             DeprecationWarning, stacklevel=2)
+        warn(
+            "MetaFrame.from_json is deprecated and will be removed in the future, "
+            "use MetaFrame.load_json or MetaFrame.load instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return cls.load_json(fp, validate)
 
     @no_type_check
-    def save_toml(self, fp: Optional[Union[pathlib.Path, str]],
-                        validate: bool = True) -> None:
+    def save_toml(self, fp: Optional[Union[pathlib.Path, str]], validate: bool = True) -> None:
         try:
             import tomlkit
         except ImportError:
-            raise ValueError("Please install tomlkit (pip install tomlkit) to "
-                             "enable support for saving to toml.")
+            raise ValueError(
+                "Please install tomlkit (pip install tomlkit) to enable support for saving to toml."
+            )
         self_dict = _jsonify(self.to_dict())
         if validate:
             validate_gmf_dict(self_dict)
@@ -420,37 +433,41 @@ class MetaFrame():
 # This information, including how the estimation was done, is shown in the metadata below.
 #
 # For more information, see https://github.com/sodascience/metasyn
-"""
-        )
+""")
         for i in range(self.n_columns):
             var = self.meta_vars[i]
             doc["vars"][i].comment(f"Metadata for column with name {var.name}")
             doc["vars"][i]["prop_missing"].comment(
-                f"Fraction of missing values, remaining: {round(self.n_rows*(1-var.prop_missing))} "
-                "values")
+                f"Fraction of missing values, remaining: {round(self.n_rows * (1 - var.prop_missing))} "
+                "values"
+            )
             # The below comment does not work, a tomlkit bug?
             # doc["vars"][i]["distribution"]["unique"].add(tomlkit.comment(
-                # "Whether to generate unique values or not"))
+            # "Whether to generate unique values or not"))
             parameter_comments = []
             multi_default = (
-                var.distribution.matches_name("multinoulli") and
-                len(var.distribution.labels) == len(var.distribution.default_distribution().labels)
-                and
-                np.all(var.distribution.labels == var.distribution.default_distribution().labels)
+                var.distribution.matches_name("multinoulli")
+                and len(var.distribution.labels)
+                == len(var.distribution.default_distribution().labels)
+                and np.all(
+                    var.distribution.labels == var.distribution.default_distribution().labels
+                )
             )
             if "parameters" in var.creation_method:
                 parameters = ", ".join(var.creation_method["parameters"])
                 parameter_comments.append(
                     f"The parameters {parameters} for column '{var.name}' were "
-                    "manually set by the user, no data was (directly) used.")
-            elif (var.distribution.matches_name("multinoulli") and multi_default):
-                parameter_comments.append("This mulinoulli distribution is the default one, no data"
-                                          " was used.")
+                    "manually set by the user, no data was (directly) used."
+                )
+            elif var.distribution.matches_name("multinoulli") and multi_default:
+                parameter_comments.append(
+                    "This mulinoulli distribution is the default one, no data was used."
+                )
             elif "privacy" in var.creation_method:
                 privacy = get_privacy(**var.creation_method["privacy"])
                 parameter_comments.append(privacy.comment(var))
-            if (var.distribution.matches_name("multinoulli") and not multi_default):
-                counts = (var.distribution.probs*(1-var.prop_missing)*self.n_rows).round()
+            if var.distribution.matches_name("multinoulli") and not multi_default:
+                counts = (var.distribution.probs * (1 - var.prop_missing) * self.n_rows).round()
                 parameter_comments.append(f"Counts: {counts.astype(int)}\n")
             par_comment = "\n# ".join(parameter_comments) + "\n\n"
             doc["vars"][i]["distribution"]["parameters"].add(tomlkit.comment(par_comment))
@@ -461,8 +478,7 @@ class MetaFrame():
                 tomlkit.dump(doc, f)
 
     @classmethod
-    def load_toml(cls, fp: Union[pathlib.Path, str],
-                  validate: bool = True) -> MetaFrame:
+    def load_toml(cls, fp: Union[pathlib.Path, str], validate: bool = True) -> MetaFrame:
         with open(fp, "rb") as f:
             self_dict = tomllib.load(f)
 
@@ -473,13 +489,22 @@ class MetaFrame():
         meta_vars = [MetaVar.from_dict(d) for d in self_dict["vars"]]
         return cls(meta_vars, n_rows, self_dict.get("file_format"))
 
-    def synthesize(self, n: Optional[int] = None, seed: Optional[int] = None) -> pl.DataFrame:
+    def synthesize(
+        self,
+        n: Optional[int] = None,
+        seed: Optional[int] = None,
+        progress_bar: bool = True,
+    ) -> pl.DataFrame:
         """Create a synthetic Polars dataframe.
 
         Parameters
         ----------
         n:
             Number of rows to generate, if None, use number of rows in original dataframe.
+        seed:
+            Seed value for the internal random number generator. Set this to ensure reproducibility.
+        progress_bar:
+            Whether to display a progress bar.
 
         Returns
         -------
@@ -488,17 +513,28 @@ class MetaFrame():
         """
         if n is None:
             if self.n_rows is None:
-                raise ValueError("Cannot synthesize DataFrame, since number of rows is unknown."
-                                 "Please specify the number of rows to synthesize.")
+                raise ValueError(
+                    "Cannot synthesize DataFrame, since number of rows is unknown."
+                    "Please specify the number of rows to synthesize."
+                )
             n = self.n_rows
+
         if seed is not None:
             set_global_seeds(seed)
-        synth_dict = {var.name: var.draw_series(n, seed=None) for var in self.meta_vars}
+
+        synth_dict = {
+            var.name: var.draw_series(n, seed=None, progress_bar=progress_bar)
+            for var in tqdm(self.meta_vars, disable=not progress_bar)
+        }
         return pl.DataFrame(synth_dict)
 
-    def write_synthetic(self, file_name: Union[None, Path, str] = None,
-                        n: Optional[int] = None, seed: Optional[int] = None,
-                        file_format: Union[None, dict, BaseFileReader] = None):
+    def write_synthetic(
+        self,
+        file_name: Union[None, Path, str] = None,
+        n: Optional[int] = None,
+        seed: Optional[int] = None,
+        file_format: Union[None, dict, BaseFileReader] = None,
+    ):
         """Write a synthetic dataset to a file.
 
         To write a synthetic dataset, by default it will try to create a file that has
@@ -538,13 +574,17 @@ class MetaFrame():
                 file_format = file_format.to_dict()
             if self.file_format is not None:
                 if self.file_format["file_reader_name"] != file_format["file_reader_name"]:
-                    warn("Writing the synthetic file with a different format as the original "
-                         f"dataset. Original: {self.file_format['file_reader_name']}, "
-                         f"Synthetic: {file_format['file_reader_name']}")
+                    warn(
+                        "Writing the synthetic file with a different format as the original "
+                        f"dataset. Original: {self.file_format['file_reader_name']}, "
+                        f"Synthetic: {file_format['file_reader_name']}"
+                    )
             self.file_format = file_format  # type: ignore
         if self.file_format is None:
-            raise ValueError("Cannot write synthetic dataset without file handler."
-                             " Use write_synthetic(..., file_format=your_file_handler.to_dict())")
+            raise ValueError(
+                "Cannot write synthetic dataset without file handler."
+                " Use write_synthetic(..., file_format=your_file_handler.to_dict())"
+            )
         syn_df = self.synthesize(n, seed)
         file_handler = file_reader_from_dict(self.file_format)
         file_handler.write_synthetic(syn_df, file_name)
