@@ -3,7 +3,6 @@
 import warnings
 from abc import ABC, abstractmethod
 from pathlib import Path
-from pprint import pprint
 from typing import Any, Optional, Type, Union
 
 import polars as pl
@@ -145,7 +144,7 @@ class BaseFileReader(ABC):
 class PrsReader(BaseFileReader, ABC):
     """Abstract class to make it easier to create pyreadstat file readers."""
 
-    reader_ext = "unknown"
+    reader = "unknown"
 
     def read_dataset(self, fp: Union[Path, str]):
         """Read the dataset without the metadata."""
@@ -303,7 +302,7 @@ class StataFileReader(PrsReader):
         return df
 
     @classmethod
-    def _extract_metadata(cls, prs_metadata, fp):
+    def _extract_metadata(cls, prs_metadata, fp):  # noqa: ARG003
         metadata = {
             "column_labels": prs_metadata.column_labels,
             "variable_format": prs_metadata.original_variable_types,
