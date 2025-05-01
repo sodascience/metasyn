@@ -154,7 +154,8 @@ class MetaFrame:
         all_vars = []
         columns = df.columns if df is not None else []
         if df is not None:
-            for col_name in tqdm(columns, disable=not progress_bar):
+            for col_name in (pbar := tqdm(columns, disable=not progress_bar, unit="variables")):
+                pbar.set_description(f"\033[1m{col_name}\033[0m")
                 var_spec = meta_config.get(col_name)
                 var = MetaVar.fit(
                     df[col_name],
@@ -522,10 +523,11 @@ class MetaFrame:
         if seed is not None:
             set_global_seeds(seed)
 
-        synth_dict = {
-            var.name: var.draw_series(n, seed=None, progress_bar=progress_bar)
-            for var in tqdm(self.meta_vars, disable=not progress_bar)
-        }
+        synth_dict = {}
+        for var in (pbar := tqdm(self.meta_vars, disable=not progress_bar, unit="variables")):
+            pbar.set_description_str(f"{var.name}")
+            synth_dict[var.name] = var.draw_series(n, seed=None, progress_bar=progress_bar)
+
         return pl.DataFrame(synth_dict)
 
     def write_synthetic(
