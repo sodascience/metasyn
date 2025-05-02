@@ -10,6 +10,7 @@ from metasyn.filereader import (
     BaseFileReader,
     CsvFileReader,
     SavFileReader,
+    StataFileReader,
     file_reader_from_dict,
     filereader,
     get_file_reader,
@@ -173,3 +174,16 @@ def test_default_file_readers(reader_class, tmpdir):
     df_new, _ = reader_class.from_file(fp)
     assert isinstance(df_new, pl.DataFrame)
     assert df_new.shape == df.shape
+
+def test_stata(tmpdir):
+    df = demo_dataframe("test")
+    file_out = tmpdir / "test.dta"
+    StataFileReader.default_reader(file_out).write_synthetic(df, file_out)
+    df_new, _ = StataFileReader.from_file(file_out)
+    for col in df.columns:
+        if col.startswith(("Int", "UInt")) and not col.endswith(("64")):
+            assert df_new[col].dtype == pl.Int32
+        elif col == "UInt64":
+            assert df_new[col].dtype == pl.Int64
+        else:
+            assert df[col].dtype == df_new[col].dtype

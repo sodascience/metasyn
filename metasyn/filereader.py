@@ -205,6 +205,7 @@ class PrsReader(BaseFileReader, ABC):
         metadata = {k: v for k, v in self.metadata.items()}
         orig_file_label = metadata.pop("file_label", None)
         orig_file_label = "" if orig_file_label is None else orig_file_label
+        metadata["variable_format"] = self._get_format(pd_df, df)
         if not orig_file_label.startswith(label_start):
             file_label = label_start + orig_file_label
         else:
@@ -286,7 +287,6 @@ class SavFileReader(PrsReader):
                 pd_df[col] = pd_df[col].astype('datetime64[ns]')
         return pd_df
 
-
     @classmethod
     def default_reader(cls, fp: Union[str, Path]):
         return cls({}, Path(fp).name)
@@ -304,10 +304,18 @@ class StataFileReader(PrsReader):
     def _convert_with_orig_format(cls, df, prs_metadata):
         for col in df.columns:
             col_format = prs_metadata.original_variable_types[col]
+            # print(col, col_format)
             if col_format == "%8.0g":
                 df = df.with_columns(pl.col(col).cast(pl.Int32))
             elif col_format == "%12.0g":
                 df = df.with_columns(pl.col(col).cast(pl.Int64))
+            elif col_format == "%9.0g":
+                df = df.with_columns(pl.col(col).cast(pl.Float32))
+            elif col_format == "%10.0g":
+                df = df.with_columns(pl.col(col).cast(pl.Float64))
+            elif col_format == "%td":
+                print(col, df[col])
+        # print(df["Date"])
         return df
 
     @classmethod
@@ -326,9 +334,36 @@ class StataFileReader(PrsReader):
     def _prep_df_for_writing(self, df):
         pd_df = df.to_pandas()
         for col in pd_df.columns:
-            if df[col].dtype.base_type() == pl.Datetime:
+            if pd_df[col].dtype == "float64":
+                if str(df[col].dtype).startswith(("Int", "UInt")):
+                    pd_df[col] = pd_df[col].astype(str(df[col].dtype))
+            if df[col].dtype.base_type() == pl.Datetime or df[col].dtype.base_type() == pl.Date:
                 pd_df[col] = pd_df[col].astype('datetime64[ns]')
         return pd_df
+
+    def _get_format(self, pd_df, df):
+        # if self.metadata["variable_format"]
+        var_format = {}
+        for col in pd_df.columns:
+            if col in self.metadata.get("variable_format", {}):
+                continue
+            pd_dtype = str(pd_df[col].dtype)
+            print(col, pd_dtype)
+            if pd_dtype.startswith(("Int", "UInt")) and not pd_dtype.endswith("64"):
+                var_format[col] = "%8.0g"
+            elif pd_dtype.startswith(("Int", "UInt")) and pd_dtype.endswith("64"):
+                var_format[col] = "%12.0g"
+            elif pd_dtype == "float32":
+                var_format[col] = "%9.0g"
+            elif pd_dtype == "float64":
+                var_format[col] = "%10.0g"
+            # elif df[col].dtype == pl.Date:
+                # var_format[col] = "%td"
+                # pd_df[col] = 0
+
+        var_format.update(self.metadata.get("variable_format", {}))
+        print(var_format)
+        return var_format
 
 
 @filereader
@@ -553,6 +588,9 @@ def read_sav(fp: Union[Path, str]) -> tuple[pl.DataFrame, SavFileReader]:
     """
     return SavFileReader.from_file(fp)
 
+
+def read_dta(fp: Union[Path, str]) -> tuple[pl.DataFrame, StataFileReader]:
+    return StataFileReader.from_file(fp)
 
 def read_excel(fp: Union[Path, str]) -> tuple[pl.DataFrame, ExcelFileReader]:
     """Read an excel file and create a file reader from that.
