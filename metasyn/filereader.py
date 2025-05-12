@@ -232,6 +232,9 @@ class ReadStatReader(BaseFileReader, ABC):
     def _prep_df_for_writing(cls, df):
         raise NotImplementedError()
 
+    def _get_format(self, pd_df, df):  # noqa: ARG002
+        return self.metadata.get("variable_format", {})
+
 
 @filereader
 class SavFileReader(ReadStatReader):
@@ -342,6 +345,7 @@ class StataFileReader(ReadStatReader):
         return pd_df
 
     def _get_format(self, pd_df, df):  # noqa: ARG002
+        """Fill in the formats for which we don't know them in the metadata."""
         var_format = {}
         for col in pd_df.columns:
             if col in self.metadata.get("variable_format", {}):
@@ -362,7 +366,6 @@ class StataFileReader(ReadStatReader):
                 # pd_df[col] = 0
 
         var_format.update(self.metadata.get("variable_format", {}))
-        print(var_format)
         return var_format
 
 
