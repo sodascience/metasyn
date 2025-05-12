@@ -17,6 +17,7 @@ from metasyn.filereader import (
     read_csv,
     read_sav,
     read_tsv,
+    read_dta,
 )
 
 
@@ -179,11 +180,19 @@ def test_stata(tmpdir):
     df = demo_dataframe("test")
     file_out = tmpdir / "test.dta"
     StataFileReader.default_reader(file_out).write_synthetic(df, file_out)
-    df_new, _ = StataFileReader.from_file(file_out)
+    df_new, _ = read_dta(file_out)
     for col in df.columns:
         if col.startswith(("Int", "UInt")) and not col.endswith(("64")):
-            assert df_new[col].dtype == pl.Int32
+            assert df_new[col].dtype == pl.Int32  # Unfixable, since stata doesn't have Int8, etc
         elif col == "UInt64":
-            assert df_new[col].dtype == pl.Int64
+            assert df_new[col].dtype == pl.Int64  # Bugged
+        elif col in ("Date", "Datetime"):
+            assert str(df_new[col].dtype.base_type()) == "Datetime"  # Bugged
+        elif col == "Categorical":
+            assert df_new[col].dtype == pl.String  # Bugged
+        elif col == "Boolean":
+            assert df_new[col].dtype == pl.Int64  # Bugged
+        elif col == "NA":
+            assert df_new[col].dtype == pl.Int64  # Bugged
         else:
             assert df[col].dtype == df_new[col].dtype

@@ -357,6 +357,7 @@ class StataFileReader(PrsReader):
                 var_format[col] = "%9.0g"
             elif pd_dtype == "float64":
                 var_format[col] = "%10.0g"
+            # The below doesn't work due to overflow problems.
             # elif df[col].dtype == pl.Date:
                 # var_format[col] = "%td"
                 # pd_df[col] = 0
