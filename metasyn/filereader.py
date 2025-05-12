@@ -141,7 +141,7 @@ class BaseFileReader(ABC):
         raise NotImplementedError("from_file method is not implemented for the base class.")
 
 
-class PrsReader(BaseFileReader, ABC):
+class ReadStatReader(BaseFileReader, ABC):
     """Abstract class to make it easier to create pyreadstat file readers."""
 
     reader = "unknown"
@@ -234,7 +234,7 @@ class PrsReader(BaseFileReader, ABC):
 
 
 @filereader
-class SavFileReader(PrsReader):
+class SavFileReader(ReadStatReader):
     """File reader for .sav and .zsav files.
 
     Also stores the descriptions of the columns and makes sure that F.0 columns
@@ -293,7 +293,7 @@ class SavFileReader(PrsReader):
 
 
 @filereader
-class StataFileReader(PrsReader):
+class StataFileReader(ReadStatReader):
     """File reader for .dta files."""
 
     name = "stata"
@@ -341,8 +341,7 @@ class StataFileReader(PrsReader):
                 pd_df[col] = pd_df[col].astype('datetime64[ns]')
         return pd_df
 
-    def _get_format(self, pd_df, df):
-        # if self.metadata["variable_format"]
+    def _get_format(self, pd_df, df):  # noqa: ARG002
         var_format = {}
         for col in pd_df.columns:
             if col in self.metadata.get("variable_format", {}):
@@ -591,6 +590,20 @@ def read_sav(fp: Union[Path, str]) -> tuple[pl.DataFrame, SavFileReader]:
 
 
 def read_dta(fp: Union[Path, str]) -> tuple[pl.DataFrame, StataFileReader]:
+    """Read a .dta stata file into metadata and a DataFrame.
+
+    Parameters
+    ----------
+    fp
+        File to be read with .dta extension.
+
+    Returns
+    -------
+    df:
+        Polars dataframe with the converted columns.
+    file_reader:
+        An instance of the :class:`StataFileReader` with the appropriate metadata.
+    """
     return StataFileReader.from_file(fp)
 
 def read_excel(fp: Union[Path, str]) -> tuple[pl.DataFrame, ExcelFileReader]:
