@@ -250,7 +250,10 @@ class MetaVar:
             set_global_seeds(seed)
 
         self.distribution.draw_reset()
-        value_list = [self.draw() for _ in tqdm(range(n), disable=not progress_bar, leave=False)]
+        value_list = [
+            self.draw()
+            for _ in tqdm(range(n), disable=not progress_bar, leave=False, desc="synthesizing")
+        ]
         pl_type = self.dtype.split("(")[0]
 
         # Workaround for polars issue with numpy 2.0

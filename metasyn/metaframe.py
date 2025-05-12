@@ -155,7 +155,8 @@ class MetaFrame:
         columns = df.columns if df is not None else []
         if df is not None:
             for col_name in (pbar := tqdm(columns, disable=not progress_bar, unit="variables")):
-                pbar.set_description(f"\033[1m{col_name}\033[0m")
+                desc = col_name[:5] + "…" + col_name[-6:] if len(col_name) > 11 else col_name
+                pbar.set_description(f"{desc:>12}")
                 var_spec = meta_config.get(col_name)
                 var = MetaVar.fit(
                     df[col_name],
@@ -525,7 +526,8 @@ class MetaFrame:
 
         synth_dict = {}
         for var in (pbar := tqdm(self.meta_vars, disable=not progress_bar, unit="variables")):
-            pbar.set_description_str(f"{var.name}")
+            desc = var.name[:5] + "…" + var.name[-6:] if len(var.name) > 11 else var.name
+            pbar.set_description(f"{desc:>12}")
             synth_dict[var.name] = var.draw_series(n, seed=None, progress_bar=progress_bar)
 
         return pl.DataFrame(synth_dict)
