@@ -98,6 +98,31 @@ class BaseFileReader(ABC):
         FileExistsError
             If the file already exists and the overwrite argument is False.
         """
+        fp = self.check_filename(fp, overwrite=overwrite)
+        self._write_synthetic(df, fp)
+
+    def check_filename(self,  fp: Union[None, Path, str] = None,
+                        overwrite: bool = False) -> Path:
+        """Check whether the filename can be written to.
+
+        Parameters
+        ----------
+        fp, optional
+            File check the filename for, by default None
+        overwrite, optional
+            Whether overwriting is allowed, by default False
+
+        Returns
+        -------
+            filename which could be either the same or different from fp.
+
+        Raises
+        ------
+        FileExistsError
+            If the file already exists and overwrite=False
+        FileNotFoundError:
+            If the parent directory of fp does not exist.
+        """
         if fp is None:
             fp = self.file_name
         if Path(fp).is_file() and not overwrite:
@@ -105,7 +130,9 @@ class BaseFileReader(ABC):
                                   "to a different directory.")
         elif Path(fp).is_dir():
             fp = Path(fp) / self.file_name
-        self._write_synthetic(df, fp)
+        elif not Path(fp).parent.is_dir():
+            raise FileNotFoundError(f"Parent directory does not exist for '{fp}'.")
+        return fp
 
     @classmethod
     @abstractmethod

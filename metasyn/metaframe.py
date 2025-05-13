@@ -498,7 +498,8 @@ class MetaFrame():
 
     def write_synthetic(self, file_name: Union[None, Path, str] = None,
                         n: Optional[int] = None, seed: Optional[int] = None,
-                        file_format: Union[None, dict, BaseFileReader] = None):
+                        file_format: Union[None, dict, BaseFileReader] = None,
+                        overwrite: bool = False):
         """Write a synthetic dataset to a file.
 
         To write a synthetic dataset, by default it will try to create a file that has
@@ -545,9 +546,10 @@ class MetaFrame():
         if self.file_format is None:
             raise ValueError("Cannot write synthetic dataset without file handler."
                              " Use write_synthetic(..., file_format=your_file_handler.to_dict())")
-        syn_df = self.synthesize(n, seed)
         file_handler = file_reader_from_dict(self.file_format)
-        file_handler.write_synthetic(syn_df, file_name)
+        file_handler.check_filename(file_name, overwrite=overwrite)  # Check filename before synth
+        syn_df = self.synthesize(n, seed)
+        file_handler.write_synthetic(syn_df, file_name, overwrite=overwrite)
 
     def __repr__(self) -> str:
         """Return the MetaFrame as it would be output to JSON."""
