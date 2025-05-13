@@ -102,7 +102,7 @@ class BaseFileReader(ABC):
         self._write_synthetic(df, fp)
 
     def check_filename(self,  fp: Union[None, Path, str] = None,
-                        overwrite: bool = False) -> Path:
+                        overwrite: bool = False) -> Union[Path, str]:
         """Check whether the filename can be written to.
 
         Parameters
