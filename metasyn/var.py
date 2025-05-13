@@ -250,10 +250,19 @@ class MetaVar:
             set_global_seeds(seed)
 
         self.distribution.draw_reset()
-        value_list = [
-            self.draw()
-            for _ in tqdm(range(n), disable=not progress_bar, leave=False, desc="synthesizing")
-        ]
+
+        is_not_na = np.random.rand(n) >= self.prop_missing
+        n_draw: int = np.sum(is_not_na)  # type: ignore
+        try:
+            not_na_values = self.distribution.draw_list(n_draw)
+        except NotImplementedError:
+            not_na_values = [self.distribution.draw()
+                             for _ in tqdm(range(n_draw), disable=not progress_bar, leave=False,
+                                           desc="synthesizing")]
+
+        # Mix the values with Nones
+        cum_not_na = np.cumsum(is_not_na)
+        value_list = [not_na_values[cum_not_na[i]-1] if is_not_na[i] else None for i in range(n)]
         pl_type = self.dtype.split("(")[0]
 
         # Workaround for polars issue with numpy 2.0
