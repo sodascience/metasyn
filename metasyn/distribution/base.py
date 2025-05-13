@@ -189,10 +189,28 @@ class BaseDistribution(ABC):
 
     @classmethod
     @abstractmethod
-    def default_distribution(cls) -> BaseDistribution:
+    def default_distribution(cls) -> list:
         """Get a distribution with default parameters."""
         return cls()
 
+    def draw_series(self, n: int) -> pl.Series:
+        """Draw a series of values from the distribution.
+
+        Parameters
+        ----------
+        n:
+            Number of items to draw from the distribution.
+
+        Raises
+        ------
+        NotImplementedError:
+            If the distribution hasn't implemented a faster draw_series.
+
+        Returns
+        -------
+            List of values.
+        """
+        raise NotImplementedError()
 
 def metadist(
         implements: Optional[str] = None,
@@ -311,7 +329,7 @@ class ScipyDistribution(BaseDistribution):
             return int(val)
         return val
 
-    def draw_series(self, n):
+    def draw_series(self, n: int) -> pl.Series:
         values = self.dist.rvs(n)
         if self.var_type == "discrete":
             values = values.astype(np.int64)

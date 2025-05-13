@@ -251,15 +251,18 @@ class MetaVar:
 
         self.distribution.draw_reset()
 
-        # Draw the series vectorized if possible
-        if hasattr(self.distribution, "draw_series"):
-            value_list = self.distribution.draw_series(n)
-            if self.prop_missing is not None:
-                value_list = [x if np.random.rand() >= self.prop_missing else None
-                              for x in value_list]
-        else:
-            value_list = [self.draw() for _ in tqdm(range(n), disable=not progress_bar, leave=False,
-                                                    desc="synthesizing")]
+        is_not_na = np.random.rand(n) >= self.prop_missing
+        n_draw = np.sum(is_not_na)
+        try:
+            not_na_values = self.distribution.draw_series(n_draw)
+        except NotImplementedError:
+            not_na_values = [self.distribution.draw()
+                             for _ in tqdm(range(n_draw), disable=not progress_bar, leave=False,
+                                           desc="synthesizing")]
+
+        # Mix the values with Nones
+        cum_not_na = np.cumsum(is_not_na)
+        value_list = [not_na_values[cum_not_na[i]-1] if is_not_na[i] else None for i in range(n)]
         pl_type = self.dtype.split("(")[0]
 
         # Workaround for polars issue with numpy 2.0
