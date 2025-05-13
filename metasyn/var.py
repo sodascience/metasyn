@@ -254,7 +254,7 @@ class MetaVar:
         is_not_na = np.random.rand(n) >= self.prop_missing
         n_draw = np.sum(is_not_na)
         try:
-            not_na_values = self.distribution.draw_series(n_draw)
+            not_na_values = self.distribution.draw_list(n_draw)
         except NotImplementedError:
             not_na_values = [self.distribution.draw()
                              for _ in tqdm(range(n_draw), disable=not progress_bar, leave=False,

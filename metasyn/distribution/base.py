@@ -193,8 +193,8 @@ class BaseDistribution(ABC):
         """Get a distribution with default parameters."""
         return cls()
 
-    def draw_series(self, n: int) -> pl.Series:
-        """Draw a series of values from the distribution.
+    def draw_list(self, n: int) -> pl.Series:
+        """Draw a list of values from the distribution.
 
         Parameters
         ----------
@@ -204,7 +204,7 @@ class BaseDistribution(ABC):
         Raises
         ------
         NotImplementedError:
-            If the distribution hasn't implemented a faster draw_series.
+            If the distribution hasn't implemented a draw_list.
 
         Returns
         -------
@@ -329,7 +329,7 @@ class ScipyDistribution(BaseDistribution):
             return int(val)
         return val
 
-    def draw_series(self, n: int) -> pl.Series:
+    def draw_list(self, n: int) -> list:
         values = self.dist.rvs(n)
         if self.var_type == "discrete":
             values = values.astype(np.int64)
