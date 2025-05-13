@@ -252,7 +252,7 @@ class MetaVar:
         self.distribution.draw_reset()
 
         is_not_na = np.random.rand(n) >= self.prop_missing
-        n_draw = np.sum(is_not_na)
+        n_draw: int = np.sum(is_not_na)  # type: ignore
         try:
             not_na_values = self.distribution.draw_list(n_draw)
         except NotImplementedError:

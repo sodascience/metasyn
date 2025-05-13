@@ -189,11 +189,11 @@ class BaseDistribution(ABC):
 
     @classmethod
     @abstractmethod
-    def default_distribution(cls) -> list:
+    def default_distribution(cls) -> BaseDistribution:
         """Get a distribution with default parameters."""
         return cls()
 
-    def draw_list(self, n: int) -> pl.Series:
+    def draw_list(self, n: int) -> list:
         """Draw a list of values from the distribution.
 
         Parameters
