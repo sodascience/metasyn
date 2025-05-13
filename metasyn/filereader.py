@@ -2,6 +2,7 @@
 
 import warnings
 from abc import ABC, abstractmethod
+from io import BytesIO
 from pathlib import Path
 from typing import Any, Optional, Type, Union
 
@@ -393,12 +394,14 @@ class CsvFileReader(BaseFileReader):
             ignore_errors=True,
             separator=self.metadata["separator"],
             quote_char=self.metadata["quote_char"],
+            encoding=self.metadata.get("encoding", "utf-8"),
             **kwargs)
         return df
 
     @classmethod
     def from_file(cls, fp: Union[Path, str], separator: Optional[str] = None, eol_char: str = "\n",
-                  quote_char: str = '"', null_values: Union[None, str, list[str]] = None, **kwargs):
+                  quote_char: str = '"', null_values: Union[None, str, list[str]] = None,
+                  encoding="utf-8", **kwargs):
         r"""Read a csv file.
 
         See :func:`read_csv` for more detail.
@@ -440,6 +443,7 @@ class CsvFileReader(BaseFileReader):
             separator=separator,
             quote_char=quote_char,
             eol_char=eol_char,
+            encoding=encoding,
         )
         pl_keywords.update(kwargs)
         df = pl.read_csv(fp, **pl_keywords)  # type: ignore
@@ -449,11 +453,21 @@ class CsvFileReader(BaseFileReader):
             "line_terminator": eol_char,
             "quote_char": quote_char,
             "null_value": null_values[0],
+            "encoding": encoding,
         }
         return df, cls(metadata, Path(fp).name)
 
     def _write_synthetic(self, df, out_fp):
-        df.write_csv(out_fp, **self.metadata)
+        meta_copy = {k: v for k, v in self.metadata.items()}
+        encoding = meta_copy.pop("encoding", "utf-8")
+        if encoding == "utf-8":
+            df.write_csv(out_fp, **meta_copy)
+        else:
+            handle = BytesIO()
+            df.write_csv(handle, **meta_copy)
+            handle.seek(0)
+            with open(out_fp, "w", encoding=encoding) as file_handle:
+                file_handle.write(handle.read().decode("utf-8"))
 
     @classmethod
     def default_reader(cls, fp: Union[Path, str]):
