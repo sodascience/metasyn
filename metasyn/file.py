@@ -1,4 +1,5 @@
-"""File readers to read dataset and write synthetic datasets."""
+"""File interfaces to read dataset and write synthetic datasets."""
+from __future__ import annotations
 
 import warnings
 from abc import ABC, abstractmethod
@@ -8,20 +9,24 @@ from typing import Any, Optional, Type, Union
 
 import polars as pl
 
-_AVAILABLE_FILE_READERS = {}
+_AVAILABLE_FILE_INTERFACES = {}
 
 
-def filereader(*args):
+def fileinterface(*args):
     """Register a dataset so that it can be found by name."""
 
     def _wrap(cls):
-        _AVAILABLE_FILE_READERS[cls.name] = cls
+        _AVAILABLE_FILE_INTERFACES[cls.name] = cls
         return cls
 
     return _wrap(*args)
 
-class BaseFileReader(ABC):
-    """Abstract file reader class to derive specific implementations from.
+class BaseFileInterface(ABC):
+    """Abstract file interface class to derive specific implementations from.
+
+    The file interface facilitates the reading and writing of dataset files. In
+    particular they can ensure that the output data are exactly the same as the
+    input data.
 
     The implementation class should have at least two class attributes: a :code:`name`
     for the implementation and :code:`extensions`, which is a list of extensions to be
@@ -32,14 +37,14 @@ class BaseFileReader(ABC):
     extensions: list[str] = []
 
     def __init__(self, metadata: dict[str, Any], file_name: str):
-        """Initialize the file reader with metadata and the original file name.
+        """Initialize the file interface with metadata and the original file name.
 
         Parameters
         ----------
         metadata:
             A dictionary containing all the information such as metadata and
             file format directives. The structure of the metadata is determined
-            by the implementation of the BaseFileReader and can be empty.
+            by the implementation of the BaseFileInterface and can be empty.
         file_name:
             file name of the original dataset.
         """
@@ -51,23 +56,24 @@ class BaseFileReader(ABC):
 
         Returns
         -------
-            A dictionary containing all information to reconstruct the file reader.
+            A dictionary containing all information to reconstruct the file interface.
         """
-        if self.name not in _AVAILABLE_FILE_READERS:
-            warnings.warn(f"Current file reader {self.name} is not available, did you forget to use"
-                          f" the decorator @filereader for the class {self.__class__}?")
+        if self.name not in _AVAILABLE_FILE_INTERFACES:
+            warnings.warn(f"Current file interface {self.name} is not available, "
+                          "did you forget to use"
+                          f" the decorator @fileinterface for the class {self.__class__}?")
         if self.name == "base":
             warnings.warn(f"Class attribute for {self.__class__} should not be 'base'."
-                           " Please give another name to your file reader.")
+                           " Please give another name to your file interface.")
         return {
-            "file_reader_name": self.name,
+            "file_interface_name": self.name,
             "format_metadata": self.metadata,
             "file_name": self.file_name,
         }
 
     @abstractmethod
-    def _write_synthetic(self, df: pl.DataFrame, fp: Union[Path, str]):
-        """Write synthetic file, to be implemented by file reader implementations.
+    def _write_file(self, df: pl.DataFrame, fp: Union[Path, str]):
+        """Write synthetic file, to be implemented by file interface implementations.
 
         Parameters
         ----------
@@ -77,9 +83,9 @@ class BaseFileReader(ABC):
             Name of the file to be written to.
 
         """
-        raise NotImplementedError("Write synthetic is not implemented for the BaseFileReader.")
+        raise NotImplementedError("Write synthetic is not implemented for the BaseFileInterface.")
 
-    def write_synthetic(self, df: pl.DataFrame, fp: Union[None, Path, str] = None,
+    def write_file(self, df: pl.DataFrame, fp: Union[None, Path, str] = None,
                         overwrite: bool = False):
         """Write the synthetic dataframe to a file.
 
@@ -100,7 +106,7 @@ class BaseFileReader(ABC):
             If the file already exists and the overwrite argument is False.
         """
         fp = self.check_filename(fp, overwrite=overwrite)
-        self._write_synthetic(df, fp)
+        self._write_file(df, fp)
 
     def check_filename(self,  fp: Union[None, Path, str] = None,
                         overwrite: bool = False) -> Union[Path, str]:
@@ -137,8 +143,8 @@ class BaseFileReader(ABC):
 
     @classmethod
     @abstractmethod
-    def default_reader(cls, fp: Union[Path, str]):
-        """Create a defeault reader with the most likely settings for writing.
+    def default_interface(cls, fp: Union[Path, str]):
+        """Create a defeault interface with the most likely settings for writing.
 
         Parameters
         ----------
@@ -147,14 +153,14 @@ class BaseFileReader(ABC):
 
         Returns
         -------
-            An instantiated file reader with default settings.
+            An instantiated file interface with default settings.
         """
-        raise NotImplementedError("Default_reader method is not implemented for the base class.")
+        raise NotImplementedError("Default_interface method is not implemented for the base class.")
 
     @classmethod
     @abstractmethod
-    def from_file(cls, fp: Union[Path, str]):
-        """Create a file reader from a path.
+    def read_file(cls, fp: Union[Path, str]):
+        """Create a file interface from a path.
 
         Parameters
         ----------
@@ -163,20 +169,20 @@ class BaseFileReader(ABC):
 
         Returns
         -------
-            An initialized file reader.
+            An initialized file interface.
 
         """
-        raise NotImplementedError("from_file method is not implemented for the base class.")
+        raise NotImplementedError("read_file method is not implemented for the base class.")
 
 
-class ReadStatReader(BaseFileReader, ABC):
-    """Abstract class to make it easier to create pyreadstat file readers."""
+class ReadStatInterface(BaseFileInterface, ABC):
+    """Abstract class to make it easier to create pyreadstat file interfaces."""
 
-    reader = "unknown"
+    interface = "unknown"
 
     def read_dataset(self, fp: Union[Path, str]):
         """Read the dataset without the metadata."""
-        df, _ = SavFileReader._get_df_metadata(fp)
+        df, _ = SavFileInterface._get_df_metadata(fp)
         return df
 
     @classmethod
@@ -185,10 +191,10 @@ class ReadStatReader(BaseFileReader, ABC):
             import pyreadstat
         except ImportError as err:
             raise ImportError(
-                f"Please install pyreadstat to use the {'/'.join(cls.extensions)} file reader."
+                f"Please install pyreadstat to use the {'/'.join(cls.extensions)} file interface."
                 ) from err
 
-        return getattr(pyreadstat, f"read_{cls.reader}")(fp, apply_value_formats=True)
+        return getattr(pyreadstat, f"read_{cls.interface}")(fp, apply_value_formats=True)
 
 
     @classmethod
@@ -200,8 +206,8 @@ class ReadStatReader(BaseFileReader, ABC):
 
 
     @classmethod
-    def from_file(cls, fp: Union[Path, str]):
-        """Create the file reader from a .sav or .zsav file.
+    def read_file(cls, fp: Union[Path, str]):
+        """Create the file interface from a .sav or .zsav file.
 
         Parameters
         ----------
@@ -212,8 +218,8 @@ class ReadStatReader(BaseFileReader, ABC):
         -------
         df:
             Polars dataframe with the converted columns.
-        file_reader:
-            An instance of the :class:`SavFileReader` with the appropriate metadata.
+        file_interface:
+            An instance of the :class:`SavFileInterface` with the appropriate metadata.
         """
         if Path(fp).suffix not in cls.extensions:
             warnings.warn(f"Trying to read file '{fp}' with extension different from"
@@ -222,7 +228,7 @@ class ReadStatReader(BaseFileReader, ABC):
         df, prs_metadata = cls._get_df_metadata(fp)
         return df, cls(cls._extract_metadata(prs_metadata, fp), Path(fp).name)
 
-    def _write_synthetic(self, df: pl.DataFrame, out_fp: Union[Path, str]):
+    def _write_file(self, df: pl.DataFrame, out_fp: Union[Path, str]):
         try:
             import pyreadstat
         except ImportError as err:
@@ -238,11 +244,11 @@ class ReadStatReader(BaseFileReader, ABC):
             file_label = label_start + orig_file_label
         else:
             file_label = orig_file_label
-        getattr(pyreadstat, f"write_{self.reader}")(pd_df, out_fp, **metadata,
+        getattr(pyreadstat, f"write_{self.interface}")(pd_df, out_fp, **metadata,
                                                     file_label=file_label)
 
     @classmethod
-    def default_reader(cls, fp: Union[str, Path]):
+    def default_interface(cls, fp: Union[str, Path]):
         return cls({}, Path(fp).name)
 
     @classmethod
@@ -264,17 +270,17 @@ class ReadStatReader(BaseFileReader, ABC):
         return self.metadata.get("variable_format", {})
 
 
-@filereader
-class SavFileReader(ReadStatReader):
-    """File reader for .sav and .zsav files.
+@fileinterface
+class SavFileInterface(ReadStatInterface):
+    """File interface for .sav and .zsav files.
 
     Also stores the descriptions of the columns and makes sure that F.0 columns
     are converted to integers.
     """
 
-    name = "spss-sav"
+    name = "sav"
     extensions = [".sav", ".zsav"]
-    reader = "sav"
+    interface = "sav"
 
     @classmethod
     def _convert_with_orig_format(cls, df, prs_metadata):
@@ -319,17 +325,17 @@ class SavFileReader(ReadStatReader):
         return pd_df
 
     @classmethod
-    def default_reader(cls, fp: Union[str, Path]):
+    def default_interface(cls, fp: Union[str, Path]):
         return cls({}, Path(fp).name)
 
 
-@filereader
-class StataFileReader(ReadStatReader):
-    """File reader for .dta files."""
+@fileinterface
+class StataFileInterface(ReadStatInterface):
+    """File interface for .dta files."""
 
-    name = "stata"
+    name = "dta"
     extensions = [".dta"]
-    reader = "dta"
+    interface = "dta"
 
     @classmethod
     def _convert_with_orig_format(cls, df, prs_metadata):
@@ -344,8 +350,8 @@ class StataFileReader(ReadStatReader):
                 df = df.with_columns(pl.col(col).cast(pl.Float32))
             elif col_format == "%10.0g":
                 df = df.with_columns(pl.col(col).cast(pl.Float64))
-            elif col_format == "%td":
-                print(col, df[col])
+            # elif col_format == "%td":
+                # print(col, df[col])
         # print(df["Date"])
         return df
 
@@ -358,9 +364,6 @@ class StataFileReader(ReadStatReader):
             "variable_value_labels": prs_metadata.variable_value_labels,
         }
         return metadata
-
-    def _convert_integer_cols(self, df):
-        return df
 
     def _prep_df_for_writing(self, df):
         pd_df = df.to_pandas()
@@ -379,7 +382,7 @@ class StataFileReader(ReadStatReader):
             if col in self.metadata.get("variable_format", {}):
                 continue
             pd_dtype = str(pd_df[col].dtype)
-            print(col, pd_dtype)
+            # print(col, pd_dtype)
             if pd_dtype.startswith(("Int", "UInt")) and not pd_dtype.endswith("64"):
                 var_format[col] = "%8.0g"
             elif pd_dtype.startswith(("Int", "UInt")) and pd_dtype.endswith("64"):
@@ -397,9 +400,9 @@ class StataFileReader(ReadStatReader):
         return var_format
 
 
-@filereader
-class CsvFileReader(BaseFileReader):
-    """File reader to read and write CSV files."""
+@fileinterface
+class CsvFileInterface(BaseFileInterface):
+    """File interface to read and write CSV files."""
 
     name = "csv"
     extensions = [".csv", ".tsv"]
@@ -410,7 +413,7 @@ class CsvFileReader(BaseFileReader):
         Parameters
         ----------
         fp:
-            File to be read with the file reader.
+            File to be read with the file interface.
         kwargs:
             Extra keyword arguments to be passed to polars.
 
@@ -426,7 +429,7 @@ class CsvFileReader(BaseFileReader):
         return df
 
     @classmethod
-    def from_file(cls, fp: Union[Path, str], separator: Optional[str] = None, eol_char: str = "\n",
+    def read_file(cls, fp: Union[Path, str], separator: Optional[str] = None, eol_char: str = "\n",
                   quote_char: str = '"', null_values: Union[None, str, list[str]] = None,
                   encoding="utf-8", **kwargs):
         r"""Read a csv file.
@@ -450,8 +453,8 @@ class CsvFileReader(BaseFileReader):
         -------
         df:
             Polars dataframe for the file.
-        file_reader:
-            File reader that read the dataset.
+        file_interface:
+            File interface that read the dataset.
         """
         if Path(fp).suffix == ".tsv" and separator is None:
             separator = "\t"
@@ -484,7 +487,7 @@ class CsvFileReader(BaseFileReader):
         }
         return df, cls(metadata, Path(fp).name)
 
-    def _write_synthetic(self, df, out_fp):
+    def _write_file(self, df, out_fp):
         meta_copy = {k: v for k, v in self.metadata.items()}
         encoding = meta_copy.pop("encoding", "utf-8")
         if encoding == "utf-8":
@@ -497,7 +500,7 @@ class CsvFileReader(BaseFileReader):
                 file_handle.write(handle.read().decode("utf-8"))
 
     @classmethod
-    def default_reader(cls, fp: Union[Path, str]):
+    def default_interface(cls, fp: Union[Path, str]):
         return cls({
             "separator": ",",
             "line_terminator": "\n",
@@ -505,42 +508,42 @@ class CsvFileReader(BaseFileReader):
             "null_value": "",
         }, Path(fp).name)
 
-@filereader
-class ExcelFileReader(BaseFileReader):
-    """File reader/writer for Microsoft Excel files."""
+@fileinterface
+class ExcelFileInterface(BaseFileInterface):
+    """File interface/writer for Microsoft Excel files."""
 
     name = "excel"
     extensions = [".xlsx", ".xls", ".xlsb"]
 
     @classmethod
-    def from_file(cls, fp: Union[Path, str], sheet_name: Optional[str] = None):
+    def read_file(cls, fp: Union[Path, str], sheet_name: Optional[str] = None):
         df = pl.read_excel(source=str(fp), sheet_name=sheet_name)
         return df, cls({"worksheet": sheet_name}, Path(fp).name)
 
-    def _write_synthetic(self, df, out_fp):
+    def _write_file(self, df, out_fp):
         df.write_excel(out_fp, **self.metadata)
 
     @classmethod
-    def default_reader(cls, fp: Union[Path, str]):
+    def default_interface(cls, fp: Union[Path, str]):
         return cls({"worksheet": "Sheet1"}, Path(fp).name)
 
 
-def file_reader_from_dict(file_format_dict: dict) -> BaseFileReader:
-    """Create a file reader from a dictionary.
+def file_interface_from_dict(file_format_dict: dict) -> BaseFileInterface:
+    """Create a file interface from a dictionary.
 
     Parameters
     ----------
     file_format_dict:
-        Dictionary containing information to create the file reader.
+        Dictionary containing information to create the file interface.
     """
-    for handler_name, handler in _AVAILABLE_FILE_READERS.items():
-        if file_format_dict["file_reader_name"] == handler_name:
+    for handler_name, handler in _AVAILABLE_FILE_INTERFACES.items():
+        if file_format_dict["file_interface_name"] == handler_name:
             return handler(metadata=file_format_dict["format_metadata"],
                            file_name=file_format_dict["file_name"])
-    raise ValueError(f"Cannot find file reader with name '{handler_name}'.")
+    raise ValueError(f"Cannot find file interface with name '{handler_name}'.")
 
-def get_file_reader(fp: Union[Path, str]) -> tuple[pl.DataFrame, BaseFileReader]:
-    """Attempt to create file reader from a dataset.
+def get_file_interface(fp: Union[Path, str]) -> tuple[pl.DataFrame, BaseFileInterface]:
+    """Attempt to create file interface from a dataset.
 
     Default options will be used to read in the file.
 
@@ -553,30 +556,30 @@ def get_file_reader(fp: Union[Path, str]) -> tuple[pl.DataFrame, BaseFileReader]
     -------
     df:
         Dataframe with the dataset.
-    file_reader:
-        The file reader that has created the dataframe.
+    file_interface:
+        The file interface that has created the dataframe.
 
     Raises
     ------
     ValueError
         When the extension is unknown.
     """
-    return get_file_reader_class(fp).from_file(fp)
+    return get_file_interface_class(fp).read_file(fp)
 
 
-def get_file_reader_class(fp: Union[Path, str]) -> Type[BaseFileReader]:
-    """Get the file reader class from a filename."""
+def get_file_interface_class(fp: Union[Path, str]) -> Type[BaseFileInterface]:
+    """Get the file interface class from a filename."""
     suffix = Path(fp).suffix
 
-    for handler_name, handler in _AVAILABLE_FILE_READERS.items():
+    for handler_name, handler in _AVAILABLE_FILE_INTERFACES.items():
         if suffix in handler.extensions:
             return handler
     raise ValueError(f"Files with extension '{suffix}' are not supported.")
 
 def read_csv(fp: Union[Path, str], separator: Optional[str] = None, eol_char: str = "\n",
              quote_char: str = '"', null_values: Union[str, list[str], None]=None,
-             **kwargs) -> tuple[pl.DataFrame, CsvFileReader]:
-    r"""Create the file reader from a file.
+             **kwargs) -> tuple[pl.DataFrame, CsvFileInterface]:
+    r"""Create the file interface from a file.
 
     This function is a wrapper around
     `polars.read_csv <https://docs.pola.rs/api/python/dev/reference/api/polars.read_csv.html>`
@@ -605,18 +608,52 @@ def read_csv(fp: Union[Path, str], separator: Optional[str] = None, eol_char: st
     df:
         Data frame read from the files.
     cls:
-        CsvFileReader instance containing information on how to write CSV files.
+        CsvFileInterface instance containing information on how to write CSV files.
 
     """
-    return CsvFileReader.from_file(fp, separator=separator, eol_char=eol_char,
-                                   quote_char=quote_char, null_values=null_values, **kwargs)
+    return CsvFileInterface.read_file(fp, separator=separator, eol_char=eol_char,
+                                      quote_char=quote_char, null_values=null_values, **kwargs)
 
-def read_tsv(*args, **kwargs) -> tuple[pl.DataFrame, CsvFileReader]:
+
+def _parse_fmt(file_format, fp, interface_class) -> BaseFileInterface:
+    if file_format is None:
+        file_format = interface_class.default_interface(fp)
+    if isinstance(file_format, dict):
+        file_format = interface_class(file_format, fp)
+    return file_format
+
+def write_csv(df: Union[pl.DataFrame],
+              fp: Union[Path, str],
+              file_format: Union[dict, BaseFileInterface, None] = None,
+              overwrite: bool = False):
+    """Write to a CSV file with the same file format.
+
+    Parameters
+    ----------
+    df
+        DataFrame to write to a file.
+    fp
+        File to write to.
+    file_format, optional
+        File format to use for writing the file, by default None meaning to use the defaults.
+    overwrite, optional
+        Whether to overwrite the file if it exists, by default False
+    """
+    file_format = _parse_fmt(file_format, fp, CsvFileInterface)
+    file_format.write_file(df, fp, overwrite=overwrite)
+
+def read_tsv(*args, **kwargs) -> tuple[pl.DataFrame, CsvFileInterface]:
     """Alias for :func:`read_csv`."""
     return read_csv(*args, **kwargs)
 
-def read_sav(fp: Union[Path, str]) -> tuple[pl.DataFrame, SavFileReader]:
-    """Create the file reader from a .sav or .zsav file.
+
+def write_tsv(*args, **kwargs):
+    """Alias for :func:`write_csv`."""
+    return write_csv(*args, **kwargs)
+
+
+def read_sav(fp: Union[Path, str]) -> tuple[pl.DataFrame, SavFileInterface]:
+    """Create the file interface from a .sav or .zsav file.
 
     Parameters
     ----------
@@ -627,13 +664,32 @@ def read_sav(fp: Union[Path, str]) -> tuple[pl.DataFrame, SavFileReader]:
     -------
     df:
         Polars dataframe with the converted columns.
-    file_reader:
-        An instance of the :class:`SavFileReader` with the appropriate metadata.
     """
-    return SavFileReader.from_file(fp)
+    return SavFileInterface.read_file(fp)
 
 
-def read_dta(fp: Union[Path, str]) -> tuple[pl.DataFrame, StataFileReader]:
+def write_sav(df: Union[pl.DataFrame],
+              fp: Union[Path, str],
+              file_format: Union[dict, BaseFileInterface, None] = None,
+              overwrite: bool = False):
+    """Write to a SAV file with the same file format.
+
+    Parameters
+    ----------
+    df
+        DataFrame to write to a file.
+    fp
+        File to write to.
+    file_format, optional
+        File format to use for writing the file, by default None meaning to use the defaults.
+    overwrite, optional
+        Whether to overwrite the file if it exists, by default False
+    """
+    file_format = _parse_fmt(file_format, fp, SavFileInterface)
+    file_format.write_file(df, fp, overwrite=overwrite)
+
+
+def read_dta(fp: Union[Path, str]) -> tuple[pl.DataFrame, StataFileInterface]:
     """Read a .dta stata file into metadata and a DataFrame.
 
     Parameters
@@ -645,13 +701,33 @@ def read_dta(fp: Union[Path, str]) -> tuple[pl.DataFrame, StataFileReader]:
     -------
     df:
         Polars dataframe with the converted columns.
-    file_reader:
-        An instance of the :class:`StataFileReader` with the appropriate metadata.
     """
-    return StataFileReader.from_file(fp)
+    return StataFileInterface.read_file(fp)
 
-def read_excel(fp: Union[Path, str]) -> tuple[pl.DataFrame, ExcelFileReader]:
-    """Read an excel file and create a file reader from that.
+
+def write_dta(df: Union[pl.DataFrame],
+              fp: Union[Path, str],
+              file_format: Union[dict, BaseFileInterface, None] = None,
+              overwrite: bool = False):
+    """Write to a DTA file with the same file format.
+
+    Parameters
+    ----------
+    df
+        DataFrame to write to a file.
+    fp
+        File to write to.
+    file_format, optional
+        File format to use for writing the file, by default None meaning to use the defaults.
+    overwrite, optional
+        Whether to overwrite the file if it exists, by default False
+    """
+    file_format = _parse_fmt(file_format, fp, StataFileInterface)
+    file_format.write_file(df, fp, overwrite=overwrite)
+
+
+def read_excel(fp: Union[Path, str]) -> tuple[pl.DataFrame, ExcelFileInterface]:
+    """Read an excel file and create a file interface from that.
 
     Parameters
     ----------
@@ -662,7 +738,28 @@ def read_excel(fp: Union[Path, str]) -> tuple[pl.DataFrame, ExcelFileReader]:
     -------
     df:
         Polars dataframe representing the excel dataset.
-    file_reader:
-        An instance of the :class:`ExcelFileReader` used for writing excel files.
+    file_interface:
+        An instance of the :class:`ExcelFileInterface` used for writing excel files.
     """
-    return ExcelFileReader.from_file(fp)
+    return ExcelFileInterface.read_file(fp)
+
+
+def write_excel(df: Union[pl.DataFrame],
+                fp: Union[Path, str],
+                file_format: Union[dict, BaseFileInterface, None] = None,
+                overwrite: bool = False):
+    """Write to a Excel file with the same file format.
+
+    Parameters
+    ----------
+    df
+        DataFrame to write to a file.
+    fp
+        File to write to.
+    file_format, optional
+        File format to use for writing the file, by default None meaning to use the defaults.
+    overwrite, optional
+        Whether to overwrite the file if it exists, by default False
+    """
+    file_format = _parse_fmt(file_format, fp, ExcelFileInterface)
+    file_format.write_file(df, fp, overwrite=overwrite)

@@ -7,15 +7,16 @@
             "name": "metasyn",
             "version": "1.1.1.dev15+g3e1eae0.d20250108"
         },
-        "creation time": "2025-03-13T16:52:57.820754"
+        "creation time": "2025-05-14T13:50:48.868119"
     },
     "file_format": {
-        "file_handler_name": "csv",
+        "file_interface_name": "csv",
         "format_metadata": {
             "separator": ",",
             "line_terminator": "\n",
             "quote_char": "\"",
-            "null_value": ""
+            "null_value": "",
+            "encoding": "utf-8"
         },
         "file_name": "demo_titanic.csv"
     },
