@@ -493,11 +493,11 @@ class CsvFileInterface(BaseFileInterface):
         if encoding == "utf-8":
             df.write_csv(out_fp, **meta_copy)
         else:
-            handle = BytesIO()
-            df.write_csv(handle, **meta_copy)
-            handle.seek(0)
+            # handle = BytesIO()
+            buffer = df.write_csv(**meta_copy)
+            # handle.seek(0)
             with open(out_fp, "w", encoding=encoding, errors="replace") as file_handle:
-                file_handle.write(handle.read().decode("utf-8"))
+                file_handle.write(buffer)
 
     @classmethod
     def default_interface(cls, fp: Union[Path, str]):
