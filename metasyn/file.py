@@ -278,7 +278,7 @@ class SavFileInterface(ReadStatInterface):
     are converted to integers.
     """
 
-    name = "spss-sav"
+    name = "sav"
     extensions = [".sav", ".zsav"]
     interface = "sav"
 
@@ -333,7 +333,7 @@ class SavFileInterface(ReadStatInterface):
 class StataFileInterface(ReadStatInterface):
     """File interface for .dta files."""
 
-    name = "stata"
+    name = "dta"
     extensions = [".dta"]
     interface = "dta"
 
@@ -350,8 +350,8 @@ class StataFileInterface(ReadStatInterface):
                 df = df.with_columns(pl.col(col).cast(pl.Float32))
             elif col_format == "%10.0g":
                 df = df.with_columns(pl.col(col).cast(pl.Float64))
-            elif col_format == "%td":
-                print(col, df[col])
+            # elif col_format == "%td":
+                # print(col, df[col])
         # print(df["Date"])
         return df
 
@@ -364,9 +364,6 @@ class StataFileInterface(ReadStatInterface):
             "variable_value_labels": prs_metadata.variable_value_labels,
         }
         return metadata
-
-    def _convert_integer_cols(self, df):
-        return df
 
     def _prep_df_for_writing(self, df):
         pd_df = df.to_pandas()
@@ -385,7 +382,7 @@ class StataFileInterface(ReadStatInterface):
             if col in self.metadata.get("variable_format", {}):
                 continue
             pd_dtype = str(pd_df[col].dtype)
-            print(col, pd_dtype)
+            # print(col, pd_dtype)
             if pd_dtype.startswith(("Int", "UInt")) and not pd_dtype.endswith("64"):
                 var_format[col] = "%8.0g"
             elif pd_dtype.startswith(("Int", "UInt")) and pd_dtype.endswith("64"):

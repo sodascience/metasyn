@@ -4,6 +4,7 @@ import polars as pl
 import pytest
 from pytest import mark
 
+import metasyn as ms
 from metasyn.demo.dataset import _AVAILABLE_DATASETS, demo_dataframe, demo_file
 from metasyn.file import (
     _AVAILABLE_FILE_INTERFACES,
@@ -28,11 +29,11 @@ class BadFileInterface1(BaseFileInterface):
 
     @classmethod
     def default_interface(cls, fp):
-        pass
+        return BaseFileInterface.default_interface(fp)
 
     @classmethod
     def read_file(cls, fp):
-        pass
+        return BaseFileInterface.read_file(fp)
 
 
 @fileinterface
@@ -85,6 +86,20 @@ def test_file_exists_error():
     with pytest.raises(FileExistsError):
         BadFileInterface1({}, "x").write_file(None, Path("tests", "data", "titanic.csv")
                                                 , overwrite=False)
+
+def test_dir_does_not_exist_error():
+    with pytest.raises(FileNotFoundError):
+        BadFileInterface1({}, "x").write_file(None, Path("tests", "data", "more", "directories",
+                                                         "titanic.csv")
+                                                , overwrite=False)
+
+def test_default_interface_error():
+    with pytest.raises(NotImplementedError):
+        BadFileInterface1.default_interface("some_file")
+
+def test_read_file_error():
+    with pytest.raises(NotImplementedError):
+        BadFileInterface1.read_file("some_file")
 
 def test_sav_warning():
     with pytest.warns(UserWarning):
@@ -146,6 +161,10 @@ def test_csv_null():
     df, csv_interface = read_csv(filename, null_values="84")
     assert len(df["age"].drop_nulls()) == 10
 
+def test_csv_encoding(tmpdir):
+    df, fmt = ms.read_csv(demo_file("test"), encoding="windows-1252")
+    ms.write_csv(df, tmpdir / "temp.csv", file_format=fmt)
+
 @mark.parametrize(
     "filename,interface_class",
     [(demo_file("hospital"), CsvFileInterface),
@@ -176,10 +195,17 @@ def test_default_file_interfaces(interface_class, tmpdir):
     assert isinstance(df_new, pl.DataFrame)
     assert df_new.shape == df.shape
 
+    # same, but using write_* and read_*
+    getattr(ms, f"write_{interface_class.name}")(df, fp, overwrite=True)
+    df_new, _ = getattr(ms, f"read_{interface_class.name}")(fp)
+    assert isinstance(df_new, pl.DataFrame)
+    assert df_new.shape == df.shape
+
 def test_stata(tmpdir):
     df = demo_dataframe("test")
     file_out = tmpdir / "test.dta"
-    StataFileInterface.default_interface(file_out).write_file(df, file_out)
+    ms.write_dta(df, file_out)
+    # StataFileInterface.default_interface(file_out).write_file(df, file_out)
     df_new, _ = read_dta(file_out)
     for col in df.columns:
         if col.startswith(("Int", "UInt")) and not col.endswith(("64")):
