@@ -193,6 +193,24 @@ class BaseDistribution(ABC):
         """Get a distribution with default parameters."""
         return cls()
 
+    def draw_list(self, n: int) -> list:
+        """Draw a list of values from the distribution.
+
+        Parameters
+        ----------
+        n:
+            Number of items to draw from the distribution.
+
+        Raises
+        ------
+        NotImplementedError:
+            If the distribution hasn't implemented a draw_list.
+
+        Returns
+        -------
+            List of values.
+        """
+        raise NotImplementedError()
 
 def metadist(
         implements: Optional[str] = None,
@@ -306,7 +324,16 @@ class ScipyDistribution(BaseDistribution):
         return self.par
 
     def draw(self):
-        return self.dist.rvs()
+        val = self.dist.rvs()
+        if self.var_type == "discrete":
+            return int(val)
+        return val
+
+    def draw_list(self, n: int) -> list:
+        values = self.dist.rvs(n)
+        if self.var_type == "discrete":
+            values = values.astype(np.int64)
+        return list(values)
 
     def information_criterion(self, values):
         vals = self._to_series(values)

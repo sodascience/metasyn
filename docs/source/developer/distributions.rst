@@ -60,7 +60,9 @@ BaseDistribution class has a series of abstract methods that *must be* implemete
 
 If the distribution has subsequently draws that are not independent, it is recommended to implement :meth:`~metasyn.distribution.base.BaseDistribution.draw_reset`. As the name suggests, this method is intended to reset the distribution's drawing mechanism.
 
-It is recommended to also implement :meth:`~metasyn.distribution.base.BaseDistribution.information_criterion`. This is a class method used to determine which distribution gets selected during the fitting process for a series of values. The distribution with the lowest information criterion of the correct variable type will be selected. For discrete and continuous distributions it is currently implemented as `BIC <https://en.wikipedia.org/wiki/Bayesian_information_criterion>`_). 
+It is recommended to also implement :meth:`~metasyn.distribution.base.BaseDistribution.information_criterion`. This is a class method used to determine which distribution gets selected during the fitting process for a series of values. The distribution with the lowest information criterion of the correct variable type will be selected. For discrete and continuous distributions it is currently implemented as `BIC <https://en.wikipedia.org/wiki/Bayesian_information_criterion>`_. 
+
+Another optional method to implement is the :meth:`~metasyn.distribution.base.BaseDistribution.draw_list`. Normally, ``metasyn`` will draw values one at a time when synthesizing. Sometimes this is slow and it is faster to draw multiple values at once. In this case you can implement the :meth:`~metasyn.distribution.base.BaseDistribution.draw_list` method.
 
 There are more methods, but this is a good starting point when implementing a new distribution.
 For an overview of the rest of the methods and implementation details, refer to the :class:`~metasyn.distribution.base.BaseDistribution` class.

@@ -6,6 +6,7 @@ from typing import Any, Dict, Optional, Union
 
 import numpy as np
 import polars as pl
+from tqdm import tqdm
 
 from metasyn.distribution.base import BaseDistribution
 from metasyn.privacy import BasePrivacy, BasicPrivacy
@@ -51,7 +52,7 @@ class MetaVar:
         it will be assumed to have been created by the user.
     """
 
-    def __init__( # noqa: PLR0913
+    def __init__(  # noqa: PLR0913
         self,
         name: str,
         var_type: Optional[str],
@@ -75,8 +76,7 @@ class MetaVar:
             self.creation_method = {"created_by": "user"}
         if self.prop_missing < -1e-8 or self.prop_missing > 1 + 1e-8:
             raise ValueError(
-                f"Cannot create variable '{self.name}' with proportion missing "
-                "outside range [0, 1]"
+                f"Cannot create variable '{self.name}' with proportion missing outside range [0, 1]"
             )
         if self.dtype == "unknown":
             if self.var_type == "categorical":
@@ -164,6 +164,7 @@ class MetaVar:
             f"- Proportion of Missing Values: {self.prop_missing:.4f}\n"
             f"- Distribution:\n{distribution_formatted}\n"
         )
+
     def __repr__(self) -> str:
         return f"MetaVar <{self.name}, {self.distribution.implements}>"
 
@@ -228,13 +229,17 @@ class MetaVar:
             return None
         return self.distribution.draw()
 
-    def draw_series(self, n: int, seed: Optional[int]) -> pl.Series:
+    def draw_series(self, n: int, seed: Optional[int], progress_bar: bool = True) -> pl.Series:
         """Draw a new synthetic series from the metadata.
 
         Parameters
         ----------
         n:
             Length of the series to be created.
+        seed:
+            Seed value for the internal random number generator. Set this to ensure reproducibility.
+        progress_bar:
+            Whether to display a progress bar.
 
         Returns
         -------
@@ -245,7 +250,19 @@ class MetaVar:
             set_global_seeds(seed)
 
         self.distribution.draw_reset()
-        value_list = [self.draw() for _ in range(n)]
+
+        is_not_na = np.random.rand(n) >= self.prop_missing
+        n_draw: int = np.sum(is_not_na)  # type: ignore
+        try:
+            not_na_values = self.distribution.draw_list(n_draw)
+        except NotImplementedError:
+            not_na_values = [self.distribution.draw()
+                             for _ in tqdm(range(n_draw), disable=not progress_bar, leave=False,
+                                           desc="synthesizing")]
+
+        # Mix the values with Nones
+        cum_not_na = np.cumsum(is_not_na)
+        value_list = [not_na_values[cum_not_na[i]-1] if is_not_na[i] else None for i in range(n)]
         pl_type = self.dtype.split("(")[0]
 
         # Workaround for polars issue with numpy 2.0
