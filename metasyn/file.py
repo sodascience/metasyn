@@ -24,6 +24,10 @@ def fileinterface(*args):
 class BaseFileInterface(ABC):
     """Abstract file interface class to derive specific implementations from.
 
+    The file interface facilitates the reading and writing of dataset files. In
+    particular they can ensure that the output data are exactly the same as the
+    input data.
+
     The implementation class should have at least two class attributes: a :code:`name`
     for the implementation and :code:`extensions`, which is a list of extensions to be
     associated with the implementation. For example :code:`[".csv", ".tsv"]`.
@@ -55,7 +59,8 @@ class BaseFileInterface(ABC):
             A dictionary containing all information to reconstruct the file interface.
         """
         if self.name not in _AVAILABLE_FILE_READERS:
-            warnings.warn(f"Current file interface {self.name} is not available, did you forget to use"
+            warnings.warn(f"Current file interface {self.name} is not available, "
+                          "did you forget to use"
                           f" the decorator @fileinterface for the class {self.__class__}?")
         if self.name == "base":
             warnings.warn(f"Class attribute for {self.__class__} should not be 'base'."

@@ -204,11 +204,11 @@ Example: {EXAMPLE_SYNTHESIZE}
     if meta_frame.file_format is not None:
         file_interface = file_interface_from_dict(meta_frame.file_format)
         if args.output.suffix not in file_interface.extensions:
-            file_interface = get_file_interface_class(args.output).default_reader(args.output)
+            file_interface = get_file_interface_class(args.output).default_interface(args.output)
         meta_frame.write_synthetic(args.output, n=args.num_rows, seed=args.seed,
                                    file_format=file_interface)
     else:
-        file_interface = get_file_interface_class(args.output).default_reader(args.output)
+        file_interface = get_file_interface_class(args.output).default_interface(args.output)
         meta_frame.write_synthetic(args.output, n=args.num_rows, seed=args.seed,
                                    file_format=file_interface)
 

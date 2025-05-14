@@ -546,7 +546,7 @@ class MetaFrame:
         the same format as the original one. For example, if the separator of the CSV
         file was a comma, then it will write the synthetic data with the same separator.
         If the file format is not available (GMF files with older versions of metasyn
-        or custom file readers), then you will have to supply your own file reader.
+        or custom file interfaces), then you will have to supply your own file interface.
 
         Parameters
         ----------
@@ -560,11 +560,11 @@ class MetaFrame:
             Set the seed for creating the synthetic dataset, by default None
         file_format:
             File format that determines how the file will be written. This is a dictionary
-            that can be created by a file reader with the
-            :meth:`metasyn.filereader.BaseFileInterface.to_dict` method. Example file reader
-            classes are :class:`metasyn.filereader.CsvFileReader` and
-            class:`metasyn.filereader.SavFileReader`. By default the file_format is None,
-            in which case the file reader from the GMF file will be used, otherwise an error
+            that can be created by a file interface with the
+            :meth:`metasyn.fileinterface.BaseFileInterface.to_dict` method. Example file interface
+            classes are :class:`metasyn.fileinterface.CsvFileReader` and
+            class:`metasyn.fileinterface.SavFileReader`. By default the file_format is None,
+            in which case the file interface from the GMF file will be used, otherwise an error
             will be thrown.
 
         Raises
