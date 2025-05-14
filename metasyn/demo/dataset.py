@@ -187,7 +187,7 @@ class TestDataset(BaseDataset):
     def schema(self):
         columns = pl.read_csv(self.file_location).columns
         return {
-            col_name: (getattr(pl, col_name[3:]) if col_name != "NA" else pl.String)
+            col_name: (getattr(pl, col_name) if col_name != "NA" else pl.String)
             for col_name in columns
         }
 
@@ -199,14 +199,14 @@ class TestDataset(BaseDataset):
         for int_val in [8, 16, 32, 64]:
             all_series.append(
                 pl.Series(
-                    f"pl.Int{int_val}",
+                    f"Int{int_val}",
                     [np.random.randint(-10, 10) for _ in range(n_rows)],
                     dtype=getattr(pl, f"Int{int_val}"),
                 )
             )
             all_series.append(
                 pl.Series(
-                    f"pl.UInt{int_val}",
+                    f"UInt{int_val}",
                     [np.random.randint(10) for _ in range(n_rows)],
                     dtype=getattr(pl, f"UInt{int_val}"),
                 )
@@ -215,7 +215,7 @@ class TestDataset(BaseDataset):
         for float_val in [32, 64]:
             all_series.append(
                 pl.Series(
-                    f"pl.Float{float_val}",
+                    f"Float{float_val}",
                     np.random.randn(n_rows),
                     dtype=getattr(pl, f"Float{float_val}"),
                 )
@@ -223,14 +223,14 @@ class TestDataset(BaseDataset):
 
         all_series.append(
             pl.Series(
-                "pl.Date",
+                "Date",
                 [date(2024, 9, 4) + timedelta(days=i) for i in range(n_rows)],
                 dtype=pl.Date,
             )
         )
         all_series.append(
             pl.Series(
-                "pl.Datetime",
+                "Datetime",
                 [
                     datetime(2024, 9, 4, 12, 30, 12)
                     + timedelta(hours=i, minutes=i * 2, seconds=i * 3)
@@ -241,36 +241,36 @@ class TestDataset(BaseDataset):
         )
         all_series.append(
             pl.Series(
-                "pl.Time",
+                "Time",
                 [time(3 + i // 20, 6 + i // 12, 12 + i // 35) for i in range(n_rows)],
                 dtype=pl.Time,
             )
         )
         all_series.append(
             pl.Series(
-                "pl.String", np.random.choice(list(string.printable), size=n_rows), dtype=pl.String
+                "String", np.random.choice(list(string.printable), size=n_rows), dtype=pl.String
             )
         )
         all_series.append(
             pl.Series(
-                "pl.Utf8", np.random.choice(list(string.printable), size=n_rows), dtype=pl.Utf8
+                "Utf8", np.random.choice(list(string.printable), size=n_rows), dtype=pl.Utf8
             )
         )
         all_series.append(
             pl.Series(
-                "pl.Categorical",
+                "Categorical",
                 np.random.choice(list(string.ascii_uppercase[:5]), size=n_rows),
                 dtype=pl.Categorical,
             )
         )
         all_series.append(
-            pl.Series("pl.Boolean", np.random.choice([True, False], size=n_rows), dtype=pl.Boolean)
+            pl.Series("Boolean", np.random.choice([True, False], size=n_rows), dtype=pl.Boolean)
         )
         all_series.append(pl.Series("NA", [None for _ in range(n_rows)], dtype=pl.String))
 
         # Add NA's for all series except the categorical
         for series in all_series:
-            if series.name != "pl.Categorical":
+            if series.name != "Categorical":
                 none_idx = np.random.choice(np.arange(n_rows), size=n_rows // 10, replace=False)
                 none_idx.sort()
                 series[none_idx] = None
