@@ -23,7 +23,7 @@ from metasyn.file import (
 
 class BadFileInterface1(BaseFileInterface):
     name = "bad1"
-    def _write_synthetic(self, df, fp):
+    def _write_file(self, df, fp):
         pass
 
     @classmethod
@@ -31,13 +31,13 @@ class BadFileInterface1(BaseFileInterface):
         pass
 
     @classmethod
-    def from_file(cls, fp):
+    def read_file(cls, fp):
         pass
 
 
 @fileinterface
 class BadFileInterface2(BaseFileInterface):
-    def _write_synthetic(self, df, fp):
+    def _write_file(self, df, fp):
         pass
 
     @classmethod
@@ -45,7 +45,7 @@ class BadFileInterface2(BaseFileInterface):
         pass
 
     @classmethod
-    def from_file(cls, fp):
+    def read_file(cls, fp):
         pass
 
     @classmethod
@@ -53,21 +53,21 @@ class BadFileInterface2(BaseFileInterface):
         pass
 
     @classmethod
-    def from_file(cls, fp):
+    def read_file(cls, fp):
         pass
 
 @fileinterface
 class BadFileInterface3(BaseFileInterface):
     name = "also_bad"
-    def _write_synthetic(self, df, fp):
-        super()._write_synthetic(df, fp)
+    def _write_file(self, df, fp):
+        super()._write_file(df, fp)
 
     @classmethod
     def default_interface(cls, fp):
         pass
 
     @classmethod
-    def from_file(cls, fp):
+    def read_file(cls, fp):
         pass
 
 def test_decorator_warning():
@@ -79,16 +79,16 @@ def test_decorator_warning():
 
 def test_notimplemented():
     with pytest.raises(NotImplementedError):
-        BadFileInterface3({}, "x").write_synthetic(None)
+        BadFileInterface3({}, "x").write_file(None)
 
 def test_file_exists_error():
     with pytest.raises(FileExistsError):
-        BadFileInterface1({}, "x").write_synthetic(None, Path("tests", "data", "titanic.csv")
+        BadFileInterface1({}, "x").write_file(None, Path("tests", "data", "titanic.csv")
                                                 , overwrite=False)
 
 def test_sav_warning():
     with pytest.warns(UserWarning):
-        SavFileInterface.from_file(Path("tests", "data", "actually_a_sav_file.csv"))
+        SavFileInterface.read_file(Path("tests", "data", "actually_a_sav_file.csv"))
 
 
 @mark.parametrize("filename",
@@ -102,13 +102,13 @@ def test_sav_interface(filename, tmpdir):
     assert isinstance(df, pl.DataFrame)
     assert isinstance(sav_interface, SavFileInterface)
     assert len(df) > 0
-    sav_interface.write_synthetic(df, tmpdir)
+    sav_interface.write_file(df, tmpdir)
     assert Path(tmpdir, filename).is_file()
 
     sav_interface.metadata["compress"] = True
     zsav_file = Path(tmpdir, Path(filename).stem + ".zsav")
-    sav_interface.write_synthetic(df, zsav_file)
-    new_df, new_sav_interface = SavFileInterface.from_file(zsav_file)
+    sav_interface.write_file(df, zsav_file)
+    new_df, new_sav_interface = SavFileInterface.read_file(zsav_file)
     assert new_sav_interface.metadata["compress"]
     assert new_df.columns == df.columns
 
@@ -117,15 +117,15 @@ def test_sav_interface(filename, tmpdir):
                   _AVAILABLE_DATASETS)
 def test_csv_interface(dataset_name, tmpdir):
     filename = demo_file(dataset_name)
-    direct_df, _ = CsvFileInterface.from_file(filename)
+    direct_df, _ = CsvFileInterface.read_file(filename)
     assert isinstance(direct_df, pl.DataFrame)
     df, csv_interface = read_csv(filename)
     assert isinstance(df, pl.DataFrame)
     assert isinstance(csv_interface, CsvFileInterface)
     assert len(df) == len(direct_df) and len(df) > 0
 
-    csv_interface.write_synthetic(df, tmpdir)
-    new_df, _ = CsvFileInterface.from_file(Path(tmpdir, Path(filename).name))
+    csv_interface.write_file(df, tmpdir)
+    new_df, _ = CsvFileInterface.read_file(Path(tmpdir, Path(filename).name))
     assert isinstance(new_df, pl.DataFrame)
     assert df.columns == new_df.columns
 
@@ -136,7 +136,7 @@ def test_tsv_interface(tmpdir):
 
     df, tsv_interface = read_tsv(filename)
     assert tsv_interface.metadata["separator"] == "\t"
-    tsv_interface.write_synthetic(df, tmpdir)
+    tsv_interface.write_file(df, tmpdir)
     assert Path(tmpdir, "data.tsv").is_file()
 
 def test_csv_null():
@@ -170,16 +170,16 @@ def test_default_file_interfaces(interface_class, tmpdir):
     df = demo_dataframe("test")
     suffix = interface_class.extensions[0]
     fp = Path(tmpdir/f"test_file{suffix}")
-    interface_class.default_interface(fp).write_synthetic(df, fp)
+    interface_class.default_interface(fp).write_file(df, fp)
 
-    df_new, _ = interface_class.from_file(fp)
+    df_new, _ = interface_class.read_file(fp)
     assert isinstance(df_new, pl.DataFrame)
     assert df_new.shape == df.shape
 
 def test_stata(tmpdir):
     df = demo_dataframe("test")
     file_out = tmpdir / "test.dta"
-    StataFileInterface.default_interface(file_out).write_synthetic(df, file_out)
+    StataFileInterface.default_interface(file_out).write_file(df, file_out)
     df_new, _ = read_dta(file_out)
     for col in df.columns:
         if col.startswith(("Int", "UInt")) and not col.endswith(("64")):
