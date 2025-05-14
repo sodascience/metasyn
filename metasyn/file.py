@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import warnings
 from abc import ABC, abstractmethod
-from io import BytesIO
 from pathlib import Path
 from typing import Any, Optional, Type, Union
 
