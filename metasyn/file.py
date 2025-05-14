@@ -536,13 +536,14 @@ def file_interface_from_dict(file_format_dict: dict) -> BaseFileInterface:
     file_format_dict:
         Dictionary containing information to create the file interface.
     """
-    for handler_name, handler in _AVAILABLE_FILE_INTERFACES.items():
-        if file_format_dict["file_interface_name"] == handler_name:
-            return handler(metadata=file_format_dict["format_metadata"],
+    for interface_name, interface in _AVAILABLE_FILE_INTERFACES.items():
+        if file_format_dict["file_interface_name"] == interface_name:
+            return interface(metadata=file_format_dict["format_metadata"],
                            file_name=file_format_dict["file_name"])
-    raise ValueError(f"Cannot find file interface with name '{handler_name}'.")
+    raise ValueError(f"Cannot find file interface with name '{interface_name}'.")
 
-def get_file_interface(fp: Union[Path, str]) -> tuple[pl.DataFrame, BaseFileInterface]:
+def read_file(fp: Union[Path, str], name: Optional[str] = None,
+              arguments: Optional[dict] = None) -> tuple[pl.DataFrame, BaseFileInterface]:
     """Attempt to create file interface from a dataset.
 
     Default options will be used to read in the file.
@@ -564,16 +565,22 @@ def get_file_interface(fp: Union[Path, str]) -> tuple[pl.DataFrame, BaseFileInte
     ValueError
         When the extension is unknown.
     """
-    return get_file_interface_class(fp).read_file(fp)
+    arguments = {} if arguments is None else arguments
+    if name is None:
+        return get_file_interface_class(fp).read_file(fp, **arguments)
+    for interface_name, interface in _AVAILABLE_FILE_INTERFACES.items():
+        if interface_name == name:
+            return interface.read_file(fp, **arguments)
+    raise ValueError(f"Cannot find file interface with name '{name}'.")
 
 
 def get_file_interface_class(fp: Union[Path, str]) -> Type[BaseFileInterface]:
     """Get the file interface class from a filename."""
     suffix = Path(fp).suffix
 
-    for handler_name, handler in _AVAILABLE_FILE_INTERFACES.items():
-        if suffix in handler.extensions:
-            return handler
+    for interface_name, interface in _AVAILABLE_FILE_INTERFACES.items():
+        if suffix in interface.extensions:
+            return interface
     raise ValueError(f"Files with extension '{suffix}' are not supported.")
 
 def read_csv(fp: Union[Path, str], separator: Optional[str] = None, eol_char: str = "\n",

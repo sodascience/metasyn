@@ -46,13 +46,15 @@ class MetaConfig():
             dist_providers: Union[DistributionProviderList, list[str], str, None],
             defaults: Optional[dict] = None,
             n_rows: Optional[int] = None,
-            config_version: str = "1.1"):
+            file_config: Optional[dict] = None,
+            config_version: str = "1.2"):
         self.var_specs = [self._parse_var_spec(v) for v in var_specs]
         self.dist_providers = dist_providers  # type: ignore
         self.n_rows = n_rows
         defaults = {} if defaults is None else defaults
         self.defaults = VarDefaults(**defaults)
         self.config_version = config_version
+        self.file_config = file_config
 
     @staticmethod
     def _parse_var_spec(var_spec) -> VarSpec:
@@ -115,10 +117,11 @@ class MetaConfig():
         dist_providers = config_dict.pop("dist_providers", ["builtin"])
         defaults = config_dict.pop("defaults", None)
         privacy = config_dict.pop("privacy", None)
+        file_config = config_dict.pop("file", None)
         config_version = config_dict.pop("config_version", "1.0")
-        if config_version not in ["1.0", "1.1"]:
+        if config_version not in ["1.0", "1.1", "1.2"]:
             warnings.warn(f"Trying to read configuration file with version {config_version}, "
-                          "this version of metasyn only supports 1.0 and 1.1.")
+                          "this version of metasyn only supports 1.0, 1.1 and 1.2.")
         if privacy is not None:
             if defaults is not None:
                 raise ValueError("Error parsing configuration file: cannot have both [privacy]"
@@ -128,6 +131,7 @@ class MetaConfig():
             raise ValueError(f"Error parsing configuration file '{config_fp}'."
                              f" Unknown keys detected: '{list(config_dict)}'")
         return cls(var_list, dist_providers, defaults, n_rows=n_rows,
+                   file_config=file_config,
                    config_version=config_version)
 
     def to_dict(self) -> dict:

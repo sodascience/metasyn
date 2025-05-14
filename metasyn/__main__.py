@@ -17,7 +17,7 @@ except ImportError:
 
 from metasyn import MetaFrame
 from metasyn.config import MetaConfig
-from metasyn.file import file_interface_from_dict, get_file_interface, get_file_interface_class
+from metasyn.file import file_interface_from_dict, get_file_interface_class, read_file
 from metasyn.validation import create_schema
 
 EXAMPLE_CREATE_META="metasyn create-meta your_dataset.csv -o your_gmf_file.json --config your_config.toml" # noqa: E501
@@ -129,7 +129,11 @@ Examples:
             raise ValueError("Please supply either an input dataset or a configuration file.")
         meta_frame = MetaFrame.from_config(meta_config)
     else:
-        data_frame, file_handler = get_file_interface(args.input)
+        if meta_config is not None and meta_config.file_config is not None:
+            data_frame, file_handler = read_file(args.input, **meta_config.file_config)
+        else:
+            data_frame, file_handler = read_file(args.input)
+        print(data_frame)
         meta_frame = MetaFrame.fit_dataframe(data_frame, config=meta_config)
         meta_frame.file_format = file_handler.to_dict()
     meta_frame.save(args.output)
