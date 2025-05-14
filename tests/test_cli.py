@@ -99,8 +99,8 @@ def test_create_meta(tmp_dir, config):
     ]
     if config:
         cmd.extend(["--config", Path(tmp_dir) / 'config.ini'])
-    result = subprocess.run(cmd, check=True, capture_output=True)
-    assert result.returncode == 0, result.stdout
+    result = subprocess.run(cmd, check=False, capture_output=True)
+    assert result.returncode == 0, result.stdout + result.stderr
     assert out_file.is_file()
     meta_frame = MetaFrame.load_json(out_file)
     assert len(meta_frame.meta_vars) == 12

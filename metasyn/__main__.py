@@ -133,7 +133,6 @@ Examples:
             data_frame, file_handler = read_file(args.input, **meta_config.file_config)
         else:
             data_frame, file_handler = read_file(args.input)
-        print(data_frame)
         meta_frame = MetaFrame.fit_dataframe(data_frame, config=meta_config)
         meta_frame.file_format = file_handler.to_dict()
     meta_frame.save(args.output)
