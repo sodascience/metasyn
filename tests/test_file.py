@@ -14,7 +14,7 @@ from metasyn.file import (
     StataFileInterface,
     file_interface_from_dict,
     fileinterface,
-    get_file_interface,
+    read_file,
     read_csv,
     read_dta,
     read_sav,
@@ -172,7 +172,7 @@ def test_csv_encoding(tmpdir):
     (Path("tests", "data", "data.tsv"), CsvFileInterface)]
 )
 def test_file_interface_from_dict(filename, interface_class):
-    df, file_interface = get_file_interface(filename)
+    df, file_interface = read_file(filename)
     assert isinstance(file_interface, interface_class)
     assert isinstance(file_interface_from_dict(file_interface.to_dict()), interface_class)
 
@@ -181,7 +181,7 @@ def test_file_interface_errors():
         file_interface_from_dict({"file_interface_name": "unknown"})
 
     with pytest.raises(ValueError):
-        get_file_interface(Path("tests", "test_fileinterface.py"))
+        read_file(Path("tests", "test_fileinterface.py"))
 
 @mark.parametrize("interface_class",
                   [x for x in _AVAILABLE_FILE_INTERFACES.values() if not x.__name__.startswith("Bad")])
