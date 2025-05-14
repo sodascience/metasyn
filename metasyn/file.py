@@ -496,7 +496,7 @@ class CsvFileInterface(BaseFileInterface):
             handle = BytesIO()
             df.write_csv(handle, **meta_copy)
             handle.seek(0)
-            with open(out_fp, "w", encoding=encoding) as file_handle:
+            with open(out_fp, "w", encoding=encoding, errors="replace") as file_handle:
                 file_handle.write(handle.read().decode("utf-8"))
 
     @classmethod
