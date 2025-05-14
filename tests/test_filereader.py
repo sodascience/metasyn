@@ -5,29 +5,29 @@ import pytest
 from pytest import mark
 
 from metasyn.demo.dataset import _AVAILABLE_DATASETS, demo_dataframe, demo_file
-from metasyn.filereader import (
-    _AVAILABLE_FILE_READERS,
-    BaseFileReader,
-    CsvFileReader,
-    SavFileReader,
-    StataFileReader,
-    file_reader_from_dict,
-    filereader,
-    get_file_reader,
+from metasyn.file import (
+    _AVAILABLE_FILE_INTERFACES,
+    BaseFileInterface,
+    CsvFileInterface,
+    SavFileInterface,
+    StataFileInterface,
+    file_interface_from_dict,
+    fileinterface,
+    get_file_interface,
     read_csv,
+    read_dta,
     read_sav,
     read_tsv,
-    read_dta,
 )
 
 
-class BadFileReader1(BaseFileReader):
+class BadFileInterface1(BaseFileInterface):
     name = "bad1"
     def _write_synthetic(self, df, fp):
         pass
 
     @classmethod
-    def default_reader(cls, fp):
+    def default_interface(cls, fp):
         pass
 
     @classmethod
@@ -35,13 +35,13 @@ class BadFileReader1(BaseFileReader):
         pass
 
 
-@filereader
-class BadFileReader2(BaseFileReader):
+@fileinterface
+class BadFileInterface2(BaseFileInterface):
     def _write_synthetic(self, df, fp):
         pass
 
     @classmethod
-    def default_reader(cls, fp):
+    def default_interface(cls, fp):
         pass
 
     @classmethod
@@ -49,21 +49,21 @@ class BadFileReader2(BaseFileReader):
         pass
 
     @classmethod
-    def default_reader(cls, fp):
+    def default_interface(cls, fp):
         pass
 
     @classmethod
     def from_file(cls, fp):
         pass
 
-@filereader
-class BadFileReader3(BaseFileReader):
+@fileinterface
+class BadFileInterface3(BaseFileInterface):
     name = "also_bad"
     def _write_synthetic(self, df, fp):
         super()._write_synthetic(df, fp)
 
     @classmethod
-    def default_reader(cls, fp):
+    def default_interface(cls, fp):
         pass
 
     @classmethod
@@ -72,114 +72,114 @@ class BadFileReader3(BaseFileReader):
 
 def test_decorator_warning():
     with pytest.warns(UserWarning):
-        BadFileReader1({}, "x").to_dict()
+        BadFileInterface1({}, "x").to_dict()
     with pytest.warns(UserWarning):
-        BadFileReader2({}, "x").to_dict()
-        print(BadFileReader2({}, "x").name)
+        BadFileInterface2({}, "x").to_dict()
+        print(BadFileInterface2({}, "x").name)
 
 def test_notimplemented():
     with pytest.raises(NotImplementedError):
-        BadFileReader3({}, "x").write_synthetic(None)
+        BadFileInterface3({}, "x").write_synthetic(None)
 
 def test_file_exists_error():
     with pytest.raises(FileExistsError):
-        BadFileReader1({}, "x").write_synthetic(None, Path("tests", "data", "titanic.csv")
+        BadFileInterface1({}, "x").write_synthetic(None, Path("tests", "data", "titanic.csv")
                                                 , overwrite=False)
 
 def test_sav_warning():
     with pytest.warns(UserWarning):
-        SavFileReader.from_file(Path("tests", "data", "actually_a_sav_file.csv"))
+        SavFileInterface.from_file(Path("tests", "data", "actually_a_sav_file.csv"))
 
 
 @mark.parametrize("filename",
                   ["SAQ (Item 3 Reversed).sav", "GlastonburyFestival.sav",
                    "Drug.sav", "butlerpsych.sav", "twowayexample.sav"])
-def test_sav_reader(filename, tmpdir):
+def test_sav_interface(filename, tmpdir):
     sav_fp = Path("tests", "data", filename)
-    df = SavFileReader({},"x" ).read_dataset(sav_fp)
+    df = SavFileInterface({},"x" ).read_dataset(sav_fp)
     assert isinstance(df, pl.DataFrame)
-    df, sav_reader = read_sav(sav_fp)
+    df, sav_interface = read_sav(sav_fp)
     assert isinstance(df, pl.DataFrame)
-    assert isinstance(sav_reader, SavFileReader)
+    assert isinstance(sav_interface, SavFileInterface)
     assert len(df) > 0
-    sav_reader.write_synthetic(df, tmpdir)
+    sav_interface.write_synthetic(df, tmpdir)
     assert Path(tmpdir, filename).is_file()
 
-    sav_reader.metadata["compress"] = True
+    sav_interface.metadata["compress"] = True
     zsav_file = Path(tmpdir, Path(filename).stem + ".zsav")
-    sav_reader.write_synthetic(df, zsav_file)
-    new_df, new_sav_reader = SavFileReader.from_file(zsav_file)
-    assert new_sav_reader.metadata["compress"]
+    sav_interface.write_synthetic(df, zsav_file)
+    new_df, new_sav_interface = SavFileInterface.from_file(zsav_file)
+    assert new_sav_interface.metadata["compress"]
     assert new_df.columns == df.columns
 
 
 @mark.parametrize("dataset_name",
                   _AVAILABLE_DATASETS)
-def test_csv_reader(dataset_name, tmpdir):
+def test_csv_interface(dataset_name, tmpdir):
     filename = demo_file(dataset_name)
-    direct_df, _ = CsvFileReader.from_file(filename)
+    direct_df, _ = CsvFileInterface.from_file(filename)
     assert isinstance(direct_df, pl.DataFrame)
-    df, csv_reader = read_csv(filename)
+    df, csv_interface = read_csv(filename)
     assert isinstance(df, pl.DataFrame)
-    assert isinstance(csv_reader, CsvFileReader)
+    assert isinstance(csv_interface, CsvFileInterface)
     assert len(df) == len(direct_df) and len(df) > 0
 
-    csv_reader.write_synthetic(df, tmpdir)
-    new_df, _ = CsvFileReader.from_file(Path(tmpdir, Path(filename).name))
+    csv_interface.write_synthetic(df, tmpdir)
+    new_df, _ = CsvFileInterface.from_file(Path(tmpdir, Path(filename).name))
     assert isinstance(new_df, pl.DataFrame)
     assert df.columns == new_df.columns
 
-    assert isinstance(csv_reader.read_dataset(filename), pl.DataFrame)
+    assert isinstance(csv_interface.read_dataset(filename), pl.DataFrame)
 
-def test_tsv_reader(tmpdir):
+def test_tsv_interface(tmpdir):
     filename = Path("tests", "data", "data.tsv")
 
-    df, tsv_reader = read_tsv(filename)
-    assert tsv_reader.metadata["separator"] == "\t"
-    tsv_reader.write_synthetic(df, tmpdir)
+    df, tsv_interface = read_tsv(filename)
+    assert tsv_interface.metadata["separator"] == "\t"
+    tsv_interface.write_synthetic(df, tmpdir)
     assert Path(tmpdir, "data.tsv").is_file()
 
 def test_csv_null():
     filename = demo_file("hospital")
-    df, csv_reader = read_csv(filename)
+    df, csv_interface = read_csv(filename)
     assert len(df["age"].drop_nulls()) == 11
-    df, csv_reader = read_csv(filename, null_values="84")
+    df, csv_interface = read_csv(filename, null_values="84")
     assert len(df["age"].drop_nulls()) == 10
 
 @mark.parametrize(
-    "filename,reader_class",
-    [(demo_file("hospital"), CsvFileReader),
-    (Path("tests", "data", "Drug.sav"), SavFileReader),
-    (Path("tests", "data", "data.tsv"), CsvFileReader)]
+    "filename,interface_class",
+    [(demo_file("hospital"), CsvFileInterface),
+    (Path("tests", "data", "Drug.sav"), SavFileInterface),
+    (Path("tests", "data", "data.tsv"), CsvFileInterface)]
 )
-def test_file_reader_from_dict(filename, reader_class):
-    df, file_reader = get_file_reader(filename)
-    assert isinstance(file_reader, reader_class)
-    assert isinstance(file_reader_from_dict(file_reader.to_dict()), reader_class)
+def test_file_interface_from_dict(filename, interface_class):
+    df, file_interface = get_file_interface(filename)
+    assert isinstance(file_interface, interface_class)
+    assert isinstance(file_interface_from_dict(file_interface.to_dict()), interface_class)
 
-def test_file_reader_errors():
+def test_file_interface_errors():
     with pytest.raises(ValueError):
-        file_reader_from_dict({"file_reader_name": "unknown"})
+        file_interface_from_dict({"file_interface_name": "unknown"})
 
     with pytest.raises(ValueError):
-        get_file_reader(Path("tests", "test_filereader.py"))
+        get_file_interface(Path("tests", "test_fileinterface.py"))
 
-@mark.parametrize("reader_class",
-                  [x for x in _AVAILABLE_FILE_READERS.values() if not x.__name__.startswith("Bad")])
-def test_default_file_readers(reader_class, tmpdir):
+@mark.parametrize("interface_class",
+                  [x for x in _AVAILABLE_FILE_INTERFACES.values() if not x.__name__.startswith("Bad")])
+def test_default_file_interfaces(interface_class, tmpdir):
     df = demo_dataframe("test")
-    suffix = reader_class.extensions[0]
+    suffix = interface_class.extensions[0]
     fp = Path(tmpdir/f"test_file{suffix}")
-    reader_class.default_reader(fp).write_synthetic(df, fp)
+    interface_class.default_interface(fp).write_synthetic(df, fp)
 
-    df_new, _ = reader_class.from_file(fp)
+    df_new, _ = interface_class.from_file(fp)
     assert isinstance(df_new, pl.DataFrame)
     assert df_new.shape == df.shape
 
 def test_stata(tmpdir):
     df = demo_dataframe("test")
     file_out = tmpdir / "test.dta"
-    StataFileReader.default_reader(file_out).write_synthetic(df, file_out)
+    StataFileInterface.default_interface(file_out).write_synthetic(df, file_out)
     df_new, _ = read_dta(file_out)
     for col in df.columns:
         if col.startswith(("Int", "UInt")) and not col.endswith(("64")):

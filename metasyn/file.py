@@ -9,14 +9,14 @@ from typing import Any, Optional, Type, Union
 
 import polars as pl
 
-_AVAILABLE_FILE_READERS = {}
+_AVAILABLE_FILE_INTERFACES = {}
 
 
 def fileinterface(*args):
     """Register a dataset so that it can be found by name."""
 
     def _wrap(cls):
-        _AVAILABLE_FILE_READERS[cls.name] = cls
+        _AVAILABLE_FILE_INTERFACES[cls.name] = cls
         return cls
 
     return _wrap(*args)
@@ -58,7 +58,7 @@ class BaseFileInterface(ABC):
         -------
             A dictionary containing all information to reconstruct the file interface.
         """
-        if self.name not in _AVAILABLE_FILE_READERS:
+        if self.name not in _AVAILABLE_FILE_INTERFACES:
             warnings.warn(f"Current file interface {self.name} is not available, "
                           "did you forget to use"
                           f" the decorator @fileinterface for the class {self.__class__}?")
@@ -539,7 +539,7 @@ def file_interface_from_dict(file_format_dict: dict) -> BaseFileInterface:
     file_format_dict:
         Dictionary containing information to create the file interface.
     """
-    for handler_name, handler in _AVAILABLE_FILE_READERS.items():
+    for handler_name, handler in _AVAILABLE_FILE_INTERFACES.items():
         if file_format_dict["file_interface_name"] == handler_name:
             return handler(metadata=file_format_dict["format_metadata"],
                            file_name=file_format_dict["file_name"])
@@ -574,7 +574,7 @@ def get_file_interface_class(fp: Union[Path, str]) -> Type[BaseFileInterface]:
     """Get the file interface class from a filename."""
     suffix = Path(fp).suffix
 
-    for handler_name, handler in _AVAILABLE_FILE_READERS.items():
+    for handler_name, handler in _AVAILABLE_FILE_INTERFACES.items():
         if suffix in handler.extensions:
             return handler
     raise ValueError(f"Files with extension '{suffix}' are not supported.")
