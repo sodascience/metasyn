@@ -17,7 +17,7 @@ except ImportError:
 
 from metasyn import MetaFrame
 from metasyn.config import MetaConfig
-from metasyn.filereader import file_reader_from_dict, get_file_reader, get_file_reader_class
+from metasyn.file import file_interface_from_dict, get_file_interface, get_file_interface_class
 from metasyn.validation import create_schema
 
 EXAMPLE_CREATE_META="metasyn create-meta your_dataset.csv -o your_gmf_file.json --config your_config.toml" # noqa: E501
@@ -129,11 +129,7 @@ Examples:
             raise ValueError("Please supply either an input dataset or a configuration file.")
         meta_frame = MetaFrame.from_config(meta_config)
     else:
-        data_frame, file_handler = get_file_reader(args.input)
-        # data_frame, file_handler = handler_class.from_file(args.input)
-        # data_frame = pl.read_csv(args.input, try_parse_dates=True, infer_schema_length=10000,
-                                #  null_values=["", "na", "NA", "N/A", "Na"],
-                                #  ignore_errors=True)
+        data_frame, file_handler = get_file_interface(args.input)
         meta_frame = MetaFrame.fit_dataframe(data_frame, config=meta_config)
         meta_frame.file_format = file_handler.to_dict()
     meta_frame.save(args.output)
@@ -206,15 +202,15 @@ Example: {EXAMPLE_SYNTHESIZE}
 
     # Store the dataframe to file
     if meta_frame.file_format is not None:
-        file_reader = file_reader_from_dict(meta_frame.file_format)
-        if args.output.suffix not in file_reader.extensions:
-            file_reader = get_file_reader_class(args.output).default_reader(args.output)
+        file_interface = file_interface_from_dict(meta_frame.file_format)
+        if args.output.suffix not in file_interface.extensions:
+            file_interface = get_file_interface_class(args.output).default_reader(args.output)
         meta_frame.write_synthetic(args.output, n=args.num_rows, seed=args.seed,
-                                   file_format=file_reader)
+                                   file_format=file_interface)
     else:
-        file_reader = get_file_reader_class(args.output).default_reader(args.output)
+        file_interface = get_file_interface_class(args.output).default_reader(args.output)
         meta_frame.write_synthetic(args.output, n=args.num_rows, seed=args.seed,
-                                   file_format=file_reader)
+                                   file_format=file_interface)
 
 
 def schema() -> None:

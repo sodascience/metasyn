@@ -21,7 +21,7 @@ except ImportError:
 from tqdm import tqdm
 
 from metasyn.config import MetaConfig
-from metasyn.filereader import BaseFileReader, file_reader_from_dict
+from metasyn.file import BaseFileInterface, file_interface_from_dict
 from metasyn.privacy import BasePrivacy, get_privacy
 from metasyn.util import set_global_seeds
 from metasyn.validation import validate_gmf_dict
@@ -60,7 +60,7 @@ class MetaFrame:
         self,
         meta_vars: List[MetaVar],
         n_rows: Optional[int] = None,
-        file_format: Union[None, BaseFileReader, dict[str, Any]] = None,
+        file_format: Union[None, BaseFileInterface, dict[str, Any]] = None,
     ):
         self.meta_vars = meta_vars
         self.n_rows = n_rows
@@ -82,7 +82,7 @@ class MetaFrame:
         n_rows: Optional[int] = None,
         progress_bar: bool = True,
         config: Optional[Union[pathlib.Path, str, MetaConfig]] = None,
-        file_format: Union[dict[str, Any], BaseFileReader, None] = None,
+        file_format: Union[dict[str, Any], BaseFileInterface, None] = None,
     ):
         """Create a metasyn object from a polars (or pandas) dataframe.
 
@@ -253,8 +253,8 @@ class MetaFrame:
         return self._file_format
 
     @file_format.setter
-    def file_format(self, new_file_format: Union[None, dict[str, Any], BaseFileReader]):
-        if isinstance(new_file_format, BaseFileReader):
+    def file_format(self, new_file_format: Union[None, dict[str, Any], BaseFileInterface]):
+        if isinstance(new_file_format, BaseFileInterface):
             out_file_format: Optional[dict[str, Any]] = new_file_format.to_dict()
         else:
             out_file_format = new_file_format
@@ -537,7 +537,7 @@ class MetaFrame:
         file_name: Union[None, Path, str] = None,
         n: Optional[int] = None,
         seed: Optional[int] = None,
-        file_format: Union[None, dict, BaseFileReader] = None,
+        file_format: Union[None, dict, BaseFileInterface] = None,
         overwrite: bool = False,
     ):
         """Write a synthetic dataset to a file.
@@ -561,7 +561,7 @@ class MetaFrame:
         file_format:
             File format that determines how the file will be written. This is a dictionary
             that can be created by a file reader with the
-            :meth:`metasyn.filereader.BaseFileReader.to_dict` method. Example file reader
+            :meth:`metasyn.filereader.BaseFileInterface.to_dict` method. Example file reader
             classes are :class:`metasyn.filereader.CsvFileReader` and
             class:`metasyn.filereader.SavFileReader`. By default the file_format is None,
             in which case the file reader from the GMF file will be used, otherwise an error
@@ -575,14 +575,14 @@ class MetaFrame:
 
         """
         if file_format is not None:
-            if isinstance(file_format, BaseFileReader):
+            if isinstance(file_format, BaseFileInterface):
                 file_format = file_format.to_dict()
             if self.file_format is not None:
-                if self.file_format["file_reader_name"] != file_format["file_reader_name"]:
+                if self.file_format["file_interface_name"] != file_format["file_interface_name"]:
                     warn(
                         "Writing the synthetic file with a different format as the original "
-                        f"dataset. Original: {self.file_format['file_reader_name']}, "
-                        f"Synthetic: {file_format['file_reader_name']}"
+                        f"dataset. Original: {self.file_format['file_interface_name']}, "
+                        f"Synthetic: {file_format['file_interface_name']}"
                     )
             self.file_format = file_format  # type: ignore
         if self.file_format is None:
@@ -590,7 +590,7 @@ class MetaFrame:
                 "Cannot write synthetic dataset without file handler."
                 " Use write_synthetic(..., file_format=your_file_handler.to_dict())"
             )
-        file_handler = file_reader_from_dict(self.file_format)
+        file_handler = file_interface_from_dict(self.file_format)
         file_handler.check_filename(file_name, overwrite=overwrite)  # Check filename before synth
         syn_df = self.synthesize(n, seed)
         file_handler.write_synthetic(syn_df, file_name, overwrite=overwrite)
