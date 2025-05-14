@@ -593,7 +593,7 @@ class MetaFrame:
         file_handler = file_interface_from_dict(self.file_format)
         file_handler.check_filename(file_name, overwrite=overwrite)  # Check filename before synth
         syn_df = self.synthesize(n, seed)
-        file_handler.write_synthetic(syn_df, file_name, overwrite=overwrite)
+        file_handler.write_file(syn_df, file_name, overwrite=overwrite)
 
     def __repr__(self) -> str:
         """Return the MetaFrame as it would be output to JSON."""

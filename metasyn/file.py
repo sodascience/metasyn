@@ -618,7 +618,7 @@ def read_csv(fp: Union[Path, str], separator: Optional[str] = None, eol_char: st
                                       quote_char=quote_char, null_values=null_values, **kwargs)
 
 
-def _parse_fmt(file_format, fp, interface_class):
+def _parse_fmt(file_format, fp, interface_class) -> BaseFileInterface:
     if file_format is None:
         file_format = interface_class.default_interface(fp)
     if isinstance(file_format, dict):
