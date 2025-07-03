@@ -15,7 +15,7 @@ def fileinterface(*args):
     """Register a dataset so that it can be found by name."""
 
     def _wrap(cls):
-        _AVAILABLE_FILE_INTERFACES[cls.name] = cls
+        _AVAILABLE_FILE_INTERFACES[cls.format] = cls
         return cls
 
     return _wrap(*args)
@@ -32,7 +32,7 @@ class BaseFileInterface(ABC):
     associated with the implementation. For example :code:`[".csv", ".tsv"]`.
     """
 
-    name = "base"
+    format = "base"
     extensions: list[str] = []
 
     def __init__(self, metadata: dict[str, Any], file_name: str):
@@ -57,15 +57,15 @@ class BaseFileInterface(ABC):
         -------
             A dictionary containing all information to reconstruct the file interface.
         """
-        if self.name not in _AVAILABLE_FILE_INTERFACES:
-            warnings.warn(f"Current file interface {self.name} is not available, "
+        if self.format not in _AVAILABLE_FILE_INTERFACES:
+            warnings.warn(f"Current file interface {self.format} is not available, "
                           "did you forget to use"
                           f" the decorator @fileinterface for the class {self.__class__}?")
-        if self.name == "base":
+        if self.format == "base":
             warnings.warn(f"Class attribute for {self.__class__} should not be 'base'."
                            " Please give another name to your file interface.")
         return {
-            "file_interface_name": self.name,
+            "file_interface_name": self.format,
             "format_metadata": self.metadata,
             "file_name": self.file_name,
         }
@@ -277,7 +277,7 @@ class SavFileInterface(ReadStatInterface):
     are converted to integers.
     """
 
-    name = "sav"
+    format = "sav"
     extensions = [".sav", ".zsav"]
     interface = "sav"
 
@@ -332,7 +332,7 @@ class SavFileInterface(ReadStatInterface):
 class StataFileInterface(ReadStatInterface):
     """File interface for .dta files."""
 
-    name = "dta"
+    format = "dta"
     extensions = [".dta"]
     interface = "dta"
 
@@ -403,7 +403,7 @@ class StataFileInterface(ReadStatInterface):
 class CsvFileInterface(BaseFileInterface):
     """File interface to read and write CSV files."""
 
-    name = "csv"
+    format = "csv"
     extensions = [".csv", ".tsv"]
 
     def read_dataset(self, fp: Union[Path, str], **kwargs):
@@ -509,7 +509,7 @@ class CsvFileInterface(BaseFileInterface):
 class ExcelFileInterface(BaseFileInterface):
     """File interface/writer for Microsoft Excel files."""
 
-    name = "excel"
+    format = "excel"
     extensions = [".xlsx", ".xls", ".xlsb"]
 
     @classmethod
@@ -536,7 +536,7 @@ def file_interface_from_dict(file_format_dict: dict) -> BaseFileInterface:
     for interface_name, interface in _AVAILABLE_FILE_INTERFACES.items():
         if file_format_dict["file_interface_name"] == interface_name:
             return interface(metadata=file_format_dict["format_metadata"],
-                           file_name=file_format_dict["file_name"])
+                             file_name=file_format_dict["file_name"])
     raise ValueError(f"Cannot find file interface with name '{interface_name}'.")
 
 def read_file(fp: Union[Path, str], name: Optional[str] = None,

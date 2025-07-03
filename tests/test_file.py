@@ -23,7 +23,7 @@ from metasyn.file import (
 
 
 class BadFileInterface1(BaseFileInterface):
-    name = "bad1"
+    format = "bad1"
     def _write_file(self, df, fp):
         pass
 
@@ -59,7 +59,7 @@ class BadFileInterface2(BaseFileInterface):
 
 @fileinterface
 class BadFileInterface3(BaseFileInterface):
-    name = "also_bad"
+    format = "also_bad"
     def _write_file(self, df, fp):
         super()._write_file(df, fp)
 
@@ -76,7 +76,7 @@ def test_decorator_warning():
         BadFileInterface1({}, "x").to_dict()
     with pytest.warns(UserWarning):
         BadFileInterface2({}, "x").to_dict()
-        print(BadFileInterface2({}, "x").name)
+        print(BadFileInterface2({}, "x").format)
 
 def test_notimplemented():
     with pytest.raises(NotImplementedError):
@@ -196,8 +196,8 @@ def test_default_file_interfaces(interface_class, tmpdir):
     assert df_new.shape == df.shape
 
     # same, but using write_* and read_*
-    getattr(ms, f"write_{interface_class.name}")(df, fp, overwrite=True)
-    df_new, _ = getattr(ms, f"read_{interface_class.name}")(fp)
+    getattr(ms, f"write_{interface_class.format}")(df, fp, overwrite=True)
+    df_new, _ = getattr(ms, f"read_{interface_class.format}")(fp)
     assert isinstance(df_new, pl.DataFrame)
     assert df_new.shape == df.shape
 
