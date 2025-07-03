@@ -179,7 +179,7 @@ def create_md_report(file_name, out_md_file):
 
 def create_input_toml(file_name):
     """Create input toml with all distribution in builtin."""
-    import tomlkit
+    import tomlkit  # noqa: PLC0415
 
     prov = get_distribution_provider("builtin")
     doc = tomlkit.document()

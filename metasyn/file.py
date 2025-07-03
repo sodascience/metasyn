@@ -187,7 +187,7 @@ class ReadStatInterface(BaseFileInterface, ABC):
     @classmethod
     def _read_data(cls, fp):
         try:
-            import pyreadstat
+            import pyreadstat  # noqa: PLC0415
         except ImportError as err:
             raise ImportError(
                 f"Please install pyreadstat to use the {'/'.join(cls.extensions)} file interface."
@@ -229,7 +229,7 @@ class ReadStatInterface(BaseFileInterface, ABC):
 
     def _write_file(self, df: pl.DataFrame, out_fp: Union[Path, str]):
         try:
-            import pyreadstat
+            import pyreadstat  # noqa: PLC0415
         except ImportError as err:
             raise ImportError(
                 f"Please install pyreadstat to write {'/'.join(self.extensions)} files.") from err
