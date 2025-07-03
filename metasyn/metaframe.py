@@ -414,7 +414,7 @@ class MetaFrame:
     @no_type_check
     def save_toml(self, fp: Optional[Union[pathlib.Path, str]], validate: bool = True) -> None:
         try:
-            import tomlkit
+            import tomlkit  # noqa: PLC0415
         except ImportError:
             raise ValueError(
                 "Please install tomlkit (pip install tomlkit) to enable support for saving to toml."

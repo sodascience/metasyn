@@ -99,8 +99,8 @@ def test_create_meta(tmp_dir, config):
     ]
     if config:
         cmd.extend(["--config", Path(tmp_dir) / 'config.ini'])
-    result = subprocess.run(cmd, check=True, capture_output=True)
-    assert result.returncode == 0, result.stdout
+    result = subprocess.run(cmd, check=False, capture_output=True)
+    assert result.returncode == 0, result.stdout + result.stderr
     assert out_file.is_file()
     meta_frame = MetaFrame.load_json(out_file)
     assert len(meta_frame.meta_vars) == 12
@@ -170,3 +170,20 @@ def test_datafree(tmp_dir):
     df = pl.read_csv(syn_fp)
     assert list(df.columns) == ["PassengerId", "Name", "Cabin"]
     assert len(df) == 100
+
+def test_custom_file_interface(tmp_dir):
+    config_fp = Path("examples", "config_files", "file_interface.toml")
+    input_fp = Path("tests", "data", "actually_a_csv_file.sav")
+    out_gmf = tmp_dir / "temp.json"
+    cmd = [
+        Path(sys.executable).resolve(),
+        Path("metasyn", "__main__.py"),
+        "create-meta",
+        input_fp,
+        "--config", config_fp,
+        "--output", out_gmf,
+    ]
+    result = subprocess.run(cmd, check=False, capture_output=True)
+    assert result.returncode == 0
+    meta_frame = MetaFrame.load_json(out_gmf)
+    assert len(meta_frame.meta_vars) == 12

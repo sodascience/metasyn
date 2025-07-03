@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import warnings
 from abc import ABC, abstractmethod
-from io import BytesIO
 from pathlib import Path
 from typing import Any, Optional, Type, Union
 
@@ -16,7 +15,7 @@ def fileinterface(*args):
     """Register a dataset so that it can be found by name."""
 
     def _wrap(cls):
-        _AVAILABLE_FILE_INTERFACES[cls.name] = cls
+        _AVAILABLE_FILE_INTERFACES[cls.format] = cls
         return cls
 
     return _wrap(*args)
@@ -33,7 +32,7 @@ class BaseFileInterface(ABC):
     associated with the implementation. For example :code:`[".csv", ".tsv"]`.
     """
 
-    name = "base"
+    format = "base"
     extensions: list[str] = []
 
     def __init__(self, metadata: dict[str, Any], file_name: str):
@@ -58,15 +57,15 @@ class BaseFileInterface(ABC):
         -------
             A dictionary containing all information to reconstruct the file interface.
         """
-        if self.name not in _AVAILABLE_FILE_INTERFACES:
-            warnings.warn(f"Current file interface {self.name} is not available, "
+        if self.format not in _AVAILABLE_FILE_INTERFACES:
+            warnings.warn(f"Current file interface {self.format} is not available, "
                           "did you forget to use"
                           f" the decorator @fileinterface for the class {self.__class__}?")
-        if self.name == "base":
+        if self.format == "base":
             warnings.warn(f"Class attribute for {self.__class__} should not be 'base'."
                            " Please give another name to your file interface.")
         return {
-            "file_interface_name": self.name,
+            "file_interface_name": self.format,
             "format_metadata": self.metadata,
             "file_name": self.file_name,
         }
@@ -188,7 +187,7 @@ class ReadStatInterface(BaseFileInterface, ABC):
     @classmethod
     def _read_data(cls, fp):
         try:
-            import pyreadstat
+            import pyreadstat  # noqa: PLC0415
         except ImportError as err:
             raise ImportError(
                 f"Please install pyreadstat to use the {'/'.join(cls.extensions)} file interface."
@@ -230,7 +229,7 @@ class ReadStatInterface(BaseFileInterface, ABC):
 
     def _write_file(self, df: pl.DataFrame, out_fp: Union[Path, str]):
         try:
-            import pyreadstat
+            import pyreadstat  # noqa: PLC0415
         except ImportError as err:
             raise ImportError(
                 f"Please install pyreadstat to write {'/'.join(self.extensions)} files.") from err
@@ -278,7 +277,7 @@ class SavFileInterface(ReadStatInterface):
     are converted to integers.
     """
 
-    name = "sav"
+    format = "sav"
     extensions = [".sav", ".zsav"]
     interface = "sav"
 
@@ -333,7 +332,7 @@ class SavFileInterface(ReadStatInterface):
 class StataFileInterface(ReadStatInterface):
     """File interface for .dta files."""
 
-    name = "dta"
+    format = "dta"
     extensions = [".dta"]
     interface = "dta"
 
@@ -404,7 +403,7 @@ class StataFileInterface(ReadStatInterface):
 class CsvFileInterface(BaseFileInterface):
     """File interface to read and write CSV files."""
 
-    name = "csv"
+    format = "csv"
     extensions = [".csv", ".tsv"]
 
     def read_dataset(self, fp: Union[Path, str], **kwargs):
@@ -493,11 +492,9 @@ class CsvFileInterface(BaseFileInterface):
         if encoding == "utf-8":
             df.write_csv(out_fp, **meta_copy)
         else:
-            handle = BytesIO()
-            df.write_csv(handle, **meta_copy)
-            handle.seek(0)
-            with open(out_fp, "w", encoding=encoding) as file_handle:
-                file_handle.write(handle.read().decode("utf-8"))
+            buffer = df.write_csv(**meta_copy)
+            with open(out_fp, "w", encoding=encoding, errors="replace") as file_handle:
+                file_handle.write(buffer)
 
     @classmethod
     def default_interface(cls, fp: Union[Path, str]):
@@ -512,7 +509,7 @@ class CsvFileInterface(BaseFileInterface):
 class ExcelFileInterface(BaseFileInterface):
     """File interface/writer for Microsoft Excel files."""
 
-    name = "excel"
+    format = "excel"
     extensions = [".xlsx", ".xls", ".xlsb"]
 
     @classmethod
@@ -536,13 +533,14 @@ def file_interface_from_dict(file_format_dict: dict) -> BaseFileInterface:
     file_format_dict:
         Dictionary containing information to create the file interface.
     """
-    for handler_name, handler in _AVAILABLE_FILE_INTERFACES.items():
-        if file_format_dict["file_interface_name"] == handler_name:
-            return handler(metadata=file_format_dict["format_metadata"],
-                           file_name=file_format_dict["file_name"])
-    raise ValueError(f"Cannot find file interface with name '{handler_name}'.")
+    for interface_name, interface in _AVAILABLE_FILE_INTERFACES.items():
+        if file_format_dict["file_interface_name"] == interface_name:
+            return interface(metadata=file_format_dict["format_metadata"],
+                             file_name=file_format_dict["file_name"])
+    raise ValueError(f"Cannot find file interface with name '{interface_name}'.")
 
-def get_file_interface(fp: Union[Path, str]) -> tuple[pl.DataFrame, BaseFileInterface]:
+def read_file(fp: Union[Path, str], name: Optional[str] = None,
+              arguments: Optional[dict] = None) -> tuple[pl.DataFrame, BaseFileInterface]:
     """Attempt to create file interface from a dataset.
 
     Default options will be used to read in the file.
@@ -564,16 +562,22 @@ def get_file_interface(fp: Union[Path, str]) -> tuple[pl.DataFrame, BaseFileInte
     ValueError
         When the extension is unknown.
     """
-    return get_file_interface_class(fp).read_file(fp)
+    arguments = {} if arguments is None else arguments
+    if name is None:
+        return get_file_interface_class(fp).read_file(fp, **arguments)
+    for interface_name, interface in _AVAILABLE_FILE_INTERFACES.items():
+        if interface_name == name:
+            return interface.read_file(fp, **arguments)
+    raise ValueError(f"Cannot find file interface with name '{name}'.")
 
 
 def get_file_interface_class(fp: Union[Path, str]) -> Type[BaseFileInterface]:
     """Get the file interface class from a filename."""
     suffix = Path(fp).suffix
 
-    for handler_name, handler in _AVAILABLE_FILE_INTERFACES.items():
-        if suffix in handler.extensions:
-            return handler
+    for interface_name, interface in _AVAILABLE_FILE_INTERFACES.items():
+        if suffix in interface.extensions:
+            return interface
     raise ValueError(f"Files with extension '{suffix}' are not supported.")
 
 def read_csv(fp: Union[Path, str], separator: Optional[str] = None, eol_char: str = "\n",
