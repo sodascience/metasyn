@@ -72,8 +72,7 @@ class BaseDistribution(ABC):
         if len(pl_series) == 0:
             return cls.default_distribution()
         if "privacy" in signature(cls._fit).parameters:
-            return cls._fit(pl_series, *args, privacy=privacy, **kwargs)
-        print(signature(cls._fit).parameters)
+            return cls._fit(pl_series, *args, privacy=privacy, **kwargs)  # type: ignore
         return cls._fit(pl_series, *args, **kwargs)
 
     @staticmethod
