@@ -85,13 +85,13 @@ def check_distribution(distribution: type[BaseDistribution], privacy: BasePrivac
     assert distribution.var_type != "unknown"
     dist = distribution.default_distribution()
     series = pl.Series([dist.draw() for _ in range(100)])
-    new_dist = distribution.fit(series, **privacy.fit_kwargs)
+    new_dist = distribution.fit(series, privacy)
     assert isinstance(new_dist, distribution)
     assert set(list(new_dist.to_dict())) >= set(
         ("implements", "provenance", "class_name", "parameters"))
     if test_empty:
         empty_series = pl.Series([], dtype=series.dtype)
-        new_dist = distribution.fit(empty_series, **privacy.fit_kwargs)
+        new_dist = distribution.fit(empty_series, privacy)
         assert isinstance(new_dist, distribution)
 
 

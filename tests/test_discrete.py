@@ -14,6 +14,7 @@ from metasyn.distribution.discrete import (
     PoissonDistribution,
     UniqueKeyDistribution,
 )
+from metasyn.privacy import BasicPrivacy
 
 
 @mark.parametrize(
@@ -30,7 +31,7 @@ from metasyn.distribution.discrete import (
 def test_uniform(data, series_type):
     """Test discrete uniform distribution."""
     series = series_type(data)
-    dist = DiscreteUniformDistribution.fit(series)
+    dist = DiscreteUniformDistribution.fit(series, BasicPrivacy())
     assert dist.lower == series.min() and dist.upper == series.max()+1
     drawn_values = set([dist.draw() for _ in range(1000)])
     if dist.upper - dist.lower < 5:
@@ -55,8 +56,8 @@ def test_uniform(data, series_type):
 def test_integer_key(data, better_than_uniform, consecutive, series_type):
     """Test unique key distribution (included increasing id's)."""
     series = series_type(data)
-    dist = UniqueKeyDistribution.fit(series)
-    unif_dist = DiscreteUniformDistribution.fit(series)
+    dist = UniqueKeyDistribution.fit(series, BasicPrivacy())
+    unif_dist = DiscreteUniformDistribution.fit(series, BasicPrivacy())
     assert dist.lower == series.min()
     assert dist.consecutive == consecutive
     assert better_than_uniform == (dist.information_criterion(series)
@@ -72,8 +73,8 @@ def test_integer_key(data, better_than_uniform, consecutive, series_type):
 def test_poisson(series_type):
     """Test Poisson distribution."""
     series = series_type(stats.poisson(mu=10).rvs(1000))
-    dist = PoissonDistribution.fit(series)
-    dist_unif = DiscreteUniformDistribution.fit(series)
+    dist = PoissonDistribution.fit(series, BasicPrivacy())
+    dist_unif = DiscreteUniformDistribution.fit(series, BasicPrivacy())
     assert fabs(dist.rate - 10) < 1
     assert dist.information_criterion(series) < dist_unif.information_criterion(series)
 
@@ -89,8 +90,8 @@ def test_trunc_normal(lower, upper, mean, sd):
     """Test discrete version of truncated normal distribution."""
     a, b = (lower-mean)/sd, (upper-mean)/sd
     values = pl.Series(stats.truncnorm(a=a, b=b, loc=mean, scale=sd).rvs(5000)).cast(pl.Int64)
-    dist = DiscreteTruncatedNormalDistribution.fit(values)
-    dist_uniform = DiscreteUniformDistribution.fit(values)
+    dist = DiscreteTruncatedNormalDistribution.fit(values, BasicPrivacy())
+    dist_uniform = DiscreteUniformDistribution.fit(values, BasicPrivacy())
     assert dist.information_criterion(values) < dist_uniform.information_criterion(values)
     assert isinstance(dist.draw(), int)
 
@@ -106,8 +107,8 @@ def test_trunc_normal(lower, upper, mean, sd):
 def test_normal(mean, sd):
     """Test for discrete version of normal/Gaussian distribution."""
     values = pl.Series(stats.norm(loc=mean, scale=sd).rvs(1000)).cast(pl.Int64)
-    dist = DiscreteNormalDistribution.fit(values)
-    dist_uniform = DiscreteUniformDistribution.fit(values)
+    dist = DiscreteNormalDistribution.fit(values, BasicPrivacy())
+    dist_uniform = DiscreteUniformDistribution.fit(values, BasicPrivacy())
     assert dist.information_criterion(values) < dist_uniform.information_criterion(values)
     assert (dist.mean - mean)/sd < 0.5
     assert (dist.sd - sd)/sd < 0.5

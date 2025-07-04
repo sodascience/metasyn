@@ -11,6 +11,7 @@ from metasyn.distribution.datetime import (
     DateUniformDistribution,
     TimeUniformDistribution,
 )
+from metasyn.privacy import BasicPrivacy
 
 all_precision = ["microseconds", "seconds", "minutes", "hours"]
 lower = ["10", ""]
@@ -41,7 +42,7 @@ def test_time(lower, upper, precision, series_type):
             assert getattr(new_time, prec[:-1]) == 0
         all_times.append(new_time)
     series = series_type(all_times)
-    new_dist = TimeUniformDistribution.fit(series)
+    new_dist = TimeUniformDistribution.fit(series, BasicPrivacy())
     assert new_dist.lower >= dist.lower
     assert new_dist.upper <= dist.upper
     assert new_dist.precision == dist.precision
@@ -62,7 +63,7 @@ def test_date(series_type):
         assert new_date <= upper_iso
         all_dates.append(new_date)
     series = series_type(all_dates)
-    new_dist = DateUniformDistribution.fit(series)
+    new_dist = DateUniformDistribution.fit(series, BasicPrivacy())
     assert new_dist.lower >= dist.lower
     assert new_dist.upper <= dist.upper
     assert new_dist.precision == dist.precision
@@ -99,7 +100,7 @@ def test_datetime(lower, upper, precision, series_type):
         all_datetimes.append(new_time)
 
     series = series_type(all_datetimes)
-    new_dist = DateTimeUniformDistribution.fit(series)
+    new_dist = DateTimeUniformDistribution.fit(series, BasicPrivacy())
     assert new_dist.lower >= dist.lower
     assert new_dist.upper <= dist.upper
     assert new_dist.precision == dist.precision

@@ -292,12 +292,12 @@ class DistributionProviderList():
         if len(dist_list) == 0:
             raise ValueError(f"No available distributions with variable type: '{var_type}'"
                              f" and unique={try_unique}")
-        dist_instances = [d.fit(series, **privacy.fit_kwargs) for d in dist_list]
+        dist_instances = [d.fit(series, privacy) for d in dist_list]
         dist_bic = [d.information_criterion(series) for d in dist_instances]
         if unique is None:
             dist_list_unq = self.get_distributions(privacy, var_type, unique=True)
             if len(dist_list_unq) > 0:
-                dist_inst_unq = [d.fit(series, **privacy.fit_kwargs) for d in dist_list_unq]
+                dist_inst_unq = [d.fit(series, privacy) for d in dist_list_unq]
                 dist_bic_unq = [d.information_criterion(series) for d in dist_inst_unq]
                 # We don't want to warn about potential uniqueness too easily
                 # The offset is a heuristic that ensures about 12 rows are needed for uniqueness
@@ -461,7 +461,7 @@ class DistributionProviderList():
                                             unique=unique)
 
         fit_kwargs = dist_spec.fit_kwargs
-        dist_instance = dist_class.fit(series, **privacy.fit_kwargs, **fit_kwargs)
+        dist_instance = dist_class.fit(series, privacy, **fit_kwargs)
         return dist_instance
 
     def get_distributions(self, privacy: Optional[BasePrivacy] = None,

@@ -49,7 +49,7 @@ class BasePrivacy(ABC):
 
         For example epsilon in the case of differential privacy.
         """
-        return self.to_dict()["parameters"]
+        return {}
 
     def comment(self, var):  # noqa
         """Comment on the privacy features for the TOML GMF file.
