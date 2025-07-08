@@ -1,14 +1,18 @@
 """Module with privacy classes to be used for creating GMF files."""
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Optional, Type, Union
+from typing import TYPE_CHECKING, Optional, Type, Union
 
 try:
     from importlib_metadata import entry_points
 except ImportError:
     from importlib.metadata import entry_points  # type: ignore
 
-from metasyn.distribution.base import BaseDistribution
 from metasyn.util import get_registry
+
+if TYPE_CHECKING:
+    from metasyn.distribution.base import BaseDistribution
 
 
 class BasePrivacy(ABC):

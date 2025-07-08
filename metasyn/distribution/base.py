@@ -26,6 +26,8 @@ import polars as pl
 from numpy import inf
 from numpy import typing as npt
 
+from metasyn.privacy import BasePrivacy
+
 
 class BaseDistribution(ABC):
     """Abstract base class to define a distribution.
@@ -55,7 +57,7 @@ class BaseDistribution(ABC):
 
     @classmethod
     def fit(cls, series: Union[pl.Series, npt.NDArray], # noqa: D417
-            privacy, *args, **kwargs) -> BaseDistribution:
+            privacy: BasePrivacy, *args, **kwargs) -> BaseDistribution:
         """Fit the distribution to the series.
 
         Parameters
