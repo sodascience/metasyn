@@ -20,25 +20,42 @@ generated synthetic data.
 
 from importlib.metadata import version
 
+from metasyn import distribution
 from metasyn.demo.dataset import demo_dataframe, demo_file
 from metasyn.distribution.base import metadist
 from metasyn.file import (
-           read_csv,
-           read_dta,
-           read_excel,
-           read_sav,
-           read_tsv,
-           write_csv,
-           write_dta,
-           write_excel,
-           write_sav,
-           write_tsv,
+    read_csv,
+    read_dta,
+    read_excel,
+    read_sav,
+    read_tsv,
+    write_csv,
+    write_dta,
+    write_excel,
+    write_sav,
+    write_tsv,
 )
 from metasyn.metaframe import MetaFrame
 from metasyn.var import MetaVar
 from metasyn.varspec import VarSpec
 
-__all__ = ["MetaVar", "MetaFrame", "demo_file", "demo_dataframe", "metadist", "VarSpec",
-           "read_csv", "read_sav", "read_tsv", "read_excel", "read_dta",
-           "write_csv", "write_dta", "write_excel", "write_sav", "write_tsv"]
+__all__ = [
+    "MetaVar",
+    "MetaFrame",
+    "demo_file",
+    "demo_dataframe",
+    "metadist",
+    "VarSpec",
+    "read_csv",
+    "read_sav",
+    "read_tsv",
+    "read_excel",
+    "read_dta",
+    "write_csv",
+    "write_dta",
+    "write_excel",
+    "write_sav",
+    "write_tsv",
+    "distribution",
+]
 __version__ = version("metasyn")
