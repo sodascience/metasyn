@@ -20,7 +20,7 @@ generated synthetic data.
 
 from importlib.metadata import version
 
-from metasyn import distribution, privacy
+from metasyn import distribution, file, privacy
 from metasyn.demo.dataset import demo_dataframe, demo_file
 from metasyn.distribution.base import metadist
 from metasyn.file import (
@@ -57,6 +57,7 @@ __all__ = [
     "write_sav",
     "write_tsv",
     "distribution",
+    "file",
     "privacy",
 ]
 __version__ = version("metasyn")
