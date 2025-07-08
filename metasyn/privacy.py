@@ -43,14 +43,6 @@ class BasePrivacy(ABC):
         """
         return dist.privacy == self.name
 
-    @property
-    def fit_kwargs(self):
-        """Fitting arguments that need to be supplied to the distribution.
-
-        For example epsilon in the case of differential privacy.
-        """
-        return {}
-
     def comment(self, var):  # noqa
         """Comment on the privacy features for the TOML GMF file.
 
