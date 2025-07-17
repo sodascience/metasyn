@@ -10,13 +10,14 @@ from metasyn.distribution.string import (
     UniqueFakerDistribution,
     UniqueRegexDistribution,
 )
+from metasyn.privacy import BasicPrivacy
 from metasyn.var import MetaVar
 
 
 @mark.parametrize("series_type", [pd.Series, pl.Series])
 def test_faker(series_type):
     """Test the faker distribution."""
-    dist = FakerDistribution.fit(series_type([1, 2, 3]))
+    dist = FakerDistribution.fit(series_type([1, 2, 3]), BasicPrivacy())
     assert isinstance(dist.to_dict(), dict)
     assert isinstance(dist.draw(), str)
     assert 'faker' in str(dist)
@@ -42,7 +43,7 @@ def test_faker(series_type):
     ])
 def test_free_text(series, lang, avg_sentences, avg_words):
     """Test whether the free text distribution does the right inference."""
-    dist = FreeTextDistribution.fit(series)
+    dist = FreeTextDistribution.fit(series, BasicPrivacy())
     assert dist.locale == lang
     assert dist.avg_sentences == avg_sentences
     assert dist.avg_words == avg_words

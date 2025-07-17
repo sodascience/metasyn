@@ -18,12 +18,15 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from copy import deepcopy
+from inspect import signature
 from typing import Optional, Union
 
 import numpy as np
 import polars as pl
 from numpy import inf
 from numpy import typing as npt
+
+from metasyn.privacy import BasePrivacy
 
 
 class BaseDistribution(ABC):
@@ -54,7 +57,7 @@ class BaseDistribution(ABC):
 
     @classmethod
     def fit(cls, series: Union[pl.Series, npt.NDArray], # noqa: D417
-            *args, **kwargs) -> BaseDistribution:
+            privacy: BasePrivacy, *args, **kwargs) -> BaseDistribution:
         """Fit the distribution to the series.
 
         Parameters
@@ -70,6 +73,8 @@ class BaseDistribution(ABC):
         pl_series = cls._to_series(series)
         if len(pl_series) == 0:
             return cls.default_distribution()
+        if "privacy" in signature(cls._fit).parameters:
+            return cls._fit(pl_series, *args, privacy=privacy, **kwargs)  # type: ignore
         return cls._fit(pl_series, *args, **kwargs)
 
     @staticmethod
