@@ -166,7 +166,7 @@ class MetaVar:
         )
 
     def __repr__(self) -> str:
-        return f"MetaVar <{self.name}, {self.distribution.implements}>"
+        return f"MetaVar <{self.name}, {self.distribution.name}>"
 
     @classmethod
     def fit(

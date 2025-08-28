@@ -10,40 +10,44 @@ information criterion, used for selecting the best distribution for
 a given set of values.
 """
 
-from metasyn.distribution.categorical import MultinoulliDistribution
-from metasyn.distribution.continuous import (
-    ConstantDistribution,
-    ExponentialDistribution,
-    LogNormalDistribution,
-    NormalDistribution,
-    TruncatedNormalDistribution,
-    UniformDistribution,
-)
-from metasyn.distribution.datetime import (
-    DateConstantDistribution,
-    DateTimeConstantDistribution,
-    DateTimeUniformDistribution,
-    DateUniformDistribution,
-    TimeConstantDistribution,
-    TimeUniformDistribution,
-)
-from metasyn.distribution.discrete import (
-    DiscreteConstantDistribution,
-    DiscreteNormalDistribution,
-    DiscreteTruncatedNormalDistribution,
-    DiscreteUniformDistribution,
-    PoissonDistribution,
-    UniqueKeyDistribution,
-)
-from metasyn.distribution.na import NADistribution
-from metasyn.distribution.string import (
-    FakerDistribution,
-    FreeTextDistribution,
-    RegexDistribution,
-    StringConstantDistribution,
-    UniqueFakerDistribution,
-    UniqueRegexDistribution,
-)
+from metasyn.distribution.uniform import ContinuousUniformDistribution, DiscreteUniformDistribution
+
+# BUILTIN_DISTRIBUTIONS = [DiscreteUniformDistribution, ContinuousUniformDistribution]
+
+# from metasyn.distribution.categorical import MultinoulliDistribution
+# from metasyn.distribution.continuous import (
+#     ConstantDistribution,
+#     ExponentialDistribution,
+#     LogNormalDistribution,
+#     NormalDistribution,
+#     TruncatedNormalDistribution,
+#     UniformDistribution,
+# )
+# from metasyn.distribution.datetime import (
+#     DateConstantDistribution,
+#     DateTimeConstantDistribution,
+#     DateTimeUniformDistribution,
+#     DateUniformDistribution,
+#     TimeConstantDistribution,
+#     TimeUniformDistribution,
+# )
+# from metasyn.distribution.discrete import (
+#     DiscreteConstantDistribution,
+#     DiscreteNormalDistribution,
+#     DiscreteTruncatedNormalDistribution,
+#     DiscreteUniformDistribution,
+#     PoissonDistribution,
+#     UniqueKeyDistribution,
+# )
+# from metasyn.distribution.na import NADistribution
+# from metasyn.distribution.string import (
+#     FakerDistribution,
+#     FreeTextDistribution,
+#     RegexDistribution,
+#     StringConstantDistribution,
+#     UniqueFakerDistribution,
+#     UniqueRegexDistribution,
+# )
 
 __all__ = [
     "MultinoulliDistribution",

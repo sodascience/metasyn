@@ -20,38 +20,42 @@ import numpy as np
 import polars as pl
 
 from metasyn.distribution.base import BaseDistribution
-from metasyn.distribution.categorical import MultinoulliDistribution
-from metasyn.distribution.continuous import (
-    ConstantDistribution,
-    ExponentialDistribution,
-    LogNormalDistribution,
-    NormalDistribution,
-    TruncatedNormalDistribution,
-    UniformDistribution,
-)
-from metasyn.distribution.datetime import (
-    DateConstantDistribution,
-    DateTimeConstantDistribution,
-    DateTimeUniformDistribution,
-    DateUniformDistribution,
-    TimeConstantDistribution,
-    TimeUniformDistribution,
-)
-from metasyn.distribution.discrete import (
-    DiscreteConstantDistribution,
-    DiscreteNormalDistribution,
-    DiscreteTruncatedNormalDistribution,
-    DiscreteUniformDistribution,
-    PoissonDistribution,
-    UniqueKeyDistribution,
-)
+from metasyn.distribution.uniform import DiscreteUniformDistribution, ContinuousUniformDistribution, DateUniformDistribution, TimeUniformDistribution, DateTimeUniformDistribution
+from metasyn.distribution.uniform import DiscreteUniformFitter, ContinuousUniformFitter, DateUniformFitter, TimeUniformFitter, DateTimeUniformFitter
+from metasyn.distribution.regex import RegexFitter, UniqueRegexFitter
+# from metasyn.distribution.categorical import Multi
+from metasyn.distribution.categorical import MultinoulliFitter
+# from metasyn.distribution.continuous import (
+#     ConstantDistribution,
+#     ExponentialDistribution,
+#     LogNormalDistribution,
+#     NormalDistribution,
+#     TruncatedNormalDistribution,
+#     UniformDistribution,
+# )
+# from metasyn.distribution.datetime import (
+#     DateConstantDistribution,
+#     DateTimeConstantDistribution,
+#     DateTimeUniformDistribution,
+#     DateUniformDistribution,
+#     TimeConstantDistribution,
+#     TimeUniformDistribution,
+# )
+# from metasyn.distribution.discrete import (
+#     DiscreteConstantDistribution,
+#     DiscreteNormalDistribution,
+#     DiscreteTruncatedNormalDistribution,
+#     DiscreteUniformDistribution,
+#     PoissonDistribution,
+#     UniqueKeyDistribution,
+# )
 from metasyn.distribution.na import NADistribution
-from metasyn.distribution.string import (
-    FakerDistribution,
-    FreeTextDistribution,
+from metasyn.distribution.regex import (
+#     FakerDistribution,
+#     FreeTextDistribution,
     RegexDistribution,
-    StringConstantDistribution,
-    UniqueFakerDistribution,
+#     StringConstantDistribution,
+#     UniqueFakerDistribution,
     UniqueRegexDistribution,
 )
 from metasyn.privacy import BasePrivacy, BasicPrivacy
@@ -108,7 +112,7 @@ class BaseDistributionProvider(ABC):
             distributions = self.legacy_distributions
         else:
             distributions = self.distributions
-        distributions = [d for d in distributions if d.unique == unique]
+        distributions = [f for f in distributions if f.distribution.unique == unique]
         if var_type is None:
             return distributions
         for dist_class in distributions:
@@ -139,27 +143,18 @@ class BuiltinDistributionProvider(BaseDistributionProvider):
 
     name = "builtin"
     version = "1.2"
+    # distributions = [
+    #     ContinuousUniformDistribution, DiscreteUniformDistribution,
+    #     RegexDistribution, UniqueRegexDistribution,
+    #     DateTimeUniformDistribution,
+    #     TimeUniformDistribution,
+    #     DateUniformDistribution,
+    # ]
     distributions = [
-        DiscreteNormalDistribution, DiscreteTruncatedNormalDistribution,
-        DiscreteUniformDistribution, PoissonDistribution, UniqueKeyDistribution,
-        UniformDistribution, NormalDistribution, LogNormalDistribution,
-        TruncatedNormalDistribution, ExponentialDistribution,
-        MultinoulliDistribution,
-        RegexDistribution, UniqueRegexDistribution, FakerDistribution, UniqueFakerDistribution,
-        FreeTextDistribution,
-        DateUniformDistribution,
-        TimeUniformDistribution,
-        DateTimeUniformDistribution,
-        ConstantDistribution,
-        DiscreteConstantDistribution,
-        StringConstantDistribution,
-        DateTimeConstantDistribution,
-        DateConstantDistribution,
-        TimeConstantDistribution,
-        NADistribution,
+        DiscreteUniformFitter, ContinuousUniformFitter, DateUniformFitter, DateTimeUniformFitter, TimeUniformFitter,
+        RegexFitter, UniqueRegexFitter, MultinoulliFitter
     ]
-    legacy_distributions = []
-
+    legacy_distribution = []
 
 class DistributionProviderList():
     """List of DistributionProviders with functionality to fit distributions.
@@ -292,12 +287,14 @@ class DistributionProviderList():
         if len(dist_list) == 0:
             raise ValueError(f"No available distributions with variable type: '{var_type}'"
                              f" and unique={try_unique}")
-        dist_instances = [d.fit(series, privacy) for d in dist_list]
+        fit_instances = [f(privacy) for f in dist_list]
+        dist_instances = [d.fit(series) for d in fit_instances]
         dist_bic = [d.information_criterion(series) for d in dist_instances]
         if unique is None:
             dist_list_unq = self.get_distributions(privacy, var_type, unique=True)
             if len(dist_list_unq) > 0:
-                dist_inst_unq = [d.fit(series, privacy) for d in dist_list_unq]
+                fit_inst_unq = [f(privacy) for f in dist_list_unq]
+                dist_inst_unq = [d.fit(series) for d in fit_inst_unq]
                 dist_bic_unq = [d.information_criterion(series) for d in dist_inst_unq]
                 # We don't want to warn about potential uniqueness too easily
                 # The offset is a heuristic that ensures about 12 rows are needed for uniqueness
@@ -493,7 +490,7 @@ class DistributionProviderList():
 
         if privacy is None:
             return dist_list
-        dist_list = [dist for dist in dist_list if dist.privacy == privacy.name]
+        dist_list = [dist for dist in dist_list if dist.privacy_type == privacy.name]
         return dist_list
 
     def from_dict(self, var_dict: dict[str, Any]) -> BaseDistribution:

@@ -9,7 +9,7 @@ import polars as pl
 from metasyn.distribution.base import BaseDistribution, metadist
 
 
-@metadist(implements="core.na", var_type=["continuous", "discrete", "categorical", "string"])
+@metadist(name="core.na", var_type=["continuous", "discrete", "categorical", "string"])
 class NADistribution(BaseDistribution):
     """Distribution that always returns NA values (None)."""
 

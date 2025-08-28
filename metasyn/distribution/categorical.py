@@ -9,10 +9,10 @@ import numpy as np
 import numpy.typing as npt
 import polars as pl
 
-from metasyn.distribution.base import BaseDistribution, metadist
+from metasyn.distribution.base import BaseDistribution, metadist, metafit, BaseFitter, convert_to_series
 
 
-@metadist(implements="core.multinoulli", var_type=["categorical", "discrete", "string"])
+@metadist(name="core.multinoulli", var_type=["categorical", "discrete", "string"])
 class MultinoulliDistribution(BaseDistribution):
     """Categorical distribution using labels and probabilities.
 
@@ -52,12 +52,6 @@ class MultinoulliDistribution(BaseDistribution):
                           f" ({np.sum(self.probs)}); they will be rescaled.")
         self.probs = self.probs/np.sum(self.probs)
 
-    @classmethod
-    def _fit(cls, values: pl.Series):
-        labels, counts = np.unique(values, return_counts=True)
-        probs = counts/np.sum(counts)
-        return cls(labels, probs)
-
     def _param_dict(self):
         return {"labels": self.labels, "probs": self.probs}
 
@@ -74,7 +68,7 @@ class MultinoulliDistribution(BaseDistribution):
     def information_criterion(self,
                               values: Union[pl.Series, npt.NDArray]
                               ) -> float:
-        series = self._to_series(values)
+        series = convert_to_series(values)
         labels, counts = np.unique(series, return_counts=True)
         log_lik = 0.0
         pdict = dict(zip(self.labels, self.probs))
@@ -146,3 +140,11 @@ class MultinoulliDistribution(BaseDistribution):
     @classmethod
     def default_distribution(cls):
         return cls(["a", "b", "c"], [0.1, 0.3, 0.6])
+
+
+@metafit(distribution=MultinoulliDistribution, var_type=["categorical", "string", "discrete"])
+class MultinoulliFitter(BaseFitter):
+    def _fit(self, values: pl.Series):
+        labels, counts = np.unique(values, return_counts=True)
+        probs = counts/np.sum(counts)
+        return self.distribution(labels, probs)
