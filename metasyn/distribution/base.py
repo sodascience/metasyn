@@ -494,38 +494,3 @@ class UniqueDistributionMixin(BaseDistribution):
         return 9999999
 
 
-
-class BaseConstantDistribution(BaseDistribution):
-    """Base class for constant distribution.
-
-    This base class makes it easy to implement new constant distributions
-    for different variable types.
-    """
-
-    def __init__(self, value) -> None:
-        self.value = value
-
-    @property
-    def n_par(self) -> int:
-        """int: Number of parameters for distribution."""
-        return 0
-
-    @classmethod
-    def _fit(cls, values: pl.Series) -> BaseDistribution:
-        # if unique, just get that value
-        if values.n_unique() == 1:
-            return cls(values.unique()[0])
-
-        # otherwise get most common value
-        val = values.value_counts(sort=True)[0,0]
-        return cls(val)
-
-    def _param_dict(self):
-        return {"value": self.value}
-
-    def draw(self):
-        return self.value
-
-    def information_criterion(self, values):
-        vals = self._to_series(values)
-        return -inf if vals.n_unique() < 2 else inf

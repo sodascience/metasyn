@@ -1,4 +1,4 @@
-"""Module implementing continuous (floating point) distributions."""
+"""Module implementing normal distributions."""
 
 import numpy as np
 from scipy.optimize import minimize
@@ -13,56 +13,7 @@ from metasyn.distribution.base import (
 )
 
 
-@metadist(implements="core.uniform", var_type="continuous")
-class UniformDistribution(ScipyDistribution):
-    """Uniform distribution for floating point type.
-
-    This class implements the uniform distribution between a minimum
-    and maximum.
-
-    Parameters
-    ----------
-    lower: float
-        Lower bound for uniform distribution.
-    upper: float
-        Upper bound for uniform distribution.
-
-    Examples
-    --------
-    >>> UniformDistribution(lower=-3.0, upper=10.0)
-    """
-
-    dist_class = uniform
-
-    def __init__(self, lower: float, upper: float):
-        self.par = {"lower": lower, "upper": upper}
-        self.dist = uniform(loc=self.lower, scale=max(self.upper-self.lower, 1e-8))
-
-    @classmethod
-    def _fit(cls, values):
-        return cls(values.min(), values.max())
-
-    def _information_criterion(self, values):
-        if np.any(np.array(values) < self.lower) or np.any(np.array(values) > self.upper):
-            return np.log(len(values))*self.n_par + 100*len(values)
-        if np.fabs(self.upper-self.lower) < 1e-8:
-            return np.log(len(values))*self.n_par - 100*len(values)
-        return (np.log(len(values))*self.n_par
-                - 2*len(values)*np.log((self.upper-self.lower)**-1))
-
-    @classmethod
-    def default_distribution(cls):
-        return cls(0, 1)
-
-    @classmethod
-    def _param_schema(cls):
-        return {
-            "lower": {"type": "number"},
-            "upper": {"type": "number"},
-        }
-
-
-@metadist(implements="core.normal", var_type="continuous")
+@metadist(name="core.normal", var_type="continuous")
 class NormalDistribution(ScipyDistribution):
     """Normal distribution for floating point type.
 
@@ -99,8 +50,11 @@ class NormalDistribution(ScipyDistribution):
             "sd": {"type": "number"},
         }
 
+@metafit(distribution=NormalDistribution, var_type="continuous")
+class ContinuousNormalFitter(ScipyFitter):
+    pass
 
-@metadist(implements="core.lognormal", var_type="continuous")
+@metadist(name="core.lognormal", var_type="continuous")
 class LogNormalDistribution(ScipyDistribution):
     """Log-normal distribution for floating point type.
 
@@ -144,7 +98,7 @@ class LogNormalDistribution(ScipyDistribution):
         }
 
 
-@metadist(implements="core.truncated_normal", var_type="continuous")
+@metadist(name="core.truncated_normal", var_type="continuous")
 class TruncatedNormalDistribution(ScipyDistribution):
     """Truncated normal distribution for floating point type.
 
@@ -207,71 +161,59 @@ class TruncatedNormalDistribution(ScipyDistribution):
         }
 
 
-@metadist(implements="core.exponential", var_type="continuous")
-class ExponentialDistribution(ScipyDistribution):
-    """Exponential distribution for floating point type.
 
-    This class implements the exponential distribution with the rate as its
-    single parameter.
+@metadist(name="core.normal", var_type="discrete")
+class DiscreteNormalDistribution(NormalDistribution):
+    """Normal discrete distribution.
 
-    Parameters
-    ----------
-    rate:
-        Rate of the exponential distribution. This is equal to 1/mean of the distribution.
-
-    Examples
-    --------
-    >>> ExponentialDistribution(rate=2.4)
-    """
-
-    dist_class = expon
-
-    def __init__(self, rate: float):
-        self.par = {"rate": rate}
-        self.dist = expon(loc=0, scale=1/max(rate, 1e-8))
-
-    @classmethod
-    def _fit(cls, values):
-        values = values.filter(values > 0)
-        if len(values) == 0:
-            return cls.default_distribution()
-        return cls(rate=1/expon.fit(values, floc=0)[1])
-
-    @classmethod
-    def default_distribution(cls):
-        return cls(1.0)
-
-    @classmethod
-    def _param_schema(cls):
-        return {
-            "rate": {"type": "number"}
-        }
-
-
-
-@metadist(implements="core.constant", var_type="continuous")
-class ConstantDistribution(BaseConstantDistribution):
-    """Constant distribution for floating point type.
-
-    This class implements the constant distribution, so that it draws always
-    the same value.
+    This class implements the normal/gaussian distribution and takes
+    the average and standard deviation as initialization input.
 
     Parameters
     ----------
-    value: float
-        Value that will be returned when drawn.
+    mean: float
+        Mean of the normal distribution.
+
+    sd: float
+        Standard deviation of the normal distribution.
 
     Examples
     --------
-    >>> ConstantDistribution(2.45)
+    >>> DiscreteNormalDistribution(mean=2.4, sd=1.2)
     """
 
-    @classmethod
-    def default_distribution(cls) -> BaseDistribution:
-        return cls(0.0)
+    def draw(self):
+        return int(super().draw())
 
-    @classmethod
-    def _param_schema(cls):
-        return {
-            "value": {"type": "number"}
-        }
+
+@metafit(distribution=DiscreteNormalDistribution, var_type="discrete")
+class DiscreteNormalFitter(ScipyFitter):
+    pass
+
+
+@metadist(name="core.truncated_normal", var_type="discrete")
+class DiscreteTruncatedNormalDistribution(TruncatedNormalDistribution):
+    """Truncated normal discrete distribution.
+
+    Parameters
+    ----------
+    lower: float
+        Lower bound of the truncated normal distribution.
+    upper: float
+        Upper bound of the truncated normal distribution.
+    mean: float
+        Mean of the non-truncated normal distribution.
+    sd: float
+        Standard deviation of the non-truncated normal distribution.
+
+    Examples
+    --------
+    >>> DiscreteTruncatedNormalDistribution(lower=1.2, upper=4.5, mean=2.3, sd=4.5)
+    """
+
+    def draw(self):
+        return int(super().draw())
+
+@metafit(distribution=DiscreteTruncatedNormalDistribution, var_type="discrete")
+class DiscreteTruncatedNormalFitter(ScipyFitter):
+    pass

@@ -9,7 +9,6 @@ from regexmodel import NotFittedError, RegexModel
 from scipy.stats import poisson
 
 from metasyn.distribution.base import (
-    BaseConstantDistribution,
     BaseDistribution,
     UniqueDistributionMixin,
     metadist,
