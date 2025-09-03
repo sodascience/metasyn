@@ -9,7 +9,13 @@ import numpy as np
 import numpy.typing as npt
 import polars as pl
 
-from metasyn.distribution.base import BaseDistribution, metadist, metafit, BaseFitter, convert_to_series
+from metasyn.distribution.base import (
+    BaseDistribution,
+    BaseFitter,
+    convert_to_series,
+    metadist,
+    metafit,
+)
 
 
 @metadist(name="core.multinoulli", var_type=["categorical", "discrete", "string"])
@@ -144,7 +150,9 @@ class MultinoulliDistribution(BaseDistribution):
 
 @metafit(distribution=MultinoulliDistribution, var_type=["categorical", "string", "discrete"])
 class MultinoulliFitter(BaseFitter):
-    def _fit(self, values: pl.Series):
-        labels, counts = np.unique(values, return_counts=True)
+    """Fitter for multinoulli distribution."""
+
+    def _fit(self, series: pl.Series):
+        labels, counts = np.unique(series, return_counts=True)
         probs = counts/np.sum(counts)
         return self.distribution(labels, probs)

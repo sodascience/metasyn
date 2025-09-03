@@ -14,9 +14,9 @@ from metasyn.file import (
     StataFileInterface,
     file_interface_from_dict,
     fileinterface,
-    read_file,
     read_csv,
     read_dta,
+    read_file,
     read_sav,
     read_tsv,
 )

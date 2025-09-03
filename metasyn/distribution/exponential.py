@@ -1,19 +1,11 @@
 """Module implementing continuous (floating point) distributions."""
 
-import numpy as np
-from scipy.optimize import minimize
-from scipy.stats import expon, lognorm, norm, truncnorm, uniform
-from scipy.stats._continuous_distns import FitDataError
+from scipy.stats import expon
 
-from metasyn.distribution.base import (
-    BaseConstantDistribution,
-    BaseDistribution,
-    ScipyDistribution,
-    metadist,
-)
+from metasyn.distribution.base import ScipyDistribution, ScipyFitter, metadist, metafit
 
 
-@metadist(implements="core.exponential", var_type="continuous")
+@metadist(name="core.exponential", var_type="continuous")
 class ExponentialDistribution(ScipyDistribution):
     """Exponential distribution for floating point type.
 
@@ -56,6 +48,7 @@ class ExponentialDistribution(ScipyDistribution):
 
 @metafit(distribution=ExponentialDistribution, var_type="continuous")
 class ExponentialFitter(ScipyFitter):
+    """Fitter for exponential distribution."""
 
     @classmethod
     def _fit(cls, values):

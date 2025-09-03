@@ -2,14 +2,15 @@
 
 import numpy as np
 from scipy.optimize import minimize
-from scipy.stats import expon, lognorm, norm, truncnorm, uniform
+from scipy.stats import lognorm, norm, truncnorm
 from scipy.stats._continuous_distns import FitDataError
 
 from metasyn.distribution.base import (
-    BaseConstantDistribution,
-    BaseDistribution,
+    BaseFitter,
     ScipyDistribution,
+    ScipyFitter,
     metadist,
+    metafit,
 )
 
 
@@ -32,7 +33,6 @@ class NormalDistribution(ScipyDistribution):
     >>> NormalDistribution(mean=1.3, sd=4.5)
     """
 
-    implements = "core.normal"
     dist_class = norm
 
     def __init__(self, mean: float, sd: float):
@@ -52,7 +52,7 @@ class NormalDistribution(ScipyDistribution):
 
 @metafit(distribution=NormalDistribution, var_type="continuous")
 class ContinuousNormalFitter(ScipyFitter):
-    pass
+    """Fitter for continuous normal distribution."""
 
 @metadist(name="core.lognormal", var_type="continuous")
 class LogNormalDistribution(ScipyDistribution):
@@ -96,6 +96,17 @@ class LogNormalDistribution(ScipyDistribution):
             "mean": {"type": "number"},
             "sd": {"type": "number"},
         }
+
+@metafit(distribution=LogNormalDistribution, var_type="continuous")
+class LogNormalFitter(BaseFitter):
+    """Fitter for log normal distribution."""
+
+    def _fit(self, series):
+        try:
+            sd, _, scale = self.distribution.dist_class.fit(series, floc=0)
+        except FitDataError:
+            return self.distribution(0, 1)
+        return self.distribution(np.log(scale), sd)
 
 
 @metadist(name="core.truncated_normal", var_type="continuous")
@@ -160,6 +171,27 @@ class TruncatedNormalDistribution(ScipyDistribution):
             "sd": {"type": "number"},
         }
 
+@metafit(distribution=TruncatedNormalDistribution, var_type="continuous")
+class TruncatedNormalFitter(BaseFitter):
+    """Fitter for continuous truncated normal fitter."""
+
+    def _fit(self, series):
+        lower = series.min() - 1e-8
+        upper = series.max() + 1e-8
+        return self._fit_with_bounds(series, lower, upper)
+
+    def _fit_with_bounds(self, values, lower, upper):
+        def minimizer(param):
+            mean, sd = param
+            a, b = (lower-mean)/sd, (upper-mean)/sd
+            dist = truncnorm(a=a, b=b, loc=mean, scale=sd)
+            return -np.sum(dist.logpdf(values))
+
+        x_start = [(lower+upper)/2, (upper-lower)/4]
+        mean, sd = minimize(minimizer, x_start,
+                             bounds=[(None, None),
+                                     ((upper-lower)/100, None)]).x
+        return self.distribution(lower, upper, mean, sd)
 
 
 @metadist(name="core.normal", var_type="discrete")
@@ -188,7 +220,7 @@ class DiscreteNormalDistribution(NormalDistribution):
 
 @metafit(distribution=DiscreteNormalDistribution, var_type="discrete")
 class DiscreteNormalFitter(ScipyFitter):
-    pass
+    """Fitter for discrete normal distribution."""
 
 
 @metadist(name="core.truncated_normal", var_type="discrete")
@@ -216,4 +248,4 @@ class DiscreteTruncatedNormalDistribution(TruncatedNormalDistribution):
 
 @metafit(distribution=DiscreteTruncatedNormalDistribution, var_type="discrete")
 class DiscreteTruncatedNormalFitter(ScipyFitter):
-    pass
+    """Fitter for discrete truncated normal distribution."""

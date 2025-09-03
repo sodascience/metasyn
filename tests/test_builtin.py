@@ -1,7 +1,7 @@
 """Testing module for the distributions that are builtin to metasyn directly."""
 from pytest import mark, raises
 
-from metasyn.distribution import UniformDistribution
+from metasyn.distribution.uniform import ContinuousUniformDistribution
 from metasyn.privacy import BasicPrivacy
 from metasyn.provider import get_distribution_provider
 from metasyn.testutils import check_distribution, check_distribution_provider
@@ -21,7 +21,7 @@ def test_dist_validation(distribution):
                        provenance="builtin")
 
 
-class BadDistribution(UniformDistribution):
+class BadDistribution(ContinuousUniformDistribution):
     """Distribution that has a broken schema."""
 
     def schema():

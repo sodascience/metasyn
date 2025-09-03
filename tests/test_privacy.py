@@ -1,13 +1,13 @@
 """Test whether the privacy functionality works."""
 import pytest
 
-from metasyn.distribution import MultinoulliDistribution
-from metasyn.distribution.base import metadist
+from metasyn.distribution.base import metafit
+from metasyn.distribution.categorical import MultinoulliDistribution, MultinoulliFitter
 from metasyn.privacy import BasicPrivacy, get_privacy
 
 
-@metadist(privacy="test")
-class OtherMultinoulli(MultinoulliDistribution):
+@metafit(privacy_type="test")
+class OtherMultinoulli(MultinoulliFitter):
     """Test privacy version of multinoulli."""
 
 
@@ -20,8 +20,7 @@ def test_base_privacy():
     assert privacy.name == "none"
     assert isinstance(priv_dict["parameters"], dict)
     assert len(priv_dict["parameters"]) == 0
-    assert privacy.is_compatible(MultinoulliDistribution)
-    assert privacy.is_compatible(MultinoulliDistribution(["1"], [1.0]))
+    assert privacy.is_compatible(MultinoulliFitter)
     assert not privacy.is_compatible(OtherMultinoulli)
 
 

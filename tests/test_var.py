@@ -12,16 +12,11 @@ import polars as pl
 import pytest
 from pytest import mark, raises
 
-from metasyn.distribution import (
-    DiscreteUniformDistribution,
-    NormalDistribution,
-    RegexDistribution,
-    UniformDistribution,
-    UniqueRegexDistribution,
-)
 from metasyn.distribution.categorical import MultinoulliDistribution
-from metasyn.distribution.continuous import TruncatedNormalDistribution
-from metasyn.distribution.discrete import UniqueKeyDistribution
+from metasyn.distribution.normal import NormalDistribution, TruncatedNormalDistribution
+from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistribution
+from metasyn.distribution.uniform import DiscreteUniformDistribution, ContinuousUniformDistribution
+from metasyn.distribution.uniquekey import UniqueKeyDistribution
 from metasyn.metaframe import _jsonify
 from metasyn.var import MetaVar
 
@@ -277,11 +272,11 @@ def test_unsupported_type():
 def test_manual_fit(series):
     """Test adding dist_spec to MetaVar.fit call."""
     var = MetaVar.fit(series)
-    assert isinstance(var.distribution, (UniformDistribution, TruncatedNormalDistribution))
+    assert isinstance(var.distribution, (ContinuousUniformDistribution, TruncatedNormalDistribution))
     var = MetaVar.fit(series, dist_spec={"implements": "normal"})
     assert isinstance(var.distribution, NormalDistribution)
-    var = MetaVar.fit(series, dist_spec=UniformDistribution)
-    assert isinstance(var.distribution, UniformDistribution)
+    var = MetaVar.fit(series, dist_spec=ContinuousUniformDistribution)
+    assert isinstance(var.distribution, ContinuousUniformDistribution)
     var = MetaVar.fit(series, dist_spec=NormalDistribution(0, 1))
     assert isinstance(var.distribution, NormalDistribution)
     with raises(TypeError):

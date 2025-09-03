@@ -1,25 +1,24 @@
 """Module all string distributions."""
 from __future__ import annotations
 
-from typing import Iterable, Optional, Union
+from typing import Iterable
 
 # from lingua._constant import LETTERS, PUNCTUATION
 import regex
 from faker import Faker
-from lingua import LanguageDetectorBuilder
-from regexmodel import NotFittedError, RegexModel
-from scipy.stats import poisson
 
 from metasyn.distribution.base import (
     BaseDistribution,
+    BaseFitter,
     UniqueDistributionMixin,
     metadist,
+    metafit,
 )
 
 LETTERS = regex.compile(r"\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}|\p{L}+")
 PUNCTUATION = regex.compile(r"\p{P}")
 
-@metadist(implements="core.faker", var_type="string")
+@metadist(name="core.faker", var_type="string")
 class FakerDistribution(BaseDistribution):
     """Faker distribution for cities, addresses, etc.
 
@@ -76,10 +75,23 @@ class FakerDistribution(BaseDistribution):
         }
 
 
-@metadist(implements="core.faker", var_type="string")
+@metafit(distribution=FakerDistribution, var_type="string")
+class FakerFitter(BaseFitter):
+    """Fitter for the faker distribution."""
+
+    def _fit(self, values, faker_type: str = "city", locale: str = "en_US"): # noqa: ARG002
+        """Select the appropriate faker function and locale."""
+        return self.distribution(faker_type, locale)
+
+
+@metadist(name="core.faker", var_type="string")
 class UniqueFakerDistribution(UniqueDistributionMixin, FakerDistribution):
     """Faker distribution that returns unique values.
 
     See :class:`~FakerDistribution` for examples and explanation.
     """
+
+@metafit(distribution=UniqueFakerDistribution, var_type="string")
+class UniqueFakerFitter(FakerFitter):
+    """Fitter for the unique faker distribution."""
 

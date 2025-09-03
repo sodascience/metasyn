@@ -6,7 +6,7 @@ import pandas as pd
 import polars as pl
 from pytest import mark
 
-from metasyn.distribution.datetime import (
+from metasyn.distribution.uniform import (
     DateTimeUniformDistribution,
     DateUniformDistribution,
     TimeUniformDistribution,

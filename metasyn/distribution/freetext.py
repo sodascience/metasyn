@@ -1,26 +1,26 @@
 """Module all string distributions."""
 from __future__ import annotations
 
-from typing import Iterable, Optional, Union
+from typing import Iterable, Optional
 
 # from lingua._constant import LETTERS, PUNCTUATION
 import regex
 from faker import Faker
 from lingua import LanguageDetectorBuilder
-from regexmodel import NotFittedError, RegexModel
 from scipy.stats import poisson
 
 from metasyn.distribution.base import (
     BaseDistribution,
-    UniqueDistributionMixin,
+    BaseFitter,
     metadist,
+    metafit,
 )
 
 LETTERS = regex.compile(r"\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}|\p{L}+")
 PUNCTUATION = regex.compile(r"\p{P}")
 
 
-@metadist(implements="core.freetext", var_type="string")
+@metadist(name="core.freetext", var_type="string")
 class FreeTextDistribution(BaseDistribution):
     """Free text distribution.
 
@@ -46,49 +46,6 @@ class FreeTextDistribution(BaseDistribution):
         self.avg_words = avg_words
         self.fake = Faker(locale=self.locale)
 
-    @classmethod
-    def _fit(cls, values, max_values: int = 50):
-        """Select the appropriate faker function and locale."""
-        lang_str = cls.detect_language(values[:max_values])
-        if lang_str is None:
-            return cls.default_distribution()
-
-        try:
-            Faker(lang_str)
-        except AttributeError:
-            lang_str = "EN"
-
-        all_text = "\n".join(values)
-        n_non_empty = (values != "").sum()
-        n_punctuation = len(list(PUNCTUATION.finditer(all_text)))
-        n_words = len(list(LETTERS.finditer(all_text)))
-        if n_punctuation < n_non_empty//3:
-            avg_sentence = None
-        else:
-            avg_sentence = n_punctuation/len(values)
-        avg_words = n_words/len(values)
-        return cls(lang_str, avg_sentence, avg_words)
-
-    @classmethod
-    def detect_language(cls, values: Iterable) -> Optional[str]:
-        """Detect the language of some text.
-
-        Parameters
-        ----------
-        values:
-            Values to detect the language of (usually polars dataframe).
-
-        Returns
-        -------
-        language:
-            Two letter ISO code to represent the language, or None if it could not be determined.
-
-        """
-        detector = LanguageDetectorBuilder.from_all_languages().with_low_accuracy_mode().build()
-        lang = detector.detect_language_of("\n".join(values))
-        if lang is None:
-            return None
-        return str(lang.iso_code_639_1).rsplit(".", maxsplit=1)[-1]
 
     def draw(self):
         if self.avg_sentences is None:
@@ -130,3 +87,48 @@ class FreeTextDistribution(BaseDistribution):
             "avg_words": {"type": "number"},
         }
 
+@metafit(distribution=FreeTextDistribution, var_type="string")
+class FreeTextFitter(BaseFitter):
+    """Fitter for the freetext distribution."""
+
+    def _fit(self, series, max_values: int = 50):
+        """Select the appropriate faker function and locale."""
+        lang_str = self.distribution.detect_language(series[:max_values])
+        if lang_str is None:
+            return self.distribution.default_distribution()
+
+        try:
+            Faker(lang_str)
+        except AttributeError:
+            lang_str = "EN"
+
+        all_text = "\n".join(series)
+        n_non_empty = (series != "").sum()
+        n_punctuation = len(list(PUNCTUATION.finditer(all_text)))
+        n_words = len(list(LETTERS.finditer(all_text)))
+        if n_punctuation < n_non_empty//3:
+            avg_sentence = None
+        else:
+            avg_sentence = n_punctuation/len(series)
+        avg_words = n_words/len(series)
+        return self.distribution(lang_str, avg_sentence, avg_words)
+
+    def detect_language(self, values: Iterable) -> Optional[str]:
+        """Detect the language of some text.
+
+        Parameters
+        ----------
+        values:
+            Values to detect the language of (usually polars dataframe).
+
+        Returns
+        -------
+        language:
+            Two letter ISO code to represent the language, or None if it could not be determined.
+
+        """
+        detector = LanguageDetectorBuilder.from_all_languages().with_low_accuracy_mode().build()
+        lang = detector.detect_language_of("\n".join(values))
+        if lang is None:
+            return None
+        return str(lang.iso_code_639_1).rsplit(".", maxsplit=1)[-1]

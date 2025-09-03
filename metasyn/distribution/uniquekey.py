@@ -3,58 +3,11 @@
 from typing import Set
 
 import numpy as np
-from scipy.stats import poisson, randint
 
-from metasyn.distribution.base import (
-    BaseConstantDistribution,
-    BaseDistribution,
-    ScipyDistribution,
-    metadist,
-)
-from metasyn.distribution.continuous import NormalDistribution, TruncatedNormalDistribution
+from metasyn.distribution.base import BaseDistribution, BaseFitter, metadist, metafit
 
 
-@metadist(implements="core.poisson", var_type="discrete")
-class PoissonDistribution(ScipyDistribution):
-    """Poisson distribution.
-
-    Parameters
-    ----------
-    rate:
-        Rate (mean) of the poisson distribution.
-
-    Examples
-    --------
-    >>> PoissonDistribution(rate=3.5)
-    """
-
-    dist_class = poisson
-
-    def __init__(self, rate: float):
-        self.par = {"rate": rate}
-        self.dist = self.dist_class(mu=rate)
-
-    def _information_criterion(self, values):
-        return np.log(len(values))*self.n_par - 2*np.sum(self.dist.logpmf(values))
-
-    @classmethod
-    def _fit(cls, values):
-        mean_values = values.mean()
-        mean_values = mean_values if mean_values >= 0 else 0
-        return cls(mean_values)
-
-    @classmethod
-    def default_distribution(cls):
-        return cls(0.5)
-
-    @classmethod
-    def _param_schema(cls):
-        return {
-            "rate": {"type": "number"},
-        }
-
-
-@metadist(implements="core.unique_key", var_type="discrete", unique=True)
+@metadist(name="core.unique_key", var_type="discrete", unique=True)
 class UniqueKeyDistribution(BaseDistribution):
     """Unique key distribution for identifiers.
 
@@ -98,14 +51,6 @@ class UniqueKeyDistribution(BaseDistribution):
         if attr != "par" and attr in self.par:
             return self.par[attr]
         return object.__getattribute__(self, attr)
-
-    @classmethod
-    def _fit(cls, values):
-        lower = values.min()
-        high = values.max() + 1
-        if len(values) == high-lower and np.all(values.to_numpy() == np.arange(lower, high)):
-            return cls(lower, True)
-        return cls(lower, False)
 
     def draw_reset(self):
         self.last_key = self.lower - 1
@@ -161,3 +106,13 @@ class UniqueKeyDistribution(BaseDistribution):
             "consecutive": {"type": "boolean"},
         }
 
+@metafit(distribution=UniqueKeyDistribution, var_type="discrete")
+class UniqueKeyFitter(BaseFitter):
+    """Fitter for unique key distribution."""
+
+    def _fit(self, series):
+        lower = series.min()
+        high = series.max() + 1
+        if len(series) == high-lower and np.all(series.to_numpy() == np.arange(lower, high)):
+            return self.distribution(lower, True)
+        return self.distribution(lower, False)

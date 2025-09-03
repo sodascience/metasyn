@@ -6,7 +6,7 @@ import pytest
 from pytest import mark
 
 from metasyn.config import MetaConfig, VarSpecAccess
-from metasyn.distribution import UniformDistribution
+from metasyn.distribution.uniform import ContinuousUniformDistribution
 from metasyn.privacy import BasePrivacy
 from metasyn.varspec import DistributionSpec, VarSpec
 
@@ -17,8 +17,8 @@ from metasyn.varspec import DistributionSpec, VarSpec
         ("uniform", False),
         (None, False),
         ({"implements": {"uniform": False}}, False),
-        (UniformDistribution, False),
-        (UniformDistribution(0, 2), False),
+        (ContinuousUniformDistribution, False),
+        (ContinuousUniformDistribution(0, 2), False),
         (DistributionSpec(), False),
         ({"fit_kwargs": {"param": 3}}, True),
         ({"version": "2.0"}, True),

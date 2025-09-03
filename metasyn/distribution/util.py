@@ -1,5 +1,8 @@
-import numpy as np
+"""Utilities for builtin distributions and fitters."""
+
 import datetime as dt
+
+import numpy as np
 
 
 def convert_numpy_datetime(time_obj: np.datetime64) -> dt.datetime:

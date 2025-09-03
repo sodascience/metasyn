@@ -1,20 +1,17 @@
-
-from typing import Iterable, Optional, Union
+"""Regex distributions and fitters."""
+from typing import Optional, Union
 
 # from lingua._constant import LETTERS, PUNCTUATION
-import regex
-from faker import Faker
-from lingua import LanguageDetectorBuilder
 from regexmodel import NotFittedError, RegexModel
-from scipy.stats import poisson
 
 from metasyn.distribution.base import (
     BaseDistribution,
+    BaseFitter,
     UniqueDistributionMixin,
     metadist,
     metafit,
-    BaseFitter,
 )
+
 
 @metadist(name="core.regex", var_type="string", version="v2")
 class RegexDistribution(BaseDistribution):
@@ -100,6 +97,8 @@ class RegexDistribution(BaseDistribution):
 
 @metafit(distribution=RegexDistribution, var_type="string")
 class RegexFitter(BaseFitter):
+    """Fitter for regex distribution."""
+
     def fit(self, values, count_thres: Optional[int] = None, method: str = "auto"):
         """Fit a regex to structured strings.
 
@@ -143,4 +142,4 @@ class UniqueRegexDistribution(UniqueDistributionMixin, RegexDistribution):
 
 @metafit(distribution=UniqueRegexDistribution, var_type="string")
 class UniqueRegexFitter(RegexFitter):
-    pass
+    """Fitter for unique regex distribution."""

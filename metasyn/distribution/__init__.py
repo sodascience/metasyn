@@ -10,8 +10,6 @@ information criterion, used for selecting the best distribution for
 a given set of values.
 """
 
-from metasyn.distribution.uniform import ContinuousUniformDistribution, DiscreteUniformDistribution
-
 # BUILTIN_DISTRIBUTIONS = [DiscreteUniformDistribution, ContinuousUniformDistribution]
 
 # from metasyn.distribution.categorical import MultinoulliDistribution

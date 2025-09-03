@@ -1,12 +1,13 @@
-import polars as pl
-import numpy as np
+"""Constant distributions and fitters."""
 import datetime as dt
 
+import numpy as np
+import polars as pl
 
 from metasyn.distribution.base import (
     BaseDistribution,
-    metadist,
     BaseFitter,
+    metadist,
     metafit,
 )
 from metasyn.distribution.util import convert_numpy_datetime
@@ -95,6 +96,8 @@ class DiscreteConstantDistribution(BaseConstantDistribution):
 
 
 class BaseConstantFitter(BaseFitter):
+    """Base distribution for many constant fitters."""
+
     def _fit(self, values: pl.Series) -> BaseDistribution:
         # if unique, just get that value
         if values.n_unique() == 1:
@@ -216,7 +219,7 @@ class DateConstantDistribution(BaseConstantDistribution):
         }
 
 
-@metadist(implements="core.constant", var_type="string")
+@metadist(name="core.constant", var_type="string")
 class StringConstantDistribution(BaseConstantDistribution):
     """Constant string distribution.
 
@@ -247,28 +250,24 @@ class StringConstantDistribution(BaseConstantDistribution):
 
 @metafit(distribution=DiscreteConstantDistribution, var_type="discrete")
 class DiscreteConstantFitter(BaseConstantFitter):
-    pass
+    """Fitter for constant discrete distribution."""
 
 @metafit(distribution=ContinuousConstantDistribution, var_type="continuous")
 class ContinuousConstantFitter(BaseConstantFitter):
-    pass
-
-@metafit(distribution=ContinuousConstantDistribution, var_type="continuous")
-class ContinuousConstantFitter(BaseConstantFitter):
-    pass
+    """Fitter for constant continuous distribution."""
 
 @metafit(distribution=DateConstantDistribution, var_type="date")
 class DateConstantFitter(BaseConstantFitter):
-    pass
+    """Fitter for constant date distribution."""
 
 @metafit(distribution=TimeConstantDistribution, var_type="time")
 class TimeConstantFitter(BaseConstantFitter):
-    pass
+    """Fitter for constant time distribution."""
 
 @metafit(distribution=DateTimeConstantDistribution, var_type="datetime")
 class DateTimeConstantFitter(BaseConstantFitter):
-    pass
+    """Fitter for constant datetime distribution."""
 
 @metafit(distribution=StringConstantDistribution, var_type="string")
 class StringConstantFitter(BaseConstantFitter):
-    pass
+    """Fitter for constant string distribution."""

@@ -4,12 +4,9 @@ import polars as pl
 import pytest
 from pytest import mark
 
-from metasyn.distribution.string import (
-    FakerDistribution,
-    FreeTextDistribution,
-    UniqueFakerDistribution,
-    UniqueRegexDistribution,
-)
+from metasyn.distribution.faker import FakerDistribution, UniqueFakerDistribution
+from metasyn.distribution.freetext import FreeTextDistribution
+from metasyn.distribution.regex import UniqueRegexDistribution
 from metasyn.privacy import BasicPrivacy
 from metasyn.var import MetaVar
 

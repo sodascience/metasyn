@@ -7,13 +7,13 @@ import polars as pl
 from pytest import mark
 from scipy import stats
 
-from metasyn.distribution.discrete import (
+from metasyn.distribution.normal import (
     DiscreteNormalDistribution,
     DiscreteTruncatedNormalDistribution,
-    DiscreteUniformDistribution,
-    PoissonDistribution,
-    UniqueKeyDistribution,
 )
+from metasyn.distribution.poisson import PoissonDistribution
+from metasyn.distribution.uniform import DiscreteUniformDistribution
+from metasyn.distribution.uniquekey import UniqueKeyDistribution
 from metasyn.privacy import BasicPrivacy
 
 

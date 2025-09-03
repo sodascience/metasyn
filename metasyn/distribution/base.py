@@ -18,18 +18,17 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from inspect import signature
 from typing import Optional, Sequence, Union
 
 import numpy as np
 import polars as pl
-from numpy import inf
 from numpy import typing as npt
 
 from metasyn.privacy import BasePrivacy
 
 
 def convert_to_series(values: Union[npt.NDArray, pl.Series]) -> pl.Series:
+    """Convert list or pandas series to polars series."""
     if not isinstance(values, (pl.Series, np.ndarray)):
         values = pl.Series(values)
     if isinstance(values, pl.Series):
@@ -41,6 +40,8 @@ def convert_to_series(values: Union[npt.NDArray, pl.Series]) -> pl.Series:
     return series
 
 class BaseFitter(ABC):
+    """Base class for fitters."""
+
     distribution: str = "unknown"
     privacy_type: str = "none"
     # name: str = "unknown"
@@ -51,42 +52,12 @@ class BaseFitter(ABC):
         self.privacy = privacy
 
     # @abstractmethod
-    def fit(self, series) -> BaseDistribution:
-        pl_series = convert_to_series(series)
+    def fit(self, values) -> BaseDistribution:
+        pl_series = convert_to_series(values)
         if len(pl_series) == 0:
             return self.distribution.default_distribution()
         return self._fit(pl_series)
 
-    # @staticmethod
-
-
-
-# class BasicUniformFitter(BaseFitter):
-#     implements = "core.uniform"
-#     privacy = "basic"
-#     distribution_version  = "v1"
-
-#     @abstractmethod
-#     def fit(self, series) -> BaseDistribution:
-#         pass
-
-# class DisclosureUniformFitter(BaseFitter):
-#     implements = "core.uniform"
-#     privacy = "disclosure"
-
-#     def fit(self, series) -> BaseDistribution:
-#         new_series = micro_aggregate(series, self.privacy.dominance, self.privacy.partition_size)
-#         basic_fitter = BasicUniformFitter(BasicPrivacy())
-
-#         return basic_fitter.fit(new_series)
-
-
-# class UniformDistribution(BaseDistribution):
-#     name = "core.uniform"
-#     var_type = "discrete"
-#     def __init__(self, min_val, max_val):
-#         self.min_val = min_val
-#         self.max_val = max_val
 
 class BaseDistribution(ABC):
     """Abstract base class to define a distribution.
@@ -233,9 +204,9 @@ class BaseDistribution(ABC):
         bool:
             Whether the name matches.
         """
-        assert cls.implements != "unknown", f"Internal error in class {cls.__name__}"
-        return name in (cls.implements.split(".")[1],
-                        cls.implements,
+        assert cls.name != "unknown", f"Internal error in class {cls.__name__}"
+        return name in (cls.name.split(".")[1],
+                        cls.name,
                         cls.__name__,
                         )
 
@@ -281,8 +252,6 @@ def metadist(
         Variable type of the distribution, e.g. continuous, categorical, string.
     unique:
         Whether the distribution is unique or not.
-    privacy:
-        Privacy class/implementation of the distribution.
     version:
         Version of the distribution. Increment this to ensure that compatibility is
         properly handled.
@@ -325,11 +294,9 @@ def metadist(
 
 def metafit(
         distribution: Optional[BaseDistribution] = None,
-        provenance: Optional[str] = None,
         var_type: Optional[Union[str, list[str]]] = None,
-        unique: Optional[bool] = None,
         version: Optional[str] = None,
-        privacy: Optional[str] = None):
+        privacy_type: Optional[str] = None):
     """Decorate class to create a distribution with the right properties.
 
     Parameters
@@ -342,7 +309,7 @@ def metafit(
         Variable type of the distribution, e.g. continuous, categorical, string.
     unique:
         Whether the distribution is unique or not.
-    privacy:
+    privacy_type:
         Privacy class/implementation of the distribution.
     version:
         Version of the distribution. Increment this to ensure that compatibility is
@@ -356,14 +323,12 @@ def metafit(
     def _wrap(cls):
         if distribution is not None:
             cls.distribution = distribution
-        if provenance is not None:
-            cls.provenance = provenance
         if var_type is not None:
             cls.var_type = var_type
-        if unique is not None:
-            cls.unique = unique
-        if privacy is not None:
-            cls.privacy = privacy
+        # if unique is not None:
+            # cls.unique = unique
+        if privacy_type is not None:
+            cls.privacy_type = privacy_type
         if version is not None:
             cls.version = version
         if cls.__doc__ is None:
@@ -376,16 +341,12 @@ def metafit(
     ----------
     dist_class:
         {cls.distribution}
-    unique:
-        {cls.unique}
     version:
         {cls.version}
     var_type:
         {cls.var_type}
     privacy:
-        {cls.privacy}
-    provenance:
-        {cls.provenance}
+        {cls.privacy_type}
     """
         return cls
 
@@ -450,6 +411,8 @@ class ScipyDistribution(BaseDistribution):
 
 
 class ScipyFitter(BaseFitter):
+    """Base fitter for scipy distributions."""
+
     def fit(self, series):
         if len(series) == 0:
             return self.dist_class.default_distribution()

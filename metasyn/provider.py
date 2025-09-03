@@ -20,43 +20,42 @@ import numpy as np
 import polars as pl
 
 from metasyn.distribution.base import BaseDistribution
-from metasyn.distribution.uniform import DiscreteUniformDistribution, ContinuousUniformDistribution, DateUniformDistribution, TimeUniformDistribution, DateTimeUniformDistribution
-from metasyn.distribution.uniform import DiscreteUniformFitter, ContinuousUniformFitter, DateUniformFitter, TimeUniformFitter, DateTimeUniformFitter
-from metasyn.distribution.regex import RegexFitter, UniqueRegexFitter
-# from metasyn.distribution.categorical import Multi
 from metasyn.distribution.categorical import MultinoulliFitter
-# from metasyn.distribution.continuous import (
-#     ConstantDistribution,
-#     ExponentialDistribution,
-#     LogNormalDistribution,
-#     NormalDistribution,
-#     TruncatedNormalDistribution,
-#     UniformDistribution,
-# )
-# from metasyn.distribution.datetime import (
-#     DateConstantDistribution,
-#     DateTimeConstantDistribution,
-#     DateTimeUniformDistribution,
-#     DateUniformDistribution,
-#     TimeConstantDistribution,
-#     TimeUniformDistribution,
-# )
-# from metasyn.distribution.discrete import (
-#     DiscreteConstantDistribution,
-#     DiscreteNormalDistribution,
-#     DiscreteTruncatedNormalDistribution,
-#     DiscreteUniformDistribution,
-#     PoissonDistribution,
-#     UniqueKeyDistribution,
-# )
+from metasyn.distribution.constant import (
+    ContinuousConstantFitter,
+    DateConstantFitter,
+    DateTimeConstantFitter,
+    DiscreteConstantFitter,
+    StringConstantFitter,
+    TimeConstantFitter,
+)
+from metasyn.distribution.exponential import ExponentialFitter
+from metasyn.distribution.faker import FakerFitter, UniqueFakerFitter
+from metasyn.distribution.freetext import FreeTextFitter
 from metasyn.distribution.na import NADistribution
+from metasyn.distribution.normal import (
+    ContinuousNormalFitter,
+    DiscreteNormalFitter,
+    DiscreteTruncatedNormalFitter,
+    LogNormalFitter,
+    TruncatedNormalFitter,
+)
+from metasyn.distribution.poisson import PoissonFitter
 from metasyn.distribution.regex import (
-#     FakerDistribution,
-#     FreeTextDistribution,
     RegexDistribution,
-#     StringConstantDistribution,
-#     UniqueFakerDistribution,
+    RegexFitter,
     UniqueRegexDistribution,
+    UniqueRegexFitter,
+)
+from metasyn.distribution.uniform import (
+    ContinuousUniformFitter,
+    DateTimeUniformDistribution,
+    DateTimeUniformFitter,
+    DateUniformDistribution,
+    DateUniformFitter,
+    DiscreteUniformFitter,
+    TimeUniformDistribution,
+    TimeUniformFitter,
 )
 from metasyn.privacy import BasePrivacy, BasicPrivacy
 from metasyn.util import get_registry
@@ -143,16 +142,22 @@ class BuiltinDistributionProvider(BaseDistributionProvider):
 
     name = "builtin"
     version = "1.2"
-    # distributions = [
-    #     ContinuousUniformDistribution, DiscreteUniformDistribution,
-    #     RegexDistribution, UniqueRegexDistribution,
-    #     DateTimeUniformDistribution,
-    #     TimeUniformDistribution,
-    #     DateUniformDistribution,
-    # ]
     distributions = [
-        DiscreteUniformFitter, ContinuousUniformFitter, DateUniformFitter, DateTimeUniformFitter, TimeUniformFitter,
-        RegexFitter, UniqueRegexFitter, MultinoulliFitter
+        DiscreteUniformFitter, DateUniformDistribution, TimeUniformDistribution,
+        DateTimeUniformDistribution,
+        DiscreteUniformFitter, ContinuousUniformFitter, DateUniformFitter, TimeUniformFitter,
+        DateTimeUniformFitter,
+        RegexFitter, UniqueRegexFitter,
+        ContinuousConstantFitter, DiscreteConstantFitter, DateConstantFitter,
+        DateTimeConstantFitter, TimeConstantFitter, StringConstantFitter,
+        ExponentialFitter,
+        MultinoulliFitter,
+        FakerFitter, UniqueFakerFitter,
+        FreeTextFitter,
+        RegexDistribution, UniqueRegexDistribution,
+        PoissonFitter,
+        ContinuousNormalFitter, LogNormalFitter, DiscreteTruncatedNormalFitter,
+        TruncatedNormalFitter, DiscreteNormalFitter, DiscreteTruncatedNormalFitter,
     ]
     legacy_distribution = []
 

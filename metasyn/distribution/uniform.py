@@ -1,3 +1,5 @@
+"""Uniform distributions and fitters."""
+
 import datetime as dt
 from abc import abstractmethod
 from random import random
@@ -8,10 +10,10 @@ from scipy.stats import randint, uniform
 
 from metasyn.distribution.base import (
     BaseDistribution,
+    BaseFitter,
     ScipyDistribution,
     metadist,
     metafit,
-    BaseFitter,
 )
 from metasyn.distribution.util import convert_numpy_datetime
 
@@ -59,6 +61,8 @@ class DiscreteUniformDistribution(ScipyDistribution):
 
 @metafit(distribution=DiscreteUniformDistribution, var_type="discrete")
 class DiscreteUniformFitter(BaseFitter):
+    """Fitter for discrete uniform distribution."""
+
     def fit(self, values):
         return DiscreteUniformDistribution(values.min(), values.max()+1)
 
@@ -111,6 +115,8 @@ class ContinuousUniformDistribution(ScipyDistribution):
 
 @metafit(distribution=ContinuousUniformDistribution, var_type="continuous")
 class ContinuousUniformFitter(BaseFitter):
+    """Fitter for continuous uniform distribution."""
+
     def fit(self, values):
         return ContinuousUniformDistribution(values.min(), values.max())
 
@@ -325,6 +331,8 @@ class DateUniformDistribution(BaseDTUniformDistribution):
 
 
 class BaseDTUniformFitter(BaseFitter):
+    """Base class for date/time/datetime uniform distributions."""
+
     precision_possibilities = ["microseconds", "seconds", "minutes", "hours", "days"]
 
     @classmethod
@@ -339,18 +347,24 @@ class BaseDTUniformFitter(BaseFitter):
 
 @metafit(distribution=TimeUniformDistribution, var_type="time")
 class TimeUniformFitter(BaseDTUniformFitter):
+    """Fitter for time uniform distribution."""
+
     # precision_possibilities = ["microseconds", "seconds", "minutes", "hours", "days"]
     def _fit(self, values):
         return TimeUniformDistribution(values.min(), values.max(), self._get_precision(values))
 
 @metafit(distribution=DateTimeUniformDistribution, var_type="datetime")
 class DateTimeUniformFitter(BaseDTUniformFitter):
+    """Fitter for datetime uniform distribution."""
+
     def _fit(self, values):
         return DateTimeUniformDistribution(values.min(), values.max(), self._get_precision(values))
 
 
 @metafit(distribution=DateUniformDistribution, var_type="date")
 class DateUniformFitter(BaseDTUniformFitter):
+    """Fitter for date uniform distribution."""
+
     precision_possibilities = ["days"]
     def _fit(self, values):
         return DateUniformDistribution(values.min(), values.max())
