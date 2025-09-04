@@ -14,6 +14,7 @@ from metasyn.distribution.base import (
     BaseFitter,
     metadist,
     metafit,
+    convert_to_series,
 )
 
 LETTERS = regex.compile(r"\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}|\p{L}+")
@@ -59,7 +60,7 @@ class FreeTextDistribution(BaseDistribution):
         return " ".join(self.fake.sentence(nb_words=n_words) for _ in range(n_sentences))
 
     def information_criterion(self, values) -> float:
-        series = self._to_series(values)
+        series = convert_to_series(values)
         # Check the average number of characters
         avg_chars = series.str.len_chars().mean()
         if avg_chars is not None and avg_chars >= 25:  # type: ignore  # Workaround polars typing

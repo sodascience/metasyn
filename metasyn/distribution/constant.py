@@ -11,6 +11,7 @@ from metasyn.distribution.base import (
     metafit,
 )
 from metasyn.distribution.util import convert_numpy_datetime
+from metasyn.distribution.base import convert_to_series
 
 
 class BaseConstantDistribution(BaseDistribution):
@@ -35,7 +36,7 @@ class BaseConstantDistribution(BaseDistribution):
         return self.value
 
     def information_criterion(self, values):
-        vals = self._to_series(values)
+        vals = convert_to_series(values)
         return -np.inf if vals.n_unique() < 2 else np.inf
 
 

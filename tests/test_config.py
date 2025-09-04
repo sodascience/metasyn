@@ -16,7 +16,7 @@ from metasyn.varspec import DistributionSpec, VarSpec
     [
         ("uniform", False),
         (None, False),
-        ({"implements": {"uniform": False}}, False),
+        ({"name": {"uniform": False}}, False),
         (ContinuousUniformDistribution, False),
         (ContinuousUniformDistribution(0, 2), False),
         (DistributionSpec(), False),
@@ -47,7 +47,7 @@ def test_var_spec():
     var_spec = VarSpec.from_dict({"name": "test"})
     assert var_spec.name == "test"
     var_spec = VarSpec.from_dict({"name": "test", "distribution": "uniform"})
-    assert var_spec.dist_spec.implements == "uniform"
+    assert var_spec.dist_spec.name == "uniform"
 
 
 def test_meta_config_datafree():
@@ -82,4 +82,4 @@ def test_meta_config():
     var_spec = meta_config.get("Cabin")
     assert var_spec.data_free is False
     assert var_spec.var_type is None
-    assert var_spec.dist_spec.implements == "core.regex"
+    assert var_spec.dist_spec.name == "core.regex"

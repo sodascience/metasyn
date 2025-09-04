@@ -4,7 +4,7 @@ from typing import Set
 
 import numpy as np
 
-from metasyn.distribution.base import BaseDistribution, BaseFitter, metadist, metafit
+from metasyn.distribution.base import BaseDistribution, BaseFitter, metadist, metafit, convert_to_series
 
 
 @metadist(name="core.unique_key", var_type="discrete", unique=True)
@@ -69,7 +69,7 @@ class UniqueKeyDistribution(BaseDistribution):
                 return random_number
 
     def information_criterion(self, values):
-        values = self._to_series(values)
+        values = convert_to_series(values)
         if len(values) == 0:
             return 2 * 2
 
