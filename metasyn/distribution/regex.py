@@ -99,34 +99,34 @@ class RegexDistribution(BaseDistribution):
 class RegexFitter(BaseFitter):
     """Fitter for regex distribution."""
 
-    def fit(self, values, count_thres: Optional[int] = None, method: str = "auto"):
+    def _fit(self, series, count_thres: Optional[int] = None, method: str = "auto"):
         """Fit a regex to structured strings.
 
         Arguments
         ---------
-        values:
+        series:
             Values to be fitted (pl.Series).
         count_thres:
             Threshold for regex elements, so that a regex element can only be used if
-            the number of values satisfying said element is higher than the threshold.
+            the number of series satisfying said element is higher than the threshold.
         method:
-            Method for fitting the regex model. Possible values are ["accurate", "fast", "auto"]
+            Method for fitting the regex model. Possible series are ["accurate", "fast", "auto"]
             The "auto" method switches between the "accurate" and "fast" methods depending on
             the number of characters (fast if #char > 10000) in the series.
         """
         if method == "auto":
-            if values.str.len_chars().mean() > 10:
+            if series.str.len_chars().mean() > 10:
                 method = "fast"
             else:
                 method = "accurate"
 
-        # Make count_thres ~= #values/100 up to 50 if in auto mode.
+        # Make count_thres ~= #series/100 up to 50 if in auto mode.
         if count_thres is None:
-            count_thres = min(50, max(2, round(len(values)/50)))
+            count_thres = min(50, max(2, round(len(series)/50)))
 
-        # Try to fit the values, if it cannot be fit, then use the default distribution.
+        # Try to fit the series, if it cannot be fit, then use the default distribution.
         try:
-            model = RegexModel.fit(values, count_thres=count_thres, method=method)
+            model = RegexModel.fit(series, count_thres=count_thres, method=method)
         except NotFittedError:
             return self.distribution.default_distribution()
         return self.distribution(model)

@@ -1,10 +1,11 @@
 """Testing module for the distributions that are builtin to metasyn directly."""
 from pytest import mark, raises
 
-from metasyn.distribution.uniform import ContinuousUniformDistribution
+from metasyn.distribution.uniform import ContinuousUniformFitter, ContinuousUniformDistribution
+from metasyn.distribution.base import metafit
 from metasyn.privacy import BasicPrivacy
 from metasyn.provider import get_distribution_provider
-from metasyn.testutils import check_distribution, check_distribution_provider
+from metasyn.testutils import check_fitter, check_distribution_provider
 
 
 def test_builtin_provider():
@@ -13,12 +14,11 @@ def test_builtin_provider():
 
 
 @mark.parametrize(
-    "distribution", get_distribution_provider("builtin").distributions
+    "fitter", get_distribution_provider("builtin").distributions
 )
-def test_dist_validation(distribution):
+def test_dist_validation(fitter):
     """Check all distributions for correctness."""
-    check_distribution(distribution, privacy=BasicPrivacy(),
-                       provenance="builtin")
+    check_fitter(fitter, privacy=BasicPrivacy(), provenance="builtin")
 
 
 class BadDistribution(ContinuousUniformDistribution):
@@ -27,8 +27,11 @@ class BadDistribution(ContinuousUniformDistribution):
     def schema():
         return "[{"
 
+@metafit(distribution=BadDistribution)
+class BadFitter(ContinuousUniformFitter):
+    pass
 
 def test_schema_val():
     """Check whether a distribution with a broken schema will trigger the error."""
     with raises(ValueError):
-        check_distribution(BadDistribution, "none", "builtin")
+        check_fitter(BadFitter, "none", "builtin")

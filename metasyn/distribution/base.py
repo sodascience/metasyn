@@ -58,6 +58,27 @@ class BaseFitter(ABC):
             return self.distribution.default_distribution()
         return self._fit(pl_series)
 
+    @classmethod
+    def matches_name(cls, name: str) -> bool:
+        """Check whether the name matches the fitter.
+
+        Parameters
+        ----------
+        name: str
+            Name to match to the fitter.
+
+        Returns
+        -------
+        bool:
+            Whether the name matches.
+        """
+        assert cls.distribution.name != "unknown", f"Internal error in class {cls.__name__}"
+        return name in (cls.distribution.name.split(".")[1],
+                        cls.distribution.name,
+                        cls.__name__,
+                        )
+
+
 
 class BaseDistribution(ABC):
     """Abstract base class to define a distribution.
@@ -144,7 +165,6 @@ class BaseDistribution(ABC):
         return {
             "name": self.name,
             "version": self.version,
-            "provenance": self.provenance,
             "class_name": self.__class__.__name__,
             "unique": self.unique,
             "parameters": deepcopy(self._param_dict()),
@@ -163,7 +183,6 @@ class BaseDistribution(ABC):
             "properties": {
                 "name": {"const": cls.name},
                 "version": {"type": "string"},
-                "provenance": {"const": cls.provenance},
                 "class_name": {"const": cls.__name__},
                 "unique": {"const": cls.unique},
                 "parameters": {
@@ -172,7 +191,7 @@ class BaseDistribution(ABC):
                     "required": list(cls.default_distribution()._param_dict())
                 }
             },
-            "required": ["implements", "provenance", "class_name", "parameters"]
+            "required": ["name", "class_name", "parameters"]
         }
 
     @classmethod
@@ -413,11 +432,13 @@ class ScipyDistribution(BaseDistribution):
 class ScipyFitter(BaseFitter):
     """Base fitter for scipy distributions."""
 
-    def fit(self, series):
+    def fit(self, values):
+        series = convert_to_series(values)
+
         if len(series) == 0:
-            return self.dist_class.default_distribution()
-        param = self.dist_class.scipy_class.fit(series)  # type: ignore  # All derived classes have dist_class
-        return self.dist_class(*param)
+            return self.distribution.default_distribution()
+        param = self.distribution.scipy_class.fit(series)  # type: ignore  # All derived classes have dist_class
+        return self.distribution(*param)
 
 
 

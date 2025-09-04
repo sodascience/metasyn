@@ -93,7 +93,7 @@ class FreeTextFitter(BaseFitter):
 
     def _fit(self, series, max_values: int = 50):
         """Select the appropriate faker function and locale."""
-        lang_str = self.distribution.detect_language(series[:max_values])
+        lang_str = self.detect_language(series[:max_values])
         if lang_str is None:
             return self.distribution.default_distribution()
 

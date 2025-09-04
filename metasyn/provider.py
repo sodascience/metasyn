@@ -143,8 +143,7 @@ class BuiltinDistributionProvider(BaseDistributionProvider):
     name = "builtin"
     version = "1.2"
     distributions = [
-        DiscreteUniformFitter, DateUniformDistribution, TimeUniformDistribution,
-        DateTimeUniformDistribution,
+        DiscreteUniformFitter,
         DiscreteUniformFitter, ContinuousUniformFitter, DateUniformFitter, TimeUniformFitter,
         DateTimeUniformFitter,
         RegexFitter, UniqueRegexFitter,
@@ -154,7 +153,7 @@ class BuiltinDistributionProvider(BaseDistributionProvider):
         MultinoulliFitter,
         FakerFitter, UniqueFakerFitter,
         FreeTextFitter,
-        RegexDistribution, UniqueRegexDistribution,
+        RegexFitter, UniqueRegexFitter,
         PoissonFitter,
         ContinuousNormalFitter, LogNormalFitter, DiscreteTruncatedNormalFitter,
         TruncatedNormalFitter, DiscreteNormalFitter, DiscreteTruncatedNormalFitter,

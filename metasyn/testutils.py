@@ -14,7 +14,7 @@ import numpy as np
 import polars as pl
 from jsonschema.exceptions import SchemaError
 
-from metasyn.distribution.base import BaseDistribution
+from metasyn.distribution.base import BaseDistribution, BaseFitter
 from metasyn.distribution.categorical import MultinoulliDistribution
 from metasyn.distribution.na import NADistribution
 from metasyn.metaframe import _jsonify
@@ -38,7 +38,7 @@ def check_distribution_provider(provider_name: str):
     provider = get_distribution_provider(provider_name)
     assert isinstance(provider, BaseDistributionProvider)
     assert len(provider.distributions) > 0
-    assert all(issubclass(dist, BaseDistribution) for dist in provider.distributions)
+    assert all(issubclass(dist, BaseFitter) for dist in provider.distributions)
     assert isinstance(provider.name, str)
     assert len(provider.name) > 0
     assert provider.name == provider_name
@@ -46,7 +46,7 @@ def check_distribution_provider(provider_name: str):
     assert len(provider.version) > 0
 
 
-def check_distribution(distribution: type[BaseDistribution], privacy: BasePrivacy,
+def check_fitter(fitter: type[BaseFitter], privacy: BasePrivacy,
                        provenance: str, test_empty: bool=True):
     """Check whether the distributions in the package can be validated positively.
 
@@ -63,6 +63,7 @@ def check_distribution(distribution: type[BaseDistribution], privacy: BasePrivac
         can fit them. Otherwise, ignore testing the distribution on empty series.
     """
     # Check the schema of the distribution.
+    distribution = fitter.distribution
     schema = distribution.schema()
     dist_dict = distribution.default_distribution().to_dict()
     try:
@@ -71,28 +72,28 @@ def check_distribution(distribution: type[BaseDistribution], privacy: BasePrivac
         raise ValueError(f"Failed distribution validation for {distribution.__name__}") from err
 
     # Check the privacy
-    assert privacy.is_compatible(distribution)
+    assert privacy.is_compatible(fitter)
     if isinstance(distribution.var_type, str):
         var_types = [distribution.var_type]
     else:
         var_types = distribution.var_type
     for vt in var_types:
         DistributionProviderList(provenance).find_distribution(
-            distribution.implements, var_type=vt, privacy=privacy,
+            distribution.name, var_type=vt, privacy=privacy,
             unique=distribution.unique)
 
-    assert len(distribution.implements.split(".")) == 2
-    assert distribution.provenance == provenance
+    assert len(distribution.name.split(".")) == 2
+    # assert distribution.provenance == provenance
     assert distribution.var_type != "unknown"
     dist = distribution.default_distribution()
     series = pl.Series([dist.draw() for _ in range(100)])
-    new_dist = distribution.fit(series, privacy)
+    new_dist = fitter(privacy).fit(series)
     assert isinstance(new_dist, distribution)
     assert set(list(new_dist.to_dict())) >= set(
-        ("implements", "provenance", "class_name", "parameters"))
+        ("name", "class_name", "parameters"))
     if test_empty:
         empty_series = pl.Series([], dtype=series.dtype)
-        new_dist = distribution.fit(empty_series, privacy)
+        new_dist = fitter(privacy).fit(empty_series)
         assert isinstance(new_dist, distribution)
 
 

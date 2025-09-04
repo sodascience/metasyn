@@ -33,7 +33,7 @@ class NormalDistribution(ScipyDistribution):
     >>> NormalDistribution(mean=1.3, sd=4.5)
     """
 
-    dist_class = norm
+    scipy_class = norm
 
     def __init__(self, mean: float, sd: float):
         self.par = {"mean": mean, "sd": sd}
@@ -72,7 +72,7 @@ class LogNormalDistribution(ScipyDistribution):
     >>> LogNormalDistribution(mean=-2.0, sd=4.5)
     """
 
-    dist_class = lognorm
+    scipy_class = lognorm
 
     def __init__(self, mean: float, sd: float):
         self.par = {"mean": mean, "sd": sd}
@@ -81,7 +81,7 @@ class LogNormalDistribution(ScipyDistribution):
     @classmethod
     def _fit(cls, values):
         try:
-            sd, _, scale = cls.dist_class.fit(values, floc=0)
+            sd, _, scale = cls.scipy_class.fit(values, floc=0)
         except FitDataError:
             return cls(0, 1)
         return cls(np.log(scale), sd)
@@ -103,7 +103,7 @@ class LogNormalFitter(BaseFitter):
 
     def _fit(self, series):
         try:
-            sd, _, scale = self.distribution.dist_class.fit(series, floc=0)
+            sd, _, scale = self.distribution.scipy_class.fit(series, floc=0)
         except FitDataError:
             return self.distribution(0, 1)
         return self.distribution(np.log(scale), sd)
@@ -129,7 +129,7 @@ class TruncatedNormalDistribution(ScipyDistribution):
     >>> TruncatedNormalDistribution(lower=1.0, upper=3.5, mean=2.3, sd=5)
     """
 
-    dist_class = truncnorm
+    scipy_class = truncnorm
 
     def __init__(self, lower: float, upper: float,
                  mean: float, sd: float):

@@ -12,7 +12,7 @@ except ImportError:
 from metasyn.util import get_registry
 
 if TYPE_CHECKING:
-    from metasyn.distribution.base import BaseDistribution
+    from metasyn.distribution.base import BaseFitter
 
 
 class BasePrivacy(ABC):
@@ -37,7 +37,7 @@ class BasePrivacy(ABC):
             "parameters": {},
         }
 
-    def is_compatible(self, dist: Union[BaseDistribution, Type[BaseDistribution]]) -> bool:
+    def is_compatible(self, dist: Union[BaseFitter, Type[BaseFitter]]) -> bool:
         """Check whether the distribution has the same privacy.
 
         Arguments
@@ -45,7 +45,7 @@ class BasePrivacy(ABC):
         dist:
             Distribution to check.
         """
-        return dist.privacy == self.name
+        return dist.privacy_type == self.name
 
     def comment(self, var):  # noqa
         """Comment on the privacy features for the TOML GMF file.

@@ -63,8 +63,8 @@ class DiscreteUniformDistribution(ScipyDistribution):
 class DiscreteUniformFitter(BaseFitter):
     """Fitter for discrete uniform distribution."""
 
-    def fit(self, values):
-        return DiscreteUniformDistribution(values.min(), values.max()+1)
+    def _fit(self, series):
+        return DiscreteUniformDistribution(series.min(), series.max()+1)
 
 
 
@@ -117,8 +117,8 @@ class ContinuousUniformDistribution(ScipyDistribution):
 class ContinuousUniformFitter(BaseFitter):
     """Fitter for continuous uniform distribution."""
 
-    def fit(self, values):
-        return ContinuousUniformDistribution(values.min(), values.max())
+    def _fit(self, series):
+        return ContinuousUniformDistribution(series.min(), series.max())
 
 
 class BaseDTUniformDistribution(BaseDistribution):
