@@ -12,9 +12,9 @@ from scipy.stats import poisson
 from metasyn.distribution.base import (
     BaseDistribution,
     BaseFitter,
+    convert_to_series,
     metadist,
     metafit,
-    convert_to_series,
 )
 
 LETTERS = regex.compile(r"\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}|\p{L}+")

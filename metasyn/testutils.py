@@ -14,7 +14,7 @@ import numpy as np
 import polars as pl
 from jsonschema.exceptions import SchemaError
 
-from metasyn.distribution.base import BaseDistribution, BaseFitter
+from metasyn.distribution.base import BaseFitter
 from metasyn.distribution.categorical import MultinoulliDistribution
 from metasyn.distribution.na import NADistribution
 from metasyn.metaframe import _jsonify

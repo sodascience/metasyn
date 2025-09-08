@@ -4,7 +4,13 @@ from typing import Set
 
 import numpy as np
 
-from metasyn.distribution.base import BaseDistribution, BaseFitter, metadist, metafit, convert_to_series
+from metasyn.distribution.base import (
+    BaseDistribution,
+    BaseFitter,
+    convert_to_series,
+    metadist,
+    metafit,
+)
 
 
 @metadist(name="core.unique_key", var_type="discrete", unique=True)

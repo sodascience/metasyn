@@ -2,8 +2,13 @@
 
 from scipy.stats import expon
 
-from metasyn.distribution.base import ScipyDistribution, ScipyFitter, metadist, metafit
-from metasyn.distribution.base import convert_to_series
+from metasyn.distribution.base import (
+    ScipyDistribution,
+    ScipyFitter,
+    convert_to_series,
+    metadist,
+    metafit,
+)
 
 
 @metadist(name="core.exponential", var_type="continuous")

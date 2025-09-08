@@ -373,7 +373,7 @@ def metafit(
 
 class ScipyDistribution(BaseDistribution):
     """Base class for numerical distributions using Scipy.
-s
+
     This base class makes it easy to implement new numerical
     distributions. It can also be used for non-Scipy distributions,
     provided the distribution implements `logpdf`, `rvs` and `fit` methods.

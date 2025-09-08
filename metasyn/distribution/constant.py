@@ -7,11 +7,11 @@ import polars as pl
 from metasyn.distribution.base import (
     BaseDistribution,
     BaseFitter,
+    convert_to_series,
     metadist,
     metafit,
 )
 from metasyn.distribution.util import convert_numpy_datetime
-from metasyn.distribution.base import convert_to_series
 
 
 class BaseConstantDistribution(BaseDistribution):

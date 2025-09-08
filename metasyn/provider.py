@@ -32,7 +32,7 @@ from metasyn.distribution.constant import (
 from metasyn.distribution.exponential import ExponentialFitter
 from metasyn.distribution.faker import FakerFitter, UniqueFakerFitter
 from metasyn.distribution.freetext import FreeTextFitter
-from metasyn.distribution.na import NADistribution
+from metasyn.distribution.na import NADistribution, NAFitter
 from metasyn.distribution.normal import (
     ContinuousNormalFitter,
     DiscreteNormalFitter,
@@ -42,22 +42,16 @@ from metasyn.distribution.normal import (
 )
 from metasyn.distribution.poisson import PoissonFitter
 from metasyn.distribution.regex import (
-    RegexDistribution,
     RegexFitter,
-    UniqueRegexDistribution,
     UniqueRegexFitter,
 )
 from metasyn.distribution.uniform import (
     ContinuousUniformFitter,
-    DateTimeUniformDistribution,
     DateTimeUniformFitter,
-    DateUniformDistribution,
     DateUniformFitter,
     DiscreteUniformFitter,
-    TimeUniformDistribution,
     TimeUniformFitter,
 )
-from metasyn.distribution.na import NAFitter
 from metasyn.distribution.uniquekey import UniqueKeyFitter
 from metasyn.privacy import BasePrivacy, BasicPrivacy
 from metasyn.util import get_registry
@@ -323,9 +317,6 @@ class DistributionProviderList():
             unique: bool = False,
             version: Optional[str] = None
         ) -> type[BaseDistribution]:
-        # distributions = self.distributions
-        # print(len(self.distributions), len(self.get_distributions(var_type=var_type, unique=unique)))
-        # print(var_type, dist_name, unique, self.get_distributions(var_type=var_type, unique=unique))
         same_version = []
         for dist_class in self.get_distributions(var_type=var_type, unique=unique):
             if dist_class.matches_name(dist_name):
@@ -375,71 +366,8 @@ class DistributionProviderList():
         if version is None:
             raise ValueError(f"Could not find fitter with name {dist_name}.")
         raise ValueError(f"Could not find correct fitter version ({version}) of distribution with "
-                         f"name {dist_name}, only found versions {[f.distribution.version for f in versions_found]}")
-    #     # Look for distribution in legacy
-    #     warnings.simplefilter("always")
-    #     if len(versions_found) == 0:
-    #         self._handle_distribution_not_found(dist_name, var_type, privacy, unique, version)
-
-    #     if len(versions_found) == 0:
-    #         warnings.warn("Distribution with name '{dist_name}' is deprecated and "
-    #                       "will be removed in the future.")
-
-    #     # Find exact matches in legacy distributions
-    #     legacy_versions = [dist.version for dist in legacy_distribs]
-    #     if version is not None and version in legacy_versions:
-    #         warnings.warn("Version ({version}) of distribution with name '{dist_name}'"
-    #                       " is deprecated and will be removed in the future.")
-    #         return legacy_distribs[legacy_versions.index(version)]
-
-    #     # If version is None, take the latest version.
-    #     if version is None:
-    #         scores = [int(dist.version.split(".")[0]) * 100 + int(dist.version.split(".")[1])
-    #                   for dist in legacy_distribs]
-    #         i_min = np.argmax(scores)
-    #         return legacy_distribs[i_min]
-
-    #     # Find the distribution with the same major revision, and closest minor revision.
-    #     major_version = int(version.split(".")[0])
-    #     minor_version = int(version.split(".")[1])
-    #     all_dist = versions_found + legacy_distribs
-    #     all_versions = [[int(x) for x in dist.version.split(".")] for dist in all_dist]
-    #     score = [int(ver[0] == major_version) * 1000000 - (ver[1] - minor_version) ** 2
-    #              for ver in all_versions]
-    #     i_max = np.argmax(score)
-
-    #     # Wrong major revision.
-    #     if score[i_max] < 500000:
-    #         raise ValueError(
-    #             f"Cannot find compatible version for distribution '{dist_name}', available: "
-    #             f"{legacy_versions + versions_found}")
-
-    #     warnings.warn("Version mismatch ({version}) versus ({all_dist[i_max].version}))")
-    #     return all_dist[i_max]
-
-    # def _handle_distribution_not_found(self, dist_name, var_type, privacy, unique, version):
-    #     """Raise a ValueError with extra information."""
-    #     registry = get_registry()
-    #     available = {}
-    #     for plugin, meta in registry.items():
-    #         if dist_name in meta["distributions"]:
-    #             available[plugin] = meta["url"]
-    #     if len(available) > 0:
-    #         avail_str = "\n".join("{plugin}: {url}" for plugin, url in available.items())
-    #         raise ValueError(f"You are trying to use a distribution named '{dist_name}', \n"
-    #                             f"but it is not installed.\n"
-    #                             f"\n"
-    #                             f"{dist_name} is available from:\n\n{avail_str}\n")
-    #     if var_type is not None:
-    #         dist_other_type = self.find_distribution(dist_name, var_type=None,
-    #                                                     privacy=privacy, unique=unique,
-    #                                                     version=version)
-    #         extra_info = ("Distribution is available with different type(s):"
-    #                         f" {dist_other_type.var_type}")
-    #     else:
-    #         extra_info = ""
-    #     raise ValueError(f"Cannot find distribution with name '{dist_name}'. {extra_info}")
-
+                         f"name {dist_name}, only found versions "
+                         f"{[f.distribution.version for f in versions_found]}")
 
     def _fit_distribution(self, series: pl.Series,
                           dist_spec: DistributionSpec,

@@ -6,7 +6,7 @@ return NA.
 
 import polars as pl
 
-from metasyn.distribution.base import BaseDistribution, metadist, metafit, BaseFitter
+from metasyn.distribution.base import BaseDistribution, BaseFitter, metadist, metafit
 
 
 @metadist(name="core.na", var_type=["continuous", "discrete", "categorical", "string"])
@@ -38,5 +38,5 @@ class NADistribution(BaseDistribution):
 class NAFitter(BaseFitter):
     """Fitter for NA distribution."""
 
-    def _fit(self, series):
+    def _fit(self, series):  # noqa: ARG002
         return self.distribution()
