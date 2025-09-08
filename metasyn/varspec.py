@@ -116,6 +116,9 @@ class DistributionSpec():
             ret_dict["privacy"] = privacy.to_dict()
         return ret_dict
 
+    def __str__(self):
+        return f"DistSpec<{self.name}, {self.unique}, {self.parameters}, {self.distribution}>"
+
 
 class VarSpec():  # pylint: disable=too-few-public-methods
     """Data class for storing the specifications for variables.

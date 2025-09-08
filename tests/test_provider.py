@@ -128,7 +128,7 @@ def test_create_distribution():
         var_spec.dist_spec.parameters["unknown"] = 1
         provider_list.create(var_spec)
 
-    # Error when implements is not given.
+    # Error when name is not given.
     with pytest.raises(ValueError):
-        var_spec.dist_spec.implements = None
+        var_spec.dist_spec.name = None
         provider_list.create(var_spec)

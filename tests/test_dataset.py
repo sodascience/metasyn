@@ -11,6 +11,7 @@ from metasyn.demo.dataset import _AVAILABLE_DATASETS, _get_demo_class, demo_data
 from metasyn.metaframe import MetaFrame
 from metasyn.provider import get_distribution_provider
 from metasyn.var import MetaVar
+from metasyn.privacy import BasicPrivacy
 
 dtypes = {
     "PassengerId": "int",
@@ -49,7 +50,7 @@ def test_dataset(tmp_path, dataframe_lib):
         var_specs=[
                 {"name": "Name", "prop_missing": 0.5},
                 {"name": "Ticket", "description": "test_description"},
-                {"name": "Fare", "distribution": {"implements": "normal"}},
+                {"name": "Fare", "distribution": {"name": "normal"}},
                 {"name": "PassengerId", "distribution": {"unique": True}},
              ])
 
@@ -115,8 +116,9 @@ def test_distributions(tmp_path):
 
     provider = get_distribution_provider()
     for var_type in provider.all_var_types:
-        for dist in provider.get_dist_list(var_type):
-            var = MetaVar(name="None", var_type=var_type, distribution=dist.default_distribution(),
+        for fitter in provider.get_fitters(BasicPrivacy(), var_type):
+            var = MetaVar(name="None", var_type=var_type,
+                          distribution=fitter.distribution.default_distribution(),
                           prop_missing=random())
             dataset = MetaFrame([var], n_rows=10)
             dataset.save_json(tmp_fp)

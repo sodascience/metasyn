@@ -45,7 +45,7 @@ class BaseFitter(ABC):
     distribution: str = "unknown"
     privacy_type: str = "none"
     # name: str = "unknown"
-    version: str = "v1"
+    version: str = "1.0"
     # unique: bool = True
 
     def __init__(self, privacy: BasePrivacy):
@@ -151,7 +151,6 @@ class BaseDistribution(ABC):
         """Return an easy to read formatted string for the distribution."""
         return (
             f"- Type: {self.name}\n"
-            f"- Provenance: {self.provenance}\n"
             f"- Parameters:\n"
             f"{self._params_formatted}\n"
         )
@@ -374,7 +373,7 @@ def metafit(
 
 class ScipyDistribution(BaseDistribution):
     """Base class for numerical distributions using Scipy.
-
+s
     This base class makes it easy to implement new numerical
     distributions. It can also be used for non-Scipy distributions,
     provided the distribution implements `logpdf`, `rvs` and `fit` methods.

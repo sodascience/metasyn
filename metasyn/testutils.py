@@ -37,13 +37,20 @@ def check_distribution_provider(provider_name: str):
     """
     provider = get_distribution_provider(provider_name)
     assert isinstance(provider, BaseDistributionProvider)
-    assert len(provider.distributions) > 0
-    assert all(issubclass(dist, BaseFitter) for dist in provider.distributions)
+    assert len(provider.fitters) > 0
+    assert all(issubclass(fitter, BaseFitter) for fitter in provider.fitters)
     assert isinstance(provider.name, str)
     assert len(provider.name) > 0
     assert provider.name == provider_name
     assert isinstance(provider.version, str)
     assert len(provider.version) > 0
+
+    for fit in provider.fitters:
+        n_fit = 0
+        for other_fit in provider.fitters:
+            if other_fit == fit:
+                n_fit += 1
+        assert n_fit == 1, f"Fitter {fit} exists multiple times in provider."
 
 
 def check_fitter(fitter: type[BaseFitter], privacy: BasePrivacy,
@@ -78,7 +85,7 @@ def check_fitter(fitter: type[BaseFitter], privacy: BasePrivacy,
     else:
         var_types = distribution.var_type
     for vt in var_types:
-        DistributionProviderList(provenance).find_distribution(
+        DistributionProviderList(provenance).find_fitter(
             distribution.name, var_type=vt, privacy=privacy,
             unique=distribution.unique)
 
@@ -183,14 +190,14 @@ def create_input_toml(file_name):
     """Create input toml with all distribution in builtin."""
     import tomlkit  # noqa: PLC0415
 
-    prov = get_distribution_provider("builtin")
+    # prov = get_distribution_provider("builtin")
     doc = tomlkit.document()
     doc.add("config_version", "1.1")
     doc.add("dist_providers", ["builtin"])
     doc.add("n_rows", 100)
     doc.add("defaults", {"data_free": True, "prop_missing": 0.1})
     var_array = tomlkit.aot()
-    for dist in prov.distributions:
+    for dist in DistributionProviderList("builtin").distributions:
         var = tomlkit.table()
         var.add("name", dist.__name__)
         if isinstance(dist.var_type, str):
@@ -201,7 +208,6 @@ def create_input_toml(file_name):
         dist_dict = _jsonify(dist.default_distribution().to_dict())
         dist_dict.pop("version")
         dist_dict.pop("class_name")
-        dist_dict.pop("provenance")
         var.add("distribution", dist_dict)
         var.add(tomlkit.nl())
         var_array.append(var)

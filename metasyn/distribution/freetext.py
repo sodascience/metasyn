@@ -64,7 +64,7 @@ class FreeTextDistribution(BaseDistribution):
         # Check the average number of characters
         avg_chars = series.str.len_chars().mean()
         if avg_chars is not None and avg_chars >= 25:  # type: ignore  # Workaround polars typing
-            lang = self.detect_language(series)
+            lang = detect_language(series)
             if lang is not None:
                 return -1.0
         return 99999999
@@ -94,7 +94,7 @@ class FreeTextFitter(BaseFitter):
 
     def _fit(self, series, max_values: int = 50):
         """Select the appropriate faker function and locale."""
-        lang_str = self.detect_language(series[:max_values])
+        lang_str = detect_language(series[:max_values])
         if lang_str is None:
             return self.distribution.default_distribution()
 
@@ -114,22 +114,23 @@ class FreeTextFitter(BaseFitter):
         avg_words = n_words/len(series)
         return self.distribution(lang_str, avg_sentence, avg_words)
 
-    def detect_language(self, values: Iterable) -> Optional[str]:
-        """Detect the language of some text.
 
-        Parameters
-        ----------
-        values:
-            Values to detect the language of (usually polars dataframe).
+def detect_language(values: Iterable) -> Optional[str]:
+    """Detect the language of some text.
 
-        Returns
-        -------
-        language:
-            Two letter ISO code to represent the language, or None if it could not be determined.
+    Parameters
+    ----------
+    values:
+        Values to detect the language of (usually polars dataframe).
 
-        """
-        detector = LanguageDetectorBuilder.from_all_languages().with_low_accuracy_mode().build()
-        lang = detector.detect_language_of("\n".join(values))
-        if lang is None:
-            return None
-        return str(lang.iso_code_639_1).rsplit(".", maxsplit=1)[-1]
+    Returns
+    -------
+    language:
+        Two letter ISO code to represent the language, or None if it could not be determined.
+
+    """
+    detector = LanguageDetectorBuilder.from_all_languages().with_low_accuracy_mode().build()
+    lang = detector.detect_language_of("\n".join(values))
+    if lang is None:
+        return None
+    return str(lang.iso_code_639_1).rsplit(".", maxsplit=1)[-1]

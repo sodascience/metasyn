@@ -19,7 +19,7 @@ except ImportError:
 import numpy as np
 import polars as pl
 
-from metasyn.distribution.base import BaseDistribution
+from metasyn.distribution.base import BaseDistribution, BaseFitter
 from metasyn.distribution.categorical import MultinoulliFitter
 from metasyn.distribution.constant import (
     ContinuousConstantFitter,
@@ -57,6 +57,8 @@ from metasyn.distribution.uniform import (
     TimeUniformDistribution,
     TimeUniformFitter,
 )
+from metasyn.distribution.na import NAFitter
+from metasyn.distribution.uniquekey import UniqueKeyFitter
 from metasyn.privacy import BasePrivacy, BasicPrivacy
 from metasyn.util import get_registry
 from metasyn.varspec import DistributionSpec
@@ -73,23 +75,21 @@ class BaseDistributionProvider(ABC):
     This class acts as a base class for creating specific distribution
     providers. It also contains a list of the available distributions and
     legacy distributions. A list of distributions for a specific type can be
-    accessed with ``get_dist_list``.
+    accessed with ``get_fitters``.
     """
 
     name = ""
     version = ""
-    distributions: list[type[BaseDistribution]] = []
-    legacy_distributions: list[type[BaseDistribution]] = []
+    fitters: list[type[BaseFitter]] = []
 
     def __init__(self):
         # Perform internal consistency check.
         assert len(self.name) > 0
         assert len(self.version) > 0
-        assert len(self.distributions) > 0
+        assert len(self.fitters) > 0
 
-    def get_dist_list(self, var_type: Optional[str],
-                      unique: bool = False,
-                      use_legacy: bool = False) -> List[Type[BaseDistribution]]:
+    def get_fitters(self, privacy: BasePrivacy, var_type: Optional[str],
+                    unique: bool = False) -> List[Type[BaseDistribution]]:
         """Get all distributions for a certain variable type.
 
         Parameters
@@ -106,30 +106,28 @@ class BaseDistributionProvider(ABC):
         list[Type[BaseDistribution]]:
             List of distributions with that variable type.
         """
-        dist_list = []
-        if use_legacy:
-            distributions = self.legacy_distributions
-        else:
-            distributions = self.distributions
-        distributions = [f for f in distributions if f.distribution.unique == unique]
+        fitters = [f for f in self.fitters if f.distribution.unique == unique]
+        fitters = [f for f in fitters if f.privacy_type == privacy.name]
         if var_type is None:
-            return distributions
-        for dist_class in distributions:
-            str_chk = (isinstance(dist_class.var_type, str) and var_type == dist_class.var_type)
-            lst_chk = (not isinstance(dist_class.var_type, str) and var_type in dist_class.var_type)
+            return fitters
+
+        filtered_list = []
+        for fit_class in fitters:
+            str_chk = (isinstance(fit_class.var_type, str) and var_type == fit_class.var_type)
+            lst_chk = (not isinstance(fit_class.var_type, str) and var_type in fit_class.var_type)
             if str_chk or lst_chk:
-                dist_list.append(dist_class)
-        return dist_list
+                filtered_list.append(fit_class)
+        return filtered_list
 
     @property
     def all_var_types(self) -> List[str]:
         """Return list of available variable types."""
         var_type_set = set()
-        for dist in self.distributions:
-            if isinstance(dist.var_type, str):
-                var_type_set.add(dist.var_type)
+        for fitter in self.fitters:
+            if isinstance(fitter.var_type, str):
+                var_type_set.add(fitter.var_type)
             else:
-                var_type_set.update(dist.var_type)
+                var_type_set.update(fitter.var_type)
         return list(var_type_set)
 
 
@@ -142,8 +140,7 @@ class BuiltinDistributionProvider(BaseDistributionProvider):
 
     name = "builtin"
     version = "1.2"
-    distributions = [
-        DiscreteUniformFitter,
+    fitters = [
         DiscreteUniformFitter, ContinuousUniformFitter, DateUniformFitter, TimeUniformFitter,
         DateTimeUniformFitter,
         RegexFitter, UniqueRegexFitter,
@@ -153,12 +150,12 @@ class BuiltinDistributionProvider(BaseDistributionProvider):
         MultinoulliFitter,
         FakerFitter, UniqueFakerFitter,
         FreeTextFitter,
-        RegexFitter, UniqueRegexFitter,
         PoissonFitter,
         ContinuousNormalFitter, LogNormalFitter, DiscreteTruncatedNormalFitter,
-        TruncatedNormalFitter, DiscreteNormalFitter, DiscreteTruncatedNormalFitter,
+        TruncatedNormalFitter, DiscreteNormalFitter,
+        UniqueKeyFitter,
+        NAFitter,
     ]
-    legacy_distribution = []
 
 class DistributionProviderList():
     """List of DistributionProviders with functionality to fit distributions.
@@ -175,7 +172,7 @@ class DistributionProviderList():
         DistributionProvider (BuiltinDistributionProvider())
         or DistributionProvider type (BuiltinDistributionProvider).
         The order in which distribution providers are included matters.
-        If a provider implements the same distribution at the same privacy level,
+        If a provider name the same distribution at the same privacy level,
         then only the first will be taken into account.
     """
 
@@ -224,7 +221,7 @@ class DistributionProviderList():
         """
         if dist_spec.distribution is not None:
             return dist_spec.distribution
-        if dist_spec.implements is not None:
+        if dist_spec.name is not None:
             return self._fit_distribution(series, dist_spec, var_type, privacy)
         return self._find_best_fit(series, var_type, dist_spec.unique, privacy)
 
@@ -242,11 +239,12 @@ class DistributionProviderList():
         """
         dist_spec = var_spec.dist_spec
         unique = dist_spec.unique if dist_spec.unique else False
-        if dist_spec.implements is None:
-            raise ValueError("Cannot create distribution without specifying the 'implements' key.")
+        if dist_spec.name is None:
+            raise ValueError("Cannot create distribution without specifying the 'name' key.")
         dist_class = self.find_distribution(
-            dist_spec.implements, var_spec.var_type,
-            privacy=BasicPrivacy(), unique=unique)
+            dist_spec.name, var_spec.var_type, unique=unique)
+        # print(dist_class)
+        # print(dist_spec.parameters)
         try:
             return dist_class(**dist_spec.parameters)  # type: ignore
         except TypeError as err:
@@ -287,15 +285,15 @@ class DistributionProviderList():
         if len(series.drop_nulls()) == 0:
             return NADistribution()
         try_unique = unique if unique is True else False
-        dist_list = self.get_distributions(privacy, var_type, unique=try_unique)
-        if len(dist_list) == 0:
+        fitters = self.get_fitters(privacy=privacy, var_type=var_type, unique=try_unique)
+        if len(fitters) == 0:
             raise ValueError(f"No available distributions with variable type: '{var_type}'"
                              f" and unique={try_unique}")
-        fit_instances = [f(privacy) for f in dist_list]
+        fit_instances = [f(privacy) for f in fitters]
         dist_instances = [d.fit(series) for d in fit_instances]
         dist_bic = [d.information_criterion(series) for d in dist_instances]
         if unique is None:
-            dist_list_unq = self.get_distributions(privacy, var_type, unique=True)
+            dist_list_unq = self.get_fitters(privacy=privacy, var_type=var_type, unique=True)
             if len(dist_list_unq) > 0:
                 fit_inst_unq = [f(privacy) for f in dist_list_unq]
                 dist_inst_unq = [d.fit(series) for d in fit_inst_unq]
@@ -305,7 +303,7 @@ class DistributionProviderList():
                 # Or 5 rows for consecutive values.
                 if np.min(dist_bic_unq) + 16 < np.min(dist_bic):
                     best_dist = dist_inst_unq[np.argmin(dist_bic_unq)]
-                    if best_dist.implements == "core.unique_key" and best_dist.consecutive:  # type: ignore
+                    if best_dist.name == "core.unique_key" and best_dist.consecutive:  # type: ignore
                         return best_dist
                     warnings.warn(
                         f"\nMetasyn detected that variable '{series.name}' is potentially unique.\n"
@@ -318,7 +316,28 @@ class DistributionProviderList():
 
         return dist_instances[np.argmin(dist_bic)]
 
-    def find_distribution(self,
+    def find_distribution(
+            self,
+            dist_name: str,
+            var_type: Optional[str],
+            unique: bool = False,
+            version: Optional[str] = None
+        ) -> type[BaseDistribution]:
+        # distributions = self.distributions
+        # print(len(self.distributions), len(self.get_distributions(var_type=var_type, unique=unique)))
+        # print(var_type, dist_name, unique, self.get_distributions(var_type=var_type, unique=unique))
+        same_version = []
+        for dist_class in self.get_distributions(var_type=var_type, unique=unique):
+            if dist_class.matches_name(dist_name):
+                if version is None or version == dist_class.version:
+                    return dist_class
+                same_version.append(dist_class.version)
+        if len(same_version) == 0:
+            raise ValueError(f"Could not find distribution with name {dist_name}.")
+        raise ValueError(f"Could not find correct version of distribution with name {dist_name}."
+                         f"need {version}, available: {same_version}")
+
+    def find_fitter(self,
                           dist_name: str,
                           var_type: Optional[str],
                           privacy: Optional[BasePrivacy] = BasicPrivacy(),
@@ -347,82 +366,79 @@ class DistributionProviderList():
             A distribution and the arguments to create an instance.
         """
         versions_found = []
-        for dist_class in self.get_distributions(
-                privacy, var_type=var_type, unique=unique):
+        for dist_class in self.get_fitters(
+                privacy=privacy, var_type=var_type, unique=unique):
             if dist_class.matches_name(dist_name):
                 if version is None or version == dist_class.version:
                     return dist_class
                 versions_found.append(dist_class)
-
-        # Look for distribution in legacy
-        warnings.simplefilter("always")
-        legacy_distribs = [
-            dist_class
-            for dist_class in self.get_distributions(privacy, use_legacy=True,
-                                                     var_type=var_type, unique=unique)
-            if dist_class.matches_name(dist_name)]
-
-        if len(legacy_distribs + versions_found) == 0:
-            self._handle_distribution_not_found(dist_name, var_type, privacy, unique, version)
-
-        if len(versions_found) == 0:
-            warnings.warn("Distribution with name '{dist_name}' is deprecated and "
-                          "will be removed in the future.")
-
-        # Find exact matches in legacy distributions
-        legacy_versions = [dist.version for dist in legacy_distribs]
-        if version is not None and version in legacy_versions:
-            warnings.warn("Version ({version}) of distribution with name '{dist_name}'"
-                          " is deprecated and will be removed in the future.")
-            return legacy_distribs[legacy_versions.index(version)]
-
-        # If version is None, take the latest version.
         if version is None:
-            scores = [int(dist.version.split(".")[0]) * 100 + int(dist.version.split(".")[1])
-                      for dist in legacy_distribs]
-            i_min = np.argmax(scores)
-            return legacy_distribs[i_min]
+            raise ValueError(f"Could not find fitter with name {dist_name}.")
+        raise ValueError(f"Could not find correct fitter version ({version}) of distribution with "
+                         f"name {dist_name}, only found versions {[f.distribution.version for f in versions_found]}")
+    #     # Look for distribution in legacy
+    #     warnings.simplefilter("always")
+    #     if len(versions_found) == 0:
+    #         self._handle_distribution_not_found(dist_name, var_type, privacy, unique, version)
 
-        # Find the distribution with the same major revision, and closest minor revision.
-        major_version = int(version.split(".")[0])
-        minor_version = int(version.split(".")[1])
-        all_dist = versions_found + legacy_distribs
-        all_versions = [[int(x) for x in dist.version.split(".")] for dist in all_dist]
-        score = [int(ver[0] == major_version) * 1000000 - (ver[1] - minor_version) ** 2
-                 for ver in all_versions]
-        i_max = np.argmax(score)
+    #     if len(versions_found) == 0:
+    #         warnings.warn("Distribution with name '{dist_name}' is deprecated and "
+    #                       "will be removed in the future.")
 
-        # Wrong major revision.
-        if score[i_max] < 500000:
-            raise ValueError(
-                f"Cannot find compatible version for distribution '{dist_name}', available: "
-                f"{legacy_versions + versions_found}")
+    #     # Find exact matches in legacy distributions
+    #     legacy_versions = [dist.version for dist in legacy_distribs]
+    #     if version is not None and version in legacy_versions:
+    #         warnings.warn("Version ({version}) of distribution with name '{dist_name}'"
+    #                       " is deprecated and will be removed in the future.")
+    #         return legacy_distribs[legacy_versions.index(version)]
 
-        warnings.warn("Version mismatch ({version}) versus ({all_dist[i_max].version}))")
-        return all_dist[i_max]
+    #     # If version is None, take the latest version.
+    #     if version is None:
+    #         scores = [int(dist.version.split(".")[0]) * 100 + int(dist.version.split(".")[1])
+    #                   for dist in legacy_distribs]
+    #         i_min = np.argmax(scores)
+    #         return legacy_distribs[i_min]
 
-    def _handle_distribution_not_found(self, dist_name, var_type, privacy, unique, version):
-        """Raise a ValueError with extra information."""
-        registry = get_registry()
-        available = {}
-        for plugin, meta in registry.items():
-            if dist_name in meta["distributions"]:
-                available[plugin] = meta["url"]
-        if len(available) > 0:
-            avail_str = "\n".join("{plugin}: {url}" for plugin, url in available.items())
-            raise ValueError(f"You are trying to use a distribution named '{dist_name}', \n"
-                                f"but it is not installed.\n"
-                                f"\n"
-                                f"{dist_name} is available from:\n\n{avail_str}\n")
-        if var_type is not None:
-            dist_other_type = self.find_distribution(dist_name, var_type=None,
-                                                        privacy=privacy, unique=unique,
-                                                        version=version)
-            extra_info = ("Distribution is available with different type(s):"
-                            f" {dist_other_type.var_type}")
-        else:
-            extra_info = ""
-        raise ValueError(f"Cannot find distribution with name '{dist_name}'. {extra_info}")
+    #     # Find the distribution with the same major revision, and closest minor revision.
+    #     major_version = int(version.split(".")[0])
+    #     minor_version = int(version.split(".")[1])
+    #     all_dist = versions_found + legacy_distribs
+    #     all_versions = [[int(x) for x in dist.version.split(".")] for dist in all_dist]
+    #     score = [int(ver[0] == major_version) * 1000000 - (ver[1] - minor_version) ** 2
+    #              for ver in all_versions]
+    #     i_max = np.argmax(score)
+
+    #     # Wrong major revision.
+    #     if score[i_max] < 500000:
+    #         raise ValueError(
+    #             f"Cannot find compatible version for distribution '{dist_name}', available: "
+    #             f"{legacy_versions + versions_found}")
+
+    #     warnings.warn("Version mismatch ({version}) versus ({all_dist[i_max].version}))")
+    #     return all_dist[i_max]
+
+    # def _handle_distribution_not_found(self, dist_name, var_type, privacy, unique, version):
+    #     """Raise a ValueError with extra information."""
+    #     registry = get_registry()
+    #     available = {}
+    #     for plugin, meta in registry.items():
+    #         if dist_name in meta["distributions"]:
+    #             available[plugin] = meta["url"]
+    #     if len(available) > 0:
+    #         avail_str = "\n".join("{plugin}: {url}" for plugin, url in available.items())
+    #         raise ValueError(f"You are trying to use a distribution named '{dist_name}', \n"
+    #                             f"but it is not installed.\n"
+    #                             f"\n"
+    #                             f"{dist_name} is available from:\n\n{avail_str}\n")
+    #     if var_type is not None:
+    #         dist_other_type = self.find_distribution(dist_name, var_type=None,
+    #                                                     privacy=privacy, unique=unique,
+    #                                                     version=version)
+    #         extra_info = ("Distribution is available with different type(s):"
+    #                         f" {dist_other_type.var_type}")
+    #     else:
+    #         extra_info = ""
+    #     raise ValueError(f"Cannot find distribution with name '{dist_name}'. {extra_info}")
 
 
     def _fit_distribution(self, series: pl.Series,
@@ -451,24 +467,23 @@ class DistributionProviderList():
         """
         unique = dist_spec.unique
         unique = unique if unique else False
-        assert dist_spec.implements is not None
+        assert dist_spec.name is not None
 
         # If the parameters are already specified, the privacy level doesn't matter anymore.
         if dist_spec.parameters is not None:
-            dist_class = self.find_distribution(dist_spec.implements, var_type, unique=unique)
+            dist_class = self.find_distribution(dist_spec.name, var_type, unique=unique)
             return dist_class(**dist_spec.parameters)
 
-        dist_class = self.find_distribution(dist_spec.implements, var_type, privacy=privacy,
-                                            unique=unique)
+        dist_class = self.find_fitter(dist_spec.name, var_type, privacy=privacy,
+                                      unique=unique)
 
         fit_kwargs = dist_spec.fit_kwargs
-        dist_instance = dist_class.fit(series, privacy, **fit_kwargs)
+        dist_instance = dist_class(privacy).fit(series, **fit_kwargs)
         return dist_instance
 
-    def get_distributions(self, privacy: Optional[BasePrivacy] = None,
-                          var_type: Optional[str] = None,
-                          unique: bool = False,
-                          use_legacy: bool = False) -> list[type[BaseDistribution]]:
+    def get_fitters(self, privacy: Optional[BasePrivacy] = None,
+                    var_type: Optional[str] = None,
+                    unique: bool = False) -> list[type[BaseDistribution]]:
         """Get the available distributions with constraints.
 
         Parameters
@@ -487,15 +502,29 @@ class DistributionProviderList():
         dist_list:
             List of distributions that fit the given constraints.
         """
-        dist_list = []
+        fitters = []
         for dist_provider in self.dist_packages:
-            dist_list.extend(dist_provider.get_dist_list(
-                var_type, use_legacy=use_legacy, unique=unique))
+            fitters.extend(dist_provider.get_fitters(
+                privacy=privacy, var_type=var_type, unique=unique))
 
         if privacy is None:
-            return dist_list
-        dist_list = [dist for dist in dist_list if dist.privacy_type == privacy.name]
-        return dist_list
+            return fitters
+        fitters = [f for f in fitters if f.privacy_type == privacy.name]
+        return fitters
+
+    def get_distributions(self, var_type: Optional[str] = None,
+                          unique: Optional[bool] = False):
+        filtered_dist = []
+        for dist in self.distributions:
+            if var_type is not None:
+                if isinstance(dist.var_type, str) and dist.var_type != var_type:
+                    continue
+                elif not isinstance(dist.var_type, str) and var_type not in dist.var_type:
+                    continue
+            if unique is not None and dist.unique != unique:
+                continue
+            filtered_dist.append(dist)
+        return filtered_dist
 
     def from_dict(self, var_dict: dict[str, Any]) -> BaseDistribution:
         """Create a distribution from a dictionary.
@@ -510,13 +539,28 @@ class DistributionProviderList():
         BaseDistribution:
             Distribution representing the dictionary.
         """
-        dist_name = var_dict["distribution"]["implements"]
+        try:
+            dist_name = var_dict["distribution"]["name"]
+        except KeyError:
+            dist_name = var_dict["distribution"]["implements"]
         version = var_dict["distribution"].get("version", "1.0")
         var_type = var_dict["type"]
         unique = var_dict["distribution"]["unique"]
         dist_class = self.find_distribution(dist_name, version=version,
                                             var_type=var_type, unique=unique)
         return dist_class.from_dict(var_dict["distribution"])
+
+    @property
+    def fitters(self):
+        fitters = []
+        for dist_provider in self.dist_packages:
+            fitters.extend(dist_provider.fitters)
+        return fitters
+
+    @property
+    def distributions(self):
+        return [f.distribution for f in self.fitters]
+
 
 
 def _get_all_providers() -> dict[str, EntryPoint]:

@@ -14,7 +14,7 @@ def test_builtin_provider():
 
 
 @mark.parametrize(
-    "fitter", get_distribution_provider("builtin").distributions
+    "fitter", get_distribution_provider("builtin").fitters
 )
 def test_dist_validation(fitter):
     """Check all distributions for correctness."""

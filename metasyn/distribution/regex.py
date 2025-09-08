@@ -13,7 +13,7 @@ from metasyn.distribution.base import (
 )
 
 
-@metadist(name="core.regex", var_type="string", version="v2")
+@metadist(name="core.regex", var_type="string", version="2.0")
 class RegexDistribution(BaseDistribution):
     """Structured string distribution using regex.
 
@@ -95,7 +95,7 @@ class RegexDistribution(BaseDistribution):
         return 0
 
 
-@metafit(distribution=RegexDistribution, var_type="string")
+@metafit(distribution=RegexDistribution, var_type="string", version="2.0")
 class RegexFitter(BaseFitter):
     """Fitter for regex distribution."""
 

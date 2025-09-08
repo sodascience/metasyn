@@ -52,7 +52,7 @@ distribution = {unique = true}
 [[var]]
 name = "Fare"
 prop_missing = 0.2
-distribution = {implements = "lognormal"}
+distribution = {name = "lognormal"}
 """)
     return TMP_DIR_PATH
 

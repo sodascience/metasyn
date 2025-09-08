@@ -27,7 +27,7 @@
             "dtype": "Int64",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.unique_key",
+                "name": "core.unique_key",
                 "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "UniqueKeyDistribution",
@@ -47,7 +47,7 @@
             "dtype": "String",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.freetext",
+                "name": "core.freetext",
                 "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "FreeTextDistribution",
@@ -68,7 +68,7 @@
             "dtype": "Categorical(ordering='physical')",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.multinoulli",
+                "name": "core.multinoulli",
                 "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "MultinoulliDistribution",
@@ -94,7 +94,7 @@
             "dtype": "Int64",
             "prop_missing": 0.19865319865319866,
             "distribution": {
-                "implements": "core.truncated_normal",
+                "name": "core.truncated_normal",
                 "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "DiscreteTruncatedNormalDistribution",
@@ -116,7 +116,7 @@
             "dtype": "Int64",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.truncated_normal",
+                "name": "core.truncated_normal",
                 "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "DiscreteTruncatedNormalDistribution",
@@ -138,7 +138,7 @@
             "dtype": "String",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.regex",
+                "name": "core.regex",
                 "version": "2.0",
                 "provenance": "builtin",
                 "class_name": "RegexDistribution",
@@ -194,7 +194,7 @@
             "dtype": "Float64",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.exponential",
+                "name": "core.exponential",
                 "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "ExponentialDistribution",
@@ -213,7 +213,7 @@
             "dtype": "String",
             "prop_missing": 0.7710437710437711,
             "distribution": {
-                "implements": "core.regex",
+                "name": "core.regex",
                 "version": "2.0",
                 "provenance": "builtin",
                 "class_name": "RegexDistribution",
@@ -265,7 +265,7 @@
             "dtype": "Categorical(ordering='physical')",
             "prop_missing": 0.002244668911335578,
             "distribution": {
-                "implements": "core.multinoulli",
+                "name": "core.multinoulli",
                 "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "MultinoulliDistribution",
@@ -293,7 +293,7 @@
             "dtype": "Date",
             "prop_missing": 0.08754208754208755,
             "distribution": {
-                "implements": "core.uniform",
+                "name": "core.uniform",
                 "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "DateUniformDistribution",
@@ -313,7 +313,7 @@
             "dtype": "Time",
             "prop_missing": 0.08866442199775533,
             "distribution": {
-                "implements": "core.uniform",
+                "name": "core.uniform",
                 "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "TimeUniformDistribution",
@@ -334,7 +334,7 @@
             "dtype": "Datetime(time_unit='us', time_zone=None)",
             "prop_missing": 0.10325476992143659,
             "distribution": {
-                "implements": "core.uniform",
+                "name": "core.uniform",
                 "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "DateTimeUniformDistribution",
@@ -355,7 +355,7 @@
             "dtype": "String",
             "prop_missing": 1.0,
             "distribution": {
-                "implements": "core.na",
+                "name": "core.na",
                 "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "NADistribution",

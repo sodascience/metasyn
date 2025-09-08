@@ -59,7 +59,6 @@ def check_var(series, var_type, temp_path, all_nan=False):
     var = MetaVar.fit(series)
     new_series = var.draw_series(len(series), 5123)
     check_random_draw(var, len(series))
-    print(new_series)
     check_similar(series, new_series)
     assert var.var_type == var_type
     assert var_type in var.distribution.var_type
@@ -74,7 +73,7 @@ def check_var(series, var_type, temp_path, all_nan=False):
 
     with raises(ValueError):
         var_dict = var.to_dict()
-        var_dict["distribution"].update({"implements": "unknown"})
+        var_dict["distribution"].update({"name": "unknown"})
         MetaVar.from_dict(var_dict)
 
     newer_series = new_var.draw_series(len(series), 6789)
@@ -273,7 +272,7 @@ def test_manual_fit(series):
     """Test adding dist_spec to MetaVar.fit call."""
     var = MetaVar.fit(series)
     assert isinstance(var.distribution, (ContinuousUniformDistribution, TruncatedNormalDistribution))
-    var = MetaVar.fit(series, dist_spec={"implements": "normal"})
+    var = MetaVar.fit(series, dist_spec={"name": "normal"})
     assert isinstance(var.distribution, NormalDistribution)
     var = MetaVar.fit(series, dist_spec=ContinuousUniformDistribution)
     assert isinstance(var.distribution, ContinuousUniformDistribution)

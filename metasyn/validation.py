@@ -87,8 +87,8 @@ def create_schema(packages: list[str]) -> dict:
     defs: list[dict] = []
     for package_name in packages:
         pkg = get_distribution_provider(package_name)
-        for dist in pkg.distributions:
-            defs.append(dist.schema())
+        for fitter in pkg.fitters:
+            defs.append(fitter.distribution.schema())
     defs.append(NADistribution.schema())
 
     schema = deepcopy(SCHEMA_BASE)

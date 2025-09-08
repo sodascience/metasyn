@@ -215,7 +215,7 @@ class VarSpecAccess():
                 return getattr(self.meta_config.defaults, attr)
             return getattr(self.var_spec, attr)
         if attr == "dist_spec":
-            if self.data_free and self.var_spec.dist_spec.implements is None:
+            if self.data_free and self.var_spec.dist_spec.name is None:
                 if self.var_type not in self.meta_config.defaults.distribution:
                     raise ValueError(
                         f"Variable with name '{self.name}' is declared datafree and a distribution "

@@ -247,5 +247,5 @@ class DiscreteTruncatedNormalDistribution(TruncatedNormalDistribution):
         return int(super().draw())
 
 @metafit(distribution=DiscreteTruncatedNormalDistribution, var_type="discrete")
-class DiscreteTruncatedNormalFitter(ScipyFitter):
+class DiscreteTruncatedNormalFitter(TruncatedNormalFitter):
     """Fitter for discrete truncated normal distribution."""
