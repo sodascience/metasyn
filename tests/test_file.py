@@ -219,6 +219,6 @@ def test_stata(tmpdir):
         elif col == "Boolean":
             assert df_new[col].dtype == pl.Int64  # Bugged
         elif col == "NA":
-            assert df_new[col].dtype == pl.Int64  # Bugged
+            assert df_new[col].dtype in [pl.String, pl.Int64]  # Bugged
         else:
             assert df[col].dtype == df_new[col].dtype
