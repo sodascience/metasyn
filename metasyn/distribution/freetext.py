@@ -92,6 +92,8 @@ class FreeTextDistribution(BaseDistribution):
 class FreeTextFitter(BaseFitter):
     """Fitter for the freetext distribution."""
 
+    distribution: type[FreeTextDistribution]
+
     def _fit(self, series, max_values: int = 50):
         """Select the appropriate faker function and locale."""
         lang_str = detect_language(series[:max_values])

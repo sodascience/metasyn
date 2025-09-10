@@ -152,6 +152,8 @@ class MultinoulliDistribution(BaseDistribution):
 class MultinoulliFitter(BaseFitter):
     """Fitter for multinoulli distribution."""
 
+    distribution: type[MultinoulliDistribution]
+
     def _fit(self, series: pl.Series):
         labels, counts = np.unique(series, return_counts=True)
         probs = counts/np.sum(counts)

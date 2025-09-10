@@ -99,6 +99,8 @@ class DiscreteConstantDistribution(BaseConstantDistribution):
 class BaseConstantFitter(BaseFitter):
     """Base distribution for many constant fitters."""
 
+    distribution: type[BaseConstantDistribution]
+
     def _fit(self, values: pl.Series) -> BaseDistribution:
         # if unique, just get that value
         if values.n_unique() == 1:

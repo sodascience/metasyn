@@ -72,8 +72,8 @@ class BaseDistributionProvider(ABC):
     accessed with ``get_fitters``.
     """
 
-    name = ""
-    version = ""
+    name: str = ""
+    version: str = ""
     fitters: list[type[BaseFitter]] = []
 
     def __init__(self):
@@ -82,8 +82,8 @@ class BaseDistributionProvider(ABC):
         assert len(self.version) > 0
         assert len(self.fitters) > 0
 
-    def get_fitters(self, privacy: BasePrivacy, var_type: Optional[str],
-                    unique: bool = False) -> List[Type[BaseDistribution]]:
+    def get_fitters(self, privacy: Optional[BasePrivacy], var_type: Optional[str],
+                    unique: bool = False) -> List[Type[BaseFitter]]:
         """Get all distributions for a certain variable type.
 
         Parameters
@@ -101,7 +101,7 @@ class BaseDistributionProvider(ABC):
             List of distributions with that variable type.
         """
         fitters = [f for f in self.fitters if f.distribution.unique == unique]
-        fitters = [f for f in fitters if f.privacy_type == privacy.name]
+        fitters = [f for f in fitters if privacy is None or f.privacy_type == privacy.name]
         if var_type is None:
             return fitters
 
@@ -333,7 +333,7 @@ class DistributionProviderList():
                           var_type: Optional[str],
                           privacy: Optional[BasePrivacy] = BasicPrivacy(),
                           unique: bool = False,
-                          version: Optional[str] = None) -> type[BaseDistribution]:
+                          version: Optional[str] = None) -> type[BaseFitter]:
         """Find a distribution and fit keyword arguments from a name.
 
         Parameters
@@ -402,16 +402,16 @@ class DistributionProviderList():
             dist_class = self.find_distribution(dist_spec.name, var_type, unique=unique)
             return dist_class(**dist_spec.parameters)
 
-        dist_class = self.find_fitter(dist_spec.name, var_type, privacy=privacy,
+        fitter_class = self.find_fitter(dist_spec.name, var_type, privacy=privacy,
                                       unique=unique)
 
         fit_kwargs = dist_spec.fit_kwargs
-        dist_instance = dist_class(privacy).fit(series, **fit_kwargs)
+        dist_instance = fitter_class(privacy).fit(series, **fit_kwargs)
         return dist_instance
 
     def get_fitters(self, privacy: Optional[BasePrivacy] = None,
                     var_type: Optional[str] = None,
-                    unique: bool = False) -> list[type[BaseDistribution]]:
+                    unique: bool = False) -> list[type[BaseFitter]]:
         """Get the available distributions with constraints.
 
         Parameters

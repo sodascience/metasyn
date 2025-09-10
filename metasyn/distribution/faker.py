@@ -79,6 +79,8 @@ class FakerDistribution(BaseDistribution):
 class FakerFitter(BaseFitter):
     """Fitter for the faker distribution."""
 
+    distribution: type[FakerDistribution]
+
     def _fit(self, values, faker_type: str = "city", locale: str = "en_US"): # noqa: ARG002
         """Select the appropriate faker function and locale."""
         return self.distribution(faker_type, locale)

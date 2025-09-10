@@ -99,6 +99,8 @@ class RegexDistribution(BaseDistribution):
 class RegexFitter(BaseFitter):
     """Fitter for regex distribution."""
 
+    distribution: type[RegexDistribution]
+
     def _fit(self, series, count_thres: Optional[int] = None, method: str = "auto"):
         """Fit a regex to structured strings.
 

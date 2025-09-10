@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import Optional, Sequence, Union
+from typing import Any, Optional, Sequence, Union
 
 import numpy as np
 import polars as pl
@@ -42,21 +42,24 @@ def convert_to_series(values: Union[npt.NDArray, pl.Series]) -> pl.Series:
 class BaseFitter(ABC):
     """Base class for fitters."""
 
-    distribution: str = "unknown"
+    distribution: type[BaseDistribution]
     privacy_type: str = "none"
-    # name: str = "unknown"
     version: str = "1.0"
-    # unique: bool = True
+    var_type: Union[str, list[str]] = "unknown"
 
     def __init__(self, privacy: BasePrivacy):
         self.privacy = privacy
 
     # @abstractmethod
-    def fit(self, values) -> BaseDistribution:
+    def fit(self, values: Union[npt.NDArray, pl.Series]) -> BaseDistribution:
         pl_series = convert_to_series(values)
         if len(pl_series) == 0:
             return self.distribution.default_distribution()
         return self._fit(pl_series)
+
+    @abstractmethod
+    def _fit(self, series: pl.Series) -> BaseDistribution:
+        raise NotImplementedError
 
     @classmethod
     def matches_name(cls, name: str) -> bool:
@@ -97,41 +100,10 @@ class BaseDistribution(ABC):
     """The identifier for the implemented distribution"""
     var_type: Union[str, Sequence[str]] = "unknown"
     """The variable type of the distribution"""
-    # provenance: str = "builtin"
-    # """Which plugin provides the distribution or builtin"""
     unique: bool = False
     """Whether the distribution creates only unique values"""
     version: str = "1.0"
     """Version of the implemented distribution"""
-
-    # @classmethod
-    # def fit(cls, series: Union[pl.Series, npt.NDArray], # noqa: D417
-    #         fitter: BaseFitter) -> BaseDistribution:
-    #     """Fit the distribution to the series.
-
-    #     Parameters
-    #     ----------
-    #     series: polars.Series
-    #         Data to fit the distribution to.
-
-    #     Returns
-    #     -------
-    #     BaseDistribution:
-    #         Fitted distribution.
-    #     """
-    #     pl_series = cls._to_series(series)
-    #     if len(pl_series) == 0:
-    #         return cls.default_distribution()
-    #     return fitter.fit(pl_series)
-        # if "privacy" in signature(cls._fit).parameters:
-            # return cls._fit(pl_series, *args, privacy=privacy, **kwargs)  # type: ignore
-        # return cls._fit(pl_series, *args, **kwargs)
-
-
-    # @classmethod
-    # @abstractmethod
-    # def _fit(cls, values: pl.Series) -> BaseDistribution:
-    #     """See fit method, but does not need to deal with NA's."""
 
     @abstractmethod
     def draw(self) -> object:
@@ -311,7 +283,7 @@ def metadist(
 
 
 def metafit(
-        distribution: Optional[BaseDistribution] = None,
+        distribution: Optional[type[BaseDistribution]] = None,
         var_type: Optional[Union[str, list[str]]] = None,
         version: Optional[str] = None,
         privacy_type: Optional[str] = None):
@@ -431,11 +403,7 @@ class ScipyDistribution(BaseDistribution):
 class ScipyFitter(BaseFitter):
     """Base fitter for scipy distributions."""
 
-    def fit(self, values):
-        series = convert_to_series(values)
-
-        if len(series) == 0:
-            return self.distribution.default_distribution()
+    def _fit(self, series):
         param = self.distribution.scipy_class.fit(series)  # type: ignore  # All derived classes have dist_class
         return self.distribution(*param)
 
@@ -457,7 +425,7 @@ class UniqueDistributionMixin(BaseDistribution):
 
     def __new__(cls, *args, **kwargs):  # noqa
         instance = super().__new__(cls)
-        instance.key_set: set = set()
+        instance.key_set: set[Any] = set()
         return instance
 
     def draw_reset(self):

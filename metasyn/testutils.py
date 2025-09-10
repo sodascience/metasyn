@@ -8,6 +8,7 @@ and internal consistency of individual distributions and providers.
 from __future__ import annotations
 
 import json
+from typing import Sequence
 
 import jsonschema
 import numpy as np
@@ -81,7 +82,7 @@ def check_fitter(fitter: type[BaseFitter], privacy: BasePrivacy,
     # Check the privacy
     assert privacy.is_compatible(fitter)
     if isinstance(distribution.var_type, str):
-        var_types = [distribution.var_type]
+        var_types: Sequence[str] = [distribution.var_type]
     else:
         var_types = distribution.var_type
     for vt in var_types:

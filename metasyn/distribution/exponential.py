@@ -3,9 +3,8 @@
 from scipy.stats import expon
 
 from metasyn.distribution.base import (
+    BaseFitter,
     ScipyDistribution,
-    ScipyFitter,
-    convert_to_series,
     metadist,
     metafit,
 )
@@ -35,13 +34,6 @@ class ExponentialDistribution(ScipyDistribution):
         self.dist = expon(loc=0, scale=1/max(rate, 1e-8))
 
     @classmethod
-    def _fit(cls, values):
-        values = values.filter(values > 0)
-        if len(values) == 0:
-            return cls.default_distribution()
-        return cls(rate=1/expon.fit(values, floc=0)[1])
-
-    @classmethod
     def default_distribution(cls):
         return cls(1.0)
 
@@ -53,11 +45,10 @@ class ExponentialDistribution(ScipyDistribution):
 
 
 @metafit(distribution=ExponentialDistribution, var_type="continuous")
-class ExponentialFitter(ScipyFitter):
+class ExponentialFitter(BaseFitter):
     """Fitter for exponential distribution."""
 
-    def fit(self, values):
-        series = convert_to_series(values)
+    def _fit(self, series):
         series = series.filter(series > 0)
         if len(series) == 0:
             return self.distribution.default_distribution()
