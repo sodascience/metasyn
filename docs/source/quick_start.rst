@@ -44,7 +44,7 @@ with the column names that we want to specify as categorical. For this example, 
    }
 
 To finish loading the dataset, we can either use the :meth:`polars.read_csv` function or the ``metasyn``
-:func:`metasyn.filereader.read_csv` function. The advantage of the latter is that with it metasyn will remember the
+:func:`metasyn.file.read_csv` function. The advantage of the latter is that with it metasyn will remember the
 specifics of the file format of your file (for example if your separator between columns was a `,` or `;`)
 and when writing the synthetic data file, this can be reused.
 
