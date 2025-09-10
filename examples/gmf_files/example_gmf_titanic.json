@@ -5,9 +5,9 @@
     "provenance": {
         "created by": {
             "name": "metasyn",
-            "version": "1.1.1.dev15+g3e1eae0.d20250108"
+            "version": "1.1.1.dev32+g57b28cd8c.d20250908"
         },
-        "creation time": "2025-05-14T13:50:48.868119"
+        "creation time": "2025-09-10T14:44:11.451758"
     },
     "file_format": {
         "file_interface_name": "csv",
@@ -29,7 +29,6 @@
             "distribution": {
                 "name": "core.unique_key",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "UniqueKeyDistribution",
                 "unique": true,
                 "parameters": {
@@ -49,7 +48,6 @@
             "distribution": {
                 "name": "core.freetext",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "FreeTextDistribution",
                 "unique": false,
                 "parameters": {
@@ -70,7 +68,6 @@
             "distribution": {
                 "name": "core.multinoulli",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "MultinoulliDistribution",
                 "unique": false,
                 "parameters": {
@@ -96,7 +93,6 @@
             "distribution": {
                 "name": "core.truncated_normal",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "DiscreteTruncatedNormalDistribution",
                 "unique": false,
                 "parameters": {
@@ -118,7 +114,6 @@
             "distribution": {
                 "name": "core.truncated_normal",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "DiscreteTruncatedNormalDistribution",
                 "unique": false,
                 "parameters": {
@@ -140,7 +135,6 @@
             "distribution": {
                 "name": "core.regex",
                 "version": "2.0",
-                "provenance": "builtin",
                 "class_name": "RegexDistribution",
                 "unique": false,
                 "parameters": {
@@ -196,7 +190,6 @@
             "distribution": {
                 "name": "core.exponential",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "ExponentialDistribution",
                 "unique": false,
                 "parameters": {
@@ -215,7 +208,6 @@
             "distribution": {
                 "name": "core.regex",
                 "version": "2.0",
-                "provenance": "builtin",
                 "class_name": "RegexDistribution",
                 "unique": false,
                 "parameters": {
@@ -267,7 +259,6 @@
             "distribution": {
                 "name": "core.multinoulli",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "MultinoulliDistribution",
                 "unique": false,
                 "parameters": {
@@ -295,7 +286,6 @@
             "distribution": {
                 "name": "core.uniform",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "DateUniformDistribution",
                 "unique": false,
                 "parameters": {
@@ -315,7 +305,6 @@
             "distribution": {
                 "name": "core.uniform",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "TimeUniformDistribution",
                 "unique": false,
                 "parameters": {
@@ -336,7 +325,6 @@
             "distribution": {
                 "name": "core.uniform",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "DateTimeUniformDistribution",
                 "unique": false,
                 "parameters": {
@@ -357,7 +345,6 @@
             "distribution": {
                 "name": "core.na",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "NADistribution",
                 "unique": false,
                 "parameters": {}

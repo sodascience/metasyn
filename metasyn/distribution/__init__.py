@@ -10,42 +10,38 @@ information criterion, used for selecting the best distribution for
 a given set of values.
 """
 
-# BUILTIN_DISTRIBUTIONS = [DiscreteUniformDistribution, ContinuousUniformDistribution]
-
-# from metasyn.distribution.categorical import MultinoulliDistribution
-# from metasyn.distribution.continuous import (
-#     ConstantDistribution,
-#     ExponentialDistribution,
-#     LogNormalDistribution,
-#     NormalDistribution,
-#     TruncatedNormalDistribution,
-#     UniformDistribution,
-# )
-# from metasyn.distribution.datetime import (
-#     DateConstantDistribution,
-#     DateTimeConstantDistribution,
-#     DateTimeUniformDistribution,
-#     DateUniformDistribution,
-#     TimeConstantDistribution,
-#     TimeUniformDistribution,
-# )
-# from metasyn.distribution.discrete import (
-#     DiscreteConstantDistribution,
-#     DiscreteNormalDistribution,
-#     DiscreteTruncatedNormalDistribution,
-#     DiscreteUniformDistribution,
-#     PoissonDistribution,
-#     UniqueKeyDistribution,
-# )
-# from metasyn.distribution.na import NADistribution
-# from metasyn.distribution.string import (
-#     FakerDistribution,
-#     FreeTextDistribution,
-#     RegexDistribution,
-#     StringConstantDistribution,
-#     UniqueFakerDistribution,
-#     UniqueRegexDistribution,
-# )
+from metasyn.distribution.categorical import MultinoulliDistribution
+from metasyn.distribution.constant import (
+    ContinuousConstantDistribution,
+    DateConstantDistribution,
+    DateTimeConstantDistribution,
+    DiscreteConstantDistribution,
+    StringConstantDistribution,
+    TimeConstantDistribution,
+)
+from metasyn.distribution.exponential import ExponentialDistribution
+from metasyn.distribution.faker import FakerDistribution, UniqueFakerDistribution
+from metasyn.distribution.freetext import FreeTextDistribution
+from metasyn.distribution.na import NADistribution
+from metasyn.distribution.normal import (
+    DiscreteNormalDistribution,
+    DiscreteTruncatedNormalDistribution,
+    LogNormalDistribution,
+    NormalDistribution,
+    TruncatedNormalDistribution,
+)
+from metasyn.distribution.poisson import PoissonDistribution
+from metasyn.distribution.regex import (
+    RegexDistribution,
+    UniqueRegexDistribution,
+)
+from metasyn.distribution.uniform import (
+    ContinuousUniformDistribution,
+    DateTimeUniformDistribution,
+    DateUniformDistribution,
+    DiscreteUniformDistribution,
+    TimeUniformDistribution,
+)
 
 __all__ = [
     "MultinoulliDistribution",
@@ -53,7 +49,7 @@ __all__ = [
     "LogNormalDistribution",
     "NormalDistribution",
     "TruncatedNormalDistribution",
-    "UniformDistribution",
+    "ContinuousUniformDistribution",
     "DateUniformDistribution",
     "DateTimeUniformDistribution",
     "TimeUniformDistribution",
@@ -68,7 +64,7 @@ __all__ = [
     "NADistribution",
     "RegexDistribution",
     "UniqueRegexDistribution",
-    "ConstantDistribution",
+    "ContinuousConstantDistribution",
     "DiscreteConstantDistribution",
     "StringConstantDistribution",
     "DateConstantDistribution",
