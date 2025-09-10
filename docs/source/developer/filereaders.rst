@@ -1,7 +1,7 @@
 Creating file readers
 ---------------------
 
-.. currentmodule:: metasyn.filereader
+.. currentmodule:: metasyn.file
 
 File readers are used to read the original dataset and write the synthetic dataset.
 Metasyn implements currently two file readers: :class:`CsvFileReader` and :class:`SavFileReader`.
