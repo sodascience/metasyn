@@ -46,11 +46,6 @@ class FakerDistribution(BaseDistribution):
         self.locale: str = locale
         self.fake: Faker = Faker(locale=locale)
 
-    @classmethod
-    def _fit(cls, values, faker_type: str = "city", locale: str = "en_US"): # noqa: ARG003
-        """Select the appropriate faker function and locale."""
-        return cls(faker_type, locale)
-
     def draw(self):
         return getattr(self.fake, self.faker_type)()
 

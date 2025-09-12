@@ -124,11 +124,7 @@ class MultinoulliDistribution(BaseDistribution):
         we choose to add an extra len(self.labels) term to keep the choice of distribution
         consistent.
         """
-        # series = self._to_series(values)
-        # labels, counts = np.unique(series, return_counts=True)
         log_lik = 0.0
-        if len(self.labels) <= 1:
-            return 0
         # Do additive smoothing, assume count of values is equal to that value in initial fit.
         num_event = len(series)
         num_tot_cat = np.max(self.labels)-np.min(self.labels)+1

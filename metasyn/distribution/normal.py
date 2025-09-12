@@ -79,14 +79,6 @@ class LogNormalDistribution(ScipyDistribution):
         self.dist = lognorm(s=max(sd, 1e-8), scale=np.exp(mean))
 
     @classmethod
-    def _fit(cls, values):
-        try:
-            sd, _, scale = cls.scipy_class.fit(values, floc=0)
-        except FitDataError:
-            return cls(0, 1)
-        return cls(np.log(scale), sd)
-
-    @classmethod
     def default_distribution(cls):
         return cls(0, 1)
 
@@ -137,26 +129,6 @@ class ContinuousTruncatedNormalDistribution(ScipyDistribution):
                     "mean": mean, "sd": sd}
         a, b = (lower-mean)/sd, (upper-mean)/sd
         self.dist = truncnorm(a=a, b=b, loc=mean, scale=max(sd, 1e-8))
-
-    @classmethod
-    def _fit(cls, values):
-        lower = values.min() - 1e-8
-        upper = values.max() + 1e-8
-        return cls._fit_with_bounds(values, lower, upper)
-
-    @classmethod
-    def _fit_with_bounds(cls, values, lower, upper):
-        def minimizer(param):
-            mean, sd = param
-            a, b = (lower-mean)/sd, (upper-mean)/sd
-            dist = truncnorm(a=a, b=b, loc=mean, scale=sd)
-            return -np.sum(dist.logpdf(values))
-
-        x_start = [(lower+upper)/2, (upper-lower)/4]
-        mean, sd = minimize(minimizer, x_start,
-                             bounds=[(None, None),
-                                     ((upper-lower)/100, None)]).x
-        return cls(lower, upper, mean, sd)
 
     @classmethod
     def default_distribution(cls):

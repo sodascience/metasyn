@@ -14,10 +14,6 @@ class NADistribution(BaseDistribution):
     """Distribution that always returns NA values (None)."""
 
     @classmethod
-    def _fit(cls, values: pl.Series) -> BaseDistribution: # noqa: ARG003
-        return cls()
-
-    @classmethod
     def default_distribution(cls) -> BaseDistribution:
         return cls()
 

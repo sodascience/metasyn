@@ -24,11 +24,6 @@ class BaseConstantDistribution(BaseDistribution):
     def __init__(self, value) -> None:
         self.value = value
 
-    @property
-    def n_par(self) -> int:
-        """int: Number of parameters for distribution."""
-        return 0
-
     def _param_dict(self):
         return {"value": self.value}
 

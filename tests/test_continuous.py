@@ -32,6 +32,16 @@ def test_uniform(lower, upper):
     assert isinstance(dist.draw(), float)
 
 
+def test_uniform_bic():
+    """Test whether out of bounds BIC works properly."""
+    lower = 0
+    upper = 1
+    scale = upper-lower
+    values = stats.uniform(loc=lower, scale=scale).rvs(1000)
+    dist = ContinuousUniformFitter.distribution(0.5, 1.0)
+    bic = dist.information_criterion(values)
+    assert bic > 1000
+
 @mark.parametrize(
     "mean,sd",
     [
@@ -101,3 +111,8 @@ def test_exponential(rate):
     assert dist.information_criterion(values) < dist_uniform.information_criterion(values)
     assert isinstance(dist.draw(), float)
     assert (dist.rate - rate)/rate < 0.1
+
+def test_exponential_negative():
+    dist = ExponentialFitter(BasicPrivacy()).fit([-1, -2, -3])
+    assert dist.rate == ExponentialFitter.distribution.default_distribution().rate
+

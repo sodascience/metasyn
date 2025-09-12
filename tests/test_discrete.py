@@ -69,6 +69,11 @@ def test_integer_key(data, better_than_uniform, consecutive, series_type):
         assert np.all(drawn_values == np.arange(dist.lower, dist.lower+100))
 
 
+def test_unique_key_ic_zero():
+    """Check behavior of BIC with zero values."""
+    dist = UniqueKeyDistribution.default_distribution()
+    assert dist.information_criterion([]) == 4
+
 @mark.parametrize("series_type", [pd.Series, pl.Series])
 def test_poisson(series_type):
     """Test Poisson distribution."""
