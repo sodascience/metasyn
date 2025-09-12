@@ -38,7 +38,7 @@ from metasyn.distribution.normal import (
     DiscreteNormalFitter,
     DiscreteTruncatedNormalFitter,
     LogNormalFitter,
-    TruncatedNormalFitter,
+    ContinuousTruncatedNormalFitter,
 )
 from metasyn.distribution.poisson import PoissonFitter
 from metasyn.distribution.regex import (
@@ -146,7 +146,7 @@ class BuiltinDistributionProvider(BaseDistributionProvider):
         FreeTextFitter,
         PoissonFitter,
         ContinuousNormalFitter, LogNormalFitter, DiscreteTruncatedNormalFitter,
-        TruncatedNormalFitter, DiscreteNormalFitter,
+        ContinuousTruncatedNormalFitter, DiscreteNormalFitter,
         UniqueKeyFitter,
         NAFitter,
     ]

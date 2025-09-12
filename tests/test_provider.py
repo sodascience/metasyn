@@ -6,7 +6,7 @@ from pytest import mark, raises
 from metasyn.distribution.base import BaseDistribution, metadist
 from metasyn.distribution.categorical import MultinoulliDistribution
 from metasyn.distribution.faker import FakerDistribution
-from metasyn.distribution.normal import DiscreteNormalDistribution, NormalDistribution
+from metasyn.distribution.normal import DiscreteNormalDistribution, ContinuousNormalDistribution
 from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistribution
 from metasyn.distribution.uniform import DiscreteUniformDistribution, ContinuousUniformDistribution
 from metasyn.provider import BuiltinDistributionProvider, DistributionProviderList
@@ -92,7 +92,7 @@ def test_plist_init(input):
         ("multinoulli", "discrete", False, MultinoulliDistribution),
         ("uniform", "continuous", False, ContinuousUniformDistribution),
         ("uniform", "discrete", False, DiscreteUniformDistribution),
-        ("normal", "continuous", False, NormalDistribution),
+        ("normal", "continuous", False, ContinuousNormalDistribution),
         ("normal", "discrete", False, DiscreteNormalDistribution),
         ("faker", "string", False, FakerDistribution),
         ("regex", "string", False, RegexDistribution),

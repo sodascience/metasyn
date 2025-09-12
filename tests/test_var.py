@@ -13,7 +13,7 @@ import pytest
 from pytest import mark, raises
 
 from metasyn.distribution.categorical import MultinoulliDistribution
-from metasyn.distribution.normal import NormalDistribution, TruncatedNormalDistribution
+from metasyn.distribution.normal import ContinuousNormalDistribution, ContinuousTruncatedNormalDistribution
 from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistribution
 from metasyn.distribution.uniform import DiscreteUniformDistribution, ContinuousUniformDistribution
 from metasyn.distribution.uniquekey import UniqueKeyDistribution
@@ -271,13 +271,13 @@ def test_unsupported_type():
 def test_manual_fit(series):
     """Test adding dist_spec to MetaVar.fit call."""
     var = MetaVar.fit(series)
-    assert isinstance(var.distribution, (ContinuousUniformDistribution, TruncatedNormalDistribution))
+    assert isinstance(var.distribution, (ContinuousUniformDistribution, ContinuousTruncatedNormalDistribution))
     var = MetaVar.fit(series, dist_spec={"name": "normal"})
-    assert isinstance(var.distribution, NormalDistribution)
+    assert isinstance(var.distribution, ContinuousNormalDistribution)
     var = MetaVar.fit(series, dist_spec=ContinuousUniformDistribution)
     assert isinstance(var.distribution, ContinuousUniformDistribution)
-    var = MetaVar.fit(series, dist_spec=NormalDistribution(0, 1))
-    assert isinstance(var.distribution, NormalDistribution)
+    var = MetaVar.fit(series, dist_spec=ContinuousNormalDistribution(0, 1))
+    assert isinstance(var.distribution, ContinuousNormalDistribution)
     with raises(TypeError):
         var.fit(10)
 

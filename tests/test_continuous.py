@@ -7,7 +7,7 @@ from metasyn.distribution.exponential import ExponentialFitter
 from metasyn.distribution.normal import (
     LogNormalFitter,
     ContinuousNormalFitter,
-    TruncatedNormalFitter,
+    ContinuousTruncatedNormalFitter,
 )
 from metasyn.distribution.uniform import ContinuousUniformFitter
 from metasyn.privacy import BasicPrivacy
@@ -83,7 +83,7 @@ def test_trunc_normal(lower, upper, mean, sd):
     """Test the truncated normal distribution."""
     a, b = (lower-mean)/sd, (upper-mean)/sd
     values = stats.truncnorm(a=a, b=b, loc=mean, scale=sd).rvs(5000)
-    dist = TruncatedNormalFitter(BasicPrivacy()).fit(values)
+    dist = ContinuousTruncatedNormalFitter(BasicPrivacy()).fit(values)
     dist_uniform = ContinuousUniformFitter(BasicPrivacy()).fit(values)
     assert dist.information_criterion(values) < dist_uniform.information_criterion(values)
     assert isinstance(dist.draw(), float)

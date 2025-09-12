@@ -27,8 +27,8 @@ from metasyn.distribution.normal import (
     DiscreteNormalDistribution,
     DiscreteTruncatedNormalDistribution,
     LogNormalDistribution,
-    NormalDistribution,
-    TruncatedNormalDistribution,
+    ContinuousNormalDistribution,
+    ContinuousTruncatedNormalDistribution,
 )
 from metasyn.distribution.poisson import PoissonDistribution
 from metasyn.distribution.regex import (
@@ -47,8 +47,8 @@ __all__ = [
     "MultinoulliDistribution",
     "ExponentialDistribution",
     "LogNormalDistribution",
-    "NormalDistribution",
-    "TruncatedNormalDistribution",
+    "ContinuousNormalDistribution",
+    "ContinuousTruncatedNormalDistribution",
     "ContinuousUniformDistribution",
     "DateUniformDistribution",
     "DateTimeUniformDistribution",

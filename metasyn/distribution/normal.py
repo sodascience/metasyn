@@ -15,7 +15,7 @@ from metasyn.distribution.base import (
 
 
 @metadist(name="core.normal", var_type="continuous")
-class NormalDistribution(ScipyDistribution):
+class ContinuousNormalDistribution(ScipyDistribution):
     """Normal distribution for floating point type.
 
     This class implements the normal/gaussian distribution and takes
@@ -50,7 +50,7 @@ class NormalDistribution(ScipyDistribution):
             "sd": {"type": "number"},
         }
 
-@metafit(distribution=NormalDistribution, var_type="continuous")
+@metafit(distribution=ContinuousNormalDistribution, var_type="continuous")
 class ContinuousNormalFitter(ScipyFitter):
     """Fitter for continuous normal distribution."""
 
@@ -110,7 +110,7 @@ class LogNormalFitter(BaseFitter):
 
 
 @metadist(name="core.truncated_normal", var_type="continuous")
-class TruncatedNormalDistribution(ScipyDistribution):
+class ContinuousTruncatedNormalDistribution(ScipyDistribution):
     """Truncated normal distribution for floating point type.
 
     Parameters
@@ -171,8 +171,8 @@ class TruncatedNormalDistribution(ScipyDistribution):
             "sd": {"type": "number"},
         }
 
-@metafit(distribution=TruncatedNormalDistribution, var_type="continuous")
-class TruncatedNormalFitter(BaseFitter):
+@metafit(distribution=ContinuousTruncatedNormalDistribution, var_type="continuous")
+class ContinuousTruncatedNormalFitter(BaseFitter):
     """Fitter for continuous truncated normal fitter."""
 
     def _fit(self, series):
@@ -195,7 +195,7 @@ class TruncatedNormalFitter(BaseFitter):
 
 
 @metadist(name="core.normal", var_type="discrete")
-class DiscreteNormalDistribution(NormalDistribution):
+class DiscreteNormalDistribution(ContinuousNormalDistribution):
     """Normal discrete distribution.
 
     This class implements the normal/gaussian distribution and takes
@@ -224,7 +224,7 @@ class DiscreteNormalFitter(ScipyFitter):
 
 
 @metadist(name="core.truncated_normal", var_type="discrete")
-class DiscreteTruncatedNormalDistribution(TruncatedNormalDistribution):
+class DiscreteTruncatedNormalDistribution(ContinuousTruncatedNormalDistribution):
     """Truncated normal discrete distribution.
 
     Parameters
@@ -247,5 +247,5 @@ class DiscreteTruncatedNormalDistribution(TruncatedNormalDistribution):
         return int(super().draw())
 
 @metafit(distribution=DiscreteTruncatedNormalDistribution, var_type="discrete")
-class DiscreteTruncatedNormalFitter(TruncatedNormalFitter):
+class DiscreteTruncatedNormalFitter(ContinuousTruncatedNormalFitter):
     """Fitter for discrete truncated normal distribution."""
