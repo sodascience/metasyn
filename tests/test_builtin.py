@@ -1,11 +1,11 @@
 """Testing module for the distributions that are builtin to metasyn directly."""
 from pytest import mark, raises
 
-from metasyn.distribution.uniform import ContinuousUniformFitter, ContinuousUniformDistribution
 from metasyn.distribution.base import metafit
+from metasyn.distribution.uniform import ContinuousUniformDistribution, ContinuousUniformFitter
 from metasyn.privacy import BasicPrivacy
 from metasyn.provider import get_distribution_provider
-from metasyn.testutils import check_fitter, check_distribution_provider
+from metasyn.testutils import check_distribution_provider, check_fitter
 
 
 def test_builtin_provider():

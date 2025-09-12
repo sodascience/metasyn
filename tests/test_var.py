@@ -13,9 +13,12 @@ import pytest
 from pytest import mark, raises
 
 from metasyn.distribution.categorical import MultinoulliDistribution
-from metasyn.distribution.normal import ContinuousNormalDistribution, ContinuousTruncatedNormalDistribution
+from metasyn.distribution.normal import (
+    ContinuousNormalDistribution,
+    ContinuousTruncatedNormalDistribution,
+)
 from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistribution
-from metasyn.distribution.uniform import DiscreteUniformDistribution, ContinuousUniformDistribution
+from metasyn.distribution.uniform import ContinuousUniformDistribution, DiscreteUniformDistribution
 from metasyn.distribution.uniquekey import UniqueKeyDistribution
 from metasyn.metaframe import _jsonify
 from metasyn.var import MetaVar

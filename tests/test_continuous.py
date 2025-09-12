@@ -5,9 +5,9 @@ from scipy import stats
 
 from metasyn.distribution.exponential import ExponentialFitter
 from metasyn.distribution.normal import (
-    LogNormalFitter,
     ContinuousNormalFitter,
     ContinuousTruncatedNormalFitter,
+    LogNormalFitter,
 )
 from metasyn.distribution.uniform import ContinuousUniformFitter
 from metasyn.privacy import BasicPrivacy

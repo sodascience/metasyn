@@ -3,12 +3,12 @@
 import pytest
 from pytest import mark, raises
 
-from metasyn.distribution.base import BaseDistribution, metadist
+from metasyn.distribution.base import BaseDistribution
 from metasyn.distribution.categorical import MultinoulliDistribution
 from metasyn.distribution.faker import FakerDistribution
-from metasyn.distribution.normal import DiscreteNormalDistribution, ContinuousNormalDistribution
+from metasyn.distribution.normal import ContinuousNormalDistribution, DiscreteNormalDistribution
 from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistribution
-from metasyn.distribution.uniform import DiscreteUniformDistribution, ContinuousUniformDistribution
+from metasyn.distribution.uniform import ContinuousUniformDistribution, DiscreteUniformDistribution
 from metasyn.provider import BuiltinDistributionProvider, DistributionProviderList
 from metasyn.varspec import DistributionSpec, VarSpec
 

@@ -4,7 +4,6 @@ This module contains a single class for creating distributions that only
 return NA.
 """
 
-import polars as pl
 
 from metasyn.distribution.base import BaseDistribution, BaseFitter, metadist, metafit
 

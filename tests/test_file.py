@@ -11,7 +11,6 @@ from metasyn.file import (
     BaseFileInterface,
     CsvFileInterface,
     SavFileInterface,
-    StataFileInterface,
     file_interface_from_dict,
     fileinterface,
     read_csv,

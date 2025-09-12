@@ -24,11 +24,11 @@ from metasyn.distribution.faker import FakerDistribution, UniqueFakerDistributio
 from metasyn.distribution.freetext import FreeTextDistribution
 from metasyn.distribution.na import NADistribution
 from metasyn.distribution.normal import (
+    ContinuousNormalDistribution,
+    ContinuousTruncatedNormalDistribution,
     DiscreteNormalDistribution,
     DiscreteTruncatedNormalDistribution,
     LogNormalDistribution,
-    ContinuousNormalDistribution,
-    ContinuousTruncatedNormalDistribution,
 )
 from metasyn.distribution.poisson import PoissonDistribution
 from metasyn.distribution.regex import (

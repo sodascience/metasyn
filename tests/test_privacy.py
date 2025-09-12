@@ -2,7 +2,7 @@
 import pytest
 
 from metasyn.distribution.base import metafit
-from metasyn.distribution.categorical import MultinoulliDistribution, MultinoulliFitter
+from metasyn.distribution.categorical import MultinoulliFitter
 from metasyn.privacy import BasicPrivacy, get_privacy
 
 

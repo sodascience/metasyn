@@ -35,10 +35,10 @@ from metasyn.distribution.freetext import FreeTextFitter
 from metasyn.distribution.na import NADistribution, NAFitter
 from metasyn.distribution.normal import (
     ContinuousNormalFitter,
+    ContinuousTruncatedNormalFitter,
     DiscreteNormalFitter,
     DiscreteTruncatedNormalFitter,
     LogNormalFitter,
-    ContinuousTruncatedNormalFitter,
 )
 from metasyn.distribution.poisson import PoissonFitter
 from metasyn.distribution.regex import (

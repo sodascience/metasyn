@@ -9,9 +9,9 @@ from pytest import mark
 
 from metasyn.demo.dataset import _AVAILABLE_DATASETS, _get_demo_class, demo_dataframe, demo_file
 from metasyn.metaframe import MetaFrame
+from metasyn.privacy import BasicPrivacy
 from metasyn.provider import get_distribution_provider
 from metasyn.var import MetaVar
-from metasyn.privacy import BasicPrivacy
 
 dtypes = {
     "PassengerId": "int",

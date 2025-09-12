@@ -7,9 +7,12 @@ import polars as pl
 from pytest import mark
 
 from metasyn.distribution.uniform import (
-    DateTimeUniformDistribution, DateTimeUniformFitter,
-    DateUniformDistribution, DateUniformFitter,
-    TimeUniformDistribution, TimeUniformFitter,
+    DateTimeUniformDistribution,
+    DateTimeUniformFitter,
+    DateUniformDistribution,
+    DateUniformFitter,
+    TimeUniformDistribution,
+    TimeUniformFitter,
 )
 from metasyn.privacy import BasicPrivacy
 
