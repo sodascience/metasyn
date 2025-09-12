@@ -249,7 +249,7 @@ rate = 0.5
 
 
 [[var]]
-name = "NormalDistribution"
+name = "ContinuousNormalDistribution"
 var_type = "continuous"
 
 [var.distribution]
@@ -290,7 +290,7 @@ sd = 1
 
 
 [[var]]
-name = "TruncatedNormalDistribution"
+name = "ContinuousTruncatedNormalDistribution"
 var_type = "continuous"
 
 [var.distribution]
