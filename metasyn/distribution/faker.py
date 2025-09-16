@@ -1,10 +1,9 @@
-"""Module all string distributions."""
+"""Module for distributions that use the faker package."""
 from __future__ import annotations
 
 from typing import Iterable
 
 # from lingua._constant import LETTERS, PUNCTUATION
-import regex
 from faker import Faker
 
 from metasyn.distribution.base import (
@@ -15,8 +14,6 @@ from metasyn.distribution.base import (
     metafit,
 )
 
-LETTERS = regex.compile(r"\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}|\p{L}+")
-PUNCTUATION = regex.compile(r"\p{P}")
 
 @metadist(name="core.faker", var_type="string")
 class FakerDistribution(BaseDistribution):

@@ -235,9 +235,9 @@ def metadist(
     Parameters
     ----------
     name:
-        The distribution ID that it name, e.g. core.uniform, core.regex.
-    provenance:
-        Where the distribution came from, which package/plugin implemented it.
+        Name that identifies the distribution uniquely, e.g. core.uniform, core.regex.
+        The name should use a period (.) so that the first part is the namespace (e.g. core),
+        and the second part the name of the distribution.
     var_type:
         Variable type of the distribution, e.g. continuous, categorical, string.
     unique:
@@ -287,23 +287,19 @@ def metafit(
         var_type: Optional[Union[str, list[str]]] = None,
         version: Optional[str] = None,
         privacy_type: Optional[str] = None):
-    """Decorate class to create a distribution with the right properties.
+    """Decorate class to create a fitter with the correct class attributes.
 
     Parameters
     ----------
-    dist_class:
-        The distribution ID that it dist_class, e.g. core.uniform, core.regex.
-    provenance:
-        Where the distribution came from, which package/plugin implemented it.
+    distribution:
+        Class that the fitter will return after a succesful fit.
     var_type:
-        Variable type of the distribution, e.g. continuous, categorical, string.
-    unique:
-        Whether the distribution is unique or not.
-    privacy_type:
-        Privacy class/implementation of the distribution.
+        Variable type(s) that the fitter implements, e.g. continuous, categorical, string.
     version:
-        Version of the distribution. Increment this to ensure that compatibility is
+        Version of the fitter. Increment this to ensure that compatibility is
         properly handled.
+    privacy_type:
+        Privacy class/implementation of the fitter.
 
     Returns
     -------

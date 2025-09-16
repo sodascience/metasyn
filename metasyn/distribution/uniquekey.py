@@ -1,4 +1,4 @@
-"""Module implementing discrete distributions."""
+"""Unique key distributions, often for primary key columns."""
 
 from typing import Set
 

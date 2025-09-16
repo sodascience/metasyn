@@ -35,6 +35,21 @@ class BaseConstantDistribution(BaseDistribution):
         return -np.inf if vals.n_unique() < 2 else np.inf
 
 
+class BaseConstantFitter(BaseFitter):
+    """Base distribution for many constant fitters."""
+
+    distribution: type[BaseConstantDistribution]
+
+    def _fit(self, values: pl.Series) -> BaseDistribution:
+        # if unique, just get that value
+        if values.n_unique() == 1:
+            return self.distribution(values.unique()[0])
+
+        # otherwise get most common value
+        val = values.value_counts(sort=True)[0,0]
+        return self.distribution(val)
+
+
 @metadist(name="core.constant", var_type="continuous")
 class ContinuousConstantDistribution(BaseConstantDistribution):
     """Constant distribution for floating point type.
@@ -89,22 +104,6 @@ class DiscreteConstantDistribution(BaseConstantDistribution):
         return {
             "value": {"type": "integer"}
         }
-
-
-class BaseConstantFitter(BaseFitter):
-    """Base distribution for many constant fitters."""
-
-    distribution: type[BaseConstantDistribution]
-
-    def _fit(self, values: pl.Series) -> BaseDistribution:
-        # if unique, just get that value
-        if values.n_unique() == 1:
-            return self.distribution(values.unique()[0])
-
-        # otherwise get most common value
-        val = values.value_counts(sort=True)[0,0]
-        return self.distribution(val)
-
 
 
 @metadist(name="core.constant", var_type="datetime")

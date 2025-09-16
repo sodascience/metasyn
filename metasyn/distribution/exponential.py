@@ -1,4 +1,4 @@
-"""Module implementing continuous (floating point) distributions."""
+"""Module with the exponential distribution."""
 
 from scipy.stats import expon
 

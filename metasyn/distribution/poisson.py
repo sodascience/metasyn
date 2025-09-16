@@ -1,4 +1,4 @@
-"""Module implementing discrete distributions."""
+"""Module implementing the Poisson distribution."""
 
 import numpy as np
 from scipy.stats import poisson

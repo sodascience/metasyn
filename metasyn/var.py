@@ -205,8 +205,6 @@ class MetaVar:
         description:
             Description for the variable.
         """
-        # if series.name.startswith("DiscreteTrun"):
-        # print(dist_spec)
         if not isinstance(series, pl.Series):
             series = pl.Series(series)
         var_type = cls.get_var_type(series)

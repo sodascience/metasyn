@@ -1,4 +1,4 @@
-"""Module all string distributions."""
+"""Module for the free text distribution that detects the language."""
 from __future__ import annotations
 
 from typing import Iterable, Optional
