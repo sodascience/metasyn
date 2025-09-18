@@ -10,70 +10,59 @@ information criterion, used for selecting the best distribution for
 a given set of values.
 """
 
-from metasyn.distribution.categorical import MultinoulliDistribution
+from metasyn.distribution.categorical import MultinoulliDistribution, MultinoulliFitter
 from metasyn.distribution.constant import (
     ContinuousConstantDistribution,
-    DateConstantDistribution,
-    DateTimeConstantDistribution,
-    DiscreteConstantDistribution,
-    StringConstantDistribution,
-    TimeConstantDistribution,
-)
-from metasyn.distribution.exponential import ExponentialDistribution
-from metasyn.distribution.faker import FakerDistribution, UniqueFakerDistribution
-from metasyn.distribution.freetext import FreeTextDistribution
-from metasyn.distribution.na import NADistribution
-from metasyn.distribution.normal import (
-    ContinuousNormalDistribution,
-    ContinuousTruncatedNormalDistribution,
-    DiscreteNormalDistribution,
-    DiscreteTruncatedNormalDistribution,
-    LogNormalDistribution,
-)
-from metasyn.distribution.poisson import PoissonDistribution
-from metasyn.distribution.regex import (
-    RegexDistribution,
-    UniqueRegexDistribution,
-)
-from metasyn.distribution.uniform import (
-    ContinuousUniformDistribution,
-    DateTimeUniformDistribution,
-    DateUniformDistribution,
-    DiscreteUniformDistribution,
-    TimeUniformDistribution,
-)
-
-
-from metasyn.distribution.categorical import MultinoulliFitter
-from metasyn.distribution.constant import (
     ContinuousConstantFitter,
+    DateConstantDistribution,
     DateConstantFitter,
+    DateTimeConstantDistribution,
     DateTimeConstantFitter,
+    DiscreteConstantDistribution,
     DiscreteConstantFitter,
+    StringConstantDistribution,
     StringConstantFitter,
+    TimeConstantDistribution,
     TimeConstantFitter,
 )
-from metasyn.distribution.exponential import ExponentialFitter
-from metasyn.distribution.faker import FakerFitter, UniqueFakerFitter
-from metasyn.distribution.freetext import FreeTextFitter
+from metasyn.distribution.exponential import ExponentialDistribution, ExponentialFitter
+from metasyn.distribution.faker import (
+    FakerDistribution,
+    FakerFitter,
+    UniqueFakerDistribution,
+    UniqueFakerFitter,
+)
+from metasyn.distribution.freetext import FreeTextDistribution, FreeTextFitter
 from metasyn.distribution.na import NADistribution, NAFitter
 from metasyn.distribution.normal import (
+    ContinuousNormalDistribution,
     ContinuousNormalFitter,
+    ContinuousTruncatedNormalDistribution,
     ContinuousTruncatedNormalFitter,
+    DiscreteNormalDistribution,
     DiscreteNormalFitter,
+    DiscreteTruncatedNormalDistribution,
     DiscreteTruncatedNormalFitter,
+    LogNormalDistribution,
     LogNormalFitter,
 )
-from metasyn.distribution.poisson import PoissonFitter
+from metasyn.distribution.poisson import PoissonDistribution, PoissonFitter
 from metasyn.distribution.regex import (
+    RegexDistribution,
     RegexFitter,
+    UniqueRegexDistribution,
     UniqueRegexFitter,
 )
 from metasyn.distribution.uniform import (
+    ContinuousUniformDistribution,
     ContinuousUniformFitter,
+    DateTimeUniformDistribution,
     DateTimeUniformFitter,
+    DateUniformDistribution,
     DateUniformFitter,
+    DiscreteUniformDistribution,
     DiscreteUniformFitter,
+    TimeUniformDistribution,
     TimeUniformFitter,
 )
 from metasyn.distribution.uniquekey import UniqueKeyFitter

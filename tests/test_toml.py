@@ -11,8 +11,8 @@ except ImportError:
 
 from pytest import mark
 
-from metasyn.metaframe import MetaFrame
 from metasyn.distribution import builtin_fitters
+from metasyn.metaframe import MetaFrame
 from metasyn.testutils import create_input_toml, create_md_report
 
 
