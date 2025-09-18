@@ -49,7 +49,7 @@ class DistributionRegistry():
 
     def __init__(
             self,
-            fitters: list[BaseFitter]):
+            fitters: list[type[BaseFitter]]):
         self.fitters = fitters
 
     @classmethod
