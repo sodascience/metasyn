@@ -10,7 +10,7 @@ try:
 except ImportError:
     import tomli as tomllib  # type: ignore  # noqa
 
-from metasyn.provider import DistributionProviderList
+from metasyn.provider import DistributionRegistry
 from metasyn.varspec import DistributionSpec, VarDefaults, VarSpec
 
 
@@ -43,7 +43,7 @@ class MetaConfig():
     def __init__(
             self,
             var_specs: Union[list[dict], list[VarSpec]],
-            dist_providers: Union[DistributionProviderList, list[str], str, None],
+            dist_providers: Union[DistributionRegistry, list[str], str, None],
             defaults: Optional[dict] = None,
             n_rows: Optional[int] = None,
             file_config: Optional[dict] = None,
@@ -63,14 +63,14 @@ class MetaConfig():
         return VarSpec.from_dict(var_spec)
 
     @property
-    def dist_providers(self) -> DistributionProviderList:
+    def dist_providers(self) -> DistributionRegistry:
         """Return the distribution provider list to be used for the metaframe."""
         return self._dist_providers
 
     @dist_providers.setter
     def dist_providers(self, dist_providers):
-        if not isinstance(dist_providers, DistributionProviderList):
-            self._dist_providers = DistributionProviderList(dist_providers)
+        if not isinstance(dist_providers, DistributionRegistry):
+            self._dist_providers = DistributionRegistry.parse(dist_providers)
         else:
             self._dist_providers = dist_providers
 

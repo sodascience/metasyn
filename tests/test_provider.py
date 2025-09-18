@@ -9,19 +9,18 @@ from metasyn.distribution.faker import FakerDistribution
 from metasyn.distribution.normal import ContinuousNormalDistribution, DiscreteNormalDistribution
 from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistribution
 from metasyn.distribution.uniform import ContinuousUniformDistribution, DiscreteUniformDistribution
-from metasyn.provider import BuiltinDistributionProvider, DistributionProviderList
+from metasyn.provider import DistributionRegistry
 from metasyn.varspec import DistributionSpec, VarSpec
 
 
-@mark.parametrize("input", ["builtin", "fake-name", BuiltinDistributionProvider,
-                            BuiltinDistributionProvider()])
+@mark.parametrize("input", ["builtin", "fake-name"])
 def test_plist_init(input):
     """Test whether the initialization works correctly."""
     if input == "fake-name":
         with pytest.raises(ValueError):
-            DistributionProviderList(input)
+            DistributionRegistry.parse(input)
     else:
-        plist = DistributionProviderList(input)
+        plist = DistributionRegistry.parse(input)
         assert issubclass(plist.find_distribution("core.regex", var_type="string"),
                           BaseDistribution)
 
@@ -57,7 +56,7 @@ def test_plist_init(input):
 
 # def test_legacy():
 #     """Test whether the legacy system/distributions work."""
-#     plist = DistributionProviderList(CheckProvider)
+#     plist = DistributionRegistry(CheckProvider)
 #     assert issubclass(plist.find_distribution("core.uniform", var_type="continuous"), UniformTest2)
 #     with pytest.warns():  # version 1.1 is deprecated
 #         assert issubclass(
@@ -78,7 +77,7 @@ def test_plist_init(input):
 #             plist.find_distribution("core.uniform", var_type="continuous", version="2.1"),
 #             UniformTest2)
 
-#     plist = DistributionProviderList(LegacyOnly)
+#     plist = DistributionRegistry(LegacyOnly)
 #     with pytest.warns():  # core.uniform is deprecated.
 #         assert issubclass(
 #             plist.find_distribution("core.uniform", var_type="continuous"),
@@ -101,7 +100,7 @@ def test_plist_init(input):
 )
 def test_find_distribution(dist_str, var_type, is_unique, dist):
     """Test whether distributions can be found using the providers."""
-    provider_list = DistributionProviderList("builtin")
+    provider_list = DistributionRegistry.parse("builtin")
     dist_class = provider_list.find_distribution(dist_str, var_type=var_type, unique=is_unique)
     assert dist == dist_class
     if "faker" in dist_str:
@@ -114,7 +113,7 @@ def test_find_distribution(dist_str, var_type, is_unique, dist):
 def test_create_distribution():
     dist_spec = DistributionSpec("uniform", False, parameters={"lower": 10, "upper": 20})
     var_spec = VarSpec("test", dist_spec, var_type="continuous")
-    provider_list = DistributionProviderList("builtin")
+    provider_list = DistributionRegistry.parse("builtin")
 
     assert isinstance(provider_list.create(var_spec), ContinuousUniformDistribution)
 

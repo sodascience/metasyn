@@ -15,7 +15,7 @@ except ImportError:
 import jsonschema
 
 from metasyn.distribution.na import NADistribution
-from metasyn.provider import get_distribution_provider
+from metasyn.provider import DistributionRegistry
 
 SCHEMA_BASE = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -85,10 +85,8 @@ def create_schema(packages: list[str]) -> dict:
         Schema containing all the distributions in the distribution packages.
     """
     defs: list[dict] = []
-    for package_name in packages:
-        pkg = get_distribution_provider(package_name)
-        for fitter in pkg.fitters:
-            defs.append(fitter.distribution.schema())
+    for fitter in DistributionRegistry.parse(packages).fitters:
+        defs.append(fitter.distribution.schema())
     defs.append(NADistribution.schema())
 
     schema = deepcopy(SCHEMA_BASE)

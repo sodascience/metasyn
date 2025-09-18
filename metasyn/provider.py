@@ -61,97 +61,70 @@ if TYPE_CHECKING:
     from metasyn.config import VarSpec, VarSpecAccess
 
 
-class BaseDistributionProvider(ABC):
-    """Base class for all distribution providers.
+# class BaseDistributionProvider(ABC):
+#     """Base class for all distribution providers.
 
-    A distribution provider is a class that provides a set of distributions
-    that can be used by metasyn to generate synthetic data.
-    This class acts as a base class for creating specific distribution
-    providers. It also contains a list of the available distributions and
-    legacy distributions. A list of distributions for a specific type can be
-    accessed with ``get_fitters``.
-    """
+#     A distribution provider is a class that provides a set of distributions
+#     that can be used by metasyn to generate synthetic data.
+#     This class acts as a base class for creating specific distribution
+#     providers. It also contains a list of the available distributions and
+#     legacy distributions. A list of distributions for a specific type can be
+#     accessed with ``filter_fitters``.
+#     """
 
-    name: str = ""
-    version: str = ""
-    fitters: list[type[BaseFitter]] = []
+#     name: str = ""
+#     version: str = ""
+#     fitters: list[type[BaseFitter]] = []
 
-    def __init__(self):
-        # Perform internal consistency check.
-        assert len(self.name) > 0
-        assert len(self.version) > 0
-        assert len(self.fitters) > 0
+#     def __init__(self):
+#         # Perform internal consistency check.
+#         assert len(self.name) > 0
+#         assert len(self.version) > 0
+#         assert len(self.fitters) > 0
 
-    def get_fitters(self, privacy: Optional[BasePrivacy], var_type: Optional[str],
-                    unique: bool = False) -> List[Type[BaseFitter]]:
-        """Get all distributions for a certain variable type.
+#     def filter_fitters(self, privacy: Optional[BasePrivacy], var_type: Optional[str],
+#                     unique: bool = False) -> List[Type[BaseFitter]]:
+#         """Get all distributions for a certain variable type.
 
-        Parameters
-        ----------
-        var_type:
-            Variable type to get the distributions for.
-        unique:
-            Whether the distirbutions should be unique.
-        use_legacy:
-            Whether to find the distributions in the legacy distribution list.
+#         Parameters
+#         ----------
+#         var_type:
+#             Variable type to get the distributions for.
+#         unique:
+#             Whether the distirbutions should be unique.
+#         use_legacy:
+#             Whether to find the distributions in the legacy distribution list.
 
-        Returns
-        -------
-        list[Type[BaseDistribution]]:
-            List of distributions with that variable type.
-        """
-        fitters = [f for f in self.fitters if f.distribution.unique == unique]
-        fitters = [f for f in fitters if privacy is None or f.privacy_type == privacy.name]
-        if var_type is None:
-            return fitters
+#         Returns
+#         -------
+#         list[Type[BaseDistribution]]:
+#             List of distributions with that variable type.
+#         """
+#         fitters = [f for f in self.fitters if f.distribution.unique == unique]
+#         fitters = [f for f in fitters if privacy is None or f.privacy_type == privacy.name]
+#         if var_type is None:
+#             return fitters
 
-        filtered_list = []
-        for fit_class in fitters:
-            str_chk = (isinstance(fit_class.var_type, str) and var_type == fit_class.var_type)
-            lst_chk = (not isinstance(fit_class.var_type, str) and var_type in fit_class.var_type)
-            if str_chk or lst_chk:
-                filtered_list.append(fit_class)
-        return filtered_list
+#         filtered_list = []
+#         for fit_class in fitters:
+#             str_chk = (isinstance(fit_class.var_type, str) and var_type == fit_class.var_type)
+#             lst_chk = (not isinstance(fit_class.var_type, str) and var_type in fit_class.var_type)
+#             if str_chk or lst_chk:
+#                 filtered_list.append(fit_class)
+#         return filtered_list
 
-    @property
-    def all_var_types(self) -> List[str]:
-        """Return list of available variable types."""
-        var_type_set = set()
-        for fitter in self.fitters:
-            if isinstance(fitter.var_type, str):
-                var_type_set.add(fitter.var_type)
-            else:
-                var_type_set.update(fitter.var_type)
-        return list(var_type_set)
+    # @property
+    # def all_var_types(self) -> List[str]:
+    #     """Return list of available variable types."""
+    #     var_type_set = set()
+    #     for fitter in self.fitters:
+    #         if isinstance(fitter.var_type, str):
+    #             var_type_set.add(fitter.var_type)
+    #         else:
+    #             var_type_set.update(fitter.var_type)
+    #     return list(var_type_set)
 
-
-class BuiltinDistributionProvider(BaseDistributionProvider):
-    """Distribution tree that includes the builtin distributions.
-
-    This class inherits from BaseDistributionProvider and provides
-    the built-in metasyn distributions.
-    """
-
-    name = "builtin"
-    version = "1.2"
-    fitters = [
-        DiscreteUniformFitter, ContinuousUniformFitter, DateUniformFitter, TimeUniformFitter,
-        DateTimeUniformFitter,
-        RegexFitter, UniqueRegexFitter,
-        ContinuousConstantFitter, DiscreteConstantFitter, DateConstantFitter,
-        DateTimeConstantFitter, TimeConstantFitter, StringConstantFitter,
-        ExponentialFitter,
-        MultinoulliFitter,
-        FakerFitter, UniqueFakerFitter,
-        FreeTextFitter,
-        PoissonFitter,
-        ContinuousNormalFitter, LogNormalFitter, DiscreteTruncatedNormalFitter,
-        ContinuousTruncatedNormalFitter, DiscreteNormalFitter,
-        UniqueKeyFitter,
-        NAFitter,
-    ]
-
-class DistributionProviderList():
+class DistributionRegistry():
     """List of DistributionProviders with functionality to fit distributions.
 
     This class is responsible for managing and providing access to
@@ -172,26 +145,45 @@ class DistributionProviderList():
 
     def __init__(
             self,
-            dist_providers: Union[
-                list[str],
-                None, str, type[BaseDistributionProvider], BaseDistributionProvider,
-                list[Union[str, type[BaseDistributionProvider], BaseDistributionProvider]]]):
-        if dist_providers is None:
-            self.dist_packages = _get_all_provider_list()
-            return
+            fitters: list[BaseFitter]):
+        self.fitters = fitters
+        # if dist_providers is None:
+        #     self.dist_packages = _get_all_provider_list()
+        #     return
 
-        if isinstance(dist_providers, (str, type, BaseDistributionProvider)):
+        # if isinstance(dist_providers, (str, type, BaseDistributionProvider)):
+        #     dist_providers = [dist_providers]
+        # self.dist_packages = []
+        # for provider in dist_providers:
+        #     if isinstance(provider, str):
+        #         self.dist_packages.append(get_distribution_provider(provider))
+        #     elif isinstance(provider, type):
+        #         self.dist_packages.append(provider())
+        #     elif isinstance(provider, BaseDistributionProvider):
+        #         self.dist_packages.append(provider)
+        #     else:
+        #         raise ValueError(f"Unknown distribution package type '{type(provider)}'")
+
+    @classmethod
+    def parse(cls, dist_providers: Union[list[str], None, str]):
+        fitters = []
+        if isinstance(dist_providers, str):
             dist_providers = [dist_providers]
-        self.dist_packages = []
-        for provider in dist_providers:
-            if isinstance(provider, str):
-                self.dist_packages.append(get_distribution_provider(provider))
-            elif isinstance(provider, type):
-                self.dist_packages.append(provider())
-            elif isinstance(provider, BaseDistributionProvider):
-                self.dist_packages.append(provider)
-            else:
-                raise ValueError(f"Unknown distribution package type '{type(provider)}'")
+
+        entries = {e.name: e for e in entry_points(group="metasyn.distribution_provider")}
+        if dist_providers is None:
+            dist_providers = list(entries)
+
+        for provider_name in dist_providers:
+            if provider_name not in entries:
+                registry = get_registry()
+                if provider_name not in registry:
+                    raise ValueError(f"Cannot find distribution provider with name '{provider_name}'.")
+                raise ValueError(f"Distribution provider '{provider_name}' is not installed.\n"
+                                f"See {registry['provider']['url']} for installation instructions."
+                                )
+            fitters.extend(entries[provider_name].load())
+        return cls(fitters)
 
     def fit(self, series: pl.Series,
             var_type: str,
@@ -237,8 +229,6 @@ class DistributionProviderList():
             raise ValueError("Cannot create distribution without specifying the 'name' key.")
         dist_class = self.find_distribution(
             dist_spec.name, var_spec.var_type, unique=unique)
-        # print(dist_class)
-        # print(dist_spec.parameters)
         try:
             return dist_class(**dist_spec.parameters)  # type: ignore
         except TypeError as err:
@@ -279,7 +269,7 @@ class DistributionProviderList():
         if len(series.drop_nulls()) == 0:
             return NADistribution()
         try_unique = unique if unique is True else False
-        fitters = self.get_fitters(privacy=privacy, var_type=var_type, unique=try_unique)
+        fitters = self.filter_fitters(privacy=privacy, var_type=var_type, unique=try_unique)
         if len(fitters) == 0:
             raise ValueError(f"No available distributions with variable type: '{var_type}'"
                              f" and unique={try_unique}")
@@ -287,7 +277,7 @@ class DistributionProviderList():
         dist_instances = [d.fit(series) for d in fit_instances]
         dist_bic = [d.information_criterion(series) for d in dist_instances]
         if unique is None:
-            dist_list_unq = self.get_fitters(privacy=privacy, var_type=var_type, unique=True)
+            dist_list_unq = self.filter_fitters(privacy=privacy, var_type=var_type, unique=True)
             if len(dist_list_unq) > 0:
                 fit_inst_unq = [f(privacy) for f in dist_list_unq]
                 dist_inst_unq = [d.fit(series) for d in fit_inst_unq]
@@ -318,7 +308,7 @@ class DistributionProviderList():
             version: Optional[str] = None
         ) -> type[BaseDistribution]:
         same_version = []
-        for dist_class in self.get_distributions(var_type=var_type, unique=unique):
+        for dist_class in self.filter_distributions(var_type=var_type, unique=unique):
             if dist_class.matches_name(dist_name):
                 if version is None or version == dist_class.version:
                     return dist_class
@@ -357,12 +347,12 @@ class DistributionProviderList():
             A distribution and the arguments to create an instance.
         """
         versions_found = []
-        for dist_class in self.get_fitters(
+        for fitter_class in self.filter_fitters(
                 privacy=privacy, var_type=var_type, unique=unique):
-            if dist_class.matches_name(dist_name):
-                if version is None or version == dist_class.version:
-                    return dist_class
-                versions_found.append(dist_class)
+            if fitter_class.matches_name(dist_name):
+                if version is None or version == fitter_class.version:
+                    return fitter_class
+                versions_found.append(fitter_class)
         if version is None:
             raise ValueError(f"Could not find fitter with name {dist_name}.")
         raise ValueError(f"Could not find correct fitter version ({version}) of distribution with "
@@ -409,9 +399,9 @@ class DistributionProviderList():
         dist_instance = fitter_class(privacy).fit(series, **fit_kwargs)
         return dist_instance
 
-    def get_fitters(self, privacy: Optional[BasePrivacy] = None,
-                    var_type: Optional[str] = None,
-                    unique: bool = False) -> list[type[BaseFitter]]:
+    def filter_fitters(self, privacy: Optional[BasePrivacy] = None,
+                       var_type: Optional[str] = None,
+                       unique: bool = False) -> list[type[BaseFitter]]:
         """Get the available distributions with constraints.
 
         Parameters
@@ -430,29 +420,24 @@ class DistributionProviderList():
         dist_list:
             List of distributions that fit the given constraints.
         """
-        fitters = []
-        for dist_provider in self.dist_packages:
-            fitters.extend(dist_provider.get_fitters(
-                privacy=privacy, var_type=var_type, unique=unique))
-
-        if privacy is None:
-            return fitters
-        fitters = [f for f in fitters if f.privacy_type == privacy.name]
+        fitters = self.fitters
+        if var_type is not None:
+            fitters = [f for f in fitters if f.provides_var_type(var_type)]
+        fitters = [f for f in fitters if f.distribution.unique == unique]
+        if privacy is not None:
+            fitters = [f for f in fitters if f.privacy_type == privacy.name]
         return fitters
 
-    def get_distributions(self, var_type: Optional[str] = None,
+    def filter_distributions(self, var_type: Optional[str] = None,
                           unique: Optional[bool] = False):
-        filtered_dist = []
-        for dist in self.distributions:
-            if var_type is not None:
-                if isinstance(dist.var_type, str) and dist.var_type != var_type:
-                    continue
-                elif not isinstance(dist.var_type, str) and var_type not in dist.var_type:
-                    continue
-            if unique is not None and dist.unique != unique:
-                continue
-            filtered_dist.append(dist)
-        return filtered_dist
+        dist = self.distributions
+
+        if var_type is not None:
+            dist = [d for d in dist if d.provides_var_type(var_type)]
+
+        if unique is not None:
+            dist = [d for d in dist if d.unique == unique]
+        return dist
 
     def from_dict(self, var_dict: dict[str, Any]) -> BaseDistribution:
         """Create a distribution from a dictionary.
@@ -478,12 +463,12 @@ class DistributionProviderList():
                                             var_type=var_type, unique=unique)
         return dist_class.from_dict(var_dict["distribution"])
 
-    @property
-    def fitters(self):
-        fitters = []
-        for dist_provider in self.dist_packages:
-            fitters.extend(dist_provider.fitters)
-        return fitters
+    # @property
+    # def fitters(self):
+    #     fitters = []
+    #     for dist_provider in self.dist_packages:
+    #         fitters.extend(dist_provider.fitters)
+    #     return fitters
 
     @property
     def distributions(self):
@@ -491,48 +476,48 @@ class DistributionProviderList():
 
 
 
-def _get_all_providers() -> dict[str, EntryPoint]:
-    """Get all available providers."""
-    return {
-        entry.name: entry
-        for entry in entry_points(group="metasyn.distribution_provider")
-    }
+# def _get_all_providers() -> dict[str, EntryPoint]:
+#     """Get all available providers."""
+#     return {
+#         entry.name: entry
+#         for entry in entry_points(group="metasyn.distribution_provider")
+#     }
 
 
-def _get_all_provider_list() -> list[BaseDistributionProvider]:
-    return [p.load()() for p in _get_all_providers().values()]
+# def _get_all_provider_list() -> list[BaseFitter]:
+#     return [p.load()() for p in _get_all_providers().values()]
 
 
-def get_distribution_provider(provider: Union[str, type[
-                                        BaseDistributionProvider],
-                                        BaseDistributionProvider] = "builtin"
-                              ) -> BaseDistributionProvider:
-    """Get a distribution tree.
+# def get_distribution_provider(provider: Union[str, type[
+#                                         BaseDistributionProvider],
+#                                         BaseDistributionProvider] = "builtin"
+#                               ) -> BaseDistributionProvider:
+#     """Get a distribution tree.
 
-    Parameters
-    ----------
-    provider:
-        Name, class or class type of the provider to be used.
-    kwargs:
-        Extra keyword arguments for initialization of the distribution provider.
+#     Parameters
+#     ----------
+#     provider:
+#         Name, class or class type of the provider to be used.
+#     kwargs:
+#         Extra keyword arguments for initialization of the distribution provider.
 
-    Returns
-    -------
-    BaseDistributionProvider:
-        The distribution provider that was found.
-    """
-    if isinstance(provider, BaseDistributionProvider):
-        return provider
-    if isinstance(provider, type):
-        return provider()
+#     Returns
+#     -------
+#     BaseDistributionProvider:
+#         The distribution provider that was found.
+#     """
+#     if isinstance(provider, BaseDistributionProvider):
+#         return provider
+#     if isinstance(provider, type):
+#         return provider()
 
-    all_providers = _get_all_providers()
-    try:
-        return all_providers[provider].load()()
-    except KeyError as exc:
-        registry = get_registry()
-        if provider not in registry:
-            raise ValueError(f"Cannot find distribution provider with name '{provider}'.") from exc
-        raise ValueError(f"Distribution provider '{provider}' is not installed.\n"
-                         f"See {registry['provider']['url']} for installation instructions."
-                         ) from exc
+#     all_providers = _get_all_providers()
+#     try:
+#         return all_providers[provider].load()()
+#     except KeyError as exc:
+#         registry = get_registry()
+#         if provider not in registry:
+#             raise ValueError(f"Cannot find distribution provider with name '{provider}'.") from exc
+#         raise ValueError(f"Distribution provider '{provider}' is not installed.\n"
+#                          f"See {registry['provider']['url']} for installation instructions."
+#                          ) from exc

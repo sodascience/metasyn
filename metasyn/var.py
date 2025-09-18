@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 from metasyn.distribution.base import BaseDistribution
 from metasyn.privacy import BasePrivacy, BasicPrivacy
-from metasyn.provider import BaseDistributionProvider, DistributionProviderList
+from metasyn.provider import DistributionRegistry
 from metasyn.util import set_global_seeds
 from metasyn.varspec import DistributionSpec
 
@@ -173,7 +173,7 @@ class MetaVar:
         cls,  # pylint: disable=too-many-arguments
         series: pl.Series,
         dist_spec: Optional[Union[dict, type, BaseDistribution, DistributionSpec]] = None,
-        provider_list: DistributionProviderList = DistributionProviderList("builtin"),
+        provider_list: DistributionRegistry = DistributionRegistry.parse("builtin"),
         privacy: BasePrivacy = BasicPrivacy(),
         prop_missing: Optional[float] = None,
         description: Optional[str] = None,
@@ -276,9 +276,7 @@ class MetaVar:
     def from_dict(
         cls,
         var_dict: Dict[str, Any],
-        distribution_providers: Union[
-            None, str, type[BaseDistributionProvider], BaseDistributionProvider
-        ] = None,
+        distribution_providers: Union[None, str, list[str]] = None,
     ) -> MetaVar:
         """Restore variable from dictionary.
 
@@ -296,7 +294,7 @@ class MetaVar:
         MetaVar:
             Initialized metadata variable.
         """
-        provider_list = DistributionProviderList(distribution_providers)
+        provider_list = DistributionRegistry.parse(distribution_providers)
         dist = provider_list.from_dict(var_dict)
         return cls(
             name=var_dict["name"],

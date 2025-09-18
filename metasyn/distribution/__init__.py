@@ -43,6 +43,58 @@ from metasyn.distribution.uniform import (
     TimeUniformDistribution,
 )
 
+
+from metasyn.distribution.categorical import MultinoulliFitter
+from metasyn.distribution.constant import (
+    ContinuousConstantFitter,
+    DateConstantFitter,
+    DateTimeConstantFitter,
+    DiscreteConstantFitter,
+    StringConstantFitter,
+    TimeConstantFitter,
+)
+from metasyn.distribution.exponential import ExponentialFitter
+from metasyn.distribution.faker import FakerFitter, UniqueFakerFitter
+from metasyn.distribution.freetext import FreeTextFitter
+from metasyn.distribution.na import NADistribution, NAFitter
+from metasyn.distribution.normal import (
+    ContinuousNormalFitter,
+    ContinuousTruncatedNormalFitter,
+    DiscreteNormalFitter,
+    DiscreteTruncatedNormalFitter,
+    LogNormalFitter,
+)
+from metasyn.distribution.poisson import PoissonFitter
+from metasyn.distribution.regex import (
+    RegexFitter,
+    UniqueRegexFitter,
+)
+from metasyn.distribution.uniform import (
+    ContinuousUniformFitter,
+    DateTimeUniformFitter,
+    DateUniformFitter,
+    DiscreteUniformFitter,
+    TimeUniformFitter,
+)
+from metasyn.distribution.uniquekey import UniqueKeyFitter
+
+builtin_fitters = [
+    DiscreteUniformFitter, ContinuousUniformFitter, DateUniformFitter, TimeUniformFitter,
+    DateTimeUniformFitter,
+    RegexFitter, UniqueRegexFitter,
+    ContinuousConstantFitter, DiscreteConstantFitter, DateConstantFitter,
+    DateTimeConstantFitter, TimeConstantFitter, StringConstantFitter,
+    ExponentialFitter,
+    MultinoulliFitter,
+    FakerFitter, UniqueFakerFitter,
+    FreeTextFitter,
+    PoissonFitter,
+    ContinuousNormalFitter, LogNormalFitter, DiscreteTruncatedNormalFitter,
+    ContinuousTruncatedNormalFitter, DiscreteNormalFitter,
+    UniqueKeyFitter,
+    NAFitter,
+]
+
 __all__ = [
     "MultinoulliDistribution",
     "ExponentialDistribution",
