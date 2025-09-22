@@ -157,7 +157,7 @@ class DistributionRegistry():
         """
         if len(series.drop_nulls()) == 0:
             return NADistribution()
-        try_unique = unique if unique is True else False
+        try_unique = unique is True
         fitters = self.filter_fitters(privacy=privacy, var_type=var_type, unique=try_unique)
         if len(fitters) == 0:
             raise ValueError(f"No available distributions with variable type: '{var_type}'"
