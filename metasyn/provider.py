@@ -54,6 +54,13 @@ class DistributionRegistry():
 
     @classmethod
     def parse(cls, dist_providers: Union[list[str], None, str]):
+        """Initialize the distribution registry from registry names.
+
+        Parameters
+        ----------
+        dist_providers:
+            Name of registry for fitters/distribution or a list of names.
+        """
         fitters = []
         if isinstance(dist_providers, str):
             dist_providers = [dist_providers]
