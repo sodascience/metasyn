@@ -4,20 +4,21 @@ from pytest import mark, raises
 from metasyn.distribution.base import metafit
 from metasyn.distribution.uniform import ContinuousUniformDistribution, ContinuousUniformFitter
 from metasyn.privacy import BasicPrivacy
-from metasyn.provider import get_distribution_provider
-from metasyn.testutils import check_distribution_provider, check_fitter
+from metasyn.registry import DistributionRegistry
+from metasyn.testutils import check_distribution_registry, check_fitter
 
 
-def test_builtin_provider():
-    """Test the builtin distribution provider with the metasyn test functionality."""
-    check_distribution_provider("builtin")
+def test_builtin_registry():
+    """Test the builtin distribution registry with the metasyn test functionality."""
+    check_distribution_registry("builtin")
 
 
 @mark.parametrize(
-    "fitter", get_distribution_provider("builtin").fitters
+    "fitter", DistributionRegistry.parse("builtin").fitters
 )
 def test_dist_validation(fitter):
     """Check all distributions for correctness."""
+    print(type(fitter), fitter)
     check_fitter(fitter, privacy=BasicPrivacy(), provenance="builtin")
 
 

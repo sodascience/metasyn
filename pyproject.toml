@@ -64,8 +64,8 @@ dev = [
 [project.scripts]
 metasyn = "metasyn.__main__:main"
 
-[project.entry-points."metasyn.distribution_provider"]
-builtin = "metasyn.provider:BuiltinDistributionProvider"
+[project.entry-points."metasyn.distribution_registry"]
+builtin = "metasyn.distribution:builtin_fitters"
 
 [project.entry-points."metasyn.privacy"]
 none = "metasyn.privacy:BasicPrivacy"

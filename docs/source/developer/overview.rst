@@ -10,7 +10,7 @@ The :class:`metasyn.MetaFrame` class is a core component of the ``metasyn`` pack
 
 Essentially, a :obj:`~metasyn.MetaFrame` is a collection of :obj:`~metasyn.MetaVar` objects, each representing a column in a dataset. It contains methods that allow for the following:
 
-- **Fitting to a DataFrame**: The :meth:`~metasyn.MetaFrame.fit_dataframe` method allows for fitting a Polars DataFrame to create a :obj:`~metasyn.MetaFrame` object. This method takes several parameters including the DataFrame, column specifications, distribution providers, privacy level, and a progress bar flag.
+- **Fitting to a DataFrame**: The :meth:`~metasyn.MetaFrame.fit_dataframe` method allows for fitting a Polars DataFrame to create a :obj:`~metasyn.MetaFrame` object. This method takes several parameters including the DataFrame, column specifications, distribution registries, privacy level, and a progress bar flag.
 - **Saving and loading**: The :meth:`~metasyn.MetaFrame.save` method serializes and saves the :obj:`~metasyn.MetaFrame` to a JSON or TOML file, following the GMF format. The :meth:`~metasyn.MetaFrame.load` method reads a :obj:`~metasyn.MetaFrame` from a JSON or TOML file.
 - **Synthesizing to a DataFrame**: The :meth:`~metasyn.MetaFrame.synthesize` method creates a synthetic Polars DataFrame based on the :obj:`~metasyn.MetaFrame`.
 

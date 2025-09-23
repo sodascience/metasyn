@@ -1,4 +1,4 @@
-"""Module to test the provider and provider list classes."""
+"""Module to test the registry and registry list classes."""
 
 import pytest
 from pytest import mark, raises
@@ -9,19 +9,18 @@ from metasyn.distribution.faker import FakerDistribution
 from metasyn.distribution.normal import ContinuousNormalDistribution, DiscreteNormalDistribution
 from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistribution
 from metasyn.distribution.uniform import ContinuousUniformDistribution, DiscreteUniformDistribution
-from metasyn.provider import BuiltinDistributionProvider, DistributionProviderList
+from metasyn.registry import DistributionRegistry
 from metasyn.varspec import DistributionSpec, VarSpec
 
 
-@mark.parametrize("input", ["builtin", "fake-name", BuiltinDistributionProvider,
-                            BuiltinDistributionProvider()])
+@mark.parametrize("input", ["builtin", "fake-name"])
 def test_plist_init(input):
     """Test whether the initialization works correctly."""
     if input == "fake-name":
         with pytest.raises(ValueError):
-            DistributionProviderList(input)
+            DistributionRegistry.parse(input)
     else:
-        plist = DistributionProviderList(input)
+        plist = DistributionRegistry.parse(input)
         assert issubclass(plist.find_distribution("core.regex", var_type="string"),
                           BaseDistribution)
 
@@ -57,7 +56,7 @@ def test_plist_init(input):
 
 # def test_legacy():
 #     """Test whether the legacy system/distributions work."""
-#     plist = DistributionProviderList(CheckProvider)
+#     plist = DistributionRegistry(CheckProvider)
 #     assert issubclass(plist.find_distribution("core.uniform", var_type="continuous"), UniformTest2)
 #     with pytest.warns():  # version 1.1 is deprecated
 #         assert issubclass(
@@ -78,7 +77,7 @@ def test_plist_init(input):
 #             plist.find_distribution("core.uniform", var_type="continuous", version="2.1"),
 #             UniformTest2)
 
-#     plist = DistributionProviderList(LegacyOnly)
+#     plist = DistributionRegistry(LegacyOnly)
 #     with pytest.warns():  # core.uniform is deprecated.
 #         assert issubclass(
 #             plist.find_distribution("core.uniform", var_type="continuous"),
@@ -100,35 +99,35 @@ def test_plist_init(input):
     ]
 )
 def test_find_distribution(dist_str, var_type, is_unique, dist):
-    """Test whether distributions can be found using the providers."""
-    provider_list = DistributionProviderList("builtin")
-    dist_class = provider_list.find_distribution(dist_str, var_type=var_type, unique=is_unique)
+    """Test whether distributions can be found using the registries."""
+    registry_list = DistributionRegistry.parse("builtin")
+    dist_class = registry_list.find_distribution(dist_str, var_type=var_type, unique=is_unique)
     assert dist == dist_class
     if "faker" in dist_str:
         with raises(ValueError):
-            provider_list.find_distribution("this is not a distribution", "string")
-    new_class = provider_list.find_distribution(dist_class.__name__, var_type=var_type,
+            registry_list.find_distribution("this is not a distribution", "string")
+    new_class = registry_list.find_distribution(dist_class.__name__, var_type=var_type,
                                                 unique=is_unique)
     assert new_class == dist_class
 
 def test_create_distribution():
     dist_spec = DistributionSpec("uniform", False, parameters={"lower": 10, "upper": 20})
     var_spec = VarSpec("test", dist_spec, var_type="continuous")
-    provider_list = DistributionProviderList("builtin")
+    registry_list = DistributionRegistry.parse("builtin")
 
-    assert isinstance(provider_list.create(var_spec), ContinuousUniformDistribution)
+    assert isinstance(registry_list.create(var_spec), ContinuousUniformDistribution)
 
     # Error with missing parameters
     var_spec.dist_spec.parameters.pop("lower")
     with pytest.raises(ValueError):
-        provider_list.create(var_spec)
+        registry_list.create(var_spec)
 
     # Error with unknown parameters
     with pytest.raises(TypeError):
         var_spec.dist_spec.parameters["unknown"] = 1
-        provider_list.create(var_spec)
+        registry_list.create(var_spec)
 
     # Error when name is not given.
     with pytest.raises(ValueError):
         var_spec.dist_spec.name = None
-        provider_list.create(var_spec)
+        registry_list.create(var_spec)

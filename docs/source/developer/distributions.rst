@@ -48,7 +48,7 @@ Though they can be set manually, the intended way of setting these attributes is
     
     ``<prefix>.<distribution_name>``
     
-    Distributions that are part of the core metasyn distribution provider list should use ``core`` as the prefix, e.g. ``core.multinoulli``.
+    Distributions that are part of the core metasyn distribution registry list should use ``core`` as the prefix, e.g. ``core.multinoulli``.
 
 BaseDistribution class has a series of abstract methods that *must be* implemeted by derived classes, these are:
 
@@ -137,9 +137,9 @@ The next step is to set the attributes of the distribution using the :func:`~met
 
 Then, implement the required methods (:meth:`~metasyn.distribution.base.BaseDistribution._fit`, :meth:`~metasyn.distribution.base.BaseDistribution.draw`, :meth:`~metasyn.distribution.base.BaseDistribution._param_dict`, :meth:`~metasyn.distribution.base.BaseDistribution._param_schema`, :meth:`~metasyn.distribution.base.BaseDistribution.default_distribution` and ``__init__``), as well as any other applicable methods. 
 
-Finally the distribution has to be added to a provider list, so that it can be used by ``metasyn`` for fitting.
+Finally the distribution has to be added to a distribution registry, so that it can be used by ``metasyn`` for fitting.
 
-For example, let's say we want to create a new distribution for unique continuous variables, to be a part of the core ``metasyn`` distribution provider. We could implement the distribution as follows:
+For example, let's say we want to create a new distribution for unique continuous variables, to be a part of the core ``metasyn`` distribution registry. We could implement the distribution as follows:
 
 .. code-block:: python
 
@@ -176,22 +176,7 @@ For example, let's say we want to create a new distribution for unique continuou
 
 
 
-And then add it to the BuiltinDistributionProvider list in the :mod:`~metasyn.distribution.provider` module:
-
-.. code-block:: python
-
-    import NewDistribution
-
-    class BuiltinDistributionProvider(BaseDistributionProvider):
-    """Distribution tree that includes the builtin distributions."""
-
-    name = "builtin"
-    version = "1.1"
-    distributions = [
-        # ... other distributions
-        NewDistribution,
-    ]
-
+And then add it to the ``builtin_fitters`` list in the :mod:`~metasyn.distribution.__init__` module.
 
 Note that this is a bare-bones example and that the implementation of the distribution will vary depending on the type of distribution being implemented. 
 

@@ -11,8 +11,8 @@ except ImportError:
 
 from pytest import mark
 
+from metasyn.distribution import builtin_fitters
 from metasyn.metaframe import MetaFrame
-from metasyn.provider import BuiltinDistributionProvider
 from metasyn.testutils import create_input_toml, create_md_report
 
 
@@ -24,7 +24,7 @@ def test_datafree_create(tmpdir):
     mf = MetaFrame.fit_dataframe(None, config=Path(temp_toml))
 
     assert isinstance(mf, MetaFrame)
-    assert mf.n_columns == len(BuiltinDistributionProvider.fitters)
+    assert mf.n_columns == len(builtin_fitters)
 
 @mark.parametrize(
     "toml_input,data", [

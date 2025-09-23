@@ -81,6 +81,11 @@ class BaseFitter(ABC):
                         cls.__name__,
                         )
 
+    @classmethod
+    def provides_var_type(cls, var_type: str) -> bool:
+        if isinstance(cls.var_type, str):
+            return cls.var_type == var_type
+        return var_type in cls.var_type
 
 
 class BaseDistribution(ABC):
@@ -199,6 +204,12 @@ class BaseDistribution(ABC):
                         cls.name,
                         cls.__name__,
                         )
+
+    @classmethod
+    def provides_var_type(cls, var_type: str) -> bool:
+        if isinstance(cls.var_type, str):
+            return cls.var_type == var_type
+        return var_type in cls.var_type
 
     @classmethod
     @abstractmethod

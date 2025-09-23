@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 from metasyn.distribution.base import BaseDistribution
 from metasyn.privacy import BasePrivacy, BasicPrivacy
-from metasyn.provider import BaseDistributionProvider, DistributionProviderList
+from metasyn.registry import DistributionRegistry
 from metasyn.util import set_global_seeds
 from metasyn.varspec import DistributionSpec
 
@@ -173,7 +173,7 @@ class MetaVar:
         cls,  # pylint: disable=too-many-arguments
         series: pl.Series,
         dist_spec: Optional[Union[dict, type, BaseDistribution, DistributionSpec]] = None,
-        provider_list: DistributionProviderList = DistributionProviderList("builtin"),
+        dist_registry: DistributionRegistry = DistributionRegistry.parse("builtin"),
         privacy: BasePrivacy = BasicPrivacy(),
         prop_missing: Optional[float] = None,
         description: Optional[str] = None,
@@ -196,8 +196,8 @@ class MetaVar:
             supplied distribution (class). Examples of allowed strings are:
             "normal", "uniform", "faker.city.nl_NL". If not supplied, fit
             the best available distribution for the variable type.
-        provider_list:
-            Distribution providers that are used for fitting.
+        dist_registry:
+            Distribution registry that is used for fitting.
         privacy:
             Privacy level to use for fitting the series.
         prop_missing:
@@ -209,7 +209,7 @@ class MetaVar:
             series = pl.Series(series)
         var_type = cls.get_var_type(series)
         dist_spec = DistributionSpec.parse(dist_spec)
-        distribution = provider_list.fit(series, var_type, dist_spec, privacy)
+        distribution = dist_registry.fit(series, var_type, dist_spec, privacy)
         if prop_missing is None:
             prop_missing = (len(series) - len(series.drop_nulls())) / len(series)
         return cls(
@@ -276,17 +276,15 @@ class MetaVar:
     def from_dict(
         cls,
         var_dict: Dict[str, Any],
-        distribution_providers: Union[
-            None, str, type[BaseDistributionProvider], BaseDistributionProvider
-        ] = None,
+        distribution_registries: Union[None, str, list[str]] = None,
     ) -> MetaVar:
         """Restore variable from dictionary.
 
         Parameters
         ----------
-        distribution_providers:
-            Distribution providers to use to create the variable. If None,
-            use all installed/available distribution providers.
+        distribution_registries:
+            Distribution registries to use to create the variable. If None,
+            use all installed/available distribution registries.
         var_dict:
             This dictionary contains all the variable and distribution
             information to recreate it from scratch.
@@ -296,8 +294,8 @@ class MetaVar:
         MetaVar:
             Initialized metadata variable.
         """
-        provider_list = DistributionProviderList(distribution_providers)
-        dist = provider_list.from_dict(var_dict)
+        dist_registry = DistributionRegistry.parse(distribution_registries)
+        dist = dist_registry.from_dict(var_dict)
         return cls(
             name=var_dict["name"],
             var_type=var_dict["type"],

@@ -1,6 +1,6 @@
 # Example toml file as input for metasyn
 
-dist_providers = ["builtin", "metasyn-disclosure"]
+dist_registries = ["builtin", "metasyn-disclosure"]
 
 [privacy]
 name = "disclosure"
