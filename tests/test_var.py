@@ -21,6 +21,7 @@ from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistributio
 from metasyn.distribution.uniform import ContinuousUniformDistribution, DiscreteUniformDistribution
 from metasyn.distribution.uniquekey import UniqueKeyDistribution
 from metasyn.metaframe import _jsonify
+from metasyn.util import get_var_type
 from metasyn.var import MetaVar
 
 
@@ -257,13 +258,13 @@ def test_invalid_prop(prop_missing):
 )
 def test_get_var_type(series, var_type):
     """Test get_var_type method of MetaVar."""
-    assert MetaVar.get_var_type(series) == var_type
+    assert get_var_type(series) == var_type
 
 
 def test_unsupported_type():
     series = pl.Series([MetaVar])
     with pytest.raises(TypeError):
-        MetaVar.get_var_type(series)
+        get_var_type(series)
 
 
 @mark.parametrize(
