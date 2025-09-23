@@ -102,7 +102,7 @@ class UniqueKeyDistribution(BaseDistribution):
                 - 2*np.sum(np.log(1/np.arange(n_choice, n_choice-len(values), -1))))
 
     @classmethod
-    def default_distribution(cls):
+    def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
         return cls(0, False)
 
     @classmethod

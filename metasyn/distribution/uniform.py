@@ -48,7 +48,7 @@ class DiscreteUniformDistribution(ScipyDistribution):
 
 
     @classmethod
-    def default_distribution(cls):
+    def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
         return cls(0, 10)
 
     @classmethod
@@ -103,7 +103,7 @@ class ContinuousUniformDistribution(ScipyDistribution):
                 - 2*len(values)*np.log((self.upper-self.lower)**-1))
 
     @classmethod
-    def default_distribution(cls):
+    def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
         return cls(0, 1)
 
     @classmethod
@@ -220,7 +220,7 @@ class DateTimeUniformDistribution(BaseDTUniformDistribution):
         return dt.datetime.fromisoformat(dt_obj)
 
     @classmethod
-    def default_distribution(cls):
+    def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
         return cls("2022-07-15T10:39:36", "2022-08-15T10:39:36", precision="seconds")
 
     @classmethod
@@ -262,7 +262,7 @@ class TimeUniformDistribution(BaseDTUniformDistribution):
         return dt.time.fromisoformat(dt_obj)
 
     @classmethod
-    def default_distribution(cls):
+    def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
         return cls("10:39:36", "18:39:36", precision="seconds")
 
     def draw(self):
@@ -319,7 +319,7 @@ class DateUniformDistribution(BaseDTUniformDistribution):
         return date_dict
 
     @classmethod
-    def default_distribution(cls):
+    def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
         return cls("1903-07-15", "1940-07-16")
 
     @classmethod

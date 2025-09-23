@@ -70,7 +70,7 @@ class FreeTextDistribution(BaseDistribution):
         return 99999999
 
     @classmethod
-    def default_distribution(cls):
+    def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
         return cls("en_US", 3, 6)
 
     def _param_dict(self):

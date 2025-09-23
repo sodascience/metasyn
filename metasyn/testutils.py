@@ -88,16 +88,20 @@ def check_fitter(fitter: type[BaseFitter], privacy: BasePrivacy,
     assert len(distribution.name.split(".")) == 2
     # assert distribution.provenance == provenance
     assert distribution.var_type != "unknown"
-    dist = distribution.default_distribution()
-    series = pl.Series([dist.draw() for _ in range(100)])
-    new_dist = fitter(privacy).fit(series)
-    assert isinstance(new_dist, distribution)
-    assert set(list(new_dist.to_dict())) >= set(
-        ("name", "class_name", "parameters"))
-    if test_empty:
-        empty_series = pl.Series([], dtype=series.dtype)
-        new_dist = fitter(privacy).fit(empty_series)
+    var_types = distribution.var_type
+    if isinstance(var_types, str):
+        var_types = [var_types]
+    for var_type in var_types:
+        dist = distribution.default_distribution(var_type)
+        series = pl.Series([dist.draw() for _ in range(100)])
+        new_dist = fitter(privacy).fit(series)
         assert isinstance(new_dist, distribution)
+        assert set(list(new_dist.to_dict())) >= set(
+            ("name", "class_name", "parameters"))
+        if test_empty:
+            empty_series = pl.Series([], dtype=series.dtype)
+            new_dist = fitter(privacy).fit(empty_series)
+            assert isinstance(new_dist, distribution)
 
 
 

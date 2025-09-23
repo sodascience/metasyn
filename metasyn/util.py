@@ -5,6 +5,7 @@ import random
 
 import faker
 import numpy as np
+import polars as pl
 
 try:
     import tomllib
@@ -44,3 +45,46 @@ def set_global_seeds(seed: int):
     np.random.seed(seed)
     random.seed(seed)
     faker.Faker.seed(seed)
+
+
+def get_var_type(series: pl.Series) -> str:
+    """Convert polars dtype to metasyn variable type.
+
+    Parameters
+    ----------
+    series:
+        Series to get the metasyn variable type for.
+
+    Returns
+    -------
+    var_type:
+        The variable type that is found.
+    """
+    if not isinstance(series, pl.Series):
+        series = pl.Series(series)
+    polars_dtype = str(series.dtype.base_type())
+
+    convert_dict = {
+        "Int8": "discrete",
+        "Int16": "discrete",
+        "Int32": "discrete",
+        "Int64": "discrete",
+        "UInt8": "discrete",
+        "UInt16": "discrete",
+        "UInt32": "discrete",
+        "UInt64": "discrete",
+        "Float32": "continuous",
+        "Float64": "continuous",
+        "Date": "date",
+        "Datetime": "datetime",
+        "Time": "time",
+        "String": "string",
+        "Categorical": "categorical",
+        "Enum": "categorical",
+        "Boolean": "categorical",
+        "Null": "continuous",
+    }
+    try:
+        return convert_dict[polars_dtype]
+    except KeyError as exc:
+        raise TypeError(f"Unsupported polars type '{polars_dtype}'") from exc

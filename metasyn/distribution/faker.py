@@ -50,7 +50,7 @@ class FakerDistribution(BaseDistribution):
         return 99999
 
     @classmethod
-    def default_distribution(cls):
+    def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
         return cls("city")
 
     def _param_dict(self):

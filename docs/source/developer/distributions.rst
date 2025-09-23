@@ -152,7 +152,7 @@ For example, let's say we want to create a new distribution for unique continuou
             self.upper = upper
 
         @classmethod
-        def default_distribution(cls): 
+        def default_distribution(cls, var_type: Optional[str] = None): 
             return cls(0, 1) # default distribution with lower=0 and upper=1
 
         @classmethod
