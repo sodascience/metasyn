@@ -9,7 +9,8 @@ from pytest import mark
 
 from metasyn.demo.dataset import _AVAILABLE_DATASETS, _get_demo_class, demo_dataframe, demo_file
 from metasyn.metaframe import MetaFrame
-from metasyn.provider import get_distribution_provider
+from metasyn.privacy import BasicPrivacy
+from metasyn.registry import DistributionRegistry
 from metasyn.var import MetaVar
 
 dtypes = {
@@ -49,7 +50,7 @@ def test_dataset(tmp_path, dataframe_lib):
         var_specs=[
                 {"name": "Name", "prop_missing": 0.5},
                 {"name": "Ticket", "description": "test_description"},
-                {"name": "Fare", "distribution": {"implements": "normal"}},
+                {"name": "Fare", "distribution": {"name": "normal"}},
                 {"name": "PassengerId", "distribution": {"unique": True}},
              ])
 
@@ -113,10 +114,17 @@ def test_distributions(tmp_path):
     """Create all available distributions and save a metaframe with it."""
     tmp_fp = tmp_path / "tmp.json"
 
-    provider = get_distribution_provider()
-    for var_type in provider.all_var_types:
-        for dist in provider.get_dist_list(var_type):
-            var = MetaVar(name="None", var_type=var_type, distribution=dist.default_distribution(),
+    registry = DistributionRegistry.parse("builtin")
+    var_type_set = set()
+    for fitter in registry.fitters:
+        if isinstance(fitter.var_type, str):
+            var_type_set.add(fitter.var_type)
+        else:
+            var_type_set.update(fitter.var_type)
+    for var_type in var_type_set:
+        for fitter in registry.filter_fitters(BasicPrivacy(), var_type):
+            var = MetaVar(name="None", var_type=var_type,
+                          distribution=fitter.distribution.default_distribution(),
                           prop_missing=random())
             dataset = MetaFrame([var], n_rows=10)
             dataset.save_json(tmp_fp)

@@ -20,10 +20,10 @@ metasyn.config module
    :show-inheritance:
 
 
-metasyn.provider module
-^^^^^^^^^^^^^^^^^^^^^^^^
+metasyn.registry module
+^^^^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: metasyn.provider
+.. automodule:: metasyn.registry
    :members:
    :undoc-members:
    :show-inheritance:
@@ -68,9 +68,9 @@ metasyn.util module
    :undoc-members:
    :show-inheritance:
 
-metasyn.filereader module
-^^^^^^^^^^^^^^^^^^^^^^^^^
-.. automodule:: metasyn.filereader
+metasyn.file module
+^^^^^^^^^^^^^^^^^^^
+.. automodule:: metasyn.file
    :members:
    :private-members:
    :undoc-members:

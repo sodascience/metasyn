@@ -15,14 +15,14 @@ class DistributionSpec():
     """Specification that determines which distribution is selected.
 
     It has the following attributes:
-    - implements: Which distribution is chosen.
+    - name: Which distribution is chosen.
     - unique: Whether the distribution should be unique.
-    - parameters: The parameters of the distribution as defined by implements.
+    - parameters: The parameters of the distribution as defined by name.
     - fit_kwargs: Fitting keyword arguments to be used while fitting the distribution.
     - version: Version of the distribution to fit.
     """
 
-    implements: Optional[str] = None
+    name: Optional[str] = None
     unique: Optional[bool] = None
     parameters: Optional[dict] = None
     fit_kwargs: dict = field(default_factory=dict)
@@ -30,16 +30,16 @@ class DistributionSpec():
     distribution: Optional[BaseDistribution] = None
 
     def __post_init__(self):
-        if self.implements is None:
+        if self.name is None:
             if self.version is not None:
                 raise ValueError("Cannot create DistributionSpec with attribute 'version' but "
-                                 "without attribute 'implements'.")
+                                 "without attribute 'name'.")
             if self.parameters is not None:
                 raise ValueError("Cannot create DistributionSpec with attribute 'parameters' but "
-                                 "without attribute 'implements'.")
+                                 "without attribute 'name'.")
             if len(self.fit_kwargs) > 0:
                 raise ValueError("Cannot create DistributionSpec with attribute 'fit_kwargs' that"
-                                 " is not empty but without attribute 'implements'.")
+                                 " is not empty but without attribute 'name'.")
 
 
     @classmethod
@@ -68,10 +68,10 @@ class DistributionSpec():
         """
         if isinstance(dist_spec, BaseDistribution):
             dist_dict = {key: value for key, value in dist_spec.to_dict().items()
-                         if key in ["implements", "version", "unique", "parameters"]}
+                         if key in ["name", "version", "unique", "parameters"]}
             return cls(**dist_dict, distribution=dist_spec)
         if isinstance(dist_spec, str):
-            return cls(implements=dist_spec, unique=unique)
+            return cls(name=dist_spec, unique=unique)
         if dist_spec is None:
             return cls(unique=unique)
         if isinstance(dist_spec, dict):
@@ -79,7 +79,7 @@ class DistributionSpec():
         if isinstance(dist_spec, DistributionSpec):
             return dist_spec
         if issubclass(dist_spec, BaseDistribution):
-            return cls(implements=dist_spec.implements, unique=dist_spec.unique)
+            return cls(name=dist_spec.name, unique=dist_spec.unique)
         raise TypeError("Error parsing distribution specification of unknown type "
                         f"'{type(dist_spec)}' with value '{dist_spec}'")
 
@@ -92,7 +92,7 @@ class DistributionSpec():
             A flag that indicates whether a distribution can be generated from the values
             that are specified (not None).
         """
-        return self.implements is not None and self.parameters is not None
+        return self.name is not None and self.parameters is not None
 
     def get_creation_method(self, privacy: BasePrivacy) -> dict:
         """Create a dictionary on how the distribution was created.
@@ -107,7 +107,7 @@ class DistributionSpec():
             Dictionary containing all the non-default settings for the creation method.
         """
         ret_dict: dict[str, Any] = {"created_by": "metasyn"}
-        for var in ["implements", "unique", "parameters", "version"]:
+        for var in ["name", "unique", "parameters", "version"]:
             if getattr(self, var) is not None:
                 ret_dict[var] = getattr(self, var)
         if len(self.fit_kwargs) > 0:
@@ -115,6 +115,9 @@ class DistributionSpec():
         if not isinstance(privacy, BasicPrivacy):
             ret_dict["privacy"] = privacy.to_dict()
         return ret_dict
+
+    def __str__(self):
+        return f"DistSpec<{self.name}, {self.unique}, {self.parameters}, {self.distribution}>"
 
 
 class VarSpec():  # pylint: disable=too-few-public-methods
@@ -183,7 +186,7 @@ class VarSpec():  # pylint: disable=too-few-public-methods
             self.privacy = get_privacy(**self.privacy)
         if self.data_free and not self.dist_spec.fully_specified:
             raise ValueError("Error creating variable specification: data free variable should have"
-                            f" 'implements' and 'parameters'. {self}")
+                            f" 'name' and 'parameters'. {self}")
         if self.var_type is not None and self.var_type not in ALL_VAR_TYPES:
             raise ValueError(f"Cannot create variable '{self.name}': unknown variable type "
                              f"'{self.var_type}'. Choose from {ALL_VAR_TYPES}.")

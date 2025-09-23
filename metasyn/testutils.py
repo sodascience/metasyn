@@ -1,51 +1,54 @@
-"""Module for testing the functionality of distributions and providers.
+"""Module for testing the functionality of distributions and registries.
 
 The testutils module provides a set of utilities for testing the functionality
-and internal consistency of individual distributions and providers.
+and internal consistency of individual distributions and registries.
 """
 
 
 from __future__ import annotations
 
 import json
+from typing import Sequence
 
 import jsonschema
 import numpy as np
 import polars as pl
 from jsonschema.exceptions import SchemaError
 
-from metasyn.distribution import MultinoulliDistribution, NADistribution
-from metasyn.distribution.base import BaseDistribution
+from metasyn.distribution.base import BaseDistribution, BaseFitter
+from metasyn.distribution.categorical import MultinoulliDistribution
+from metasyn.distribution.na import NADistribution
 from metasyn.metaframe import _jsonify
 from metasyn.privacy import BasePrivacy
-from metasyn.provider import (
-    BaseDistributionProvider,
-    DistributionProviderList,
-    get_distribution_provider,
+from metasyn.registry import (
+    DistributionRegistry,
 )
 from metasyn.var import MetaVar
 
 
-def check_distribution_provider(provider_name: str):
-    """Check internal consistency of a distribution provider.
+def check_distribution_registry(registry_name: str):
+    """Check internal consistency of a distribution registry.
 
     Arguments
     ---------
-    provider_name:
-        Name of the provider to be tested.
+    registry_name:
+        Name of the registry to be tested.
     """
-    provider = get_distribution_provider(provider_name)
-    assert isinstance(provider, BaseDistributionProvider)
-    assert len(provider.distributions) > 0
-    assert all(issubclass(dist, BaseDistribution) for dist in provider.distributions)
-    assert isinstance(provider.name, str)
-    assert len(provider.name) > 0
-    assert provider.name == provider_name
-    assert isinstance(provider.version, str)
-    assert len(provider.version) > 0
+    registry = DistributionRegistry.parse(registry_name)
+    assert isinstance(registry, DistributionRegistry)
+    assert len(registry.fitters) > 0
+    assert all(issubclass(fitter, BaseFitter) for fitter in registry.fitters)
+    assert all(issubclass(fitter.distribution, BaseDistribution) for fitter in registry.fitters)
+
+    for fit in registry.fitters:
+        n_fit = 0
+        for other_fit in registry.fitters:
+            if other_fit == fit:
+                n_fit += 1
+        assert n_fit == 1, f"Fitter {fit} exists multiple times in registry."
 
 
-def check_distribution(distribution: type[BaseDistribution], privacy: BasePrivacy,
+def check_fitter(fitter: type[BaseFitter], privacy: BasePrivacy,
                        provenance: str, test_empty: bool=True):
     """Check whether the distributions in the package can be validated positively.
 
@@ -56,12 +59,14 @@ def check_distribution(distribution: type[BaseDistribution], privacy: BasePrivac
     privacy:
         Level/type of privacy the distribution adheres to.
     provenance:
-        Which provider/plugin/package provides the distribution.
+        Which registry/plugin/package provides the distribution.
     test_empty:
         If this is set to true, this will also check empty series and if the distribution
         can fit them. Otherwise, ignore testing the distribution on empty series.
     """
     # Check the schema of the distribution.
+    assert issubclass(fitter, BaseFitter)
+    distribution = fitter.distribution
     schema = distribution.schema()
     dist_dict = distribution.default_distribution().to_dict()
     try:
@@ -70,28 +75,28 @@ def check_distribution(distribution: type[BaseDistribution], privacy: BasePrivac
         raise ValueError(f"Failed distribution validation for {distribution.__name__}") from err
 
     # Check the privacy
-    assert privacy.is_compatible(distribution)
+    assert privacy.is_compatible(fitter)
     if isinstance(distribution.var_type, str):
-        var_types = [distribution.var_type]
+        var_types: Sequence[str] = [distribution.var_type]
     else:
         var_types = distribution.var_type
     for vt in var_types:
-        DistributionProviderList(provenance).find_distribution(
-            distribution.implements, var_type=vt, privacy=privacy,
+        DistributionRegistry.parse(provenance).find_fitter(
+            distribution.name, var_type=vt, privacy=privacy,
             unique=distribution.unique)
 
-    assert len(distribution.implements.split(".")) == 2
-    assert distribution.provenance == provenance
+    assert len(distribution.name.split(".")) == 2
+    # assert distribution.provenance == provenance
     assert distribution.var_type != "unknown"
     dist = distribution.default_distribution()
     series = pl.Series([dist.draw() for _ in range(100)])
-    new_dist = distribution.fit(series, privacy)
+    new_dist = fitter(privacy).fit(series)
     assert isinstance(new_dist, distribution)
     assert set(list(new_dist.to_dict())) >= set(
-        ("implements", "provenance", "class_name", "parameters"))
+        ("name", "class_name", "parameters"))
     if test_empty:
         empty_series = pl.Series([], dtype=series.dtype)
-        new_dist = distribution.fit(empty_series, privacy)
+        new_dist = fitter(privacy).fit(empty_series)
         assert isinstance(new_dist, distribution)
 
 
@@ -181,14 +186,13 @@ def create_input_toml(file_name):
     """Create input toml with all distribution in builtin."""
     import tomlkit  # noqa: PLC0415
 
-    prov = get_distribution_provider("builtin")
     doc = tomlkit.document()
     doc.add("config_version", "1.1")
-    doc.add("dist_providers", ["builtin"])
+    doc.add("dist_registries", ["builtin"])
     doc.add("n_rows", 100)
     doc.add("defaults", {"data_free": True, "prop_missing": 0.1})
     var_array = tomlkit.aot()
-    for dist in prov.distributions:
+    for dist in DistributionRegistry.parse("builtin").distributions:
         var = tomlkit.table()
         var.add("name", dist.__name__)
         if isinstance(dist.var_type, str):
@@ -199,7 +203,6 @@ def create_input_toml(file_name):
         dist_dict = _jsonify(dist.default_distribution().to_dict())
         dist_dict.pop("version")
         dist_dict.pop("class_name")
-        dist_dict.pop("provenance")
         var.add("distribution", dist_dict)
         var.add(tomlkit.nl())
         var_array.append(var)

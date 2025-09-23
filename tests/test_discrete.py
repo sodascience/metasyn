@@ -7,13 +7,13 @@ import polars as pl
 from pytest import mark
 from scipy import stats
 
-from metasyn.distribution.discrete import (
-    DiscreteNormalDistribution,
-    DiscreteTruncatedNormalDistribution,
-    DiscreteUniformDistribution,
-    PoissonDistribution,
-    UniqueKeyDistribution,
+from metasyn.distribution.normal import (
+    DiscreteNormalFitter,
+    DiscreteTruncatedNormalFitter,
 )
+from metasyn.distribution.poisson import PoissonFitter
+from metasyn.distribution.uniform import DiscreteUniformFitter
+from metasyn.distribution.uniquekey import UniqueKeyDistribution, UniqueKeyFitter
 from metasyn.privacy import BasicPrivacy
 
 
@@ -31,7 +31,7 @@ from metasyn.privacy import BasicPrivacy
 def test_uniform(data, series_type):
     """Test discrete uniform distribution."""
     series = series_type(data)
-    dist = DiscreteUniformDistribution.fit(series, BasicPrivacy())
+    dist = DiscreteUniformFitter(BasicPrivacy()).fit(series)
     assert dist.lower == series.min() and dist.upper == series.max()+1
     drawn_values = set([dist.draw() for _ in range(1000)])
     if dist.upper - dist.lower < 5:
@@ -56,8 +56,8 @@ def test_uniform(data, series_type):
 def test_integer_key(data, better_than_uniform, consecutive, series_type):
     """Test unique key distribution (included increasing id's)."""
     series = series_type(data)
-    dist = UniqueKeyDistribution.fit(series, BasicPrivacy())
-    unif_dist = DiscreteUniformDistribution.fit(series, BasicPrivacy())
+    dist = UniqueKeyFitter(BasicPrivacy()).fit(series)
+    unif_dist = DiscreteUniformFitter(BasicPrivacy()).fit(series)
     assert dist.lower == series.min()
     assert dist.consecutive == consecutive
     assert better_than_uniform == (dist.information_criterion(series)
@@ -69,12 +69,17 @@ def test_integer_key(data, better_than_uniform, consecutive, series_type):
         assert np.all(drawn_values == np.arange(dist.lower, dist.lower+100))
 
 
+def test_unique_key_ic_zero():
+    """Check behavior of BIC with zero values."""
+    dist = UniqueKeyDistribution.default_distribution()
+    assert dist.information_criterion([]) == 4
+
 @mark.parametrize("series_type", [pd.Series, pl.Series])
 def test_poisson(series_type):
     """Test Poisson distribution."""
     series = series_type(stats.poisson(mu=10).rvs(1000))
-    dist = PoissonDistribution.fit(series, BasicPrivacy())
-    dist_unif = DiscreteUniformDistribution.fit(series, BasicPrivacy())
+    dist = PoissonFitter(BasicPrivacy()).fit(series)
+    dist_unif = DiscreteUniformFitter(BasicPrivacy()).fit(series)
     assert fabs(dist.rate - 10) < 1
     assert dist.information_criterion(series) < dist_unif.information_criterion(series)
 
@@ -90,8 +95,8 @@ def test_trunc_normal(lower, upper, mean, sd):
     """Test discrete version of truncated normal distribution."""
     a, b = (lower-mean)/sd, (upper-mean)/sd
     values = pl.Series(stats.truncnorm(a=a, b=b, loc=mean, scale=sd).rvs(5000)).cast(pl.Int64)
-    dist = DiscreteTruncatedNormalDistribution.fit(values, BasicPrivacy())
-    dist_uniform = DiscreteUniformDistribution.fit(values, BasicPrivacy())
+    dist = DiscreteTruncatedNormalFitter(BasicPrivacy()).fit(values)
+    dist_uniform = DiscreteUniformFitter(BasicPrivacy()).fit(values)
     assert dist.information_criterion(values) < dist_uniform.information_criterion(values)
     assert isinstance(dist.draw(), int)
 
@@ -107,8 +112,8 @@ def test_trunc_normal(lower, upper, mean, sd):
 def test_normal(mean, sd):
     """Test for discrete version of normal/Gaussian distribution."""
     values = pl.Series(stats.norm(loc=mean, scale=sd).rvs(1000)).cast(pl.Int64)
-    dist = DiscreteNormalDistribution.fit(values, BasicPrivacy())
-    dist_uniform = DiscreteUniformDistribution.fit(values, BasicPrivacy())
+    dist = DiscreteNormalFitter(BasicPrivacy()).fit(values)
+    dist_uniform = DiscreteUniformFitter(BasicPrivacy()).fit(values)
     assert dist.information_criterion(values) < dist_uniform.information_criterion(values)
     assert (dist.mean - mean)/sd < 0.5
     assert (dist.sd - sd)/sd < 0.5

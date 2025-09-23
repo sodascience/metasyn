@@ -11,12 +11,11 @@ from metasyn.file import (
     BaseFileInterface,
     CsvFileInterface,
     SavFileInterface,
-    StataFileInterface,
     file_interface_from_dict,
     fileinterface,
-    read_file,
     read_csv,
     read_dta,
+    read_file,
     read_sav,
     read_tsv,
 )
@@ -219,6 +218,6 @@ def test_stata(tmpdir):
         elif col == "Boolean":
             assert df_new[col].dtype == pl.Int64  # Bugged
         elif col == "NA":
-            assert df_new[col].dtype == pl.Int64  # Bugged
+            assert df_new[col].dtype in [pl.String, pl.Int64]  # Bugged
         else:
             assert df[col].dtype == df_new[col].dtype

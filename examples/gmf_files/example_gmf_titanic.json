@@ -5,9 +5,9 @@
     "provenance": {
         "created by": {
             "name": "metasyn",
-            "version": "1.1.1.dev15+g3e1eae0.d20250108"
+            "version": "1.1.1.dev32+g57b28cd8c.d20250908"
         },
-        "creation time": "2025-05-14T13:50:48.868119"
+        "creation time": "2025-09-10T14:44:11.451758"
     },
     "file_format": {
         "file_interface_name": "csv",
@@ -27,9 +27,8 @@
             "dtype": "Int64",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.unique_key",
+                "name": "core.unique_key",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "UniqueKeyDistribution",
                 "unique": true,
                 "parameters": {
@@ -47,9 +46,8 @@
             "dtype": "String",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.freetext",
+                "name": "core.freetext",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "FreeTextDistribution",
                 "unique": false,
                 "parameters": {
@@ -68,9 +66,8 @@
             "dtype": "Categorical(ordering='physical')",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.multinoulli",
+                "name": "core.multinoulli",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "MultinoulliDistribution",
                 "unique": false,
                 "parameters": {
@@ -94,9 +91,8 @@
             "dtype": "Int64",
             "prop_missing": 0.19865319865319866,
             "distribution": {
-                "implements": "core.truncated_normal",
+                "name": "core.truncated_normal",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "DiscreteTruncatedNormalDistribution",
                 "unique": false,
                 "parameters": {
@@ -116,9 +112,8 @@
             "dtype": "Int64",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.truncated_normal",
+                "name": "core.truncated_normal",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "DiscreteTruncatedNormalDistribution",
                 "unique": false,
                 "parameters": {
@@ -138,9 +133,8 @@
             "dtype": "String",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.regex",
+                "name": "core.regex",
                 "version": "2.0",
-                "provenance": "builtin",
                 "class_name": "RegexDistribution",
                 "unique": false,
                 "parameters": {
@@ -194,9 +188,8 @@
             "dtype": "Float64",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.exponential",
+                "name": "core.exponential",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "ExponentialDistribution",
                 "unique": false,
                 "parameters": {
@@ -213,9 +206,8 @@
             "dtype": "String",
             "prop_missing": 0.7710437710437711,
             "distribution": {
-                "implements": "core.regex",
+                "name": "core.regex",
                 "version": "2.0",
-                "provenance": "builtin",
                 "class_name": "RegexDistribution",
                 "unique": false,
                 "parameters": {
@@ -265,9 +257,8 @@
             "dtype": "Categorical(ordering='physical')",
             "prop_missing": 0.002244668911335578,
             "distribution": {
-                "implements": "core.multinoulli",
+                "name": "core.multinoulli",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "MultinoulliDistribution",
                 "unique": false,
                 "parameters": {
@@ -293,9 +284,8 @@
             "dtype": "Date",
             "prop_missing": 0.08754208754208755,
             "distribution": {
-                "implements": "core.uniform",
+                "name": "core.uniform",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "DateUniformDistribution",
                 "unique": false,
                 "parameters": {
@@ -313,9 +303,8 @@
             "dtype": "Time",
             "prop_missing": 0.08866442199775533,
             "distribution": {
-                "implements": "core.uniform",
+                "name": "core.uniform",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "TimeUniformDistribution",
                 "unique": false,
                 "parameters": {
@@ -334,9 +323,8 @@
             "dtype": "Datetime(time_unit='us', time_zone=None)",
             "prop_missing": 0.10325476992143659,
             "distribution": {
-                "implements": "core.uniform",
+                "name": "core.uniform",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "DateTimeUniformDistribution",
                 "unique": false,
                 "parameters": {
@@ -355,9 +343,8 @@
             "dtype": "String",
             "prop_missing": 1.0,
             "distribution": {
-                "implements": "core.na",
+                "name": "core.na",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "NADistribution",
                 "unique": false,
                 "parameters": {}

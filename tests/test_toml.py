@@ -11,8 +11,8 @@ except ImportError:
 
 from pytest import mark
 
+from metasyn.distribution import builtin_fitters
 from metasyn.metaframe import MetaFrame
-from metasyn.provider import BuiltinDistributionProvider
 from metasyn.testutils import create_input_toml, create_md_report
 
 
@@ -24,7 +24,7 @@ def test_datafree_create(tmpdir):
     mf = MetaFrame.fit_dataframe(None, config=Path(temp_toml))
 
     assert isinstance(mf, MetaFrame)
-    assert mf.n_columns == len(BuiltinDistributionProvider.distributions)
+    assert mf.n_columns == len(builtin_fitters)
 
 @mark.parametrize(
     "toml_input,data", [
@@ -47,7 +47,7 @@ def test_varspec_update():
         "name": "DiscreteTruncatedNormalDistribution",
         "var_type": "discrete",
         "distribution": {
-            "implements": "core.normal",
+            "name": "core.normal",
             "unique": False,
             "parameters": {
                 "mean": 0,
@@ -57,8 +57,8 @@ def test_varspec_update():
     }]
     mf_normal = MetaFrame.fit_dataframe(None, config=toml_input)
     mf_varspec = MetaFrame.fit_dataframe(None, var_specs=var_specs, config=toml_input)
-    assert mf_normal["DiscreteTruncatedNormalDistribution"].distribution.implements == "core.truncated_normal"
-    assert mf_varspec["DiscreteTruncatedNormalDistribution"].distribution.implements == "core.normal"
+    assert mf_normal["DiscreteTruncatedNormalDistribution"].distribution.name == "core.truncated_normal"
+    assert mf_varspec["DiscreteTruncatedNormalDistribution"].distribution.name == "core.normal"
 
 @mark.parametrize(
     "gmf_file", [

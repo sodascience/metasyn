@@ -4,18 +4,13 @@ This module contains a single class for creating distributions that only
 return NA.
 """
 
-import polars as pl
 
-from metasyn.distribution.base import BaseDistribution, metadist
+from metasyn.distribution.base import BaseDistribution, BaseFitter, metadist, metafit
 
 
-@metadist(implements="core.na", var_type=["continuous", "discrete", "categorical", "string"])
+@metadist(name="core.na", var_type=["continuous", "discrete", "categorical", "string"])
 class NADistribution(BaseDistribution):
     """Distribution that always returns NA values (None)."""
-
-    @classmethod
-    def _fit(cls, values: pl.Series) -> BaseDistribution: # noqa: ARG003
-        return cls()
 
     @classmethod
     def default_distribution(cls) -> BaseDistribution:
@@ -33,3 +28,10 @@ class NADistribution(BaseDistribution):
 
     def information_criterion(self, values): # noqa: ARG002
         return 1e10
+
+@metafit(distribution=NADistribution, var_type=["continuous", "discrete", "categorical", "string"])
+class NAFitter(BaseFitter):
+    """Fitter for NA distribution."""
+
+    def _fit(self, series):  # noqa: ARG002
+        return self.distribution()

@@ -15,7 +15,7 @@
             "dtype": "Int64",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.unique_key",
+                "name": "core.unique_key",
                 "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "UniqueKeyDistribution",
@@ -36,7 +36,7 @@
             "dtype": "Categorical(ordering='physical')",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.multinoulli",
+                "name": "core.multinoulli",
                 "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "MultinoulliDistribution",
@@ -62,7 +62,7 @@
             "dtype": "Int64",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.uniform",
+                "name": "core.uniform",
                 "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "DiscreteUniformDistribution",
@@ -83,7 +83,7 @@
             "dtype": "Categorical(ordering='physical')",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.multinoulli",
+                "name": "core.multinoulli",
                 "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "MultinoulliDistribution",
@@ -109,7 +109,7 @@
             "dtype": "Int64",
             "prop_missing": 0.2,
             "distribution": {
-                "implements": "core.uniform",
+                "name": "core.uniform",
                 "version": "1.0",
                 "provenance": "builtin",
                 "class_name": "DiscreteUniformDistribution",

@@ -12,16 +12,14 @@ import polars as pl
 import pytest
 from pytest import mark, raises
 
-from metasyn.distribution import (
-    DiscreteUniformDistribution,
-    NormalDistribution,
-    RegexDistribution,
-    UniformDistribution,
-    UniqueRegexDistribution,
-)
 from metasyn.distribution.categorical import MultinoulliDistribution
-from metasyn.distribution.continuous import TruncatedNormalDistribution
-from metasyn.distribution.discrete import UniqueKeyDistribution
+from metasyn.distribution.normal import (
+    ContinuousNormalDistribution,
+    ContinuousTruncatedNormalDistribution,
+)
+from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistribution
+from metasyn.distribution.uniform import ContinuousUniformDistribution, DiscreteUniformDistribution
+from metasyn.distribution.uniquekey import UniqueKeyDistribution
 from metasyn.metaframe import _jsonify
 from metasyn.var import MetaVar
 
@@ -64,7 +62,6 @@ def check_var(series, var_type, temp_path, all_nan=False):
     var = MetaVar.fit(series)
     new_series = var.draw_series(len(series), 5123)
     check_random_draw(var, len(series))
-    print(new_series)
     check_similar(series, new_series)
     assert var.var_type == var_type
     assert var_type in var.distribution.var_type
@@ -79,7 +76,7 @@ def check_var(series, var_type, temp_path, all_nan=False):
 
     with raises(ValueError):
         var_dict = var.to_dict()
-        var_dict["distribution"].update({"implements": "unknown"})
+        var_dict["distribution"].update({"name": "unknown"})
         MetaVar.from_dict(var_dict)
 
     newer_series = new_var.draw_series(len(series), 6789)
@@ -277,13 +274,13 @@ def test_unsupported_type():
 def test_manual_fit(series):
     """Test adding dist_spec to MetaVar.fit call."""
     var = MetaVar.fit(series)
-    assert isinstance(var.distribution, (UniformDistribution, TruncatedNormalDistribution))
-    var = MetaVar.fit(series, dist_spec={"implements": "normal"})
-    assert isinstance(var.distribution, NormalDistribution)
-    var = MetaVar.fit(series, dist_spec=UniformDistribution)
-    assert isinstance(var.distribution, UniformDistribution)
-    var = MetaVar.fit(series, dist_spec=NormalDistribution(0, 1))
-    assert isinstance(var.distribution, NormalDistribution)
+    assert isinstance(var.distribution, (ContinuousUniformDistribution, ContinuousTruncatedNormalDistribution))
+    var = MetaVar.fit(series, dist_spec={"name": "normal"})
+    assert isinstance(var.distribution, ContinuousNormalDistribution)
+    var = MetaVar.fit(series, dist_spec=ContinuousUniformDistribution)
+    assert isinstance(var.distribution, ContinuousUniformDistribution)
+    var = MetaVar.fit(series, dist_spec=ContinuousNormalDistribution(0, 1))
+    assert isinstance(var.distribution, ContinuousNormalDistribution)
     with raises(TypeError):
         var.fit(10)
 

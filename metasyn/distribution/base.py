@@ -18,15 +18,74 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from inspect import signature
-from typing import Optional, Union
+from typing import Any, Optional, Sequence, Union
 
 import numpy as np
 import polars as pl
-from numpy import inf
 from numpy import typing as npt
 
 from metasyn.privacy import BasePrivacy
+
+
+def convert_to_series(values: Union[npt.NDArray, pl.Series]) -> pl.Series:
+    """Convert list or pandas series to polars series."""
+    if not isinstance(values, (pl.Series, np.ndarray)):
+        values = pl.Series(values)
+    if isinstance(values, pl.Series):
+        series = values.drop_nulls()
+    else:
+        series_array = np.array(values)
+        series_array = series_array[~np.isnan(series_array)]
+        series = pl.Series(series_array)
+    return series
+
+class BaseFitter(ABC):
+    """Base class for fitters."""
+
+    distribution: type[BaseDistribution]
+    privacy_type: str = "none"
+    version: str = "1.0"
+    var_type: Union[str, list[str]] = "unknown"
+
+    def __init__(self, privacy: BasePrivacy):
+        self.privacy = privacy
+
+    # @abstractmethod
+    def fit(self, values: Union[npt.NDArray, pl.Series]) -> BaseDistribution:
+        pl_series = convert_to_series(values)
+        if len(pl_series) == 0:
+            return self.distribution.default_distribution()
+        return self._fit(pl_series)
+
+    @abstractmethod
+    def _fit(self, series: pl.Series) -> BaseDistribution:
+        raise NotImplementedError
+
+    @classmethod
+    def matches_name(cls, name: str) -> bool:
+        """Check whether the name matches the fitter.
+
+        Parameters
+        ----------
+        name: str
+            Name to match to the fitter.
+
+        Returns
+        -------
+        bool:
+            Whether the name matches.
+        """
+        assert cls.distribution.name != "unknown", f"Internal error in class {cls.__name__}"
+        return name in (cls.distribution.name.split(".")[1],
+                        cls.distribution.name,
+                        cls.__name__,
+                        )
+
+    @classmethod
+    def provides_var_type(cls, var_type: str) -> bool:
+        if isinstance(cls.var_type, str):
+            return cls.var_type == var_type
+        return var_type in cls.var_type
 
 
 class BaseDistribution(ABC):
@@ -42,57 +101,14 @@ class BaseDistribution(ABC):
     and ``__init__``.
     """
 
-    implements: str = "unknown"
+    name: str = "unknown"
     """The identifier for the implemented distribution"""
-    var_type: str = "unknown"
+    var_type: Union[str, Sequence[str]] = "unknown"
     """The variable type of the distribution"""
-    provenance: str = "builtin"
-    """Which plugin provides the distribution or builtin"""
-    privacy: str = "none"
-    """The type of privacy it implements"""
     unique: bool = False
     """Whether the distribution creates only unique values"""
     version: str = "1.0"
     """Version of the implemented distribution"""
-
-    @classmethod
-    def fit(cls, series: Union[pl.Series, npt.NDArray], # noqa: D417
-            privacy: BasePrivacy, *args, **kwargs) -> BaseDistribution:
-        """Fit the distribution to the series.
-
-        Parameters
-        ----------
-        series: polars.Series
-            Data to fit the distribution to.
-
-        Returns
-        -------
-        BaseDistribution:
-            Fitted distribution.
-        """
-        pl_series = cls._to_series(series)
-        if len(pl_series) == 0:
-            return cls.default_distribution()
-        if "privacy" in signature(cls._fit).parameters:
-            return cls._fit(pl_series, *args, privacy=privacy, **kwargs)  # type: ignore
-        return cls._fit(pl_series, *args, **kwargs)
-
-    @staticmethod
-    def _to_series(values: Union[npt.NDArray, pl.Series]) -> pl.Series:
-        if not isinstance(values, (pl.Series, np.ndarray)):
-            values = pl.Series(values)
-        if isinstance(values, pl.Series):
-            series = values.drop_nulls()
-        else:
-            series_array = np.array(values)
-            series_array = series_array[~np.isnan(series_array)]
-            series = pl.Series(series_array)
-        return series
-
-    @classmethod
-    @abstractmethod
-    def _fit(cls, values: pl.Series) -> BaseDistribution:
-        """See fit method, but does not need to deal with NA's."""
 
     @abstractmethod
     def draw(self) -> object:
@@ -111,8 +127,7 @@ class BaseDistribution(ABC):
     def __str__(self) -> str:
         """Return an easy to read formatted string for the distribution."""
         return (
-            f"- Type: {self.implements}\n"
-            f"- Provenance: {self.provenance}\n"
+            f"- Type: {self.name}\n"
             f"- Parameters:\n"
             f"{self._params_formatted}\n"
         )
@@ -124,9 +139,8 @@ class BaseDistribution(ABC):
     def to_dict(self) -> dict:
         """Convert the distribution to a dictionary."""
         return {
-            "implements": self.implements,
+            "name": self.name,
             "version": self.version,
-            "provenance": self.provenance,
             "class_name": self.__class__.__name__,
             "unique": self.unique,
             "parameters": deepcopy(self._param_dict()),
@@ -143,9 +157,8 @@ class BaseDistribution(ABC):
         return {
             "type": "object",
             "properties": {
-                "implements": {"const": cls.implements},
+                "name": {"const": cls.name},
                 "version": {"type": "string"},
-                "provenance": {"const": cls.provenance},
                 "class_name": {"const": cls.__name__},
                 "unique": {"const": cls.unique},
                 "parameters": {
@@ -154,7 +167,7 @@ class BaseDistribution(ABC):
                     "required": list(cls.default_distribution()._param_dict())
                 }
             },
-            "required": ["implements", "provenance", "class_name", "parameters"]
+            "required": ["name", "class_name", "parameters"]
         }
 
     @classmethod
@@ -186,11 +199,17 @@ class BaseDistribution(ABC):
         bool:
             Whether the name matches.
         """
-        assert cls.implements != "unknown", f"Internal error in class {cls.__name__}"
-        return name in (cls.implements.split(".")[1],
-                        cls.implements,
+        assert cls.name != "unknown", f"Internal error in class {cls.__name__}"
+        return name in (cls.name.split(".")[1],
+                        cls.name,
                         cls.__name__,
                         )
+
+    @classmethod
+    def provides_var_type(cls, var_type: str) -> bool:
+        if isinstance(cls.var_type, str):
+            return cls.var_type == var_type
+        return var_type in cls.var_type
 
     @classmethod
     @abstractmethod
@@ -218,26 +237,22 @@ class BaseDistribution(ABC):
         raise NotImplementedError()
 
 def metadist(
-        implements: Optional[str] = None,
-        provenance: Optional[str] = None,
+        name: Optional[str] = None,
         var_type: Optional[Union[str, list[str]]] = None,
         unique: Optional[bool] = None,
-        version: Optional[str] = None,
-        privacy: Optional[str] = None):
+        version: Optional[str] = None):
     """Decorate class to create a distribution with the right properties.
 
     Parameters
     ----------
-    implements:
-        The distribution ID that it implements, e.g. core.uniform, core.regex.
-    provenance:
-        Where the distribution came from, which package/plugin implemented it.
+    name:
+        Name that identifies the distribution uniquely, e.g. core.uniform, core.regex.
+        The name should use a period (.) so that the first part is the namespace (e.g. core),
+        and the second part the name of the distribution.
     var_type:
         Variable type of the distribution, e.g. continuous, categorical, string.
     unique:
         Whether the distribution is unique or not.
-    privacy:
-        Privacy class/implementation of the distribution.
     version:
         Version of the distribution. Increment this to ensure that compatibility is
         properly handled.
@@ -248,16 +263,12 @@ def metadist(
         Class with the appropriate class variables.
     """
     def _wrap(cls):
-        if implements is not None:
-            cls.implements = implements
-        if provenance is not None:
-            cls.provenance = provenance
+        if name is not None:
+            cls.name = name
         if var_type is not None:
             cls.var_type = var_type
         if unique is not None:
             cls.unique = unique
-        if privacy is not None:
-            cls.privacy = privacy
         if version is not None:
             cls.version = version
         if cls.__doc__ is None:
@@ -268,18 +279,71 @@ def metadist(
         cls.__doc__ += f"""
     Attributes
     ----------
-    implements:
-        {cls.implements}
+    name:
+        {cls.name}
     unique:
         {cls.unique}
     version:
         {cls.version}
     var_type:
         {cls.var_type}
+    """
+        return cls
+
+    return _wrap
+
+
+def metafit(
+        distribution: Optional[type[BaseDistribution]] = None,
+        var_type: Optional[Union[str, list[str]]] = None,
+        version: Optional[str] = None,
+        privacy_type: Optional[str] = None):
+    """Decorate class to create a fitter with the correct class attributes.
+
+    Parameters
+    ----------
+    distribution:
+        Class that the fitter will return after a succesful fit.
+    var_type:
+        Variable type(s) that the fitter implements, e.g. continuous, categorical, string.
+    version:
+        Version of the fitter. Increment this to ensure that compatibility is
+        properly handled.
+    privacy_type:
+        Privacy class/implementation of the fitter.
+
+    Returns
+    -------
+    cls:
+        Class with the appropriate class variables.
+    """
+    def _wrap(cls):
+        if distribution is not None:
+            cls.distribution = distribution
+        if var_type is not None:
+            cls.var_type = var_type
+        # if unique is not None:
+            # cls.unique = unique
+        if privacy_type is not None:
+            cls.privacy_type = privacy_type
+        if version is not None:
+            cls.version = version
+        if cls.__doc__ is None:
+            return cls
+        cls.__doc__ = cls.__doc__.rstrip(" ")
+        if not cls.__doc__.endswith("\n"):
+            cls.__doc__ += "\n"
+        cls.__doc__ += f"""
+    Attributes
+    ----------
+    dist_class:
+        {cls.distribution}
+    version:
+        {cls.version}
+    var_type:
+        {cls.var_type}
     privacy:
-        {cls.privacy}
-    provenance:
-        {cls.provenance}
+        {cls.privacy_type}
     """
         return cls
 
@@ -318,13 +382,6 @@ class ScipyDistribution(BaseDistribution):
             return self.par[attr]
         return object.__getattribute__(self, attr)
 
-    @classmethod
-    def _fit(cls, values):
-        if len(values) == 0:
-            return cls.default_distribution()
-        param = cls.dist_class.fit(values)  # type: ignore  # All derived classes have dist_class
-        return cls(*param)
-
     def _param_dict(self):
         return self.par
 
@@ -341,13 +398,22 @@ class ScipyDistribution(BaseDistribution):
         return list(values)
 
     def information_criterion(self, values):
-        vals = self._to_series(values)
+        vals = convert_to_series(values)
         if len(vals) == 0:
             return 2 * self.n_par
         return self._information_criterion(vals)
 
     def _information_criterion(self, values):
         return np.log(len(values)) * self.n_par - 2 * np.sum(self.dist.logpdf(values))
+
+
+class ScipyFitter(BaseFitter):
+    """Base fitter for scipy distributions."""
+
+    def _fit(self, series):
+        param = self.distribution.scipy_class.fit(series)  # type: ignore  # All derived classes have dist_class
+        return self.distribution(*param)
+
 
 
 @metadist(unique=True)
@@ -366,7 +432,7 @@ class UniqueDistributionMixin(BaseDistribution):
 
     def __new__(cls, *args, **kwargs):  # noqa
         instance = super().__new__(cls)
-        instance.key_set: set = set()
+        instance.key_set: set[Any] = set()
         return instance
 
     def draw_reset(self):
@@ -386,38 +452,3 @@ class UniqueDistributionMixin(BaseDistribution):
         return 9999999
 
 
-
-class BaseConstantDistribution(BaseDistribution):
-    """Base class for constant distribution.
-
-    This base class makes it easy to implement new constant distributions
-    for different variable types.
-    """
-
-    def __init__(self, value) -> None:
-        self.value = value
-
-    @property
-    def n_par(self) -> int:
-        """int: Number of parameters for distribution."""
-        return 0
-
-    @classmethod
-    def _fit(cls, values: pl.Series) -> BaseDistribution:
-        # if unique, just get that value
-        if values.n_unique() == 1:
-            return cls(values.unique()[0])
-
-        # otherwise get most common value
-        val = values.value_counts(sort=True)[0,0]
-        return cls(val)
-
-    def _param_dict(self):
-        return {"value": self.value}
-
-    def draw(self):
-        return self.value
-
-    def information_criterion(self, values):
-        vals = self._to_series(values)
-        return -inf if vals.n_unique() < 2 else inf

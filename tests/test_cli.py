@@ -9,8 +9,8 @@ import polars as pl
 from pytest import fixture, mark
 
 from metasyn import MetaFrame
-from metasyn.validation import validate_gmf_dict
 from metasyn.file import _AVAILABLE_FILE_INTERFACES
+from metasyn.validation import validate_gmf_dict
 
 TMP_DIR_PATH = None
 
@@ -52,7 +52,7 @@ distribution = {unique = true}
 [[var]]
 name = "Fare"
 prop_missing = 0.2
-distribution = {implements = "lognormal"}
+distribution = {name = "lognormal"}
 """)
     return TMP_DIR_PATH
 

@@ -4,12 +4,9 @@ import polars as pl
 import pytest
 from pytest import mark
 
-from metasyn.distribution.string import (
-    FakerDistribution,
-    FreeTextDistribution,
-    UniqueFakerDistribution,
-    UniqueRegexDistribution,
-)
+from metasyn.distribution.faker import FakerFitter, UniqueFakerDistribution
+from metasyn.distribution.freetext import FreeTextFitter
+from metasyn.distribution.regex import UniqueRegexDistribution
 from metasyn.privacy import BasicPrivacy
 from metasyn.var import MetaVar
 
@@ -17,7 +14,7 @@ from metasyn.var import MetaVar
 @mark.parametrize("series_type", [pd.Series, pl.Series])
 def test_faker(series_type):
     """Test the faker distribution."""
-    dist = FakerDistribution.fit(series_type([1, 2, 3]), BasicPrivacy())
+    dist = FakerFitter(BasicPrivacy()).fit(series_type([1, 2, 3]))
     assert isinstance(dist.to_dict(), dict)
     assert isinstance(dist.draw(), str)
     assert 'faker' in str(dist)
@@ -43,7 +40,7 @@ def test_faker(series_type):
     ])
 def test_free_text(series, lang, avg_sentences, avg_words):
     """Test whether the free text distribution does the right inference."""
-    dist = FreeTextDistribution.fit(series, BasicPrivacy())
+    dist = FreeTextFitter(BasicPrivacy()).fit(series)
     assert dist.locale == lang
     assert dist.avg_sentences == avg_sentences
     assert dist.avg_words == avg_words

@@ -6,7 +6,7 @@ import pytest
 from pytest import mark
 
 from metasyn.config import MetaConfig, VarSpecAccess
-from metasyn.distribution import UniformDistribution
+from metasyn.distribution.uniform import ContinuousUniformDistribution
 from metasyn.privacy import BasePrivacy
 from metasyn.varspec import DistributionSpec, VarSpec
 
@@ -16,9 +16,9 @@ from metasyn.varspec import DistributionSpec, VarSpec
     [
         ("uniform", False),
         (None, False),
-        ({"implements": {"uniform": False}}, False),
-        (UniformDistribution, False),
-        (UniformDistribution(0, 2), False),
+        ({"name": {"uniform": False}}, False),
+        (ContinuousUniformDistribution, False),
+        (ContinuousUniformDistribution(0, 2), False),
         (DistributionSpec(), False),
         ({"fit_kwargs": {"param": 3}}, True),
         ({"version": "2.0"}, True),
@@ -47,7 +47,7 @@ def test_var_spec():
     var_spec = VarSpec.from_dict({"name": "test"})
     assert var_spec.name == "test"
     var_spec = VarSpec.from_dict({"name": "test", "distribution": "uniform"})
-    assert var_spec.dist_spec.implements == "uniform"
+    assert var_spec.dist_spec.name == "uniform"
 
 
 def test_meta_config_datafree():
@@ -82,4 +82,4 @@ def test_meta_config():
     var_spec = meta_config.get("Cabin")
     assert var_spec.data_free is False
     assert var_spec.var_type is None
-    assert var_spec.dist_spec.implements == "core.regex"
+    assert var_spec.dist_spec.name == "core.regex"
