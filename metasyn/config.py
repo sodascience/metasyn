@@ -10,7 +10,7 @@ try:
 except ImportError:
     import tomli as tomllib  # type: ignore  # noqa
 
-from metasyn.provider import DistributionRegistry
+from metasyn.registry import DistributionRegistry
 from metasyn.varspec import DistributionSpec, VarDefaults, VarSpec
 
 
@@ -29,9 +29,9 @@ class MetaConfig():
         of variables that are data-free, the order is also the order of columns
         for the eventual synthesized dataframe. See the VarSpecAccess class on
         how the dictionary can be constructed.
-    dist_providers:
-        Distribution providers to use when fitting distributions to variables.
-        Can be a string, provider, or provider type.
+    dist_registries:
+        Distribution registries to use when fitting distributions to variables.
+        # Can be a string, list of strings or DistributionRegistry.
     privacy:
         Privacy method/level to use as a default setting for the privacy. Can be
         overridden in the var_spec for a particular column.
@@ -43,13 +43,13 @@ class MetaConfig():
     def __init__(
             self,
             var_specs: Union[list[dict], list[VarSpec]],
-            dist_providers: Union[DistributionRegistry, list[str], str, None],
+            dist_registries: Union[DistributionRegistry, list[str], str, None],
             defaults: Optional[dict] = None,
             n_rows: Optional[int] = None,
             file_config: Optional[dict] = None,
             config_version: str = "1.2"):
         self.var_specs = [self._parse_var_spec(v) for v in var_specs]
-        self.dist_providers = dist_providers  # type: ignore
+        self.dist_registries = dist_registries  # type: ignore
         self.n_rows = n_rows
         defaults = {} if defaults is None else defaults
         self.defaults = VarDefaults(**defaults)
@@ -63,16 +63,16 @@ class MetaConfig():
         return VarSpec.from_dict(var_spec)
 
     @property
-    def dist_providers(self) -> DistributionRegistry:
-        """Return the distribution provider list to be used for the metaframe."""
-        return self._dist_providers
+    def dist_registries(self) -> DistributionRegistry:
+        """Return the distribution registry list to be used for the metaframe."""
+        return self._dist_registries
 
-    @dist_providers.setter
-    def dist_providers(self, dist_providers):
-        if not isinstance(dist_providers, DistributionRegistry):
-            self._dist_providers = DistributionRegistry.parse(dist_providers)
+    @dist_registries.setter
+    def dist_registries(self, dist_registries):
+        if not isinstance(dist_registries, DistributionRegistry):
+            self._dist_registries = DistributionRegistry.parse(dist_registries)
         else:
-            self._dist_providers = dist_providers
+            self._dist_registries = dist_registries
 
     def update_varspecs(self, new_var_specs: Union[list[dict], list[VarSpec]]):
         new_var_specs = [self._parse_var_spec(v) for v in new_var_specs]
@@ -114,7 +114,7 @@ class MetaConfig():
             raise value_error
         var_list = config_dict.pop("var", [])
         n_rows = config_dict.pop("n_rows", None)
-        dist_providers = config_dict.pop("dist_providers", ["builtin"])
+        dist_registries = config_dict.pop("dist_registries", ["builtin"])
         defaults = config_dict.pop("defaults", None)
         privacy = config_dict.pop("privacy", None)
         file_config = config_dict.pop("file", None)
@@ -130,7 +130,7 @@ class MetaConfig():
         if len(config_dict) > 0:
             raise ValueError(f"Error parsing configuration file '{config_fp}'."
                              f" Unknown keys detected: '{list(config_dict)}'")
-        return cls(var_list, dist_providers, defaults, n_rows=n_rows,
+        return cls(var_list, dist_registries, defaults, n_rows=n_rows,
                    file_config=file_config,
                    config_version=config_version)
 
@@ -144,7 +144,7 @@ class MetaConfig():
         """
         return {
             "config_version": self.config_version,
-            "dist_providers": self.dist_providers,
+            "dist_registries": self.dist_registries,
             "n_rows": self.n_rows,
             "defaults": self.defaults,
             "var": self.var_specs

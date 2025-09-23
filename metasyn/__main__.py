@@ -37,7 +37,7 @@ Available subcommands:
         Create a synthetic dataset from the intermediate metadata file (GMF).
         To create a metadata file from your original dataset, use the `create-meta` subcommand.
     schema:
-        Generate json schema from distribution providers.
+        Generate json schema from distribution registries.
 
 
 To create a synthetic dataset from your original dataset you have to create a metadata file
@@ -217,7 +217,7 @@ Example: {EXAMPLE_SYNTHESIZE}
 
 
 def schema() -> None:
-    """Program to generate json schema from dist providers."""
+    """Program to generate json schema from dist registries."""
     parser = argparse.ArgumentParser(
         prog="metasyn schema",
         description="Create Generative Metadata Format schema and print to console.",
@@ -245,7 +245,7 @@ def schema() -> None:
     args = parser.parse_args()
 
     # deduplicated list of plugins for schema
-    plugins_avail = {entry.name for entry in entry_points(group="metasyn.distribution_provider")}
+    plugins_avail = {entry.name for entry in entry_points(group="metasyn.distribution_registry")}
 
     if args.list:
         for a in plugins_avail:

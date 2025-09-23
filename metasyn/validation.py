@@ -15,7 +15,7 @@ except ImportError:
 import jsonschema
 
 from metasyn.distribution.na import NADistribution
-from metasyn.provider import DistributionRegistry
+from metasyn.registry import DistributionRegistry
 
 SCHEMA_BASE = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -66,7 +66,7 @@ def validate_gmf_dict(gmf_dict: dict):
     gmf_dict:
         Dictionary containing the metasyn output for a metaframe.
     """
-    packages = [entry.name for entry in entry_points(group="metasyn.distribution_provider")]
+    packages = [entry.name for entry in entry_points(group="metasyn.distribution_registry")]
     schema = create_schema(packages)
     jsonschema.validate(gmf_dict, schema)
 

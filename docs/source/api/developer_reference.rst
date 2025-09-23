@@ -20,10 +20,10 @@ metasyn.config module
    :show-inheritance:
 
 
-metasyn.provider module
-^^^^^^^^^^^^^^^^^^^^^^^^
+metasyn.registry module
+^^^^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: metasyn.provider
+.. automodule:: metasyn.registry
    :members:
    :undoc-members:
    :show-inheritance:

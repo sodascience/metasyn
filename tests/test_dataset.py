@@ -10,7 +10,7 @@ from pytest import mark
 from metasyn.demo.dataset import _AVAILABLE_DATASETS, _get_demo_class, demo_dataframe, demo_file
 from metasyn.metaframe import MetaFrame
 from metasyn.privacy import BasicPrivacy
-from metasyn.provider import DistributionRegistry
+from metasyn.registry import DistributionRegistry
 from metasyn.var import MetaVar
 
 dtypes = {
@@ -114,15 +114,15 @@ def test_distributions(tmp_path):
     """Create all available distributions and save a metaframe with it."""
     tmp_fp = tmp_path / "tmp.json"
 
-    provider = DistributionRegistry.parse("builtin")
+    registry = DistributionRegistry.parse("builtin")
     var_type_set = set()
-    for fitter in provider.fitters:
+    for fitter in registry.fitters:
         if isinstance(fitter.var_type, str):
             var_type_set.add(fitter.var_type)
         else:
             var_type_set.update(fitter.var_type)
     for var_type in var_type_set:
-        for fitter in provider.filter_fitters(BasicPrivacy(), var_type):
+        for fitter in registry.filter_fitters(BasicPrivacy(), var_type):
             var = MetaVar(name="None", var_type=var_type,
                           distribution=fitter.distribution.default_distribution(),
                           prop_missing=random())

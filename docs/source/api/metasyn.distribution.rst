@@ -82,9 +82,9 @@ Normal Distributions
 .. autosummary::
    :toctree: generated/
    
-   NormalDistribution
+   ContinuousNormalDistribution
    LogNormalDistribution
-   TruncatedNormalDistribution
+   ContinuousTruncatedNormalDistribution
    DiscreteNormalDistribution
    DiscreteTruncatedNormalDistribution
 

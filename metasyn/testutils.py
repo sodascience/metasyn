@@ -1,7 +1,7 @@
-"""Module for testing the functionality of distributions and providers.
+"""Module for testing the functionality of distributions and registries.
 
 The testutils module provides a set of utilities for testing the functionality
-and internal consistency of individual distributions and providers.
+and internal consistency of individual distributions and registries.
 """
 
 
@@ -20,37 +20,32 @@ from metasyn.distribution.categorical import MultinoulliDistribution
 from metasyn.distribution.na import NADistribution
 from metasyn.metaframe import _jsonify
 from metasyn.privacy import BasePrivacy
-from metasyn.provider import (
+from metasyn.registry import (
     DistributionRegistry,
 )
 from metasyn.var import MetaVar
 
 
-def check_distribution_provider(provider_name: str):
-    """Check internal consistency of a distribution provider.
+def check_distribution_registry(registry_name: str):
+    """Check internal consistency of a distribution registry.
 
     Arguments
     ---------
-    provider_name:
-        Name of the provider to be tested.
+    registry_name:
+        Name of the registry to be tested.
     """
-    provider = DistributionRegistry.parse(provider_name)
-    assert isinstance(provider, DistributionRegistry)
-    assert len(provider.fitters) > 0
-    assert all(issubclass(fitter, BaseFitter) for fitter in provider.fitters)
-    assert all(issubclass(fitter.distribution, BaseDistribution) for fitter in provider.fitters)
-    # assert isinstance(provider.name, str)
-    # assert len(provider.name) > 0
-    # assert provider.name == provider_name
-    # assert isinstance(provider.version, str)
-    # assert len(provider.version) > 0
+    registry = DistributionRegistry.parse(registry_name)
+    assert isinstance(registry, DistributionRegistry)
+    assert len(registry.fitters) > 0
+    assert all(issubclass(fitter, BaseFitter) for fitter in registry.fitters)
+    assert all(issubclass(fitter.distribution, BaseDistribution) for fitter in registry.fitters)
 
-    for fit in provider.fitters:
+    for fit in registry.fitters:
         n_fit = 0
-        for other_fit in provider.fitters:
+        for other_fit in registry.fitters:
             if other_fit == fit:
                 n_fit += 1
-        assert n_fit == 1, f"Fitter {fit} exists multiple times in provider."
+        assert n_fit == 1, f"Fitter {fit} exists multiple times in registry."
 
 
 def check_fitter(fitter: type[BaseFitter], privacy: BasePrivacy,
@@ -64,7 +59,7 @@ def check_fitter(fitter: type[BaseFitter], privacy: BasePrivacy,
     privacy:
         Level/type of privacy the distribution adheres to.
     provenance:
-        Which provider/plugin/package provides the distribution.
+        Which registry/plugin/package provides the distribution.
     test_empty:
         If this is set to true, this will also check empty series and if the distribution
         can fit them. Otherwise, ignore testing the distribution on empty series.
@@ -193,7 +188,7 @@ def create_input_toml(file_name):
 
     doc = tomlkit.document()
     doc.add("config_version", "1.1")
-    doc.add("dist_providers", ["builtin"])
+    doc.add("dist_registries", ["builtin"])
     doc.add("n_rows", 100)
     doc.add("defaults", {"data_free": True, "prop_missing": 0.1})
     var_array = tomlkit.aot()

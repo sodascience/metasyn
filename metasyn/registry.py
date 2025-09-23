@@ -1,7 +1,7 @@
-"""Module implementing distribution providers.
+"""Module implementing the distribution registry.
 
-Distribution providers are used to find/fit distributions that are available.
-See pyproject.toml on how the builtin distribution provider is registered.
+Distribution registries are used to find/fit distributions that are available.
+See pyproject.toml on how the builtin distributions are registered.
 """
 
 from __future__ import annotations
@@ -29,22 +29,21 @@ if TYPE_CHECKING:
 
 
 class DistributionRegistry():
-    """List of DistributionProviders with functionality to fit distributions.
+    """Registry of distributions and fitters.
 
     This class is responsible for managing and providing access to
-    different distribution providers. It allows for fitting distributions,
-    as well as retrieving distributions based on certain constraints
+    fitters and distributions. It allows for fitting distributions,
+    as well as retrieving distributions/fitters based on certain constraints
     such as privacy level, variable type, and uniqueness.
+
+    You can directly initialize the class with a list of fitters, but most likely
+    you will want to use the :meth:`DistributionRegistry.parse` method, which can load
+    fitters from registries provided by plugins.
 
     Parameters
     ----------
-    dist_providers:
-        One or more distribution providers, that are denoted either with a string ("builtin"),
-        DistributionProvider (BuiltinDistributionProvider())
-        or DistributionProvider type (BuiltinDistributionProvider).
-        The order in which distribution providers are included matters.
-        If a provider name the same distribution at the same privacy level,
-        then only the first will be taken into account.
+    fitters:
+        Fitters to initialize the registry with.
     """
 
     def __init__(
@@ -53,32 +52,32 @@ class DistributionRegistry():
         self.fitters = fitters
 
     @classmethod
-    def parse(cls, dist_providers: Union[list[str], None, str]):
+    def parse(cls, dist_registries: Union[list[str], None, str]):
         """Initialize the distribution registry from registry names.
 
         Parameters
         ----------
-        dist_providers:
+        dist_registries:
             Name of registry for fitters/distribution or a list of names.
         """
         fitters = []
-        if isinstance(dist_providers, str):
-            dist_providers = [dist_providers]
+        if isinstance(dist_registries, str):
+            dist_registries = [dist_registries]
 
-        entries = {e.name: e for e in entry_points(group="metasyn.distribution_provider")}
-        if dist_providers is None:
-            dist_providers = list(entries)
+        entries = {e.name: e for e in entry_points(group="metasyn.distribution_registry")}
+        if dist_registries is None:
+            dist_registries = list(entries)
 
-        for provider_name in dist_providers:
-            if provider_name not in entries:
+        for registry_name in dist_registries:
+            if registry_name not in entries:
                 registry = get_registry()
-                if provider_name not in registry:
+                if registry_name not in registry:
                     raise ValueError(
-                        f"Cannot find distribution provider with name '{provider_name}'.")
-                raise ValueError(f"Distribution provider '{provider_name}' is not installed.\n"
-                                f"See {registry['provider']['url']} for installation instructions."
+                        f"Cannot find distribution registry with name '{registry_name}'.")
+                raise ValueError(f"Distribution registry '{registry_name}' is not installed.\n"
+                                f"See {registry['registry']['url']} for installation instructions."
                                 )
-            fitters.extend(entries[provider_name].load())
+            fitters.extend(entries[registry_name].load())
         return cls(fitters)
 
     def fit(self, series: pl.Series,
@@ -113,7 +112,7 @@ class DistributionRegistry():
         Parameters
         ----------
         var_spec
-            A variable configuration that provides all the qinformation to create the distribution.
+            A variable configuration that provides all the information to create the distribution.
 
         Returns
         -------
