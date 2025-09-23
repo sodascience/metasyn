@@ -360,4 +360,13 @@ class DistributionRegistry():
 
     @property
     def distributions(self):
-        return [f.distribution for f in self.fitters]
+        """All available distributions from fitters, deduplicated."""
+        dists = [f.distribution for f in self.fitters]
+        # Deduplicate distributions
+        new_dists = []
+        dist_names = set()
+        for dist in dists:
+            if dist not in dist_names:
+                new_dists.append(dist)
+                dist_names.add(dist.name)
+        return new_dists
