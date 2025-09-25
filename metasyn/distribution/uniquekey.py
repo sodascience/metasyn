@@ -1,6 +1,6 @@
 """Unique key distributions, often for primary key columns."""
 
-from typing import Set
+from typing import Set, TypeVar
 
 import numpy as np
 
@@ -11,6 +11,8 @@ from metasyn.distribution.base import (
     metadist,
     metafit,
 )
+
+UKeyT = TypeVar("UKeyT", bound="UniqueKeyDistribution")
 
 
 @metadist(name="core.unique_key", var_type="discrete", unique=True)
@@ -102,7 +104,7 @@ class UniqueKeyDistribution(BaseDistribution):
                 - 2*np.sum(np.log(1/np.arange(n_choice, n_choice-len(values), -1))))
 
     @classmethod
-    def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
+    def default_distribution(cls, var_type=None) -> UKeyT: # noqa: ARG003
         return cls(0, False)
 
     @classmethod
@@ -116,7 +118,7 @@ class UniqueKeyDistribution(BaseDistribution):
 class UniqueKeyFitter(BaseFitter):
     """Fitter for unique key distribution."""
 
-    def _fit(self, series):
+    def _fit(self, series) -> UniqueKeyDistribution:
         lower = series.min()
         high = series.max() + 1
         if len(series) == high-lower and np.all(series.to_numpy() == np.arange(lower, high)):
