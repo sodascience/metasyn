@@ -4,6 +4,7 @@ import numpy as np
 from scipy.stats import poisson
 
 from metasyn.distribution.base import (
+    BaseDistribution,
     BaseFitter,
     ScipyDistribution,
     metadist,
@@ -35,7 +36,7 @@ class PoissonDistribution(ScipyDistribution):
         return np.log(len(values))*self.n_par - 2*np.sum(self.dist.logpmf(values))
 
     @classmethod
-    def default_distribution(cls):
+    def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
         return cls(0.5)
 
     @classmethod

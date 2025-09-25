@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import Union
+from typing import Optional, Union
 
 import numpy as np
 import numpy.typing as npt
@@ -140,7 +140,9 @@ class MultinoulliDistribution(BaseDistribution):
         return log_lik
 
     @classmethod
-    def default_distribution(cls):
+    def default_distribution(cls, var_type: Optional[str] = None):
+        if var_type == "discrete":
+            return cls([3, 6, 8], [0.1, 0.3, 0.6])
         return cls(["a", "b", "c"], [0.1, 0.3, 0.6])
 
 

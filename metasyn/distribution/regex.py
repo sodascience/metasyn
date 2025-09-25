@@ -84,7 +84,7 @@ class RegexDistribution(BaseDistribution):
         }
 
     @classmethod
-    def default_distribution(cls):
+    def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
         return cls(r"[ABC][0-9]{3,4}")
 
     def information_criterion(self, values):

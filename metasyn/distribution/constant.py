@@ -68,7 +68,7 @@ class ContinuousConstantDistribution(BaseConstantDistribution):
     """
 
     @classmethod
-    def default_distribution(cls) -> BaseDistribution:
+    def default_distribution(cls, var_type=None) -> BaseDistribution:  # noqa: ARG003
         return cls(0.0)
 
     @classmethod
@@ -96,7 +96,7 @@ class DiscreteConstantDistribution(BaseConstantDistribution):
     """
 
     @classmethod
-    def default_distribution(cls) -> BaseDistribution:
+    def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
         return cls(0)
 
     @classmethod
@@ -134,7 +134,7 @@ class DateTimeConstantDistribution(BaseConstantDistribution):
         return {"value": self.value.isoformat()}
 
     @classmethod
-    def default_distribution(cls) -> BaseDistribution:
+    def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
         return cls("2022-07-15T10:39:36")
 
     @classmethod
@@ -170,7 +170,7 @@ class TimeConstantDistribution(BaseConstantDistribution):
         return {"value": self.value.isoformat()}
 
     @classmethod
-    def default_distribution(cls) -> BaseDistribution:
+    def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
         return cls("10:39:36")
 
     @classmethod
@@ -206,7 +206,7 @@ class DateConstantDistribution(BaseConstantDistribution):
         return {"value": self.value.isoformat()}
 
     @classmethod
-    def default_distribution(cls) -> BaseDistribution:
+    def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
         return cls("1903-07-15")
 
     @classmethod
@@ -235,7 +235,7 @@ class StringConstantDistribution(BaseConstantDistribution):
     """
 
     @classmethod
-    def default_distribution(cls) -> BaseDistribution:
+    def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
         return cls("text")
 
     @classmethod

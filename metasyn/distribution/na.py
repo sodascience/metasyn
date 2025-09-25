@@ -13,7 +13,7 @@ class NADistribution(BaseDistribution):
     """Distribution that always returns NA values (None)."""
 
     @classmethod
-    def default_distribution(cls) -> BaseDistribution:
+    def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
         return cls()
 
     def draw(self):

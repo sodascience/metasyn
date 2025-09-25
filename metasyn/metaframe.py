@@ -450,9 +450,10 @@ class MetaFrame:
             multi_default = (
                 var.distribution.matches_name("multinoulli")
                 and len(var.distribution.labels)
-                == len(var.distribution.default_distribution().labels)
+                == len(var.distribution.default_distribution(var_type=var.var_type).labels)
                 and np.all(
-                    var.distribution.labels == var.distribution.default_distribution().labels
+                    var.distribution.labels == var.distribution.default_distribution(
+                        var_type=var.var_type).labels
                 )
             )
             if "parameters" in var.creation_method:

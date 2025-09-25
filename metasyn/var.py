@@ -11,7 +11,7 @@ from tqdm import tqdm
 from metasyn.distribution.base import BaseDistribution
 from metasyn.privacy import BasePrivacy, BasicPrivacy
 from metasyn.registry import DistributionRegistry
-from metasyn.util import set_global_seeds
+from metasyn.util import get_var_type, set_global_seeds
 from metasyn.varspec import DistributionSpec
 
 
@@ -64,7 +64,7 @@ class MetaVar:
     ):
         self.name = name
         if var_type is None:
-            var_type = MetaVar.get_var_type(pl.Series([distribution.draw()]))
+            var_type = get_var_type(pl.Series([distribution.draw()]))
             distribution.draw_reset()
         self.var_type = var_type
         self.distribution = distribution
@@ -83,49 +83,6 @@ class MetaVar:
                 self.dtype = "Categorical"
             else:
                 self.dtype = str(pl.Series([self.distribution.draw()]).dtype)
-
-    @staticmethod
-    def get_var_type(series: pl.Series) -> str:
-        """Convert polars dtype to metasyn variable type.
-
-        Parameters
-        ----------
-        series:
-            Series to get the metasyn variable type for.
-
-        Returns
-        -------
-        var_type:
-            The variable type that is found.
-        """
-        if not isinstance(series, pl.Series):
-            series = pl.Series(series)
-        polars_dtype = str(series.dtype.base_type())
-
-        convert_dict = {
-            "Int8": "discrete",
-            "Int16": "discrete",
-            "Int32": "discrete",
-            "Int64": "discrete",
-            "UInt8": "discrete",
-            "UInt16": "discrete",
-            "UInt32": "discrete",
-            "UInt64": "discrete",
-            "Float32": "continuous",
-            "Float64": "continuous",
-            "Date": "date",
-            "Datetime": "datetime",
-            "Time": "time",
-            "String": "string",
-            "Categorical": "categorical",
-            "Enum": "categorical",
-            "Boolean": "categorical",
-            "Null": "continuous",
-        }
-        try:
-            return convert_dict[polars_dtype]
-        except KeyError as exc:
-            raise TypeError(f"Unsupported polars type '{polars_dtype}'") from exc
 
     def to_dict(self) -> Dict[str, Any]:
         """Create a dictionary from the variable."""
@@ -207,7 +164,7 @@ class MetaVar:
         """
         if not isinstance(series, pl.Series):
             series = pl.Series(series)
-        var_type = cls.get_var_type(series)
+        var_type = get_var_type(series)
         dist_spec = DistributionSpec.parse(dist_spec)
         distribution = dist_registry.fit(series, var_type, dist_spec, privacy)
         if prop_missing is None:

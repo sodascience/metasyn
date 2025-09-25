@@ -25,6 +25,7 @@ import polars as pl
 from numpy import typing as npt
 
 from metasyn.privacy import BasePrivacy
+from metasyn.util import get_var_type
 
 
 def convert_to_series(values: Union[npt.NDArray, pl.Series]) -> pl.Series:
@@ -50,11 +51,10 @@ class BaseFitter(ABC):
     def __init__(self, privacy: BasePrivacy):
         self.privacy = privacy
 
-    # @abstractmethod
     def fit(self, values: Union[npt.NDArray, pl.Series]) -> BaseDistribution:
         pl_series = convert_to_series(values)
         if len(pl_series) == 0:
-            return self.distribution.default_distribution()
+            return self.distribution.default_distribution(get_var_type(pl_series))
         return self._fit(pl_series)
 
     @abstractmethod
@@ -213,7 +213,7 @@ class BaseDistribution(ABC):
 
     @classmethod
     @abstractmethod
-    def default_distribution(cls) -> BaseDistribution:
+    def default_distribution(cls, var_type: Optional[str] = None) -> BaseDistribution:
         """Get a distribution with default parameters."""
         return cls()
 

@@ -6,6 +6,7 @@ from scipy.stats import lognorm, norm, truncnorm
 from scipy.stats._continuous_distns import FitDataError
 
 from metasyn.distribution.base import (
+    BaseDistribution,
     BaseFitter,
     ScipyDistribution,
     ScipyFitter,
@@ -40,7 +41,7 @@ class ContinuousNormalDistribution(ScipyDistribution):
         self.dist = norm(loc=mean, scale=max(sd, 1e-8))
 
     @classmethod
-    def default_distribution(cls):
+    def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
         return cls(0, 1)
 
     @classmethod
@@ -79,7 +80,7 @@ class LogNormalDistribution(ScipyDistribution):
         self.dist = lognorm(s=max(sd, 1e-8), scale=np.exp(mean))
 
     @classmethod
-    def default_distribution(cls):
+    def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
         return cls(0, 1)
 
     @classmethod
@@ -131,7 +132,7 @@ class ContinuousTruncatedNormalDistribution(ScipyDistribution):
         self.dist = truncnorm(a=a, b=b, loc=mean, scale=max(sd, 1e-8))
 
     @classmethod
-    def default_distribution(cls):
+    def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
         return cls(-1, 2, 0, 1)
 
     @classmethod

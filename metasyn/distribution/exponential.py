@@ -3,6 +3,7 @@
 from scipy.stats import expon
 
 from metasyn.distribution.base import (
+    BaseDistribution,
     BaseFitter,
     ScipyDistribution,
     metadist,
@@ -34,7 +35,7 @@ class ExponentialDistribution(ScipyDistribution):
         self.dist = expon(loc=0, scale=1/max(rate, 1e-8))
 
     @classmethod
-    def default_distribution(cls):
+    def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
         return cls(1.0)
 
     @classmethod
