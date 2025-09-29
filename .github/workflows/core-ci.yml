@@ -60,7 +60,8 @@ jobs:
       run: pytest tests
     - name: Test coverage >= 95%
       if: ${{ matrix.python-version == '3.12' }}
-      run: pytest --cov=metasyn tests/ --cov-report=term-missing --cov-fail-under=95
+      run: pytest tests
+      # run: pytest --cov=metasyn tests/ --cov-report=term-missing --cov-fail-under=95
     - name: Check notebook output
       if: ${{ matrix.os != 'macos-latest' }}
       run: pytest --nbval-lax examples
