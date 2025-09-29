@@ -104,7 +104,7 @@ class UniqueKeyDistribution(BaseDistribution):
                 - 2*np.sum(np.log(1/np.arange(n_choice, n_choice-len(values), -1))))
 
     @classmethod
-    def default_distribution(cls, var_type=None) -> UKeyT: # noqa: ARG003
+    def default_distribution(cls: type[UKeyT], var_type=None) -> UKeyT: # noqa: ARG003
         return cls(0, False)
 
     @classmethod
@@ -117,6 +117,8 @@ class UniqueKeyDistribution(BaseDistribution):
 @metafit(distribution=UniqueKeyDistribution, var_type="discrete")
 class UniqueKeyFitter(BaseFitter):
     """Fitter for unique key distribution."""
+
+    distribution: type[UniqueKeyDistribution]
 
     def _fit(self, series) -> UniqueKeyDistribution:
         lower = series.min()
