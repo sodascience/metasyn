@@ -6,11 +6,10 @@ synthetic data from GMF files and creating json schemas for GMF files.
 import argparse
 import json
 import pathlib
-from typing import Optional
 import sys
 from argparse import RawDescriptionHelpFormatter
-
 from importlib.metadata import entry_points, version
+from typing import Optional
 
 from metasyn import MetaFrame
 from metasyn.config import MetaConfig

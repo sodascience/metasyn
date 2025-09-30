@@ -7,10 +7,9 @@ See pyproject.toml on how the builtin distributions are registered.
 from __future__ import annotations
 
 import warnings
+from importlib.metadata import entry_points
 from inspect import signature
 from typing import TYPE_CHECKING, Any, Optional, Union
-
-from importlib.metadata import entry_points
 
 import numpy as np
 import polars as pl

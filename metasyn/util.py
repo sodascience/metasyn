@@ -12,10 +12,7 @@ try:
 except ImportError:
     import tomli as tomllib  # type: ignore  # noqa
 
-try:
-    from importlib_resources import files
-except ImportError:
-    from importlib.resources import files  # type: ignore
+from importlib.resources import files
 
 
 ALL_VAR_TYPES = ["discrete", "continuous", "time", "date", "datetime", "string", "categorical"]
