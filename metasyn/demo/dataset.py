@@ -11,10 +11,7 @@ import polars as pl
 
 from metasyn.varspec import VarSpec
 
-try:
-    from importlib_resources import files
-except ImportError:
-    from importlib.resources import files  # type: ignore
+from importlib.resources import files
 
 _AVAILABLE_DATASETS = {}
 

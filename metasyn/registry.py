@@ -10,10 +10,7 @@ import warnings
 from inspect import signature
 from typing import TYPE_CHECKING, Any, Optional, Union
 
-try:
-    from importlib_metadata import entry_points
-except ImportError:
-    from importlib.metadata import entry_points  # type: ignore
+from importlib.metadata import entry_points
 
 import numpy as np
 import polars as pl

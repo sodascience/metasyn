@@ -10,11 +10,7 @@ from typing import Optional
 import sys
 from argparse import RawDescriptionHelpFormatter
 
-try:  # Python < 3.10 (backport)
-    from importlib_metadata import entry_points, version
-except ImportError:
-    from importlib.metadata import entry_points, version  # type: ignore [assignment]
-
+from importlib.metadata import entry_points, version
 
 from metasyn import MetaFrame
 from metasyn.config import MetaConfig

@@ -10,13 +10,11 @@ authors = [
 ]
 description = "Package for creating synthetic datasets while preserving privacy."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 keywords = ["metadata", "open-data", "privacy", "synthetic-data", "tabular datasets"]
 license = { file = "LICENSE" }
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -36,8 +34,6 @@ dependencies = [
     "lingua-language-detector",
     "regex",
     "jsonschema",
-    "importlib-metadata;python_version<'3.10'",
-    "importlib-resources;python_version<'3.9'",
     "tomli;python_version<'3.11'",
     "regexmodel>=0.2.1"
 ]
@@ -86,8 +82,6 @@ module = [
     "pandas.*",
     "jsonschema.*",
     "sklearn.*",
-    "importlib_metadata.*",
-    "importlib_resources.*",
     "wget.*",
     "lingua.*",
     "tomllib.*",
