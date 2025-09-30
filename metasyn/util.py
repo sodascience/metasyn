@@ -14,7 +14,6 @@ except ImportError:
 
 from importlib.resources import files
 
-
 ALL_VAR_TYPES = ["discrete", "continuous", "time", "date", "datetime", "string", "categorical"]
 
 def get_registry() -> dict:
