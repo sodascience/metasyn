@@ -6,6 +6,7 @@ synthetic data from GMF files and creating json schemas for GMF files.
 import argparse
 import json
 import pathlib
+from typing import Optional
 import sys
 from argparse import RawDescriptionHelpFormatter
 
@@ -61,11 +62,18 @@ Program information:
 ENTRYPOINTS = ["create-meta", "synthesize", "schema"]
 
 
-def main() -> None:
+def main(input_args: Optional[list[str]] = None) -> None:
     """CLI pointing to different entrypoints."""
     # show help by default, else consume first argument
-    subcommand = "--help" if len(sys.argv) < 2 else sys.argv.pop(1)
+    if input_args is None:
+        input_args = sys.argv[1:]
+    else:
+        input_args = [str(x) for x in input_args]
+    if len(input_args) == 0:
+        input_args = ["--help"]
 
+    subcommand = input_args[0]
+    input_args.pop(0)
     if subcommand in ["-h", "--help"]:
         print(MAIN_HELP_MESSAGE)
     elif subcommand in ["-v", "--version"]:
@@ -73,17 +81,17 @@ def main() -> None:
 
     # find the subcommand in this module and run it!
     elif subcommand == "synthesize":
-        synthesize()
+        synthesize(input_args)
     elif subcommand == "schema":
-        schema()
+        schema(input_args)
     elif subcommand == "create-meta":
-        create_metadata()
+        create_metadata(input_args)
     else:
         print(f"Invalid subcommand ({subcommand}). For help see metasyn --help")
         sys.exit(1)
 
 
-def create_metadata() -> None:
+def create_metadata(input_args) -> None:
     """Program to create and save metadata from a DataFrame to a GMF file (.json/.toml)."""
     parser = argparse.ArgumentParser(
         prog="metasyn create-meta",
@@ -118,7 +126,7 @@ Examples:
         default=None,
     )
 
-    args, _ = parser.parse_known_args()
+    args, _ = parser.parse_known_args(input_args)
     if args.config is not None:
         meta_config = MetaConfig.from_toml(args.config)
     else:
@@ -126,7 +134,7 @@ Examples:
 
     if args.input is None:
         if meta_config is None:
-            raise ValueError("Please supply either an input dataset or a configuration file.")
+            raise parser.error("Please supply either an input dataset or a configuration file.")
         meta_frame = MetaFrame.from_config(meta_config)
     else:
         if meta_config is not None and meta_config.file_config is not None:
@@ -138,7 +146,7 @@ Examples:
     meta_frame.save(args.output)
 
 
-def synthesize() -> None:
+def synthesize(input_args) -> None:
     """Program to generate synthetic data."""
     parser = argparse.ArgumentParser(
         prog="metasyn synthesize",
@@ -181,7 +189,7 @@ Example: {EXAMPLE_SYNTHESIZE}
     )
 
     # parse the args without the subcommand
-    args, _ = parser.parse_known_args()
+    args, _ = parser.parse_known_args(input_args)
 
     if not args.preview and not args.output:
         parser.error("Output file is required if you are not using the preview option.")
@@ -189,12 +197,13 @@ Example: {EXAMPLE_SYNTHESIZE}
     # Create the metaframe from the GMF file
     try:
         meta_frame = MetaFrame.load(args.input)
-    except json.JSONDecodeError as _err:
-        print(f"Error: Unable to parse the file '{args.input}'.\n\n"
-              "Expecting a GMF/.json/.toml file as input.\n"
-              "Did you perhaps provide your dataset?\n"
-              "If so, please first create the metadata with the `create-meta` sub command.\n"
-              "Otherwise your GMF file might be corrupted, and you should recreate it.")
+    except (json.JSONDecodeError, UnicodeDecodeError) as _err:
+        parser.error(
+            f"Unable to parse the file '{args.input}'.\n\n"
+            "Expecting a GMF/.json/.toml file as input.\n"
+            "Did you perhaps provide your dataset?\n"
+            "If so, please first create the metadata with the `create-meta` sub command.\n"
+            "Otherwise your GMF file might be corrupted, and you should recreate it.")
         return
 
     if args.preview:
@@ -216,7 +225,7 @@ Example: {EXAMPLE_SYNTHESIZE}
                                    file_format=file_interface)
 
 
-def schema() -> None:
+def schema(input_args) -> None:
     """Program to generate json schema from dist registries."""
     parser = argparse.ArgumentParser(
         prog="metasyn schema",
@@ -242,7 +251,7 @@ def schema() -> None:
     )
 
     # parse the args without the subcommand
-    args = parser.parse_args()
+    args = parser.parse_args(input_args)
 
     # deduplicated list of plugins for schema
     plugins_avail = {entry.name for entry in entry_points(group="metasyn.distribution_registry")}
