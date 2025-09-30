@@ -25,7 +25,7 @@ def get_registry() -> dict:
     -------
         Dictionary containing the registry entries.
     """
-    registry_fp = files(__package__).joinpath("schema", "plugin_registry.toml")
+    registry_fp = files(__package__) / "schema" / "plugin_registry.toml"
     with registry_fp.open("rb") as handle:
         registry = tomllib.load(handle)
     return registry
