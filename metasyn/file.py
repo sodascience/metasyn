@@ -244,7 +244,7 @@ class ReadStatInterface(BaseFileInterface, ABC):
         else:
             file_label = orig_file_label
         getattr(pyreadstat, f"write_{self.interface}")(pd_df, out_fp, **metadata,
-                                                    file_label=file_label)
+                                                       file_label=file_label)
 
     @classmethod
     def default_interface(cls, fp: Union[str, Path]):
@@ -317,11 +317,7 @@ class SavFileInterface(ReadStatInterface):
                         and df[col].dtype == pl.Float64):
                     n_round = int(col_format.split(".")[-1])
                     df = df.with_columns(pl.col(col).round(n_round))
-        pd_df = df.to_pandas()
-        for col in pd_df.columns:
-            if df[col].dtype.base_type() == pl.Datetime:
-                pd_df[col] = pd_df[col].astype('datetime64[ns]')
-        return pd_df
+        return df
 
     @classmethod
     def default_interface(cls, fp: Union[str, Path]):
@@ -340,7 +336,6 @@ class StataFileInterface(ReadStatInterface):
     def _convert_with_orig_format(cls, df, prs_metadata):
         for col in df.columns:
             col_format = prs_metadata.original_variable_types[col]
-            # print(col, col_format)
             if col_format == "%8.0g":
                 df = df.with_columns(pl.col(col).cast(pl.Int32))
             elif col_format == "%12.0g":
@@ -351,7 +346,6 @@ class StataFileInterface(ReadStatInterface):
                 df = df.with_columns(pl.col(col).cast(pl.Float64))
             # elif col_format == "%td":
                 # print(col, df[col])
-        # print(df["Date"])
         return df
 
     @classmethod
@@ -365,14 +359,8 @@ class StataFileInterface(ReadStatInterface):
         return metadata
 
     def _prep_df_for_writing(self, df):
-        pd_df = df.to_pandas()
-        for col in pd_df.columns:
-            if pd_df[col].dtype == "float64":
-                if str(df[col].dtype).startswith(("Int", "UInt")):
-                    pd_df[col] = pd_df[col].astype(str(df[col].dtype))
-            if df[col].dtype.base_type() == pl.Datetime or df[col].dtype.base_type() == pl.Date:
-                pd_df[col] = pd_df[col].astype('datetime64[ns]')
-        return pd_df
+        return df
+
 
     def _get_format(self, pd_df, df):  # noqa: ARG002
         """Fill in the formats for which we don't know them in the metadata."""
@@ -381,20 +369,20 @@ class StataFileInterface(ReadStatInterface):
             if col in self.metadata.get("variable_format", {}):
                 continue
             pd_dtype = str(pd_df[col].dtype)
-            # print(col, pd_dtype)
-            if pd_dtype.startswith(("Int", "UInt")) and not pd_dtype.endswith("64"):
-                var_format[col] = "%8.0g"
-            elif pd_dtype.startswith(("Int", "UInt")) and pd_dtype.endswith("64"):
-                var_format[col] = "%12.0g"
-            elif pd_dtype == "float32":
+            if str(pd_dtype).startswith(("Int", "UInt")):
+                print(col, not str(pd_dtype).endswith("64"))
+                if not str(pd_dtype).endswith("64"):
+                    var_format[col] = "%8.0g"
+                else:
+                    var_format[col] = "%12.0g"
+            elif str(pd_dtype) == "Float32":
                 var_format[col] = "%9.0g"
-            elif pd_dtype == "float64":
+            elif str(pd_dtype) == "Float64":
                 var_format[col] = "%10.0g"
             # The below doesn't work due to overflow problems.
             # elif df[col].dtype == pl.Date:
                 # var_format[col] = "%td"
                 # pd_df[col] = 0
-
         var_format.update(self.metadata.get("variable_format", {}))
         return var_format
 

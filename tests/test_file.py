@@ -211,8 +211,10 @@ def test_stata(tmpdir):
             assert df_new[col].dtype == pl.Int32  # Unfixable, since stata doesn't have Int8, etc
         elif col == "UInt64":
             assert df_new[col].dtype == pl.Int64  # Bugged
-        elif col in ("Date", "Datetime"):
+        elif col == "Datetime":
             assert str(df_new[col].dtype.base_type()) == "Datetime"  # Bugged
+        elif col == "Date":
+            assert str(df_new[col].dtype.base_type()) == "Date"
         elif col == "Categorical":
             assert df_new[col].dtype == pl.String  # Bugged
         elif col == "Boolean":

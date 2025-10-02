@@ -4,17 +4,13 @@
 import string
 from abc import ABC, abstractmethod
 from datetime import date, datetime, time, timedelta
+from importlib.resources import files
 from pathlib import Path
 
 import numpy as np
 import polars as pl
 
 from metasyn.varspec import VarSpec
-
-try:
-    from importlib_resources import files
-except ImportError:
-    from importlib.resources import files  # type: ignore
 
 _AVAILABLE_DATASETS = {}
 

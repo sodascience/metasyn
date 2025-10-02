@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
     runs-on: "ubuntu-latest"
     steps:
       - uses: actions/checkout@v4
@@ -38,7 +38,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
         include:
             - os: macos-latest
               python-version: "3.13"
@@ -76,7 +76,7 @@ jobs:
       run: |
         metasyn schema -o current_schema.json
         MD5_DATA=(`md5sum current_schema.json`)
-        [[ ${MD5_DATA[0]} == "c2a69330cec7a147ab775f5f0e037d8b" ]]
+        [[ ${MD5_DATA[0]} == "8e9351c9b1513a6586ad94fa8b82d94e" ]]
 
 
 
