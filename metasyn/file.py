@@ -193,14 +193,15 @@ class ReadStatInterface(BaseFileInterface, ABC):
                 f"Please install pyreadstat to use the {'/'.join(cls.extensions)} file interface."
                 ) from err
 
-        return getattr(pyreadstat, f"read_{cls.interface}")(fp, apply_value_formats=True)
+        return getattr(pyreadstat, f"read_{cls.interface}")(fp, apply_value_formats=True,
+                                                            output_format="polars")
 
 
     @classmethod
     def _get_df_metadata(cls, fp: Union[Path, str]):
         """Read the dataset including the metadata."""
-        pandas_df, prs_metadata = cls._read_data(fp)
-        df = pl.DataFrame(pandas_df)
+        df, prs_metadata = cls._read_data(fp)
+        # df = pl.DataFrame(pandas_df)
         return cls._convert_with_orig_format(df, prs_metadata), prs_metadata
 
 

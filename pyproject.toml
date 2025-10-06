@@ -45,7 +45,7 @@ GitHub = "https://github.com/sodascience/metasyn"
 documentation = "https://metasyn.readthedocs.io/en/latest/index.html"
 
 [project.optional-dependencies]
-extra = ["xlsxwriter", "pandas", "tomlkit",
+extra = ["xlsxwriter", "tomlkit",
          "pyreadstat>=1.3", "fastexcel"]
 check = ["ruff", "mypy", "types-tqdm", "types-regex"]
 test = ["pytest", "nbval", "pytest-cov"]
