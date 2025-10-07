@@ -1,8 +1,11 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
 cff-version: 1.2.0
 title: metasyn
 message: >-
-  If you use this software, please cite it using the
-  metadata from this file.
+  If you use this software, please also cite the associated
+  software paper under preferred-citation in this file.
 type: software
 authors:
   - given-names: Raoul
@@ -23,14 +26,29 @@ authors:
     orcid: 'https://orcid.org/0000-0003-1548-1663'
 identifiers:
   - type: doi
+    value: 10.21105/joss.07099
+    description: Journal of Open Source Software paper
+  - type: doi
     value: 10.5281/zenodo.7696031
     description: Latest archived version of metasyn
 repository-code: 'https://github.com/sodascience/metasyn'
 url: 'https://metasyn.readthedocs.io/'
+repository-artifact: 'https://pypi.org/project/metasyn/'
 abstract: >-
-  A Python package for generating synthetic data from
-  tabular datasets, with a focus on privacy and
-  transparency.
+  Synthetic data is a promising tool for improving the
+  accessibility of datasets which are too sensitive to be
+  shared publicly. To this end, we introduce metasyn, a
+  Python package for generating synthetic data from tabular
+  datasets. Unlike existing synthetic data generation
+  software, metasyn is built on a simple generative model
+  that omits multivariate information. This choice enables
+  transparency and auditability, keeps information leakage
+  to a minimum, and enables privacy guarantees through a
+  plug-in system. While the analytical validity of the
+  generated data is thus intentionally limited, its
+  potential uses are broad, including exploratory analyses,
+  code development and testing, and external communication
+  and teaching.
 keywords:
   - synthetic data
   - metadata
@@ -40,3 +58,29 @@ keywords:
   - machine learning
   - statistics
 license: MIT
+preferred-citation:
+  authors:
+    - given-names: Raoul
+      family-names: Schram
+      email: r.d.schram@uu.nl
+      affiliation: Utrecht University
+      orcid: 'https://orcid.org/0000-0001-6616-230X'
+    - given-names: Samuel
+      family-names: Spithorst
+      email: s.f.spithorst@uu.nl
+      orcid: 'https://orcid.org/0009-0000-4140-0658'
+      affiliation: Utrecht University
+    - given-names: Erik-Jan
+      name-particle: van
+      family-names: Kesteren
+      email: e.vankesteren1@uu.nl
+      affiliation: Utrecht University
+      orcid: 'https://orcid.org/0000-0003-1548-1663'
+  title: "Metasyn: Transparent Generation of Synthetic Tabular Data with Privacy Guarantees"
+  journal: "Journal of Open Source Software"
+  year: 2025
+  doi: 10.21105/joss.07099
+  volume: 10
+  issue: 105
+  pages: 7099
+  type: article

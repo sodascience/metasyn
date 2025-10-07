@@ -90,6 +90,26 @@ For more information on how to create dataframes with polars, refer to the [Pola
 - For even more privacy, have a look at our [disclosure control plugin](https://github.com/sodascience/metasyn-disclosure-control).
 - Want to create programs that build on metasyn? Take a look at our versioned [Docker containers](https://hub.docker.com/r/sodateam/metasyn) and our [CLI](https://metasyn.readthedocs.io/en/latest/usage/cli.html).
 
+## Citation
+
+If you use metasyn, please cite our JOSS paper! This gives credit to the authors and enables us to show the impact of our work. A bibtex entry is below:
+
+```bibtex
+@article{
+  schram2025metasyn,
+  doi = {10.21105/joss.07099},
+  url = {https://doi.org/10.21105/joss.07099},
+  year = {2025},
+  publisher = {The Open Journal},
+  volume = {10},
+  number = {105},
+  pages = {7099},
+  author = {Schram, Raoul and Spithorst, Samuel and van Kesteren, Erik-Jan},
+  title = {Metasyn: Transparent Generation of Synthetic Tabular Data with Privacy Guarantees},
+  journal = {Journal of Open Source Software}
+}
+```
+
 ## Contributing
 Metasyn is an open-source project, and we welcome contributions from the community, from bug reports & feature requests to code contributions. Read our [contributing guidelines](.github/CONTRIBUTING.md) for more information and to get started!
 
