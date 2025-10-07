@@ -208,7 +208,8 @@ class ReadStatInterface(BaseFileInterface, ABC):
         all_df = []
         i_chunk = 0
         for temp_df, prs_meta in pyreadstat.read_file_in_chunks(
-                prs_func, fp, apply_value_formats=True, output_format="polars", chunksize=chunk_size):
+                prs_func, fp, apply_value_formats=True, output_format="polars",
+                chunksize=chunk_size):
             if (i_chunk//skip_factor)*chunk_size >= max_rows:
                 break
             if i_chunk % skip_factor == 0:
