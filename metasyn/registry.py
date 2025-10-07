@@ -73,7 +73,11 @@ class DistributionRegistry():
                 raise ValueError(f"Distribution registry '{registry_name}' is not installed.\n"
                                 f"See {registry['registry']['url']} for installation instructions."
                                 )
-            fitters.extend(entries[registry_name].load())
+            try:
+                fitters.extend(entries[registry_name].load())
+            except Exception as exc:
+                warnings.warn(f"Could not load plugin with name {registry_name}, plugin might be"
+                              f" broken or out of date: {exc}")
         return cls(fitters)
 
     def fit(self, series: pl.Series,
