@@ -71,9 +71,10 @@ class DistributionRegistry():
                 if registry_name not in registry:
                     raise ValueError(
                         f"Cannot find distribution registry with name '{registry_name}'.")
-                raise ValueError(f"Distribution registry '{registry_name}' is not installed.\n"
-                                f"See {registry[registry_name]['url']} for installation instructions."
-                                )
+                raise ValueError(
+                    f"Distribution registry '{registry_name}' is not installed.\n"
+                    f"See {registry[registry_name]['url']} for installation instructions."
+                )
             try:
                 fitters.extend(entries[registry_name].load())
             except Exception as exc:
@@ -251,38 +252,25 @@ class DistributionRegistry():
         tuple[Type[BaseDistribution], dict[str, Any]]:
             A distribution and the arguments to create an instance.
         """
-        # versions_found = []
         fitter_classes = self.filter_fitters(
             name=dist_name, privacy=privacy, var_type=var_type, unique=unique, version=version)
         if len(fitter_classes) == 1:
             return fitter_classes[0]
 
         if len(fitter_classes) > 1:
-            fitter_str = [f"({f.__name__}, {f.var_type}, {f.distribution.unique}, {f.version}, {f.privacy_type})"
-                          for f in fitter_classes]
+            fitter_str = [f"({f.__name__}, {f.var_type}, {f.distribution.unique}, {f.version},"
+                          f" {f.privacy_type})" for f in fitter_classes]
             raise ValueError(f"Multiple valid fitters found with name {dist_name}, var_type "
                              f"{var_type}, unique {unique}, version {version}, privacy {privacy}."
                              f" Alternatives: {fitter_str}")
         name_classes = self.filter_fitters(name=dist_name)
         if len(name_classes) == 0:
             raise ValueError(f"No known fitters with name '{dist_name}'.")
-        fitter_str = [f"({f.__name__}, {f.var_type}, {f.distribution.unique}, {f.version}, {f.privacy_type})"
-                      for f in name_classes]
+        fitter_str = [f"({f.__name__}, {f.var_type}, {f.distribution.unique}, {f.version},"
+                      f" {f.privacy_type})" for f in name_classes]
         raise ValueError(f"No distribution found with name {dist_name}, var_type "
                          f"{var_type}, unique {unique}, version {version}."
                          f" Alternatives: {fitter_str}")
-
-        # for fitter_class in self.filter_fitters(
-                # privacy=privacy, var_type=var_type, unique=unique):
-            # if fitter_class.matches_name(dist_name):
-                # if version is None or version == fitter_class.version:
-                    # return fitter_class
-                # versions_found.append(fitter_class)
-        # if version is None:
-            # raise ValueError(f"Could not find fitter with name {dist_name}.")
-        # raise ValueError(f"Could not find correct fitter version ({version}) of distribution with "
-                        #  f"name {dist_name}, only found versions "
-                        #  f"{[f.distribution.version for f in versions_found]}")
 
     def _fit_distribution(self, series: pl.Series,
                           dist_spec: DistributionSpec,
