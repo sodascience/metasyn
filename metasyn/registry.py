@@ -67,7 +67,6 @@ class DistributionRegistry():
         for registry_name in dist_registries:
             if registry_name not in entries:
                 registry = get_registry()
-                print(registry)
                 if registry_name not in registry:
                     raise ValueError(
                         f"Cannot find distribution registry with name '{registry_name}'.")
