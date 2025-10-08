@@ -399,5 +399,5 @@ class DistributionRegistry():
         for dist in dists:
             if dist not in dist_names:
                 new_dists.append(dist)
-                dist_names.add(dist.name)
+                dist_names.add(dist)
         return new_dists
