@@ -20,8 +20,8 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 
 project = "metasyn"
-copyright = "2024, SODA Team"
-author = "SODA Team"
+copyright = "2024, SoDa Team"
+author = "SoDa Team"
 
 
 # The full version, including alpha/beta/rc tags
@@ -62,7 +62,7 @@ html_theme_options = {
     "logo_only": True,
     "navigation_depth": -1,
     "display_version": True,
-    "style_external_links": True,
+    "style_external_links": False,
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
