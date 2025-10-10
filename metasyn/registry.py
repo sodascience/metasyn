@@ -257,11 +257,12 @@ class DistributionRegistry():
             return fitter_classes[0]
 
         if len(fitter_classes) > 1:
-            fitter_str = [f"({f.__name__}, {f.var_type}, {f.distribution.unique}, {f.version},"
-                          f" {f.privacy_type})" for f in fitter_classes]
-            raise ValueError(f"Multiple valid fitters found with name {dist_name}, var_type "
-                             f"{var_type}, unique {unique}, version {version}, privacy {privacy}."
-                             f" Alternatives: {fitter_str}")
+            if var_type is None and not all([
+                    f.var_type == fitter_classes[0] for f in fitter_classes]):
+                raise ValueError(f"Multiple valid fitters found with name {dist_name}, "
+                                 "please specify var_type.")
+            return fitter_classes[0]
+
         name_classes = self.filter_fitters(name=dist_name)
         if len(name_classes) == 0:
             raise ValueError(f"No known fitters with name '{dist_name}'.")
