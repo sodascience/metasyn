@@ -22,7 +22,7 @@ Key features
 - **Easy**: Creating your first synthetic dataset shouldn't take more than 15 minutes with our :doc:`quickstart <quick_start>`.
 - **Fast**: Creating synthetic data takes mere seconds for medium sized (~1000 rows) datasets.
 - **Safe and Understandable Synthetic Data**: As little information as possible is retained from the original dataset, and you can inspect and understand exactly which information is used to create your synthetic data.
-- **Flexible**: You can :doc:`adjust <improve_synth>` the synthetic data columns to your liking, create your own distributions, extension and more.
+- **Flexible**: You can :doc:`adjust <improve_synth>` the synthetic data columns to your liking, create your own distributions, plugins and more.
 - **Data Type Support**: Metasyn supports generating synthetic data for a variety of common data types including ``categorical``, ``string``, ``integer``, ``float``, ``date``, ``time``, and ``datetime``.
 - **Integration with Faker**: Metasyn integrates with the `faker <https://github.com/joke2k/faker>`__ package, a Python library for generating fake data such as names and emails. Allowing for more realistic synthetic data.
 - **Structured String Detection**: Metasyn identifies structured strings within your dataset, which can include formatted text, codes, identifiers, or any string that follows a specific pattern.
