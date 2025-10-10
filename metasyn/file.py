@@ -202,7 +202,8 @@ class ReadStatInterface(BaseFileInterface, ABC):
         _, metadata = prs_func(fp, metadataonly=True)
         n_rows = metadata.number_rows
         if max_rows >= 2*n_rows:
-            return prs_func(fp, apply_value_formats=True, output_format="polars")
+            return prs_func(fp, apply_value_formats=True, output_format="polars",
+                            row_limit=max_rows)
 
         skip_factor = n_rows // max_rows
         all_df = []
