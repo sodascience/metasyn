@@ -31,7 +31,7 @@ This is the base class providing the basic structure for all distributions. It i
 +------------+-------------------------------------------------------------------------+---------------------------------------------+
 | var_type   | The type of variable associated with the distribution                   | ``"discrete"``, ``"continuous"``, etc.      |
 +------------+-------------------------------------------------------------------------+---------------------------------------------+
-| provenance | Information about the source (core, plugin, etc.) of the distribution.  | ``"builtin"``, ``"myplugin"``, etc.         |
+| provenance | Information about the source (core, plug-in, etc.) of the distribution. | ``"builtin"``, ``"myplugin"``, etc.         |
 +------------+-------------------------------------------------------------------------+---------------------------------------------+
 | privacy    | The privacy class or implementation associated with the distribution.   | ``"none"``, ``"customPrivacyClass"``, etc.  |
 +------------+-------------------------------------------------------------------------+---------------------------------------------+
@@ -180,8 +180,8 @@ And then add it to the ``builtin_fitters`` list in the :mod:`~metasyn.distributi
 
 Note that this is a bare-bones example and that the implementation of the distribution will vary depending on the type of distribution being implemented. 
 
-Creating a distribution plugin
-------------------------------
-In case you want to create a new distribution as part of an add-on, as opposed to it being implemented in the core package, you can easily do so by following the available `distribution plugin template <https://github.com/sodascience/metasyn-distribution-template>`_.
+Creating a distribution plug-in
+-------------------------------
+In case you want to create a new distribution as part of an add-on, as opposed to it being implemented in the core package, you can easily do so by following the available `distribution plug-in template <https://github.com/sodascience/metasyn-distribution-template>`_.
 
 More information on creating plug-ins can be found in the :doc:`/developer/plugins` section of the documentation.

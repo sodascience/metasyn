@@ -46,7 +46,7 @@ MetaFrames and GMF files
 
 One of the main distinguishing features of metasyn is the ability to save the model for
 your dataset in a standardized, human understandable and machine readable format: the Generative
-Metadata Format (GMF). The equivalent object in Python is the :class:`metasyn.MetaFrame`.
+Metadata Format (GMF). The equivalent object in Python is the :class:`metasyn.metaframe.MetaFrame`.
 
 .. admonition:: Why do I need the MetaFrame or GMF file?
 
