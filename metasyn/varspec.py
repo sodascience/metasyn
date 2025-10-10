@@ -127,7 +127,7 @@ class VarSpec():  # pylint: disable=too-few-public-methods
     ----------
     name:
         Name of the variable/column.
-    distribution, optional:
+    distribution:
         Distribution to use for fitting/finding the distribution.
         Leave at None to allow metasyn to find the most suitable distribution
         automatically.
