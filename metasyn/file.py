@@ -194,14 +194,15 @@ class ReadStatInterface(BaseFileInterface, ABC):
                 ) from err
 
         prs_func = getattr(pyreadstat, f"read_{cls.interface}")
-        if max_rows is None:
+        if max_rows is None:  # Read everything
             return prs_func(fp, apply_value_formats=True, output_format="polars")
-        if chunk_size is None:
+        if chunk_size is None:  # Read first max_rows rows
             return prs_func(fp, apply_value_formats=True, output_format="polars",
                             row_limit=max_rows)
+
         _, metadata = prs_func(fp, metadataonly=True)
         n_rows = metadata.number_rows
-        if max_rows >= 2*n_rows:
+        if max_rows >= 2*n_rows:  # Not enough rows to used chunked sampling, read first max_rows
             return prs_func(fp, apply_value_formats=True, output_format="polars",
                             row_limit=max_rows)
 
@@ -211,6 +212,7 @@ class ReadStatInterface(BaseFileInterface, ABC):
         for temp_df, prs_meta in pyreadstat.read_file_in_chunks(
                 prs_func, fp, apply_value_formats=True, output_format="polars",
                 chunksize=chunk_size):
+            # Done
             if (i_chunk//skip_factor)*chunk_size >= max_rows:
                 break
             if i_chunk % skip_factor == 0:
@@ -674,6 +676,11 @@ def read_sav(fp: Union[Path, str], max_rows: Optional[int] = None,
     ----------
     fp:
         File to read the dataframe and metadata from.
+    max_rows:
+        Maximum number of rows to read in.
+    chunk_size:
+        Perform row sampling with contiguous rows. Should be used in combination
+        with the max_rows parameter, otherwise it is ignored.
 
     Returns
     -------
@@ -712,6 +719,11 @@ def read_dta(fp: Union[Path, str], max_rows: Optional[int] = None,
     ----------
     fp
         File to be read with .dta extension.
+    max_rows:
+        Maximum number of rows to read in.
+    chunk_size:
+        Perform row sampling with contiguous rows. Should be used in combination
+        with the max_rows parameter, otherwise it is ignored.
 
     Returns
     -------
