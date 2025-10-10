@@ -1,7 +1,7 @@
 Synthetic data without raw data
 ===============================
 
-It is also possible to create a GMF file without any input dataset, or to add additional fictive columns to those already present in a dataset. 
+It is also possible to create a GMF file without any input dataset, or to add additional synthetic columns to those already present in a dataset. 
 
 To do so, you need to fully specify each column (variable) you want to generate. You will also need to set the ``data_free`` parameter to true,
 to indicate that the variable will be generated from scratch, instead of being based on existing data.
