@@ -60,11 +60,11 @@ When a pull request is created, GitHub automatically runs `a series of tests <ht
 2. From the root folder of the project, run: ``pip install -e .[dev]`` (this will install metasyn in editable form with all optional dependencies)
 3. Then, run: 
 
-  a. Linting: ``ruff check`` 
+  a. Linting: ``ruff check metasyn`` 
   b. Type checking: ``mypy metasyn`` 
   c. Testing: ``pytest`` 
   d. Notebook testing: ``pytest --nbval-lax examples`` 
-  e. Documentation building: ``sphinx-build -M html docs/source docs/build``
+  e. Documentation building: ``sphinx-build -M html docs/source docs/build`` (or use ``sphinx-autobuild`` for automatic updates)
 
 
 Maintaining the package

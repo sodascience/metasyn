@@ -9,16 +9,14 @@
 
 
 .. image:: /images/logos/blue.svg
-   :alt: Metasyn_Logo
+   :alt: Metasyn
 
 |break|
 
-Metasyn Documentation
-=======================
-
-``Metasyn`` is a Python package for generating synthetic tabular data with a focus on privacy.
-It is designed for owners of sensitive datasets who want to share approximations of their data so that
-others can perform exploratory analysis and testing without disclosing real values.
+``Metasyn`` is a python package for generating synthetic data with a focus on maintaining privacy.
+It is aimed at owners of sensitive datasets such as public organisations, research groups, and individual researchers who
+want to improve the accessibility, reproducibility and reusability of their data. The goal of metasyn is to make it easy
+for data owners to share the structure and approximation of the content of their data with others with fewer privacy concerns.
 
 
 .. image:: https://img.shields.io/badge/GitHub-blue?logo=github&link=https%3A%2F%2Fgithub.com%2Fsodascience%2Fmetasyn
@@ -58,7 +56,7 @@ others can perform exploratory analysis and testing without disclosing real valu
    cli
    developer/developer
    api/metasyn
-   extensions
+   plugins
 
 .. toctree::
    :hidden:
