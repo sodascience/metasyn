@@ -18,7 +18,7 @@ At any point, you can also use the help command to get more information about th
 
 .. admonition:: When should I (not) use the CLI
 
-   The CLI is mostly feature complete from creating synthetic data from files, but there are some limitations. Currently, it can read ``.sav``, ``.zsav`` and ``.csv``
+   For generating synthetic data from a GMF (json) file (the ``synthesize`` command), the CLI can be used safely and will result in identical output to the direct Python API. However, for the  ``create-meta`` command there are some limitations. Currently, it can read ``.sav``, ``.zsav`` and ``.csv``
    files. The main limitation is that it needs to read the
    file, for which it tries to use sensible default settings. However, this can result in errors. If you encounter errors, might want to either preprocess your data
    so that it can be read with the default settings, or use the python API instead.
@@ -29,13 +29,13 @@ Accessing the CLI
 -----------------
 If you have installed the main ``metasyn`` package, the CLI should be available automatically. You can find instructions on how to install ``metasyn`` in the :doc:`installation` section of the documentation.
 
-Alternatively, the CLI can be accessed through a Docker container, allowing you to run ``metasyn`` in an isolated environment without installing the package on your system.
+Alternatively, the CLI can be accessed through a Docker container, allowing you to run ``metasyn`` in an isolated environment without installing the package on your system. Additionally, this method allows you to use earlier versions with ease, e.g., to synthesize data from old GMF files.
 
 Here's how you can use Docker to access Metasyn's CLI:
 
 1. **Install Docker:** If Docker isn't already set up on your machine, please follow the instructions on `Docker's official website <https://docs.docker.com/get-docker/>`_.
 
-2. **Pull the ``metasyn`` Docker Image:** After successfully installing Docker, you can download the ``metasyn`` Docker image from Docker Hub using the following command.
+2. **Pull the metasyn Docker Image:** After successfully installing Docker, you can download the ``metasyn`` Docker image from Docker Hub using the following command.
 
    .. code-block:: console
 
@@ -45,18 +45,27 @@ Here's how you can use Docker to access Metasyn's CLI:
 
    .. tab:: Windows
 
-      .. code-block:: console
+      To display the help file:
 
-         docker run -v %cd%:/wd sodateam/metasyn --help
+      .. code-block:: console
+         docker run --rm sodateam/metasyn --help
+      
+      To preview synthesized data from an existing GMF file:
+      
+      .. code-block:: console
+         docker run --rm -v %cd%:/wd sodateam/metasyn synthesize --preview /wd/my_gmf_file.json
 
    .. tab:: Unix or MacOS:
+      To display the help file:
 
       .. code-block:: console
+         docker run --rm sodateam/metasyn --help
+      
+      To preview synthesized data from an existing GMF file:
+      
+      .. code-block:: console
+         docker run --rm -v $(pwd):/wd sodateam/metasyn synthesize --preview /wd/my_gmf_file.json
 
-         docker run -v $(pwd):/wd sodateam/metasyn --help
-
-
-The ``metasyn`` CLI should now be up and running within the Docker container and ready for use!
 
 .. note:: 
    You can also specify which ``metasyn`` version to use in docker, by adding a tag to the docker image. For example, to use version 1.1.0, you can use the following command:
