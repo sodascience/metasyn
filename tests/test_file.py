@@ -127,6 +127,15 @@ def test_sav_interface(filename, tmpdir):
     assert new_df.columns == df.columns
 
 
+def test_prs_chunking():
+    sav_fp = Path("tests", "data", "GlastonburyFestival.sav")
+    df, _ = ms.read_sav(sav_fp)
+    assert len(df) == 810
+    df, _ = ms.read_sav(sav_fp, max_rows=10)
+    assert len(df) == 10
+    df, _ = ms.read_sav(sav_fp, max_rows=20, chunk_size=2)
+    assert len(df) == 20
+
 @mark.parametrize("dataset_name",
                   _AVAILABLE_DATASETS)
 def test_csv_interface(dataset_name, tmpdir):

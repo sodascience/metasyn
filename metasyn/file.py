@@ -185,7 +185,7 @@ class ReadStatInterface(BaseFileInterface, ABC):
         return df
 
     @classmethod
-    def _read_data(cls, fp):
+    def _read_data(cls, fp, max_rows=None, chunk_size=None):
         try:
             import pyreadstat  # noqa: PLC0415
         except ImportError as err:
@@ -193,20 +193,44 @@ class ReadStatInterface(BaseFileInterface, ABC):
                 f"Please install pyreadstat to use the {'/'.join(cls.extensions)} file interface."
                 ) from err
 
-        return getattr(pyreadstat, f"read_{cls.interface}")(fp, apply_value_formats=True,
-                                                            output_format="polars")
+        prs_func = getattr(pyreadstat, f"read_{cls.interface}")
+        if max_rows is None:  # Read everything
+            return prs_func(fp, apply_value_formats=True, output_format="polars")
+        if chunk_size is None:  # Read first max_rows rows
+            return prs_func(fp, apply_value_formats=True, output_format="polars",
+                            row_limit=max_rows)
 
+        _, metadata = prs_func(fp, metadataonly=True)
+        n_rows = metadata.number_rows
+        if max_rows >= 2*n_rows:  # Not enough rows to used chunked sampling, read first max_rows
+            return prs_func(fp, apply_value_formats=True, output_format="polars",
+                            row_limit=max_rows)
+
+        skip_factor = n_rows // max_rows
+        all_df = []
+        i_chunk = 0
+        for temp_df, prs_meta in pyreadstat.read_file_in_chunks(
+                prs_func, fp, apply_value_formats=True, output_format="polars",
+                chunksize=chunk_size):
+            # Done
+            if (i_chunk//skip_factor)*chunk_size >= max_rows:
+                break
+            if i_chunk % skip_factor == 0:
+                all_df.append(temp_df)
+            i_chunk += 1
+
+        return pl.concat(all_df, how="vertical_relaxed"), prs_meta
 
     @classmethod
-    def _get_df_metadata(cls, fp: Union[Path, str]):
+    def _get_df_metadata(cls, fp: Union[Path, str], **kwargs):
         """Read the dataset including the metadata."""
-        df, prs_metadata = cls._read_data(fp)
+        df, prs_metadata = cls._read_data(fp, **kwargs)
         # df = pl.DataFrame(pandas_df)
         return cls._convert_with_orig_format(df, prs_metadata), prs_metadata
 
 
     @classmethod
-    def read_file(cls, fp: Union[Path, str]):
+    def read_file(cls, fp: Union[Path, str], **kwargs):
         """Create the file interface from a .sav or .zsav file.
 
         Parameters
@@ -225,7 +249,7 @@ class ReadStatInterface(BaseFileInterface, ABC):
             warnings.warn(f"Trying to read file '{fp}' with extension different from"
                           f" {'/'.join(cls.extensions)}")
 
-        df, prs_metadata = cls._get_df_metadata(fp)
+        df, prs_metadata = cls._get_df_metadata(fp, **kwargs)
         return df, cls(cls._extract_metadata(prs_metadata, fp), Path(fp).name)
 
     def _write_file(self, df: pl.DataFrame, out_fp: Union[Path, str]):
@@ -371,7 +395,6 @@ class StataFileInterface(ReadStatInterface):
                 continue
             pd_dtype = str(pd_df[col].dtype)
             if str(pd_dtype).startswith(("Int", "UInt")):
-                print(col, not str(pd_dtype).endswith("64"))
                 if not str(pd_dtype).endswith("64"):
                     var_format[col] = "%8.0g"
                 else:
@@ -645,20 +668,26 @@ def write_tsv(*args, **kwargs):
     return write_csv(*args, **kwargs)
 
 
-def read_sav(fp: Union[Path, str]) -> tuple[pl.DataFrame, SavFileInterface]:
+def read_sav(fp: Union[Path, str], max_rows: Optional[int] = None,
+             chunk_size: Optional[int] = None) -> tuple[pl.DataFrame, SavFileInterface]:
     """Create the file interface from a .sav or .zsav file.
 
     Parameters
     ----------
     fp:
         File to read the dataframe and metadata from.
+    max_rows:
+        Maximum number of rows to read in.
+    chunk_size:
+        Perform row sampling with contiguous rows. Should be used in combination
+        with the max_rows parameter, otherwise it is ignored.
 
     Returns
     -------
     df:
         Polars dataframe with the converted columns.
     """
-    return SavFileInterface.read_file(fp)
+    return SavFileInterface.read_file(fp, max_rows=max_rows, chunk_size=chunk_size)
 
 
 def write_sav(df: Union[pl.DataFrame],
@@ -682,20 +711,26 @@ def write_sav(df: Union[pl.DataFrame],
     file_format.write_file(df, fp, overwrite=overwrite)
 
 
-def read_dta(fp: Union[Path, str]) -> tuple[pl.DataFrame, StataFileInterface]:
+def read_dta(fp: Union[Path, str], max_rows: Optional[int] = None,
+             chunk_size: Optional[int] = None) -> tuple[pl.DataFrame, StataFileInterface]:
     """Read a .dta stata file into metadata and a DataFrame.
 
     Parameters
     ----------
     fp
         File to be read with .dta extension.
+    max_rows:
+        Maximum number of rows to read in.
+    chunk_size:
+        Perform row sampling with contiguous rows. Should be used in combination
+        with the max_rows parameter, otherwise it is ignored.
 
     Returns
     -------
     df:
         Polars dataframe with the converted columns.
     """
-    return StataFileInterface.read_file(fp)
+    return StataFileInterface.read_file(fp, max_rows=max_rows, chunk_size=chunk_size)
 
 
 def write_dta(df: Union[pl.DataFrame],
