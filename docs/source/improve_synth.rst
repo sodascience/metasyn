@@ -73,7 +73,7 @@ configuration file these are mentioned at the top of the file.
 Privacy: ``privacy``
 ^^^^^^^^^^^^^^^^^^^^
 
-Using privacy plug-ins (see :doc:`extensions`), metasyn can increase the level of privacy.
+Using privacy plug-ins (see :doc:`plugins`), metasyn can increase the level of privacy.
 An example is ``disclosure`` privacy, which limits the influence of various disclosive values such as outliers on the fitted distributions.
 
 .. tab:: Python
