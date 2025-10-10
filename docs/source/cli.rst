@@ -48,22 +48,27 @@ Here's how you can use Docker to access Metasyn's CLI:
       To display the help file:
 
       .. code-block:: console
+
          docker run --rm sodateam/metasyn --help
       
       To preview synthesized data from an existing GMF file:
       
       .. code-block:: console
+
          docker run --rm -v %cd%:/wd sodateam/metasyn synthesize --preview /wd/my_gmf_file.json
 
    .. tab:: Unix or MacOS:
+
       To display the help file:
 
       .. code-block:: console
+
          docker run --rm sodateam/metasyn --help
       
       To preview synthesized data from an existing GMF file:
       
       .. code-block:: console
+
          docker run --rm -v $(pwd):/wd sodateam/metasyn synthesize --preview /wd/my_gmf_file.json
 
 

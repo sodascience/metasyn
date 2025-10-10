@@ -52,6 +52,7 @@ and when writing the synthetic data file, this can be reused.
 For reading a CSV file, you should give the ``data_types`` dictionary as an argument. 
 
 .. code-block:: python
+   
    # for more info, see pl.read_csv()
    df, file_format = ms.read_csv(csv_path, schema_overrides=data_types)
 

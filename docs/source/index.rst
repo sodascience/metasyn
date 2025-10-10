@@ -56,7 +56,7 @@ for data owners to share the structure and approximation of the content of their
    cli
    developer/developer
    api/metasyn
-   extensions
+   plugins
 
 .. toctree::
    :hidden:

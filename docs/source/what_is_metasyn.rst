@@ -187,7 +187,7 @@ The GMF format can be stored as a ``.json`` file (default) or as a ``.toml`` fil
             }
         }
     ]
-}
+  }
 
 .. raw:: html
 
