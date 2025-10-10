@@ -267,7 +267,7 @@ class DistributionRegistry():
             raise ValueError(f"No known fitters with name '{dist_name}'.")
         fitter_str = [f"({f.__name__}, {f.var_type}, {f.distribution.unique}, {f.version},"
                       f" {f.privacy_type})" for f in name_classes]
-        raise ValueError(f"No distribution found with name {dist_name}, var_type "
+        raise ValueError(f"No fitter found with name {dist_name}, var_type "
                          f"{var_type}, unique {unique}, version {version}."
                          f" Alternatives: {fitter_str}")
 
