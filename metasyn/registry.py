@@ -231,11 +231,16 @@ class DistributionRegistry():
                     version: Optional[str] = None) -> type[BaseFitter]:
         """Find a distribution and fit keyword arguments from a name.
 
+        Sometimes there might be multiple possible fitters that satisfy the criteria.
+        In this case the first in the registry will be chosen. If you do not want this
+        behavior, it is recommended to specify the fitter name directly.
+
         Parameters
         ----------
         dist_name:
-            Name of the distribution, e.g., for the built-in
-            uniform distribution: "uniform", "core.uniform", "UniformDistribution".
+            Name of the distribution that needs to be fit, e.g., for the built-in
+            uniform distribution: "uniform", "core.uniform"
+            or name of the fitter: "ContinuousUniformFitter".
         privacy:
             Type of privacy to be applied.
         var_type:
@@ -248,8 +253,8 @@ class DistributionRegistry():
 
         Returns
         -------
-        tuple[Type[BaseDistribution], dict[str, Any]]:
-            A distribution and the arguments to create an instance.
+        tuple[Type[BaseFitter]:
+            Fitter that satisfies the requirements.
         """
         fitter_classes = self.filter_fitters(
             name=dist_name, privacy=privacy, var_type=var_type, unique=unique, version=version)
