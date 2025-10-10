@@ -137,7 +137,7 @@ class VarSpec():  # pylint: disable=too-few-public-methods
         >>> # Use normal distribution with mean 0, standard deviation 1
         >>> distribution=NormalDistribution(0, 1)
 
-    unique, optional:
+    unique:
         To set a column to be unique/key.
         This is only available for the integer and string datatypes. Setting a variable
         to unique ensures that the synthetic values generated for this variable are unique.
@@ -146,16 +146,16 @@ class VarSpec():  # pylint: disable=too-few-public-methods
         {"unique": True}, which sets the variable to be unique or {"unique": False} which
         forces the variable to be not unique. If the uniqueness is not specified, it is
         assumed to be not unique, but gives a warning if metasyn thinks it should be.
-    privacy, optional:
+    privacy:
         Set the privacy level for a variable, e.g.: DifferentialPrivacy(epsilon=10).
-    prop_missing, optional:
+    prop_missing:
         Proportion of missing values for a variable.
-    description, optional:
+    description:
         Set the description of a variable.
-    data_free, optional:
+    data_free:
         Whether this variable/column is to be generated from scratch or from an existing column
         in the dataframe.
-    var_type, optional:
+    var_type:
         Manually set the variable type of the columns (used mainly for data_free columns).
     """
 

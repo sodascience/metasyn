@@ -113,9 +113,9 @@ class BaseFileInterface(ABC):
 
         Parameters
         ----------
-        fp, optional
+        fp
             File check the filename for, by default None
-        overwrite, optional
+        overwrite
             Whether overwriting is allowed, by default False
 
         Returns
@@ -627,9 +627,9 @@ def write_csv(df: Union[pl.DataFrame],
         DataFrame to write to a file.
     fp
         File to write to.
-    file_format, optional
+    file_format
         File format to use for writing the file, by default None meaning to use the defaults.
-    overwrite, optional
+    overwrite
         Whether to overwrite the file if it exists, by default False
     """
     file_format = _parse_fmt(file_format, fp, CsvFileInterface)
@@ -673,9 +673,9 @@ def write_sav(df: Union[pl.DataFrame],
         DataFrame to write to a file.
     fp
         File to write to.
-    file_format, optional
+    file_format
         File format to use for writing the file, by default None meaning to use the defaults.
-    overwrite, optional
+    overwrite
         Whether to overwrite the file if it exists, by default False
     """
     file_format = _parse_fmt(file_format, fp, SavFileInterface)
@@ -710,9 +710,9 @@ def write_dta(df: Union[pl.DataFrame],
         DataFrame to write to a file.
     fp
         File to write to.
-    file_format, optional
+    file_format
         File format to use for writing the file, by default None meaning to use the defaults.
-    overwrite, optional
+    overwrite
         Whether to overwrite the file if it exists, by default False
     """
     file_format = _parse_fmt(file_format, fp, StataFileInterface)
@@ -749,9 +749,9 @@ def write_excel(df: Union[pl.DataFrame],
         DataFrame to write to a file.
     fp
         File to write to.
-    file_format, optional
+    file_format
         File format to use for writing the file, by default None meaning to use the defaults.
-    overwrite, optional
+    overwrite
         Whether to overwrite the file if it exists, by default False
     """
     file_format = _parse_fmt(file_format, fp, ExcelFileInterface)

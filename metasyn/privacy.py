@@ -78,7 +78,7 @@ def get_privacy(name: str, parameters: Optional[dict] = None) -> BasePrivacy:
     ----------
     name
         Name of the privacy type, use "none" for no specific type of privacy.
-    parameters, optional
+    parameters
         The parameters for the privacy type. This could be the epsilon for differential
         privacy or partition_size for disclosure control, by default None.
 
