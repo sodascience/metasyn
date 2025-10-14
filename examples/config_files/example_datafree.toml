@@ -1,7 +1,7 @@
 # Example toml file as input for metasyn
 
 config_version = "1.1"
-dist_registries = ["builtin"]
+plugins = ["builtin"]
 n_rows = 100
 
 [defaults]
