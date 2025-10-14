@@ -1,5 +1,5 @@
 # Example toml file as input for metasyn
-dist_registries = ["builtin"]
+plugins = ["builtin"]
 config_version = "1.0"
 privacy = "none"
 

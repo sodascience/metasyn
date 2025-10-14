@@ -66,7 +66,7 @@ The remainder of this page serves as a reference for the different options to im
 General specifications
 ----------------------
 
-Three general options can be set: ``privacy``, ``n_rows``, and ``dist_registries``. 
+Three general options can be set: ``privacy``, ``n_rows``, and ``plugins``. 
 In our python interface, these are arguments to :py:meth:`~MetaFrame.fit_dataframe()`; in the 
 configuration file these are mentioned at the top of the file.
 
@@ -116,7 +116,7 @@ or undesirable. In this case you can specify it manually:
       n_rows = 100
 
 
-Distribution registry: ``dist_registries``
+Distribution registry: ``plugins``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Extra distributions and fitters can be added using plugins. By default all installed plugins
@@ -130,14 +130,14 @@ as follows:
 
       MetaFrame.fit_dataframe(
          df,
-         dist_registries=["builtin", "disclosure"],
+         plugins=["builtin", "disclosure"],
       )
 
 .. tab:: Configuration file
 
    .. code-block:: toml
 
-      dist_registries = ["builtin", "disclosure"]
+      plugins = ["builtin", "disclosure"]
 
 
 Column specifications
