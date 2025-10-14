@@ -12,9 +12,9 @@ from scipy.stats import poisson
 from metasyn.distribution.base import (
     BaseDistribution,
     BaseFitter,
+    builtin_fitter,
     convert_to_series,
     metadist,
-    metafit,
 )
 
 LETTERS = regex.compile(r"\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}|\p{L}+")
@@ -88,7 +88,7 @@ class FreeTextDistribution(BaseDistribution):
             "avg_words": {"type": "number"},
         }
 
-@metafit(distribution=FreeTextDistribution, var_type="string")
+@builtin_fitter(distribution=FreeTextDistribution, var_type="string")
 class FreeTextFitter(BaseFitter):
     """Fitter for the freetext distribution."""
 

@@ -8,8 +8,8 @@ from metasyn.distribution.base import (
     BaseDistribution,
     BaseFitter,
     UniqueDistributionMixin,
+    builtin_fitter,
     metadist,
-    metafit,
 )
 
 
@@ -95,7 +95,7 @@ class RegexDistribution(BaseDistribution):
         return 0
 
 
-@metafit(distribution=RegexDistribution, var_type="string", version="2.0")
+@builtin_fitter(distribution=RegexDistribution, var_type="string", version="2.0")
 class RegexFitter(BaseFitter):
     """Fitter for regex distribution."""
 
@@ -142,6 +142,6 @@ class UniqueRegexDistribution(UniqueDistributionMixin, RegexDistribution):
     See :class:`~RegexDistribution` for examples and explanation on this distribution.
     """
 
-@metafit(distribution=UniqueRegexDistribution, var_type="string")
+@builtin_fitter(distribution=UniqueRegexDistribution, var_type="string")
 class UniqueRegexFitter(RegexFitter):
     """Fitter for unique regex distribution."""

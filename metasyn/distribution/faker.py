@@ -10,8 +10,8 @@ from metasyn.distribution.base import (
     BaseDistribution,
     BaseFitter,
     UniqueDistributionMixin,
+    builtin_fitter,
     metadist,
-    metafit,
 )
 
 
@@ -67,7 +67,7 @@ class FakerDistribution(BaseDistribution):
         }
 
 
-@metafit(distribution=FakerDistribution, var_type="string")
+@builtin_fitter(distribution=FakerDistribution, var_type="string")
 class FakerFitter(BaseFitter):
     """Fitter for the faker distribution."""
 
@@ -85,7 +85,7 @@ class UniqueFakerDistribution(UniqueDistributionMixin, FakerDistribution):
     See :class:`~FakerDistribution` for examples and explanation.
     """
 
-@metafit(distribution=UniqueFakerDistribution, var_type="string")
+@builtin_fitter(distribution=UniqueFakerDistribution, var_type="string")
 class UniqueFakerFitter(FakerFitter):
     """Fitter for the unique faker distribution."""
 

@@ -12,8 +12,8 @@ from metasyn.distribution.base import (
     BaseDistribution,
     BaseFitter,
     ScipyDistribution,
+    builtin_fitter,
     metadist,
-    metafit,
 )
 from metasyn.distribution.util import convert_numpy_datetime
 
@@ -59,7 +59,7 @@ class DiscreteUniformDistribution(ScipyDistribution):
         }
 
 
-@metafit(distribution=DiscreteUniformDistribution, var_type="discrete")
+@builtin_fitter(distribution=DiscreteUniformDistribution, var_type="discrete")
 class DiscreteUniformFitter(BaseFitter):
     """Fitter for discrete uniform distribution."""
 
@@ -113,7 +113,7 @@ class ContinuousUniformDistribution(ScipyDistribution):
             "upper": {"type": "number"},
         }
 
-@metafit(distribution=ContinuousUniformDistribution, var_type="continuous")
+@builtin_fitter(distribution=ContinuousUniformDistribution, var_type="continuous")
 class ContinuousUniformFitter(BaseFitter):
     """Fitter for continuous uniform distribution."""
 
@@ -345,7 +345,7 @@ class BaseDTUniformFitter(BaseFitter):
         return cls.precision_possibilities[cur_precision]
 
 
-@metafit(distribution=TimeUniformDistribution, var_type="time")
+@builtin_fitter(distribution=TimeUniformDistribution, var_type="time")
 class TimeUniformFitter(BaseDTUniformFitter):
     """Fitter for time uniform distribution."""
 
@@ -353,7 +353,7 @@ class TimeUniformFitter(BaseDTUniformFitter):
     def _fit(self, values):
         return TimeUniformDistribution(values.min(), values.max(), self._get_precision(values))
 
-@metafit(distribution=DateTimeUniformDistribution, var_type="datetime")
+@builtin_fitter(distribution=DateTimeUniformDistribution, var_type="datetime")
 class DateTimeUniformFitter(BaseDTUniformFitter):
     """Fitter for datetime uniform distribution."""
 
@@ -361,7 +361,7 @@ class DateTimeUniformFitter(BaseDTUniformFitter):
         return DateTimeUniformDistribution(values.min(), values.max(), self._get_precision(values))
 
 
-@metafit(distribution=DateUniformDistribution, var_type="date")
+@builtin_fitter(distribution=DateUniformDistribution, var_type="date")
 class DateUniformFitter(BaseDTUniformFitter):
     """Fitter for date uniform distribution."""
 

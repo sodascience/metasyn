@@ -7,8 +7,8 @@ from metasyn.distribution.base import (
     BaseDistribution,
     BaseFitter,
     ScipyDistribution,
+    builtin_fitter,
     metadist,
-    metafit,
 )
 
 
@@ -46,7 +46,7 @@ class PoissonDistribution(ScipyDistribution):
         }
 
 
-@metafit(distribution=PoissonDistribution, var_type="discrete")
+@builtin_fitter(distribution=PoissonDistribution, var_type="discrete")
 class PoissonFitter(BaseFitter):
     """Fitter for Poisson distribution."""
 

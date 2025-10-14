@@ -5,7 +5,7 @@ return NA.
 """
 
 
-from metasyn.distribution.base import BaseDistribution, BaseFitter, metadist, metafit
+from metasyn.distribution.base import BaseDistribution, BaseFitter, builtin_fitter, metadist
 
 
 @metadist(name="core.na", var_type=["continuous", "discrete", "categorical", "string"])
@@ -29,7 +29,8 @@ class NADistribution(BaseDistribution):
     def information_criterion(self, values): # noqa: ARG002
         return 1e10
 
-@metafit(distribution=NADistribution, var_type=["continuous", "discrete", "categorical", "string"])
+@builtin_fitter(distribution=NADistribution,
+                var_type=["continuous", "discrete", "categorical", "string"])
 class NAFitter(BaseFitter):
     """Fitter for NA distribution."""
 

@@ -12,9 +12,9 @@ import polars as pl
 from metasyn.distribution.base import (
     BaseDistribution,
     BaseFitter,
+    builtin_fitter,
     convert_to_series,
     metadist,
-    metafit,
 )
 
 
@@ -146,7 +146,8 @@ class MultinoulliDistribution(BaseDistribution):
         return cls(["a", "b", "c"], [0.1, 0.3, 0.6])
 
 
-@metafit(distribution=MultinoulliDistribution, var_type=["categorical", "string", "discrete"])
+@builtin_fitter(distribution=MultinoulliDistribution,
+                var_type=["categorical", "string", "discrete"])
 class MultinoulliFitter(BaseFitter):
     """Fitter for multinoulli distribution."""
 

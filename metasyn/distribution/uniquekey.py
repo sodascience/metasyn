@@ -7,9 +7,9 @@ import numpy as np
 from metasyn.distribution.base import (
     BaseDistribution,
     BaseFitter,
+    builtin_fitter,
     convert_to_series,
     metadist,
-    metafit,
 )
 
 UKeyT = TypeVar("UKeyT", bound="UniqueKeyDistribution")
@@ -114,7 +114,7 @@ class UniqueKeyDistribution(BaseDistribution):
             "consecutive": {"type": "boolean"},
         }
 
-@metafit(distribution=UniqueKeyDistribution, var_type="discrete")
+@builtin_fitter(distribution=UniqueKeyDistribution, var_type="discrete")
 class UniqueKeyFitter(BaseFitter):
     """Fitter for unique key distribution."""
 

@@ -6,8 +6,8 @@ from metasyn.distribution.base import (
     BaseDistribution,
     BaseFitter,
     ScipyDistribution,
+    builtin_fitter,
     metadist,
-    metafit,
 )
 
 
@@ -45,7 +45,7 @@ class ExponentialDistribution(ScipyDistribution):
         }
 
 
-@metafit(distribution=ExponentialDistribution, var_type="continuous")
+@builtin_fitter(distribution=ExponentialDistribution, var_type="continuous")
 class ExponentialFitter(BaseFitter):
     """Fitter for exponential distribution."""
 
