@@ -109,9 +109,6 @@ class DistributionSpec():
         ret_dict: dict[str, Any] = {"created_by": "metasyn"}
         dist_dict = {var: getattr(self, var) for var in ["name", "unique", "parameters", "version"]
                      if getattr(self, var) is not None}
-        # for var in ["name", "unique", "parameters", "version"]:
-            # if getattr(self, var) is not None:
-                # ret_dict[var] = getattr(self, var)
         if len(dist_dict) != 0:
             ret_dict["distribution"] = dist_dict
         fit_dict = {}
@@ -122,8 +119,7 @@ class DistributionSpec():
 
         if len(fit_dict) != 0:
             ret_dict["fitter"] = fit_dict
-        # if not isinstance(privacy, BasicPrivacy):
-            # ret_dict["privacy"] = privacy.to_dict()
+
         return ret_dict
 
     def __str__(self):
