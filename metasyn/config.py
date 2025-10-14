@@ -29,9 +29,8 @@ class MetaConfig():
         of variables that are data-free, the order is also the order of columns
         for the eventual synthesized dataframe. See the VarSpecAccess class on
         how the dictionary can be constructed.
-    dist_registries:
-        Distribution registries to use when fitting distributions to variables.
-        # Can be a string, list of strings or DistributionRegistry.
+    plugins:
+        Plugins to use when fitting distributions to variables.
     privacy:
         Privacy method/level to use as a default setting for the privacy. Can be
         overridden in the var_spec for a particular column.
@@ -43,13 +42,13 @@ class MetaConfig():
     def __init__(
             self,
             var_specs: Union[list[dict], list[VarSpec]],
-            dist_registries: Union[DistributionRegistry, list[str], str, None],
+            plugins: Union[DistributionRegistry, list[str], str, None],
             defaults: Optional[dict] = None,
             n_rows: Optional[int] = None,
             file_config: Optional[dict] = None,
             config_version: str = "1.2"):
         self.var_specs = [self._parse_var_spec(v) for v in var_specs]
-        self.dist_registries = dist_registries  # type: ignore
+        self.plugins = plugins  # type: ignore
         self.n_rows = n_rows
         defaults = {} if defaults is None else defaults
         self.defaults = VarDefaults(**defaults)
@@ -63,16 +62,16 @@ class MetaConfig():
         return VarSpec.from_dict(var_spec)
 
     @property
-    def dist_registries(self) -> DistributionRegistry:
-        """Return the distribution registry list to be used for the metaframe."""
-        return self._dist_registries
+    def plugins(self) -> DistributionRegistry:
+        """Return the plugin list to be used for creating the metaframe."""
+        return self._plugins
 
-    @dist_registries.setter
-    def dist_registries(self, dist_registries):
-        if not isinstance(dist_registries, DistributionRegistry):
-            self._dist_registries = DistributionRegistry.parse(dist_registries)
+    @plugins.setter
+    def plugins(self, plugins):
+        if not isinstance(plugins, DistributionRegistry):
+            self._plugins = DistributionRegistry.parse(plugins)
         else:
-            self._dist_registries = dist_registries
+            self._plugins = plugins
 
     def update_varspecs(self, new_var_specs: Union[list[dict], list[VarSpec]]):
         new_var_specs = [self._parse_var_spec(v) for v in new_var_specs]
@@ -114,7 +113,7 @@ class MetaConfig():
             raise value_error
         var_list = config_dict.pop("var", [])
         n_rows = config_dict.pop("n_rows", None)
-        dist_registries = config_dict.pop("dist_registries", ["builtin"])
+        plugins = config_dict.pop("plugins", ["builtin"])
         defaults = config_dict.pop("defaults", None)
         privacy = config_dict.pop("privacy", None)
         file_config = config_dict.pop("file", None)
@@ -130,7 +129,7 @@ class MetaConfig():
         if len(config_dict) > 0:
             raise ValueError(f"Error parsing configuration file '{config_fp}'."
                              f" Unknown keys detected: '{list(config_dict)}'")
-        return cls(var_list, dist_registries, defaults, n_rows=n_rows,
+        return cls(var_list, plugins, defaults, n_rows=n_rows,
                    file_config=file_config,
                    config_version=config_version)
 
@@ -144,7 +143,7 @@ class MetaConfig():
         """
         return {
             "config_version": self.config_version,
-            "dist_registries": self.dist_registries,
+            "plugins": self.plugins,
             "n_rows": self.n_rows,
             "defaults": self.defaults,
             "var": self.var_specs

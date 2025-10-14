@@ -77,7 +77,7 @@ class MetaFrame:
         cls,
         df: Optional[pl.DataFrame],
         var_specs: Optional[Union[list[VarSpec]]] = None,
-        dist_registries: Optional[list[str]] = None,
+        plugins: Optional[list[str]] = None,
         privacy: Optional[Union[BasePrivacy, dict]] = None,
         n_rows: Optional[int] = None,
         progress_bar: bool = True,
@@ -99,8 +99,8 @@ class MetaFrame:
             specifications can be entered as a path to a .toml file. For more information
             on this approach, see the MetaConfig class or the examples in the documentation.
             By default var_specs is None, which will use the default settings for each column.
-        dist_registries:
-            Distribution registries to use when fitting distributions to variables.
+        plugins:
+            Plugins to use when fitting distributions to variables.
             Can be a list of strings or unspecified. This will overwrite the defaults if they
             were specified in the varspecs (but not the specifications per column).
         privacy:
@@ -132,7 +132,7 @@ class MetaFrame:
             var_specs = None
         # Parse the var_specs into a MetaConfig instance.
         if config is None:
-            meta_config = MetaConfig([], dist_registries, defaults={"privacy": privacy})
+            meta_config = MetaConfig([], plugins, defaults={"privacy": privacy})
         elif isinstance(config, (pathlib.Path, str)):
             meta_config = MetaConfig.from_toml(config)
         else:
@@ -142,8 +142,8 @@ class MetaFrame:
         if var_specs is not None:
             meta_config.update_varspecs(var_specs)
 
-        if dist_registries is not None:
-            meta_config.dist_registries = dist_registries  # type: ignore
+        if plugins is not None:
+            meta_config.plugins = plugins  # type: ignore
         if privacy is not None:
             meta_config.defaults.privacy = privacy  # type: ignore
 
@@ -161,7 +161,7 @@ class MetaFrame:
                 var = MetaVar.fit(
                     df[col_name],
                     var_spec.dist_spec,
-                    meta_config.dist_registries,
+                    meta_config.plugins,
                     var_spec.privacy,
                     var_spec.prop_missing,
                     var_spec.description,
@@ -174,7 +174,7 @@ class MetaFrame:
                 raise ValueError(
                     f"Column with name '{var_spec.name}' not found and not declared as data_free."
                 )
-            distribution = meta_config.dist_registries.create(var_spec)
+            distribution = meta_config.plugins.create(var_spec)
             prop_missing = 0.0 if var_spec.prop_missing is None else var_spec.prop_missing
             var = MetaVar(
                 var_spec.name,

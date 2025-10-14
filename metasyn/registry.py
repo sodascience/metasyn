@@ -48,30 +48,30 @@ class DistributionRegistry():
         self.fitters = fitters
 
     @classmethod
-    def parse(cls, dist_registries: Union[list[str], None, str]):
-        """Initialize the distribution registry from registry names.
+    def parse(cls, plugins: Union[list[str], None, str]):
+        """Initialize the distribution registry from plugin names.
 
         Parameters
         ----------
-        dist_registries:
-            Name of registry for fitters/distribution or a list of names.
+        plugins:
+            Name of plugin(s) for fitters/distribution or a list of names.
         """
         fitters = []
-        if isinstance(dist_registries, str):
-            dist_registries = [dist_registries]
+        if isinstance(plugins, str):
+            plugins = [plugins]
 
         entries = {e.name: e for e in entry_points(group="metasyn.distribution_registry")}
-        if dist_registries is None:
-            dist_registries = list(entries)
+        if plugins is None:
+            plugins = list(entries)
 
-        for registry_name in dist_registries:
+        for registry_name in plugins:
             if registry_name not in entries:
                 registry = get_registry()
                 if registry_name not in registry:
                     raise ValueError(
-                        f"Cannot find distribution registry with name '{registry_name}'.")
+                        f"Cannot find plugin with name '{registry_name}'.")
                 raise ValueError(
-                    f"Distribution registry '{registry_name}' is not installed.\n"
+                    f"Plugin '{registry_name}' is not installed.\n"
                     f"See {registry[registry_name]['url']} for installation instructions."
                 )
             try:

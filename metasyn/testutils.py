@@ -192,7 +192,7 @@ def create_input_toml(file_name):
 
     doc = tomlkit.document()
     doc.add("config_version", "1.1")
-    doc.add("dist_registries", ["builtin"])
+    doc.add("plugins", ["builtin"])
     doc.add("n_rows", 100)
     doc.add("defaults", {"data_free": True, "prop_missing": 0.1})
     var_array = tomlkit.aot()

@@ -233,15 +233,15 @@ class MetaVar:
     def from_dict(
         cls,
         var_dict: Dict[str, Any],
-        distribution_registries: Union[None, str, list[str]] = None,
+        plugins: Union[None, str, list[str]] = None,
     ) -> MetaVar:
         """Restore variable from dictionary.
 
         Parameters
         ----------
-        distribution_registries:
-            Distribution registries to use to create the variable. If None,
-            use all installed/available distribution registries.
+        plugins:
+            Plugins to use to create the variable. If None,
+            use all installed/available plugins.
         var_dict:
             This dictionary contains all the variable and distribution
             information to recreate it from scratch.
@@ -251,7 +251,7 @@ class MetaVar:
         MetaVar:
             Initialized metadata variable.
         """
-        dist_registry = DistributionRegistry.parse(distribution_registries)
+        dist_registry = DistributionRegistry.parse(plugins)
         dist = dist_registry.from_dict(var_dict)
         return cls(
             name=var_dict["name"],
