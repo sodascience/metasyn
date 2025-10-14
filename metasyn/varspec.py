@@ -5,10 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Optional, Union
 
-from metasyn.distribution.base import BaseDistribution
-from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
+from metasyn.distribution.base import BaseDistribution, BaseFitter
+from metasyn.privacy import BasePrivacy, get_privacy
 from metasyn.util import ALL_VAR_TYPES
-from metasyn.distribution.base import BaseFitter
 
 
 @dataclass
