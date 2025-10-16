@@ -20,12 +20,12 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 
 project = "metasyn"
-copyright = "2024, SoDa Team"
+copyright = "2025, SoDa Team"
 author = "SoDa Team"
 
 
 # The full version, including alpha/beta/rc tags
-release = '1.1.0'
+release = '2.0.0'
 
 # -- General configuration ---------------------------------------------------
 
