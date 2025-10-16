@@ -36,7 +36,7 @@ use the configuration file is a more appropriate interface (see also our :doc:`c
 
       MetaFrame.fit_dataframe(
          df,
-         var_specs="your_config_file.toml"
+         config="your_config_file.toml"
       )
 
    This refers to a configuration file called ``your_config_file.toml``:
@@ -55,7 +55,7 @@ use the configuration file is a more appropriate interface (see also our :doc:`c
 
 .. admonition:: What is the TOML file format?
 
-   The `TOML <https://toml.io/en/>`_ file format can be read with any text editor, and is natural to comprehend.
+   The `TOML <https://toml.io/en/>`_ file format can be read with any text editor, and is human and machine-readable.
    You should be able to create your own TOML files from the examples below, but for more details refer to the TOML 
    `Documentation <https://toml.io/en/>`_. One important thing to note is that the TOML format is case sensitive.
 
@@ -66,16 +66,15 @@ The remainder of this page serves as a reference for the different options to im
 General specifications
 ----------------------
 
-Three general options can be set: ``privacy``, ``n_rows``, and ``dist_providers``. 
+Three general options can be set: ``privacy``, ``n_rows``, and ``plugins``. 
 In our python interface, these are arguments to :py:meth:`~MetaFrame.fit_dataframe()`; in the 
 configuration file these are mentioned at the top of the file.
 
 Privacy: ``privacy``
 ^^^^^^^^^^^^^^^^^^^^
 
-Using privacy plug-ins (see :doc:`extensions`), metasyn can increase the level of privacy.
-An example is ``disclosure`` privacy, which limits the influence of various problematic 
-situations such as outliers.
+Using privacy plug-ins (see :doc:`plugins`), metasyn can increase the level of privacy.
+An example is ``disclosure`` privacy, which limits the influence of various disclosive values such as outliers on the fitted distributions.
 
 .. tab:: Python
 
@@ -117,12 +116,12 @@ or undesirable. In this case you can specify it manually:
       n_rows = 100
 
 
-Distribution providers: ``dist_providers``
+Distribution registry: ``plugins``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Extra distribution providers can be added using plugins. By default all installed distribution providers
-will be used. For reproducibility, it is a good idea to set the distribution providers explicitly, so that 
-other people using your configuration file understand which plugins/providers were used. This can be done 
+Extra distributions and fitters can be added using plugins. By default all installed plugins
+will be used. For reproducibility, it is a good idea to set the plugins explicitly, so that 
+other people using your configuration file understand which plugins were used. This can be done 
 as follows:
 
 .. tab:: Python
@@ -131,18 +130,18 @@ as follows:
 
       MetaFrame.fit_dataframe(
          df,
-         dist_providers=["builtin", "disclosure"],
+         plugins=["builtin", "disclosure"],
       )
 
 .. tab:: Configuration file
 
    .. code-block:: toml
 
-      dist_providers = ["builtin", "disclosure"]
+      plugins = ["builtin", "disclosure"]
 
 
-Adding column specifications
-----------------------------
+Column specifications
+---------------------
 
 In addition to specifications that apply to all columns, you can also specify the behavior for individual columns.
 The most common use-case for this is to set the distribution type and/or parameters. 
@@ -177,7 +176,7 @@ The most common use-case for this is to set the distribution type and/or paramet
    .. code-block:: python
 
       # In this example you put the specifications in the toml file.
-      MetaFrame.fit_dataframe(df, var_specs="your_config_file.toml")
+      MetaFrame.fit_dataframe(df, config="your_config_file.toml")
 
    .. code-block:: toml
 
@@ -220,7 +219,7 @@ Missing values: ``prop_missing``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 By default metasyn will estimate the proportion of missing values from the data, but you can
-overwrite this with the ``prop_missing`` parameter:
+overwrite this with the ``prop_missing`` parameter (between 0 and 1, inclusive):
 
 .. tab:: Python
 
@@ -241,7 +240,7 @@ overwrite this with the ``prop_missing`` parameter:
 Privacy: ``privacy``
 ^^^^^^^^^^^^^^^^^^^^
 
-You can set the privacy only for specific columns:
+You can override the privacy level for specific columns:
 
 .. tab:: Python
 
@@ -267,7 +266,7 @@ Uniqueness: ``unique``
 Some distributions produce only values that are unique without any repeats (see distributions starting with ``Unique``
 in :doc:`api/metasyn.distribution`). By default, metasyn will not select any unique distributions. An exception
 is the :class:`metasyn.distribution.UniqueKeyDistribution <UniqueKeyDistribution>`; if values in the column are sequentially
-increasing. When the column represents a variable that is known to be unique (such as IDs), this can be represented with:
+increasing. When the column represents a variable that is known to be unique (such as IDs or other key variables), this uniqueness can be enforced with:
 
 .. tab:: Python
 

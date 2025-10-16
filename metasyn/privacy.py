@@ -1,14 +1,14 @@
 """Module with privacy classes to be used for creating GMF files."""
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Optional, Type, Union
+from importlib.metadata import entry_points
+from typing import TYPE_CHECKING, Optional, Type, Union
 
-try:
-    from importlib_metadata import entry_points
-except ImportError:
-    from importlib.metadata import entry_points  # type: ignore
-
-from metasyn.distribution.base import BaseDistribution
 from metasyn.util import get_registry
+
+if TYPE_CHECKING:
+    from metasyn.distribution.base import BaseFitter
 
 
 class BasePrivacy(ABC):
@@ -33,7 +33,7 @@ class BasePrivacy(ABC):
             "parameters": {},
         }
 
-    def is_compatible(self, dist: Union[BaseDistribution, Type[BaseDistribution]]) -> bool:
+    def is_compatible(self, dist: Union[BaseFitter, Type[BaseFitter]]) -> bool:
         """Check whether the distribution has the same privacy.
 
         Arguments
@@ -41,15 +41,7 @@ class BasePrivacy(ABC):
         dist:
             Distribution to check.
         """
-        return dist.privacy == self.name
-
-    @property
-    def fit_kwargs(self):
-        """Fitting arguments that need to be supplied to the distribution.
-
-        For example epsilon in the case of differential privacy.
-        """
-        return self.to_dict()["parameters"]
+        return dist.privacy_type == self.name
 
     def comment(self, var):  # noqa
         """Comment on the privacy features for the TOML GMF file.
@@ -86,7 +78,7 @@ def get_privacy(name: str, parameters: Optional[dict] = None) -> BasePrivacy:
     ----------
     name
         Name of the privacy type, use "none" for no specific type of privacy.
-    parameters, optional
+    parameters
         The parameters for the privacy type. This could be the epsilon for differential
         privacy or partition_size for disclosure control, by default None.
 

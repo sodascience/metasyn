@@ -12,17 +12,16 @@ import polars as pl
 import pytest
 from pytest import mark, raises
 
-from metasyn.distribution import (
-    DiscreteUniformDistribution,
-    NormalDistribution,
-    RegexDistribution,
-    UniformDistribution,
-    UniqueRegexDistribution,
-)
 from metasyn.distribution.categorical import MultinoulliDistribution
-from metasyn.distribution.continuous import TruncatedNormalDistribution
-from metasyn.distribution.discrete import UniqueKeyDistribution
+from metasyn.distribution.normal import (
+    ContinuousNormalDistribution,
+    ContinuousTruncatedNormalDistribution,
+)
+from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistribution
+from metasyn.distribution.uniform import ContinuousUniformDistribution, DiscreteUniformDistribution
+from metasyn.distribution.uniquekey import UniqueKeyDistribution
 from metasyn.metaframe import _jsonify
+from metasyn.util import get_var_type
 from metasyn.var import MetaVar
 
 
@@ -48,17 +47,22 @@ def check_var(series, var_type, temp_path, all_nan=False):
         assert len(series_a) == len(series_b)
         base_type_a = _series_element_classname(series_a, all_nan)
         base_type_b = _series_element_classname(series_b, all_nan)
-        if type(series_a) == type(series_b):
+        if type(series_a) is type(series_b):
             assert base_type_a == base_type_b
         has_nans_a = len(series_a) - len(_series_drop_nans(series_a)) > 0
         has_nans_b = len(series_b) - len(_series_drop_nans(series_b)) > 0
         assert has_nans_a == has_nans_b
 
+    def check_random_draw(var, n_series):
+        series_1 = var.draw_series(n_series, 1234)
+        series_2 = var.draw_series(n_series, 1234)
+        assert all(_series_drop_nans(series_1) == _series_drop_nans(series_2))
+
     assert isinstance(series, (pd.Series, pl.Series))
 
     var = MetaVar.fit(series)
-    new_series = var.draw_series(len(series))
-    print(new_series)
+    new_series = var.draw_series(len(series), 5123)
+    check_random_draw(var, len(series))
     check_similar(series, new_series)
     assert var.var_type == var_type
     assert var_type in var.distribution.var_type
@@ -73,13 +77,13 @@ def check_var(series, var_type, temp_path, all_nan=False):
 
     with raises(ValueError):
         var_dict = var.to_dict()
-        var_dict["distribution"].update({"implements": "unknown"})
+        var_dict["distribution"].update({"name": "unknown"})
         MetaVar.from_dict(var_dict)
 
-    newer_series = new_var.draw_series(len(series))
+    newer_series = new_var.draw_series(len(series), 6789)
     check_similar(newer_series, series)
 
-    assert type(new_var) == type(var)
+    assert type(new_var) is type(var)
     assert new_var.dtype == var.dtype
     assert var_type == new_var.var_type
 
@@ -90,9 +94,9 @@ def check_var(series, var_type, temp_path, all_nan=False):
 
     with open(tmp_fp, "r") as f:
         new_var = MetaVar.from_dict(json.load(f))
-    check_similar(series, new_var.draw_series(len(series)))
+    check_similar(series, new_var.draw_series(len(series), 8234))
 
-    assert type(new_var) == type(var)
+    assert type(new_var) is type(var)
     assert new_var.dtype == var.dtype
     assert new_var.var_type == var_type
     assert new_var.creation_method["created_by"] == "metasyn"
@@ -220,7 +224,7 @@ def test_bool(tmp_path, series_type):
     series = series_type(np.random.choice([True, False], size=100))
     check_var(series, "categorical", tmp_path)
     var = MetaVar.fit(series)
-    new_series = var.draw_series(10)
+    new_series = var.draw_series(10, 1234)
     assert new_series.dtype == pl.Boolean
 
 
@@ -235,11 +239,11 @@ def test_invalid_prop(prop_missing):
         MetaVar("test", "discrete", DiscreteUniformDistribution.default_distribution(),
                 prop_missing=prop_missing)
 
-
 @mark.parametrize(
     "series,var_type",
     [
         (pl.Series([1, 2, 3]), "discrete"),
+        (pd.Series([1, 2, 3]), "discrete"),
         (pl.Series([1.0, 2.0, 3.0]), "continuous"),
         (pl.Series(["1", "2", "3"]), "string"),
         (pl.Series(["1", "2", "3"], dtype=pl.Categorical), "categorical"),
@@ -254,7 +258,13 @@ def test_invalid_prop(prop_missing):
 )
 def test_get_var_type(series, var_type):
     """Test get_var_type method of MetaVar."""
-    assert MetaVar.get_var_type(series) == var_type
+    assert get_var_type(series) == var_type
+
+
+def test_unsupported_type():
+    series = pl.Series([MetaVar])
+    with pytest.raises(TypeError):
+        get_var_type(series)
 
 
 @mark.parametrize(
@@ -265,13 +275,13 @@ def test_get_var_type(series, var_type):
 def test_manual_fit(series):
     """Test adding dist_spec to MetaVar.fit call."""
     var = MetaVar.fit(series)
-    assert isinstance(var.distribution, (UniformDistribution, TruncatedNormalDistribution))
-    var = MetaVar.fit(series, dist_spec={"implements": "normal"})
-    assert isinstance(var.distribution, NormalDistribution)
-    var = MetaVar.fit(series, dist_spec=UniformDistribution)
-    assert isinstance(var.distribution, UniformDistribution)
-    var = MetaVar.fit(series, dist_spec=NormalDistribution(0, 1))
-    assert isinstance(var.distribution, NormalDistribution)
+    assert isinstance(var.distribution, (ContinuousUniformDistribution, ContinuousTruncatedNormalDistribution))
+    var = MetaVar.fit(series, dist_spec={"name": "normal"})
+    assert isinstance(var.distribution, ContinuousNormalDistribution)
+    var = MetaVar.fit(series, dist_spec=ContinuousUniformDistribution)
+    assert isinstance(var.distribution, ContinuousUniformDistribution)
+    var = MetaVar.fit(series, dist_spec=ContinuousNormalDistribution(0, 1))
+    assert isinstance(var.distribution, ContinuousNormalDistribution)
     with raises(TypeError):
         var.fit(10)
 

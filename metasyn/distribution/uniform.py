@@ -1,4 +1,4 @@
-"""Module implementing distributions for date and time types."""
+"""Uniform distributions and fitters."""
 
 import datetime as dt
 from abc import abstractmethod
@@ -6,30 +6,122 @@ from random import random
 from typing import Any, Dict
 
 import numpy as np
+from scipy.stats import randint, uniform
 
-from metasyn.distribution.base import BaseConstantDistribution, BaseDistribution, metadist
+from metasyn.distribution.base import (
+    BaseDistribution,
+    BaseFitter,
+    ScipyDistribution,
+    builtin_fitter,
+    metadist,
+)
+from metasyn.distribution.util import convert_numpy_datetime
 
 
-def convert_numpy_datetime(time_obj: np.datetime64) -> dt.datetime:
-    """Convert numpy datetime to python stdlib datetime.
+@metadist(name="core.uniform", var_type="discrete")
+class DiscreteUniformDistribution(ScipyDistribution):
+    """Uniform discrete distribution.
+
+    It differs from the floating point uniform distribution by
+    being a discrete distribution instead.
 
     Parameters
     ----------
-    time_obj:
-        datetime to be converted.
+    lower: int
+        Lower bound (inclusive) of the uniform distribution.
+    upper: int
+        Upper bound (exclusive) of the uniform distribution.
 
-    Returns
-    -------
-    datetime.datetime:
-        Converted datetime.
+    Examples
+    --------
+    >>> DiscreteUniformDistribution(lower=3, upper=20)
     """
-    unix_epoch = np.datetime64(0, 's')
-    one_second = np.timedelta64(1, 's')
-    seconds_since_epoch = (time_obj - unix_epoch) / one_second
-    return dt.datetime.fromtimestamp(float(seconds_since_epoch))
+
+    # dist = randint
+
+    def __init__(self, lower: int, upper: int):
+        self.par = {"lower": lower, "upper": upper}
+        self.dist = randint(low=lower, high=upper)
+
+    def _information_criterion(self, values):
+        return np.log(len(values))*self.n_par - 2*np.sum(self.dist.logpmf(values))
 
 
-class BaseUniformDistribution(BaseDistribution):
+    @classmethod
+    def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
+        return cls(0, 10)
+
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "lower": {"type": "integer"},
+            "upper": {"type": "integer"},
+        }
+
+
+@builtin_fitter(distribution=DiscreteUniformDistribution, var_type="discrete")
+class DiscreteUniformFitter(BaseFitter):
+    """Fitter for discrete uniform distribution."""
+
+    def _fit(self, series):
+        return DiscreteUniformDistribution(series.min(), series.max()+1)
+
+
+
+
+@metadist(name="core.uniform", var_type="continuous")
+class ContinuousUniformDistribution(ScipyDistribution):
+    """Uniform distribution for floating point type.
+
+    This class implements the uniform distribution between a minimum
+    and maximum.
+
+    Parameters
+    ----------
+    lower: float
+        Lower bound for uniform distribution.
+    upper: float
+        Upper bound for uniform distribution.
+
+    Examples
+    --------
+    >>> UniformDistribution(lower=-3.0, upper=10.0)
+    """
+
+    # dist = uniform
+
+    def __init__(self, lower: float, upper: float):
+        self.par = {"lower": lower, "upper": upper}
+        self.dist = uniform(loc=self.lower, scale=max(self.upper-self.lower, 1e-8))
+
+    def _information_criterion(self, values):
+        if np.any(np.array(values) < self.lower) or np.any(np.array(values) > self.upper):
+            return np.log(len(values))*self.n_par + 100*len(values)
+        if np.fabs(self.upper-self.lower) < 1e-8:
+            return np.log(len(values))*self.n_par - 100*len(values)
+        return (np.log(len(values))*self.n_par
+                - 2*len(values)*np.log((self.upper-self.lower)**-1))
+
+    @classmethod
+    def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
+        return cls(0, 1)
+
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "lower": {"type": "number"},
+            "upper": {"type": "number"},
+        }
+
+@builtin_fitter(distribution=ContinuousUniformDistribution, var_type="continuous")
+class ContinuousUniformFitter(BaseFitter):
+    """Fitter for continuous uniform distribution."""
+
+    def _fit(self, series):
+        return ContinuousUniformDistribution(series.min(), series.max())
+
+
+class BaseDTUniformDistribution(BaseDistribution):
     """Base class for all time/date/datetime uniform distributions."""
 
     precision_possibilities = ["microseconds", "seconds", "minutes", "hours", "days"]
@@ -47,18 +139,6 @@ class BaseUniformDistribution(BaseDistribution):
         self.lower = self.round(lower)
         self.upper = self.round(upper)
 
-    @classmethod
-    def _fit(cls, values):
-        return cls(values.min(), values.max(), cls._get_precision(values))
-
-    @classmethod
-    def _get_precision(cls, values):
-        cur_precision = 0
-        for precision in cls.precision_possibilities[:-1]:
-            if not np.all([getattr(d, precision[:-1]) == 0 for d in values]):
-                break
-            cur_precision += 1
-        return cls.precision_possibilities[cur_precision]
 
     def round(self, time_obj: Any) -> Any:
         """Round down any time object with the precision.
@@ -108,8 +188,9 @@ class BaseUniformDistribution(BaseDistribution):
         }
 
 
-@metadist(implements="core.uniform", var_type="datetime")
-class DateTimeUniformDistribution(BaseUniformDistribution):
+
+@metadist(name="core.uniform", var_type="datetime")
+class DateTimeUniformDistribution(BaseDTUniformDistribution):
     """Uniform DateTime distribution.
 
     Datetime objects will be uniformly distributed between a start and end date time.
@@ -139,7 +220,7 @@ class DateTimeUniformDistribution(BaseUniformDistribution):
         return dt.datetime.fromisoformat(dt_obj)
 
     @classmethod
-    def default_distribution(cls):
+    def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
         return cls("2022-07-15T10:39:36", "2022-08-15T10:39:36", precision="seconds")
 
     @classmethod
@@ -151,8 +232,8 @@ class DateTimeUniformDistribution(BaseUniformDistribution):
         }
 
 
-@metadist(implements="core.uniform", var_type="time")
-class TimeUniformDistribution(BaseUniformDistribution):
+@metadist(name="core.uniform", var_type="time")
+class TimeUniformDistribution(BaseDTUniformDistribution):
     """Uniform time distribution.
 
     Time objects will be uniformly distributed between a start and end time.
@@ -181,7 +262,7 @@ class TimeUniformDistribution(BaseUniformDistribution):
         return dt.time.fromisoformat(dt_obj)
 
     @classmethod
-    def default_distribution(cls):
+    def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
         return cls("10:39:36", "18:39:36", precision="seconds")
 
     def draw(self):
@@ -199,8 +280,8 @@ class TimeUniformDistribution(BaseUniformDistribution):
         }
 
 
-@metadist(implements="core.uniform", var_type="date")
-class DateUniformDistribution(BaseUniformDistribution):
+@metadist(name="core.uniform", var_type="date")
+class DateUniformDistribution(BaseDTUniformDistribution):
     """Uniform date distribution.
 
     Date objects will be uniformly distributed between a start and end date.
@@ -233,17 +314,13 @@ class DateUniformDistribution(BaseUniformDistribution):
         return time_obj
 
     def _param_dict(self) -> Dict:
-        date_dict = BaseUniformDistribution._param_dict(self)
+        date_dict = BaseDTUniformDistribution._param_dict(self)
         del date_dict["precision"]
         return date_dict
 
     @classmethod
-    def default_distribution(cls):
+    def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
         return cls("1903-07-15", "1940-07-16")
-
-    @classmethod
-    def _fit(cls, values):
-        return cls(values.min(), values.max())
 
     @classmethod
     def _param_schema(cls):
@@ -253,112 +330,41 @@ class DateUniformDistribution(BaseUniformDistribution):
         }
 
 
+class BaseDTUniformFitter(BaseFitter):
+    """Base class for date/time/datetime uniform distributions."""
 
-@metadist(implements="core.constant", var_type="datetime")
-class DateTimeConstantDistribution(BaseConstantDistribution):
-    """Constant datetime distribution.
-
-    This class implements the constant distribution, so that it draws always
-    the same value.
-
-    Parameters
-    ----------
-    value: str or datetime.datetime
-        Value that will be returned when drawn.
-
-    Examples
-    --------
-    >>> DateTimeConstantDistribution(value="2022-07-15T10:39:36")
-    """
-
-    def __init__(self, value):
-        if isinstance(value, str):
-            value = dt.datetime.fromisoformat(value)
-        elif isinstance(value, np.datetime64):
-            value = convert_numpy_datetime(value)
-        super().__init__(value)
-
-    def _param_dict(self):
-        return {"value": self.value.isoformat()}
+    precision_possibilities = ["microseconds", "seconds", "minutes", "hours", "days"]
 
     @classmethod
-    def default_distribution(cls) -> BaseDistribution:
-        return cls("2022-07-15T10:39:36")
-
-    @classmethod
-    def _param_schema(cls):
-        return {
-            "value": {"type": "string"}
-        }
-
-
-@metadist(implements="core.constant", var_type="time")
-class TimeConstantDistribution(BaseConstantDistribution):
-    """Constant time distribution.
-
-    This class implements the constant distribution, so that it draws always
-    the same value.
-
-    Parameters
-    ----------
-    value: str or datetime.time
-        Value that will be returned when drawn.
-
-    Examples
-    --------
-    >>> TimeConstantDistribution(value="10:39:36")
-    """
-
-    def __init__(self, value):
-        if isinstance(value, str):
-            value = dt.time.fromisoformat(value)
-        super().__init__(value)
-
-    def _param_dict(self):
-        return {"value": self.value.isoformat()}
-
-    @classmethod
-    def default_distribution(cls) -> BaseDistribution:
-        return cls("10:39:36")
-
-    @classmethod
-    def _param_schema(cls):
-        return {
-            "value": {"type": "string"}
-        }
+    def _get_precision(cls, values):
+        cur_precision = 0
+        for precision in cls.precision_possibilities[:-1]:
+            if not np.all([getattr(d, precision[:-1]) == 0 for d in values]):
+                break
+            cur_precision += 1
+        return cls.precision_possibilities[cur_precision]
 
 
-@metadist(implements="core.constant", var_type="date")
-class DateConstantDistribution(BaseConstantDistribution):
-    """Constant date distribution.
+@builtin_fitter(distribution=TimeUniformDistribution, var_type="time")
+class TimeUniformFitter(BaseDTUniformFitter):
+    """Fitter for time uniform distribution."""
 
-    This class implements the constant distribution, so that it draws always
-    the same value.
+    # precision_possibilities = ["microseconds", "seconds", "minutes", "hours", "days"]
+    def _fit(self, values):
+        return TimeUniformDistribution(values.min(), values.max(), self._get_precision(values))
 
-    Parameters
-    ----------
-    value: str or datetime.date
-        Value that will be returned when drawn.
+@builtin_fitter(distribution=DateTimeUniformDistribution, var_type="datetime")
+class DateTimeUniformFitter(BaseDTUniformFitter):
+    """Fitter for datetime uniform distribution."""
 
-    Examples
-    --------
-    >>> DateConstantDistribution(value="1903-07-15")
-    """
+    def _fit(self, values):
+        return DateTimeUniformDistribution(values.min(), values.max(), self._get_precision(values))
 
-    def __init__(self, value):
-        if isinstance(value, str):
-            value = dt.date.fromisoformat(value)
-        super().__init__(value)
 
-    def _param_dict(self):
-        return {"value": self.value.isoformat()}
+@builtin_fitter(distribution=DateUniformDistribution, var_type="date")
+class DateUniformFitter(BaseDTUniformFitter):
+    """Fitter for date uniform distribution."""
 
-    @classmethod
-    def default_distribution(cls) -> BaseDistribution:
-        return cls("1903-07-15")
-
-    @classmethod
-    def _param_schema(cls):
-        return {
-            "value": {"type": "string"}
-        }
+    precision_possibilities = ["days"]
+    def _fit(self, values):
+        return DateUniformDistribution(values.min(), values.max())

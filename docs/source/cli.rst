@@ -4,7 +4,7 @@ Metasyn provides a command-line interface (CLI) for accessing core functionality
 
 The CLI currently has three subcommands:
 
-* The ``create-meta`` subcommand, which allows you to **create generative metadata** from a ``.csv file`` and/or a ``.toml`` configuration file.
+* The ``create-meta`` subcommand, which allows you to **create generative metadata** from a dataset file and/or a ``.toml`` configuration file.
 * The ``synthesize`` subcommand, which allows you to **generate synthetic data** from a ``GMF file``
 * The ``schema`` subcommand, which allows you to **create validation schemas** for GMF files.
 
@@ -18,23 +18,24 @@ At any point, you can also use the help command to get more information about th
 
 .. admonition:: When should I (not) use the CLI
 
-   The CLI is mostly feature complete from creating synthetic data from ``.csv files``, but there are some limitations. The main limitation is that it needs to read the
-   csv file, for which it tries to use sensible default settings. However, this can result in errors. If you encounter errors, might want to either preprocess your data
+   For generating synthetic data from a GMF (json) file (the ``synthesize`` command), the CLI can be used safely and will result in identical output to the direct Python API. However, for the  ``create-meta`` command there are some limitations. Currently, it can read ``.sav``, ``.zsav`` and ``.csv``
+   files. The main limitation is that it needs to read the
+   file, for which it tries to use sensible default settings. However, this can result in errors. If you encounter errors, might want to either preprocess your data
    so that it can be read with the default settings, or use the python API instead.
    
-   Another limitation is that you cannot specify which columns should be categorical.
+   Another limitation is that you cannot specify which columns should be categorical for ``.csv`` files.
 
 Accessing the CLI
 -----------------
 If you have installed the main ``metasyn`` package, the CLI should be available automatically. You can find instructions on how to install ``metasyn`` in the :doc:`installation` section of the documentation.
 
-Alternatively, the CLI can be accessed through a Docker container, allowing you to run ``metasyn`` in an isolated environment without installing the package on your system.
+Alternatively, the CLI can be accessed through a Docker container, allowing you to run ``metasyn`` in an isolated environment without installing the package on your system. Additionally, this method allows you to use earlier versions with ease, e.g., to synthesize data from old GMF files.
 
 Here's how you can use Docker to access Metasyn's CLI:
 
 1. **Install Docker:** If Docker isn't already set up on your machine, please follow the instructions on `Docker's official website <https://docs.docker.com/get-docker/>`_.
 
-2. **Pull the ``metasyn`` Docker Image:** After successfully installing Docker, you can download the ``metasyn`` Docker image from Docker Hub using the following command.
+2. **Pull the metasyn Docker Image:** After successfully installing Docker, you can download the ``metasyn`` Docker image from Docker Hub using the following command.
 
    .. code-block:: console
 
@@ -44,18 +45,32 @@ Here's how you can use Docker to access Metasyn's CLI:
 
    .. tab:: Windows
 
+      To display the help file:
+
       .. code-block:: console
 
-         docker run -v %cd%:/wd sodateam/metasyn --help
+         docker run --rm sodateam/metasyn --help
+      
+      To preview synthesized data from an existing GMF file:
+      
+      .. code-block:: console
+
+         docker run --rm -v %cd%:/wd sodateam/metasyn synthesize --preview /wd/my_gmf_file.json
 
    .. tab:: Unix or MacOS:
 
+      To display the help file:
+
       .. code-block:: console
 
-         docker run -v $(pwd):/wd sodateam/metasyn --help
+         docker run --rm sodateam/metasyn --help
+      
+      To preview synthesized data from an existing GMF file:
+      
+      .. code-block:: console
 
+         docker run --rm -v $(pwd):/wd sodateam/metasyn synthesize --preview /wd/my_gmf_file.json
 
-The ``metasyn`` CLI should now be up and running within the Docker container and ready for use!
 
 .. note:: 
    You can also specify which ``metasyn`` version to use in docker, by adding a tag to the docker image. For example, to use version 1.1.0, you can use the following command:
@@ -83,7 +98,12 @@ The ``metasyn`` CLI should now be up and running within the Docker container and
 
 Creating generative metadata
 ----------------------------
-The ``create-meta`` subcommand combines the estimation and serialization steps in the pipeline into one, this allows you to generate generative metadata for a tabular dataset (in CSV format), and store it in a GMF (Generative Metadata Format) file.
+The ``create-meta`` subcommand combines the estimation and serialization steps in the pipeline into one, this allows you to generate generative metadata for a tabular dataset,
+and store it in a GMF (Generative Metadata Format) file.
+
+.. note::
+
+   To read ``.sav`` and ``.zsav`` files, you will need to install the ``pyreadstat`` package.
 
 .. image:: /images/pipeline_cli_create_meta.png
    :alt: Creating Generative Metadata using the CLI
@@ -97,13 +117,13 @@ The ``create-meta`` command can be used as follows:
 
 This will:
 
-1. Read the CSV file from the `[input]` filepath
+1. Read the file from the `[input]` filepath
 2. Estimate the metadata from the data
 3. Serialize the metadata into a GMF file and save it at the `[output]` filepath
 
 The ``create-meta`` command takes two positional arguments:
 
-* ``[input]``: The filepath and name of the CSV file from which the metadata will be generated.
+* ``[input]``: The filepath and name of the file from which the metadata will be generated.
 * ``[output]``: The filepath and name of the output JSON file that will contain the generative metadata.
 
 An example of how to use the ``create-meta`` subcommand is as follows:
@@ -161,7 +181,7 @@ This will:
 The ``synthesize`` command takes two positional arguments:
 
 * ``[input]``: The filepath and name of the GMF file.
-* ``[output]``: The Filepath and name of the desired synthetic data output file. The file extension determines the output format. Currently supported file types are ``.csv``, ``.feather``, ``.parquet``, ``.pkl`` and ``.xlsx``.
+* ``[output]``: The Filepath and name of the desired synthetic data output file. The file extension determines the output format. Currently supported file types are ``.csv``, ``.sav``, ``.zsav``, ``.feather``, ``.parquet``, ``.pkl`` and ``.xlsx``.
 
 An example of how to use the ``synthesize`` subcommand is as follows:
 
@@ -191,6 +211,7 @@ The ``synthesize`` command also takes two optional arguments:
 
 - ``-n [rows]`` or ``--num_rows [rows]``: To generate a specific number of data rows.
 - ``-p`` or ``--preview``: To preview the first six rows of synthesized data. This can be extremely useful for quick data validation without saving it to a file.
+- ``-s [seed]`` or ``--seed [seed]``: Set the seed for the generation of synthetic data.
 
 .. note::
 

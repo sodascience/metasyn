@@ -1,7 +1,7 @@
 Quickstart
 ==========
 
-In this concise demonstration, you'll learn the basic functionality of metasyn by generating synthetic data from `titanic <https://raw.githubusercontent.com/pandas-dev/pandas/main/doc/data/titanic.csv>`_ dataset.
+In this concise demonstration, you'll learn the basic functionality of metasyn by generating synthetic data from a classic dataset about the titanic disaster.
 
 .. note:: 
    A more elaborate version of this page is also available as an interactive tutorial available on the :doc:`/tutorials` page.
@@ -9,28 +9,27 @@ In this concise demonstration, you'll learn the basic functionality of metasyn b
 Importing libraries
 -------------------
 
-The first step is to import the required Python libraries. For this example, we will need Polars (for dataframes) and metasyn.
+The first step is to import the required Python libraries. For this example, we will use the Polars data frame library and metasyn.
 
 
 .. code:: python
 
-   import polars as pl
-   from metasyn import MetaFrame, demo_file
-
+   import polars as pl # NB: pandas is also supported
+   import metasyn as ms
 
 Loading the dataset
 -------------------
 
-Next, load the Titanic CSV file, for this we can use the built-in :meth:`metasyn.demo_file` function.
+Next, we assume we have the Titanic dataset stored as a CSV file. To get the path to the demo file, we can use the built-in :meth:`metasyn.demo_file` function.
 
 .. code-block:: python
 
-   csv_path = demo_file("titanic") 
+   csv_path = ms.demo_file("titanic") 
 
 When loading in the DataFrame, it is important to use the correct data types. For example, we need to tell Polars which columns are 
 `categorical <https://en.wikipedia.org/wiki/Categorical_variable>`_, as it cannot automatically infer this. This is important, as 
-metasyn can later read this information and use it to generate categorical values where necessary. For this we create a dictionary 
-with the column names that we want to specify as categorical. For this example, we specify which columns are dates times as well.
+metasyn can later read this information and use it to generate categorical values where necessary. For this, we create a dictionary 
+with the column names that we want to specify as categorical. For this example, we specify which columns are dates / times as well.
 
 .. code-block:: python
 
@@ -42,20 +41,26 @@ with the column names that we want to specify as categorical. For this example, 
       "Married since": pl.DateTime,
    }
 
-To finish loading the dataset, we simply use the :meth:`polars.read_csv` function, passing in our CSV file and the ``data_types`` dictionary as an argument. 
+To finish loading the dataset, we can either use the :meth:`polars.read_csv` function or the ``metasyn``
+:func:`metasyn.read_csv` function. The advantage of the latter is that with it metasyn will remember the
+specifics of the file format of your file (for example if your separator between columns was a ``,`` or ``;``)
+and when writing the synthetic data file, this can be reused.
+
+.. note::
+   Metasyn also supports reading an writing sav files (:func:`metasyn.read_sav`), excel files (:func:`metasyn.read_excel`), tsv files (:func:`metasyn.read_tsv`), .dta files (:func:`metasyn.read_dta`), and more.
+
+For reading a CSV file, you should give the ``data_types`` dictionary as an argument. 
 
 .. code-block:: python
-
-   df = pl.read_csv(csv_path, schema_overrides=data_types)
-
-
-This converts the CSV file into a DataFrame named ``df``.
-
-.. note:: 
-	In this example, we used a Polars DataFrame, but Pandas DataFrames are also supported by metasyn. 
+   
+   # for more info, see pl.read_csv()
+   df, file_format = ms.read_csv(csv_path, schema_overrides=data_types)
 
 
-The dataset should now be loaded into the DataFrame, and we can verify this by inspecting the first 5 rows of the DataFrame using the ``df.head(5)`` function (or ``print(df.head(5)`` when running from a script).  This will output the following table:
+This converts the CSV file into a DataFrame named ``df``. Additionally, we have a ``file_format`` object
+that remembers the name of your file, that it was a CSV file and more.
+
+The dataset should now be loaded into the DataFrame, and we can verify this by inspecting the first 5 rows of the DataFrame using the ``df.head(5)``. This will output the following table:
 
 +-------------+---------------------------------------------------------+----------+-----+-------+--------------------+---------+--------+----------+------------+------------+---------------------+---------+
 | PassengerId | Name                                                    | Sex      | Age | Parch | Ticket             | Fare    | Cabin  | Embarked | Birthday   | Board time | Married since       | all\_NA |
@@ -77,12 +82,11 @@ Generating the MetaFrame
 ------------------------
 With the DataFrame loaded, you can now generate a :obj:`MetaFrame <metasyn.metaframe.MetaFrame>`.
 
-
 .. code-block:: python
 
-   mf = MetaFrame.fit_dataframe(df)
+   mf = ms.MetaFrame.fit_dataframe(df, file_format=file_format)
 
-This creates a MetaFrame named ``mf``.
+This creates a MetaFrame named ``mf``. Note that you don't have to supply the ``file_format`` argument, but adding it will enable metasyn to write the synthetic data in exactly the same format as the real data.
 
 We can inspect the MetaFrame by printing it (``print(mf)``). This will produce the following output:
 
@@ -110,7 +114,7 @@ We can inspect the MetaFrame by printing it (``print(mf)``). This will produce t
 Saving and loading the MetaFrame
 --------------------------------
 
-The MetaFrame can be saved to a JSON file for future use, to do so we use the :func:`~metasyn.metaframe.MetaFrame.save` method on the MetaFrame (which in our case is named ``mf``), and pass in the desired filepath as a parameter. The following code saves the MetaFrame to a JSON file named "saved_metaframe.json":
+The MetaFrame can be saved to a GMF file for future use, to do so we use the :func:`~metasyn.metaframe.MetaFrame.save` method on the MetaFrame (which in our case is named ``mf``), and pass in the desired filepath as a parameter. The following code saves the MetaFrame to a JSON file named "saved_metaframe.json":
 
 .. code-block:: python
 
@@ -120,7 +124,7 @@ Inversely, we can load a MetaFrame from a JSON file using the :func:`~metasyn.me
 
 .. code-block:: python
 
-   mf = MetaFrame.load("saved_metaframe.json")
+   mf = ms.MetaFrame.load("saved_metaframe.json")
 
 Synthesizing the data
 ---------------------
@@ -150,6 +154,15 @@ We can inspect our synthesized data by printing it (``print(synthetic_data)``). 
 +-------------+------------------------------------+--------+-----+-------+----------+-----------+-------+----------+------------+------------+---------------------+---------+
 
 Of course, it's easy to see some flaws with the generated dataset, such as the names not making a lot of sense. The page on :doc:`improve_synth` shows how to improve the quality of the synthesized data, such as for example generating fake names using Faker.
+
+Writing synthetic data
+----------------------
+
+If you used :func:`metasyn.read_csv` to read in your file and added the file format to the metaframe, you can also write the synthetic data directly to a file:
+
+.. code-block:: python
+
+   mf.write_synthetic("some_file_name.csv")
 
 Conclusion
 ----------

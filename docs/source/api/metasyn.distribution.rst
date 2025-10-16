@@ -15,63 +15,123 @@ Categorical Distributions
    MultinoulliDistribution -- Stores labels and probabilities.
 
 
-Continuous Distributions
-^^^^^^^^^^^^^^^^^^^^^^^^
+Constant Distributions
+^^^^^^^^^^^^^^^^^^^^^^
 
-.. currentmodule:: metasyn.distribution.continuous
-
-.. autosummary::
-   :toctree: generated/
-
-   UniformDistribution
-   NormalDistribution
-   LogNormalDistribution
-   TruncatedNormalDistribution
-   ExponentialDistribution
-   ConstantDistribution
-
-Date and Time Distributions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. currentmodule:: metasyn.distribution.datetime
+.. currentmodule:: metasyn.distribution.constant
 
 .. autosummary::
    :toctree: generated/
 
-   DateUniformDistribution
-   TimeUniformDistribution
-   DateTimeUniformDistribution
+   ContinuousConstantDistribution
+   DiscreteConstantDistribution
    DateTimeConstantDistribution
    TimeConstantDistribution
    DateConstantDistribution
+   StringConstantDistribution
 
+Exponential Distribution
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-Discrete Distributions
-^^^^^^^^^^^^^^^^^^^^^^
-
-.. currentmodule:: metasyn.distribution.discrete
+.. currentmodule:: metasyn.distribution.exponential
 
 .. autosummary::
    :toctree: generated/
 
-   DiscreteUniformDistribution
-   DiscreteNormalDistribution
-   DiscreteTruncatedNormalDistribution
-   PoissonDistribution
-   UniqueKeyDistribution
-   DiscreteConstantDistribution -- Constant discrete distribution
+   ExponentialDistribution
 
-String Distributions
-^^^^^^^^^^^^^^^^^^^^
 
-.. currentmodule:: metasyn.distribution.string
+Faker Distributions
+^^^^^^^^^^^^^^^^^^^
+
+.. currentmodule:: metasyn.distribution.faker
+
+.. autosummary::
+   :toctree: generated/
+
+   FakerDistribution
+   UniqueFakerDistribution
+
+Free Text Distribution
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. currentmodule:: metasyn.distribution.freetext
 
 .. autosummary::
    :toctree: generated/
    
-   FakerDistribution
-   UniqueFakerDistribution
    FreeTextDistribution
-   StringConstantDistribution
+
+
+NA Distribution
+^^^^^^^^^^^^^^^
+
+.. currentmodule:: metasyn.distribution.na
+
+.. autosummary::
+   :toctree: generated/
+   
+   NADistribution
+
+
+Normal Distributions
+^^^^^^^^^^^^^^^^^^^^
+
+.. currentmodule:: metasyn.distribution.normal
+
+.. autosummary::
+   :toctree: generated/
+   
+   ContinuousNormalDistribution
+   LogNormalDistribution
+   ContinuousTruncatedNormalDistribution
+   DiscreteNormalDistribution
+   DiscreteTruncatedNormalDistribution
+
+
+Poisson Distribution
+^^^^^^^^^^^^^^^^^^^^
+
+.. currentmodule:: metasyn.distribution.poisson
+
+.. autosummary::
+   :toctree: generated/
+   
+   PoissonDistribution
+
+
+Regex Distributions
+^^^^^^^^^^^^^^^^^^^
+
+.. currentmodule:: metasyn.distribution.regex
+
+.. autosummary::
+   :toctree: generated/
+   
    RegexDistribution
    UniqueRegexDistribution
+
+Uniform Distributions
+^^^^^^^^^^^^^^^^^^^^^
+
+.. currentmodule:: metasyn.distribution.uniform
+
+.. autosummary::
+   :toctree: generated/
+   
+   DiscreteUniformDistribution
+   ContinuousUniformDistribution
+   DateTimeUniformDistribution
+   DateUniformDistribution
+   TimeUniformDistribution
+
+Unique Key Distribution
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. currentmodule:: metasyn.distribution.uniquekey
+
+.. autosummary::
+   :toctree: generated/
+   
+   UniqueKeyDistribution
+

@@ -1,6 +1,8 @@
 # setuptools-scm generated file that can be ignored
 _version.py
 
+examples/data
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -154,3 +156,7 @@ docs/source/api/generated
 
 # uv stuff
 uv.lock
+
+# Schema stuff
+create_schema.py
+schemas/

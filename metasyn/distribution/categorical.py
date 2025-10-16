@@ -3,16 +3,22 @@
 from __future__ import annotations
 
 import warnings
-from typing import Union
+from typing import Optional, Union
 
 import numpy as np
 import numpy.typing as npt
 import polars as pl
 
-from metasyn.distribution.base import BaseDistribution, metadist
+from metasyn.distribution.base import (
+    BaseDistribution,
+    BaseFitter,
+    builtin_fitter,
+    convert_to_series,
+    metadist,
+)
 
 
-@metadist(implements="core.multinoulli", var_type=["categorical", "discrete", "string"])
+@metadist(name="core.multinoulli", var_type=["categorical", "discrete", "string"])
 class MultinoulliDistribution(BaseDistribution):
     """Categorical distribution using labels and probabilities.
 
@@ -52,12 +58,6 @@ class MultinoulliDistribution(BaseDistribution):
                           f" ({np.sum(self.probs)}); they will be rescaled.")
         self.probs = self.probs/np.sum(self.probs)
 
-    @classmethod
-    def _fit(cls, values: pl.Series):
-        labels, counts = np.unique(values, return_counts=True)
-        probs = counts/np.sum(counts)
-        return cls(labels, probs)
-
     def _param_dict(self):
         return {"labels": self.labels, "probs": self.probs}
 
@@ -74,7 +74,7 @@ class MultinoulliDistribution(BaseDistribution):
     def information_criterion(self,
                               values: Union[pl.Series, npt.NDArray]
                               ) -> float:
-        series = self._to_series(values)
+        series = convert_to_series(values)
         labels, counts = np.unique(series, return_counts=True)
         log_lik = 0.0
         pdict = dict(zip(self.labels, self.probs))
@@ -124,11 +124,7 @@ class MultinoulliDistribution(BaseDistribution):
         we choose to add an extra len(self.labels) term to keep the choice of distribution
         consistent.
         """
-        # series = self._to_series(values)
-        # labels, counts = np.unique(series, return_counts=True)
         log_lik = 0.0
-        if len(self.labels) <= 1:
-            return 0
         # Do additive smoothing, assume count of values is equal to that value in initial fit.
         num_event = len(series)
         num_tot_cat = np.max(self.labels)-np.min(self.labels)+1
@@ -144,5 +140,20 @@ class MultinoulliDistribution(BaseDistribution):
         return log_lik
 
     @classmethod
-    def default_distribution(cls):
+    def default_distribution(cls, var_type: Optional[str] = None):
+        if var_type == "discrete":
+            return cls([3, 6, 8], [0.1, 0.3, 0.6])
         return cls(["a", "b", "c"], [0.1, 0.3, 0.6])
+
+
+@builtin_fitter(distribution=MultinoulliDistribution,
+                var_type=["categorical", "string", "discrete"])
+class MultinoulliFitter(BaseFitter):
+    """Fitter for multinoulli distribution."""
+
+    distribution: type[MultinoulliDistribution]
+
+    def _fit(self, series: pl.Series):
+        labels, counts = np.unique(series, return_counts=True)
+        probs = counts/np.sum(counts)
+        return self.distribution(labels, probs)

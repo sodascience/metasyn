@@ -10,7 +10,7 @@ try:
 except ImportError:
     import tomli as tomllib  # type: ignore  # noqa
 
-from metasyn.provider import DistributionProviderList
+from metasyn.registry import DistributionRegistry
 from metasyn.varspec import DistributionSpec, VarDefaults, VarSpec
 
 
@@ -29,9 +29,8 @@ class MetaConfig():
         of variables that are data-free, the order is also the order of columns
         for the eventual synthesized dataframe. See the VarSpecAccess class on
         how the dictionary can be constructed.
-    dist_providers:
-        Distribution providers to use when fitting distributions to variables.
-        Can be a string, provider, or provider type.
+    plugins:
+        Plugins to use when fitting distributions to variables.
     privacy:
         Privacy method/level to use as a default setting for the privacy. Can be
         overridden in the var_spec for a particular column.
@@ -43,34 +42,46 @@ class MetaConfig():
     def __init__(
             self,
             var_specs: Union[list[dict], list[VarSpec]],
-            dist_providers: Union[DistributionProviderList, list[str], str, None],
+            plugins: Union[DistributionRegistry, list[str], str, None],
             defaults: Optional[dict] = None,
             n_rows: Optional[int] = None,
-            config_version: str = "1.1"):
+            file_config: Optional[dict] = None,
+            config_version: str = "1.2"):
         self.var_specs = [self._parse_var_spec(v) for v in var_specs]
-        self.dist_providers = dist_providers  # type: ignore
+        self.plugins = plugins  # type: ignore
         self.n_rows = n_rows
         defaults = {} if defaults is None else defaults
         self.defaults = VarDefaults(**defaults)
         self.config_version = config_version
+        self.file_config = file_config
 
     @staticmethod
-    def _parse_var_spec(var_spec):
+    def _parse_var_spec(var_spec) -> VarSpec:
         if isinstance(var_spec, VarSpec):
             return var_spec
         return VarSpec.from_dict(var_spec)
 
     @property
-    def dist_providers(self) -> DistributionProviderList:
-        """Return the distribution provider list to be used for the metaframe."""
-        return self._dist_providers
+    def plugins(self) -> DistributionRegistry:
+        """Return the plugin list to be used for creating the metaframe."""
+        return self._plugins
 
-    @dist_providers.setter
-    def dist_providers(self, dist_providers):
-        if not isinstance(dist_providers, DistributionProviderList):
-            self._dist_providers = DistributionProviderList(dist_providers)
+    @plugins.setter
+    def plugins(self, plugins):
+        if not isinstance(plugins, DistributionRegistry):
+            self._plugins = DistributionRegistry.parse(plugins)
         else:
-            self._dist_providers = dist_providers
+            self._plugins = plugins
+
+    def update_varspecs(self, new_var_specs: Union[list[dict], list[VarSpec]]):
+        new_var_specs = [self._parse_var_spec(v) for v in new_var_specs]
+        for cur_new_var_spec in new_var_specs:
+            # Check if currently in varspecs and pop if it exists.
+            for i_var, old_var_spec in enumerate(self.var_specs):
+                if old_var_spec.name == cur_new_var_spec.name:
+                    self.var_specs.pop(i_var)
+                    break
+            self.var_specs.append(cur_new_var_spec)
 
     @classmethod
     def from_toml(cls, config_fp: Union[str, Path]) -> MetaConfig:
@@ -102,13 +113,14 @@ class MetaConfig():
             raise value_error
         var_list = config_dict.pop("var", [])
         n_rows = config_dict.pop("n_rows", None)
-        dist_providers = config_dict.pop("dist_providers", ["builtin"])
+        plugins = config_dict.pop("plugins", ["builtin"])
         defaults = config_dict.pop("defaults", None)
         privacy = config_dict.pop("privacy", None)
+        file_config = config_dict.pop("file", None)
         config_version = config_dict.pop("config_version", "1.0")
-        if config_version not in ["1.0", "1.1"]:
+        if config_version not in ["1.0", "1.1", "1.2"]:
             warnings.warn(f"Trying to read configuration file with version {config_version}, "
-                          "this version of metasyn only supports 1.0 and 1.1.")
+                          "this version of metasyn only supports 1.0, 1.1 and 1.2.")
         if privacy is not None:
             if defaults is not None:
                 raise ValueError("Error parsing configuration file: cannot have both [privacy]"
@@ -117,7 +129,8 @@ class MetaConfig():
         if len(config_dict) > 0:
             raise ValueError(f"Error parsing configuration file '{config_fp}'."
                              f" Unknown keys detected: '{list(config_dict)}'")
-        return cls(var_list, dist_providers, defaults, n_rows=n_rows,
+        return cls(var_list, plugins, defaults, n_rows=n_rows,
+                   file_config=file_config,
                    config_version=config_version)
 
     def to_dict(self) -> dict:
@@ -130,7 +143,7 @@ class MetaConfig():
         """
         return {
             "config_version": self.config_version,
-            "dist_providers": self.dist_providers,
+            "plugins": self.plugins,
             "n_rows": self.n_rows,
             "defaults": self.defaults,
             "var": self.var_specs
@@ -201,7 +214,7 @@ class VarSpecAccess():
                 return getattr(self.meta_config.defaults, attr)
             return getattr(self.var_spec, attr)
         if attr == "dist_spec":
-            if self.data_free and self.var_spec.dist_spec.implements is None:
+            if self.data_free and self.var_spec.dist_spec.name is None:
                 if self.var_type not in self.meta_config.defaults.distribution:
                     raise ValueError(
                         f"Variable with name '{self.name}' is declared datafree and a distribution "

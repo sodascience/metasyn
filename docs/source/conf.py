@@ -20,12 +20,12 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 
 project = "metasyn"
-copyright = "2024, SODA Team"
-author = "SODA Team"
+copyright = "2025, SoDa Team"
+author = "SoDa Team"
 
 
 # The full version, including alpha/beta/rc tags
-release = '1.1.0'
+release = '2.0.0'
 
 # -- General configuration ---------------------------------------------------
 
@@ -41,6 +41,11 @@ extensions = [
     "sphinx_copybutton",
     "sphinx.ext.autosummary",
 ]
+
+autosummary_generate = True
+autodoc_member_order = "bysource"
+autoclass_content = "both"
+autodoc_typehints = "description"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -62,7 +67,7 @@ html_theme_options = {
     "logo_only": True,
     "navigation_depth": -1,
     "display_version": True,
-    "style_external_links": True,
+    "style_external_links": False,
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

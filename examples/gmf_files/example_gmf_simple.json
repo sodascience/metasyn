@@ -1,12 +1,13 @@
 {
+    "gmf_version": "1.1",
     "n_rows": 5,
     "n_columns": 5,
     "provenance": {
         "created by": {
             "name": "metasyn",
-            "version": "1.0.2.dev34+gd68929e"
+            "version": "1.1.1.dev33+g0df642883"
         },
-        "creation time": "2024-10-01T09:57:15.595769"
+        "creation time": "2025-10-15T11:10:30.997379"
     },
     "vars": [
         {
@@ -15,9 +16,8 @@
             "dtype": "Int64",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.unique_key",
+                "name": "core.unique_key",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "UniqueKeyDistribution",
                 "unique": true,
                 "parameters": {
@@ -27,18 +27,29 @@
             },
             "creation_method": {
                 "created_by": "metasyn",
-                "unique": true
+                "distribution": {
+                    "unique": true
+                },
+                "fitter": {
+                    "name": "UniqueKeyFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev33+g0df642883"
+                }
             }
         },
         {
             "name": "fruits",
             "type": "categorical",
-            "dtype": "Categorical(ordering='physical')",
+            "dtype": "Categorical",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.multinoulli",
+                "name": "core.multinoulli",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "MultinoulliDistribution",
                 "unique": false,
                 "parameters": {
@@ -53,7 +64,17 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "MultinoulliFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev33+g0df642883"
+                }
             }
         },
         {
@@ -62,9 +83,8 @@
             "dtype": "Int64",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.uniform",
+                "name": "core.uniform",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "DiscreteUniformDistribution",
                 "unique": false,
                 "parameters": {
@@ -74,18 +94,29 @@
             },
             "creation_method": {
                 "created_by": "metasyn",
-                "unique": false
+                "distribution": {
+                    "unique": false
+                },
+                "fitter": {
+                    "name": "DiscreteUniformFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev33+g0df642883"
+                }
             }
         },
         {
             "name": "cars",
             "type": "categorical",
-            "dtype": "Categorical(ordering='physical')",
+            "dtype": "Categorical",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.multinoulli",
+                "name": "core.multinoulli",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "MultinoulliDistribution",
                 "unique": false,
                 "parameters": {
@@ -100,7 +131,17 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "MultinoulliFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev33+g0df642883"
+                }
             }
         },
         {
@@ -109,9 +150,8 @@
             "dtype": "Int64",
             "prop_missing": 0.2,
             "distribution": {
-                "implements": "core.uniform",
+                "name": "core.uniform",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "DiscreteUniformDistribution",
                 "unique": false,
                 "parameters": {
@@ -120,7 +160,17 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "DiscreteUniformFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev33+g0df642883"
+                }
             }
         }
     ]

@@ -6,10 +6,12 @@ from typing import Any, Dict, Optional, Union
 
 import numpy as np
 import polars as pl
+from tqdm import tqdm
 
 from metasyn.distribution.base import BaseDistribution
 from metasyn.privacy import BasePrivacy, BasicPrivacy
-from metasyn.provider import BaseDistributionProvider, DistributionProviderList
+from metasyn.registry import DistributionRegistry
+from metasyn.util import get_var_type, set_global_seeds
 from metasyn.varspec import DistributionSpec
 
 
@@ -50,7 +52,7 @@ class MetaVar:
         it will be assumed to have been created by the user.
     """
 
-    def __init__( # noqa: PLR0913
+    def __init__(  # noqa: PLR0913
         self,
         name: str,
         var_type: Optional[str],
@@ -62,10 +64,8 @@ class MetaVar:
     ):
         self.name = name
         if var_type is None:
-            if not isinstance(distribution.var_type, str):
-                raise ValueError("Failed to infer variable type for variable '{name}'"
-                                 " supply var_type or a different distribution.")
-            var_type = distribution.var_type
+            var_type = get_var_type(pl.Series([distribution.draw()]))
+            distribution.draw_reset()
         self.var_type = var_type
         self.distribution = distribution
         self.dtype = dtype
@@ -76,57 +76,13 @@ class MetaVar:
             self.creation_method = {"created_by": "user"}
         if self.prop_missing < -1e-8 or self.prop_missing > 1 + 1e-8:
             raise ValueError(
-                f"Cannot create variable '{self.name}' with proportion missing "
-                "outside range [0, 1]"
+                f"Cannot create variable '{self.name}' with proportion missing outside range [0, 1]"
             )
         if self.dtype == "unknown":
             if self.var_type == "categorical":
                 self.dtype = "Categorical"
             else:
                 self.dtype = str(pl.Series([self.distribution.draw()]).dtype)
-
-    @staticmethod
-    def get_var_type(series: pl.Series) -> str:
-        """Convert polars dtype to metasyn variable type.
-
-        This method uses internal polars methods, so this might break at some
-        point.
-
-        Parameters
-        ----------
-        series:
-            Series to get the metasyn variable type for.
-
-        Returns
-        -------
-        var_type:
-            The variable type that is found.
-        """
-        if not isinstance(series, pl.Series):
-            series = pl.Series(series)
-        if series.dtype.base_type() in [pl.Categorical, pl.Enum]:
-            polars_dtype = "categorical"
-        else:
-            try:
-                polars_dtype = pl.datatypes.dtype_to_py_type(series.dtype).__name__
-            except NotImplementedError:
-                polars_dtype = pl.datatypes.dtype_to_ffiname(series.dtype)
-
-        convert_dict = {
-            "int": "discrete",
-            "float": "continuous",
-            "date": "date",
-            "datetime": "datetime",
-            "time": "time",
-            "str": "string",
-            "categorical": "categorical",
-            "bool": "categorical",
-            "NoneType": "continuous",
-        }
-        try:
-            return convert_dict[polars_dtype]
-        except KeyError as exc:
-            raise ValueError(f"Unsupported polars type '{polars_dtype}'") from exc
 
     def to_dict(self) -> Dict[str, Any]:
         """Create a dictionary from the variable."""
@@ -165,15 +121,16 @@ class MetaVar:
             f"- Proportion of Missing Values: {self.prop_missing:.4f}\n"
             f"- Distribution:\n{distribution_formatted}\n"
         )
+
     def __repr__(self) -> str:
-        return f"MetaVar <{self.name}, {self.distribution.implements}>"
+        return f"MetaVar <{self.name}, {self.distribution.name}>"
 
     @classmethod
     def fit(
         cls,  # pylint: disable=too-many-arguments
         series: pl.Series,
         dist_spec: Optional[Union[dict, type, BaseDistribution, DistributionSpec]] = None,
-        provider_list: DistributionProviderList = DistributionProviderList("builtin"),
+        dist_registry: DistributionRegistry = DistributionRegistry.parse("builtin"),
         privacy: BasePrivacy = BasicPrivacy(),
         prop_missing: Optional[float] = None,
         description: Optional[str] = None,
@@ -196,8 +153,8 @@ class MetaVar:
             supplied distribution (class). Examples of allowed strings are:
             "normal", "uniform", "faker.city.nl_NL". If not supplied, fit
             the best available distribution for the variable type.
-        provider_list:
-            Distribution providers that are used for fitting.
+        dist_registry:
+            Distribution registry that is used for fitting.
         privacy:
             Privacy level to use for fitting the series.
         prop_missing:
@@ -207,9 +164,9 @@ class MetaVar:
         """
         if not isinstance(series, pl.Series):
             series = pl.Series(series)
-        var_type = cls.get_var_type(series)
+        var_type = get_var_type(series)
         dist_spec = DistributionSpec.parse(dist_spec)
-        distribution = provider_list.fit(series, var_type, dist_spec, privacy)
+        distribution, fitter = dist_registry.fit(series, var_type, dist_spec, privacy)
         if prop_missing is None:
             prop_missing = (len(series) - len(series.drop_nulls())) / len(series)
         return cls(
@@ -219,7 +176,7 @@ class MetaVar:
             dtype=str(series.dtype),
             description=description,
             prop_missing=prop_missing,
-            creation_method=dist_spec.get_creation_method(privacy),
+            creation_method=dist_spec.get_creation_method(fitter),
         )
 
     def draw(self) -> Any:
@@ -229,21 +186,40 @@ class MetaVar:
             return None
         return self.distribution.draw()
 
-    def draw_series(self, n: int) -> pl.Series:
+    def draw_series(self, n: int, seed: Optional[int], progress_bar: bool = True) -> pl.Series:
         """Draw a new synthetic series from the metadata.
 
         Parameters
         ----------
         n:
             Length of the series to be created.
+        seed:
+            Seed value for the internal random number generator. Set this to ensure reproducibility.
+        progress_bar:
+            Whether to display a progress bar.
 
         Returns
         -------
         polars.Series:
             Polars series with the synthetic data.
         """
+        if seed is not None:
+            set_global_seeds(seed)
+
         self.distribution.draw_reset()
-        value_list = [self.draw() for _ in range(n)]
+
+        is_not_na = np.random.rand(n) >= self.prop_missing
+        n_draw: int = np.sum(is_not_na)  # type: ignore
+        try:
+            not_na_values = self.distribution.draw_list(n_draw)
+        except NotImplementedError:
+            not_na_values = [self.distribution.draw()
+                             for _ in tqdm(range(n_draw), disable=not progress_bar, leave=False,
+                                           desc="synthesizing")]
+
+        # Mix the values with Nones
+        cum_not_na = np.cumsum(is_not_na)
+        value_list = [not_na_values[cum_not_na[i]-1] if is_not_na[i] else None for i in range(n)]
         pl_type = self.dtype.split("(")[0]
 
         # Workaround for polars issue with numpy 2.0
@@ -257,17 +233,15 @@ class MetaVar:
     def from_dict(
         cls,
         var_dict: Dict[str, Any],
-        distribution_providers: Union[
-            None, str, type[BaseDistributionProvider], BaseDistributionProvider
-        ] = None,
+        plugins: Union[None, str, list[str]] = None,
     ) -> MetaVar:
         """Restore variable from dictionary.
 
         Parameters
         ----------
-        distribution_providers:
-            Distribution providers to use to create the variable. If None,
-            use all installed/available distribution providers.
+        plugins:
+            Plugins to use to create the variable. If None,
+            use all installed/available plugins.
         var_dict:
             This dictionary contains all the variable and distribution
             information to recreate it from scratch.
@@ -277,8 +251,8 @@ class MetaVar:
         MetaVar:
             Initialized metadata variable.
         """
-        provider_list = DistributionProviderList(distribution_providers)
-        dist = provider_list.from_dict(var_dict)
+        dist_registry = DistributionRegistry.parse(plugins)
+        dist = dist_registry.from_dict(var_dict)
         return cls(
             name=var_dict["name"],
             var_type=var_dict["type"],

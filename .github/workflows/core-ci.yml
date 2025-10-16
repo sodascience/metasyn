@@ -1,10 +1,13 @@
-name: Continuous integration for development
+name: Continuous integration
 
 on:
   pull_request:
     branches: [ main, develop ]
   push:
     branches: [ main, develop ]
+  schedule:
+    - cron: "0 0 1 * *"  # monthly
+  
 
 jobs:
   check:
@@ -12,7 +15,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
     runs-on: "ubuntu-latest"
     steps:
       - uses: actions/checkout@v4
@@ -35,12 +38,12 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
         include:
             - os: macos-latest
-              python-version: "3.12"
+              python-version: "3.13"
             - os: windows-latest
-              python-version: "3.12"
+              python-version: "3.13"
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -51,9 +54,13 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install ".[test,extra]"
+        python -m pip install -e ".[test,extra]"
     - name: Test with pytest
+      if: ${{ matrix.python-version != '3.12' }}  # Either do coverage testing or pytest only
       run: pytest tests
+    - name: Test coverage >= 95%
+      if: ${{ matrix.python-version == '3.12' }}
+      run: pytest --cov=metasyn tests/ --cov-report=term-missing --cov-fail-under=95
     - name: Check notebook output
       if: ${{ matrix.os != 'macos-latest' }}
       run: pytest --nbval-lax examples
@@ -64,6 +71,14 @@ jobs:
         pip install git+https://github.com/sodascience/metasyn-disclosure-control
         pip install .
         metasyn create-meta metasyn/demo/demo_titanic.csv --config examples/config_files/example_config.toml
+    - name: Test GMF file
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      run: |
+        metasyn schema -o current_schema.json
+        MD5_DATA=(`md5sum current_schema.json`)
+        [[ ${MD5_DATA[0]} == "8e9351c9b1513a6586ad94fa8b82d94e" ]]
+
+
 
   build-docs:
     name: Build documentation

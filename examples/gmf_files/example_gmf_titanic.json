@@ -1,12 +1,24 @@
 {
+    "gmf_version": "1.1",
     "n_rows": 891,
     "n_columns": 13,
     "provenance": {
         "created by": {
             "name": "metasyn",
-            "version": "1.0.2.dev34+gd68929e"
+            "version": "1.1.1.dev42+g2631ec541"
         },
-        "creation time": "2024-10-18T10:35:19.433034"
+        "creation time": "2025-10-16T12:32:14.437337"
+    },
+    "file_format": {
+        "file_interface_name": "csv",
+        "format_metadata": {
+            "separator": ",",
+            "line_terminator": "\n",
+            "quote_char": "\"",
+            "null_value": "",
+            "encoding": "utf-8"
+        },
+        "file_name": "demo_titanic.csv"
     },
     "vars": [
         {
@@ -15,9 +27,8 @@
             "dtype": "Int64",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.unique_key",
+                "name": "core.unique_key",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "UniqueKeyDistribution",
                 "unique": true,
                 "parameters": {
@@ -26,7 +37,17 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "UniqueKeyFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev42+g2631ec541"
+                }
             }
         },
         {
@@ -35,9 +56,8 @@
             "dtype": "String",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.freetext",
+                "name": "core.freetext",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "FreeTextDistribution",
                 "unique": false,
                 "parameters": {
@@ -47,18 +67,27 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "FreeTextFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev42+g2631ec541"
+                }
             }
         },
         {
             "name": "Sex",
             "type": "categorical",
-            "dtype": "Categorical(ordering='physical')",
+            "dtype": "Categorical",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.multinoulli",
+                "name": "core.multinoulli",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "MultinoulliDistribution",
                 "unique": false,
                 "parameters": {
@@ -73,7 +102,17 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "MultinoulliFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev42+g2631ec541"
+                }
             }
         },
         {
@@ -82,9 +121,8 @@
             "dtype": "Int64",
             "prop_missing": 0.19865319865319866,
             "distribution": {
-                "implements": "core.truncated_normal",
+                "name": "core.truncated_normal",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "DiscreteTruncatedNormalDistribution",
                 "unique": false,
                 "parameters": {
@@ -95,7 +133,17 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "DiscreteTruncatedNormalFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev42+g2631ec541"
+                }
             }
         },
         {
@@ -104,20 +152,29 @@
             "dtype": "Int64",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.truncated_normal",
+                "name": "core.truncated_normal",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "DiscreteTruncatedNormalDistribution",
                 "unique": false,
                 "parameters": {
                     "lower": -1e-08,
                     "upper": 6.00000001,
-                    "mean": -380.6440825743838,
-                    "sd": 12.066012048277289
+                    "mean": -247.46471779076856,
+                    "sd": 9.72548403502272
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "DiscreteTruncatedNormalFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev42+g2631ec541"
+                }
             }
         },
         {
@@ -126,9 +183,8 @@
             "dtype": "String",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.regex",
+                "name": "core.regex",
                 "version": "2.0",
-                "provenance": "builtin",
                 "class_name": "RegexDistribution",
                 "unique": false,
                 "parameters": {
@@ -173,7 +229,17 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "RegexFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "2.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev42+g2631ec541"
+                }
             }
         },
         {
@@ -182,9 +248,8 @@
             "dtype": "Float64",
             "prop_missing": 0.0,
             "distribution": {
-                "implements": "core.exponential",
+                "name": "core.exponential",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "ExponentialDistribution",
                 "unique": false,
                 "parameters": {
@@ -192,7 +257,17 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "ExponentialFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev42+g2631ec541"
+                }
             }
         },
         {
@@ -201,9 +276,8 @@
             "dtype": "String",
             "prop_missing": 0.7710437710437711,
             "distribution": {
-                "implements": "core.regex",
+                "name": "core.regex",
                 "version": "2.0",
-                "provenance": "builtin",
                 "class_name": "RegexDistribution",
                 "unique": false,
                 "parameters": {
@@ -244,18 +318,27 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "RegexFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "2.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev42+g2631ec541"
+                }
             }
         },
         {
             "name": "Embarked",
             "type": "categorical",
-            "dtype": "Categorical(ordering='physical')",
+            "dtype": "Categorical",
             "prop_missing": 0.002244668911335578,
             "distribution": {
-                "implements": "core.multinoulli",
+                "name": "core.multinoulli",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "MultinoulliDistribution",
                 "unique": false,
                 "parameters": {
@@ -272,7 +355,17 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "MultinoulliFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev42+g2631ec541"
+                }
             }
         },
         {
@@ -281,9 +374,8 @@
             "dtype": "Date",
             "prop_missing": 0.08754208754208755,
             "distribution": {
-                "implements": "core.uniform",
+                "name": "core.uniform",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "DateUniformDistribution",
                 "unique": false,
                 "parameters": {
@@ -292,7 +384,17 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "DateUniformFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev42+g2631ec541"
+                }
             }
         },
         {
@@ -301,9 +403,8 @@
             "dtype": "Time",
             "prop_missing": 0.08866442199775533,
             "distribution": {
-                "implements": "core.uniform",
+                "name": "core.uniform",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "TimeUniformDistribution",
                 "unique": false,
                 "parameters": {
@@ -313,7 +414,17 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "TimeUniformFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev42+g2631ec541"
+                }
             }
         },
         {
@@ -322,9 +433,8 @@
             "dtype": "Datetime(time_unit='us', time_zone=None)",
             "prop_missing": 0.10325476992143659,
             "distribution": {
-                "implements": "core.uniform",
+                "name": "core.uniform",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "DateTimeUniformDistribution",
                 "unique": false,
                 "parameters": {
@@ -334,7 +444,17 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "DateTimeUniformFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev42+g2631ec541"
+                }
             }
         },
         {
@@ -343,9 +463,8 @@
             "dtype": "String",
             "prop_missing": 1.0,
             "distribution": {
-                "implements": "core.na",
+                "name": "core.na",
                 "version": "1.0",
-                "provenance": "builtin",
                 "class_name": "NADistribution",
                 "unique": false,
                 "parameters": {}

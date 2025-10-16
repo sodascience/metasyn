@@ -5,8 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Optional, Union
 
-from metasyn.distribution.base import BaseDistribution
-from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
+from metasyn.distribution.base import BaseDistribution, BaseFitter
+from metasyn.privacy import BasePrivacy, get_privacy
 from metasyn.util import ALL_VAR_TYPES
 
 
@@ -15,14 +15,14 @@ class DistributionSpec():
     """Specification that determines which distribution is selected.
 
     It has the following attributes:
-    - implements: Which distribution is chosen.
+    - name: Which distribution is chosen.
     - unique: Whether the distribution should be unique.
-    - parameters: The parameters of the distribution as defined by implements.
+    - parameters: The parameters of the distribution as defined by name.
     - fit_kwargs: Fitting keyword arguments to be used while fitting the distribution.
     - version: Version of the distribution to fit.
     """
 
-    implements: Optional[str] = None
+    name: Optional[str] = None
     unique: Optional[bool] = None
     parameters: Optional[dict] = None
     fit_kwargs: dict = field(default_factory=dict)
@@ -30,16 +30,16 @@ class DistributionSpec():
     distribution: Optional[BaseDistribution] = None
 
     def __post_init__(self):
-        if self.implements is None:
+        if self.name is None:
             if self.version is not None:
                 raise ValueError("Cannot create DistributionSpec with attribute 'version' but "
-                                 "without attribute 'implements'.")
+                                 "without attribute 'name'.")
             if self.parameters is not None:
                 raise ValueError("Cannot create DistributionSpec with attribute 'parameters' but "
-                                 "without attribute 'implements'.")
+                                 "without attribute 'name'.")
             if len(self.fit_kwargs) > 0:
                 raise ValueError("Cannot create DistributionSpec with attribute 'fit_kwargs' that"
-                                 " is not empty but without attribute 'implements'.")
+                                 " is not empty but without attribute 'name'.")
 
 
     @classmethod
@@ -68,10 +68,10 @@ class DistributionSpec():
         """
         if isinstance(dist_spec, BaseDistribution):
             dist_dict = {key: value for key, value in dist_spec.to_dict().items()
-                         if key in ["implements", "version", "unique", "parameters"]}
+                         if key in ["name", "version", "unique", "parameters"]}
             return cls(**dist_dict, distribution=dist_spec)
         if isinstance(dist_spec, str):
-            return cls(implements=dist_spec, unique=unique)
+            return cls(name=dist_spec, unique=unique)
         if dist_spec is None:
             return cls(unique=unique)
         if isinstance(dist_spec, dict):
@@ -79,7 +79,7 @@ class DistributionSpec():
         if isinstance(dist_spec, DistributionSpec):
             return dist_spec
         if issubclass(dist_spec, BaseDistribution):
-            return cls(implements=dist_spec.implements, unique=dist_spec.unique)
+            return cls(name=dist_spec.name, unique=dist_spec.unique)
         raise TypeError("Error parsing distribution specification of unknown type "
                         f"'{type(dist_spec)}' with value '{dist_spec}'")
 
@@ -92,9 +92,9 @@ class DistributionSpec():
             A flag that indicates whether a distribution can be generated from the values
             that are specified (not None).
         """
-        return self.implements is not None and self.parameters is not None
+        return self.name is not None and self.parameters is not None
 
-    def get_creation_method(self, privacy: BasePrivacy) -> dict:
+    def get_creation_method(self, fitter: Optional[BaseFitter]) -> dict:
         """Create a dictionary on how the distribution was created.
 
         Parameters
@@ -107,14 +107,23 @@ class DistributionSpec():
             Dictionary containing all the non-default settings for the creation method.
         """
         ret_dict: dict[str, Any] = {"created_by": "metasyn"}
-        for var in ["implements", "unique", "parameters", "version"]:
-            if getattr(self, var) is not None:
-                ret_dict[var] = getattr(self, var)
+        dist_dict = {var: getattr(self, var) for var in ["name", "unique", "parameters", "version"]
+                     if getattr(self, var) is not None}
+        if len(dist_dict) != 0:
+            ret_dict["distribution"] = dist_dict
+        fit_dict = {}
+        if fitter is not None:
+            fit_dict = fitter.to_dict()
         if len(self.fit_kwargs) > 0:
-            ret_dict["fit_kwargs"] = self.fit_kwargs
-        if not isinstance(privacy, BasicPrivacy):
-            ret_dict["privacy"] = privacy.to_dict()
+            fit_dict["fit_kwargs"] = self.fit_kwargs
+
+        if len(fit_dict) != 0:
+            ret_dict["fitter"] = fit_dict
+
         return ret_dict
+
+    def __str__(self):
+        return f"DistSpec<{self.name}, {self.unique}, {self.parameters}, {self.distribution}>"
 
 
 class VarSpec():  # pylint: disable=too-few-public-methods
@@ -124,7 +133,7 @@ class VarSpec():  # pylint: disable=too-few-public-methods
     ----------
     name:
         Name of the variable/column.
-    distribution, optional:
+    distribution:
         Distribution to use for fitting/finding the distribution.
         Leave at None to allow metasyn to find the most suitable distribution
         automatically.
@@ -134,7 +143,7 @@ class VarSpec():  # pylint: disable=too-few-public-methods
         >>> # Use normal distribution with mean 0, standard deviation 1
         >>> distribution=NormalDistribution(0, 1)
 
-    unique, optional:
+    unique:
         To set a column to be unique/key.
         This is only available for the integer and string datatypes. Setting a variable
         to unique ensures that the synthetic values generated for this variable are unique.
@@ -143,16 +152,16 @@ class VarSpec():  # pylint: disable=too-few-public-methods
         {"unique": True}, which sets the variable to be unique or {"unique": False} which
         forces the variable to be not unique. If the uniqueness is not specified, it is
         assumed to be not unique, but gives a warning if metasyn thinks it should be.
-    privacy, optional:
+    privacy:
         Set the privacy level for a variable, e.g.: DifferentialPrivacy(epsilon=10).
-    prop_missing, optional:
+    prop_missing:
         Proportion of missing values for a variable.
-    description, optional:
+    description:
         Set the description of a variable.
-    data_free, optional:
+    data_free:
         Whether this variable/column is to be generated from scratch or from an existing column
         in the dataframe.
-    var_type, optional:
+    var_type:
         Manually set the variable type of the columns (used mainly for data_free columns).
     """
 
@@ -183,7 +192,7 @@ class VarSpec():  # pylint: disable=too-few-public-methods
             self.privacy = get_privacy(**self.privacy)
         if self.data_free and not self.dist_spec.fully_specified:
             raise ValueError("Error creating variable specification: data free variable should have"
-                            f" 'implements' and 'parameters'. {self}")
+                            f" 'name' and 'parameters'. {self}")
         if self.var_type is not None and self.var_type not in ALL_VAR_TYPES:
             raise ValueError(f"Cannot create variable '{self.name}': unknown variable type "
                              f"'{self.var_type}'. Choose from {ALL_VAR_TYPES}.")

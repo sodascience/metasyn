@@ -31,7 +31,7 @@ This is the base class providing the basic structure for all distributions. It i
 +------------+-------------------------------------------------------------------------+---------------------------------------------+
 | var_type   | The type of variable associated with the distribution                   | ``"discrete"``, ``"continuous"``, etc.      |
 +------------+-------------------------------------------------------------------------+---------------------------------------------+
-| provenance | Information about the source (core, plugin, etc.) of the distribution.  | ``"builtin"``, ``"myplugin"``, etc.         |
+| provenance | Information about the source (core, plug-in, etc.) of the distribution. | ``"builtin"``, ``"myplugin"``, etc.         |
 +------------+-------------------------------------------------------------------------+---------------------------------------------+
 | privacy    | The privacy class or implementation associated with the distribution.   | ``"none"``, ``"customPrivacyClass"``, etc.  |
 +------------+-------------------------------------------------------------------------+---------------------------------------------+
@@ -48,7 +48,7 @@ Though they can be set manually, the intended way of setting these attributes is
     
     ``<prefix>.<distribution_name>``
     
-    Distributions that are part of the core metasyn distribution provider list should use ``core`` as the prefix, e.g. ``core.multinoulli``.
+    Distributions that are part of the core metasyn distribution registry list should use ``core`` as the prefix, e.g. ``core.multinoulli``.
 
 BaseDistribution class has a series of abstract methods that *must be* implemeted by derived classes, these are:
 
@@ -60,7 +60,9 @@ BaseDistribution class has a series of abstract methods that *must be* implemete
 
 If the distribution has subsequently draws that are not independent, it is recommended to implement :meth:`~metasyn.distribution.base.BaseDistribution.draw_reset`. As the name suggests, this method is intended to reset the distribution's drawing mechanism.
 
-It is recommended to also implement :meth:`~metasyn.distribution.base.BaseDistribution.information_criterion`. This is a class method used to determine which distribution gets selected during the fitting process for a series of values. The distribution with the lowest information criterion of the correct variable type will be selected. For discrete and continuous distributions it is currently implemented as `BIC <https://en.wikipedia.org/wiki/Bayesian_information_criterion>`_). 
+It is recommended to also implement :meth:`~metasyn.distribution.base.BaseDistribution.information_criterion`. This is a class method used to determine which distribution gets selected during the fitting process for a series of values. The distribution with the lowest information criterion of the correct variable type will be selected. For discrete and continuous distributions it is currently implemented as `BIC <https://en.wikipedia.org/wiki/Bayesian_information_criterion>`_. 
+
+Another optional method to implement is the :meth:`~metasyn.distribution.base.BaseDistribution.draw_list`. Normally, ``metasyn`` will draw values one at a time when synthesizing. Sometimes this is slow and it is faster to draw multiple values at once. In this case you can implement the :meth:`~metasyn.distribution.base.BaseDistribution.draw_list` method.
 
 There are more methods, but this is a good starting point when implementing a new distribution.
 For an overview of the rest of the methods and implementation details, refer to the :class:`~metasyn.distribution.base.BaseDistribution` class.
@@ -135,9 +137,9 @@ The next step is to set the attributes of the distribution using the :func:`~met
 
 Then, implement the required methods (:meth:`~metasyn.distribution.base.BaseDistribution._fit`, :meth:`~metasyn.distribution.base.BaseDistribution.draw`, :meth:`~metasyn.distribution.base.BaseDistribution._param_dict`, :meth:`~metasyn.distribution.base.BaseDistribution._param_schema`, :meth:`~metasyn.distribution.base.BaseDistribution.default_distribution` and ``__init__``), as well as any other applicable methods. 
 
-Finally the distribution has to be added to a provider list, so that it can be used by ``metasyn`` for fitting.
+Finally the distribution has to be added to a distribution registry, so that it can be used by ``metasyn`` for fitting.
 
-For example, let's say we want to create a new distribution for unique continuous variables, to be a part of the core ``metasyn`` distribution provider. We could implement the distribution as follows:
+For example, let's say we want to create a new distribution for unique continuous variables, to be a part of the core ``metasyn`` distribution registry. We could implement the distribution as follows:
 
 .. code-block:: python
 
@@ -150,7 +152,7 @@ For example, let's say we want to create a new distribution for unique continuou
             self.upper = upper
 
         @classmethod
-        def default_distribution(cls): 
+        def default_distribution(cls, var_type: Optional[str] = None): 
             return cls(0, 1) # default distribution with lower=0 and upper=1
 
         @classmethod
@@ -174,27 +176,12 @@ For example, let's say we want to create a new distribution for unique continuou
 
 
 
-And then add it to the BuiltinDistributionProvider list in the :mod:`~metasyn.distribution.provider` module:
-
-.. code-block:: python
-
-    import NewDistribution
-
-    class BuiltinDistributionProvider(BaseDistributionProvider):
-    """Distribution tree that includes the builtin distributions."""
-
-    name = "builtin"
-    version = "1.1"
-    distributions = [
-        # ... other distributions
-        NewDistribution,
-    ]
-
+And then add it to the ``builtin_fitters`` list in the :mod:`~metasyn.distribution.__init__` module.
 
 Note that this is a bare-bones example and that the implementation of the distribution will vary depending on the type of distribution being implemented. 
 
-Creating a distribution plugin
-------------------------------
-In case you want to create a new distribution as part of an add-on, as opposed to it being implemented in the core package, you can easily do so by following the available `distribution plugin template <https://github.com/sodascience/metasyn-distribution-template>`_.
+Creating a distribution plug-in
+-------------------------------
+In case you want to create a new distribution as part of an add-on, as opposed to it being implemented in the core package, you can easily do so by following the available `distribution plug-in template <https://github.com/sodascience/metasyn-distribution-template>`_.
 
 More information on creating plug-ins can be found in the :doc:`/developer/plugins` section of the documentation.
