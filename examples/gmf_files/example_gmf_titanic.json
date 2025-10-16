@@ -5,9 +5,9 @@
     "provenance": {
         "created by": {
             "name": "metasyn",
-            "version": "1.1.1.dev29+g659aa34b1.d20250925"
+            "version": "1.1.1.dev42+g2631ec541"
         },
-        "creation time": "2025-10-15T11:11:21.175614"
+        "creation time": "2025-10-16T12:32:14.437337"
     },
     "file_format": {
         "file_interface_name": "csv",
@@ -37,7 +37,17 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "UniqueKeyFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev42+g2631ec541"
+                }
             }
         },
         {
@@ -57,13 +67,23 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "FreeTextFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev42+g2631ec541"
+                }
             }
         },
         {
             "name": "Sex",
             "type": "categorical",
-            "dtype": "Categorical(ordering='physical')",
+            "dtype": "Categorical",
             "prop_missing": 0.0,
             "distribution": {
                 "name": "core.multinoulli",
@@ -82,7 +102,17 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "MultinoulliFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev42+g2631ec541"
+                }
             }
         },
         {
@@ -103,7 +133,17 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "DiscreteTruncatedNormalFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev42+g2631ec541"
+                }
             }
         },
         {
@@ -119,12 +159,22 @@
                 "parameters": {
                     "lower": -1e-08,
                     "upper": 6.00000001,
-                    "mean": -380.6440825743838,
-                    "sd": 12.066012048277289
+                    "mean": -247.46471779076856,
+                    "sd": 9.72548403502272
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "DiscreteTruncatedNormalFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev42+g2631ec541"
+                }
             }
         },
         {
@@ -179,7 +229,17 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "RegexFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "2.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev42+g2631ec541"
+                }
             }
         },
         {
@@ -197,7 +257,17 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "ExponentialFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev42+g2631ec541"
+                }
             }
         },
         {
@@ -248,13 +318,23 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "RegexFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "2.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev42+g2631ec541"
+                }
             }
         },
         {
             "name": "Embarked",
             "type": "categorical",
-            "dtype": "Categorical(ordering='physical')",
+            "dtype": "Categorical",
             "prop_missing": 0.002244668911335578,
             "distribution": {
                 "name": "core.multinoulli",
@@ -275,7 +355,17 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "MultinoulliFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev42+g2631ec541"
+                }
             }
         },
         {
@@ -294,7 +384,17 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "DateUniformFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev42+g2631ec541"
+                }
             }
         },
         {
@@ -314,7 +414,17 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "TimeUniformFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev42+g2631ec541"
+                }
             }
         },
         {
@@ -334,7 +444,17 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "DateTimeUniformFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev42+g2631ec541"
+                }
             }
         },
         {
