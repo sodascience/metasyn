@@ -18,6 +18,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from copy import deepcopy
+from importlib import metadata
 from typing import Any, Optional, Sequence, Union
 
 import numpy as np
@@ -47,6 +48,8 @@ class BaseFitter(ABC):
     privacy_type: str = "none"
     version: str = "1.0"
     var_type: Union[str, list[str]] = "unknown"
+    plugin: str = "unknown"
+    plugin_version: str = "1.0"
 
     def __init__(self, privacy: BasePrivacy):
         self.privacy = privacy
@@ -87,6 +90,14 @@ class BaseFitter(ABC):
             return cls.var_type == var_type
         return var_type in cls.var_type
 
+    def to_dict(self):
+        return {
+            "name": self.__class__.__name__,
+            "privacy": self.privacy.to_dict(),
+            "version": self.version,
+            "plugin": self.plugin,
+            "plugin_version": self.plugin_version,
+        }
 
 class BaseDistribution(ABC):
     """Abstract base class to define a distribution.
@@ -297,7 +308,9 @@ def metafit(
         distribution: Optional[type[BaseDistribution]] = None,
         var_type: Optional[Union[str, list[str]]] = None,
         version: Optional[str] = None,
-        privacy_type: Optional[str] = None):
+        privacy_type: Optional[str] = None,
+        plugin: Optional[str] = None,
+        plugin_version: Optional[str] = None):
     """Decorate class to create a fitter with the correct class attributes.
 
     Parameters
@@ -311,6 +324,10 @@ def metafit(
         properly handled.
     privacy_type:
         Privacy class/implementation of the fitter.
+    plugin:
+        Name of the plugin for the fitter or builtin (if part of metasyn itself).
+    plugin_version:
+        Version of the plugin used.
 
     Returns
     -------
@@ -328,6 +345,11 @@ def metafit(
             cls.privacy_type = privacy_type
         if version is not None:
             cls.version = version
+        if plugin is not None:
+            cls.plugin = plugin
+        if plugin_version is not None:
+            cls.plugin_version = plugin_version
+
         if cls.__doc__ is None:
             return cls
         cls.__doc__ = cls.__doc__.rstrip(" ")
@@ -349,6 +371,37 @@ def metafit(
 
     return _wrap
 
+def builtin_fitter(
+        distribution: Optional[type[BaseDistribution]] = None,
+        var_type: Optional[Union[str, list[str]]] = None,
+        version: Optional[str] = None,
+        privacy_type: Optional[str] = None):
+    """Decorate builtin fitters.
+
+    Parameters
+    ----------
+    distribution:
+        Class that the fitter will return after a succesful fit.
+    var_type:
+        Variable type(s) that the fitter implements, e.g. continuous, categorical, string.
+    version:
+        Version of the fitter. Increment this to ensure that compatibility is
+        properly handled.
+    privacy_type:
+        Privacy class/implementation of the fitter.
+
+    Returns
+    -------
+    cls:
+        Class with the appropriate class variables.
+    """
+    __version__ = metadata.version("metasyn")
+    def _wrap(cls):
+        wrapper = metafit(distribution, var_type, version, privacy_type,
+                          plugin="builtin", plugin_version=__version__)
+        return wrapper(cls)
+
+    return _wrap
 
 class ScipyDistribution(BaseDistribution):
     """Base class for numerical distributions using Scipy.

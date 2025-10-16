@@ -5,8 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Optional, Union
 
-from metasyn.distribution.base import BaseDistribution
-from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
+from metasyn.distribution.base import BaseDistribution, BaseFitter
+from metasyn.privacy import BasePrivacy, get_privacy
 from metasyn.util import ALL_VAR_TYPES
 
 
@@ -94,7 +94,7 @@ class DistributionSpec():
         """
         return self.name is not None and self.parameters is not None
 
-    def get_creation_method(self, privacy: BasePrivacy) -> dict:
+    def get_creation_method(self, fitter: Optional[BaseFitter]) -> dict:
         """Create a dictionary on how the distribution was created.
 
         Parameters
@@ -107,13 +107,19 @@ class DistributionSpec():
             Dictionary containing all the non-default settings for the creation method.
         """
         ret_dict: dict[str, Any] = {"created_by": "metasyn"}
-        for var in ["name", "unique", "parameters", "version"]:
-            if getattr(self, var) is not None:
-                ret_dict[var] = getattr(self, var)
+        dist_dict = {var: getattr(self, var) for var in ["name", "unique", "parameters", "version"]
+                     if getattr(self, var) is not None}
+        if len(dist_dict) != 0:
+            ret_dict["distribution"] = dist_dict
+        fit_dict = {}
+        if fitter is not None:
+            fit_dict = fitter.to_dict()
         if len(self.fit_kwargs) > 0:
-            ret_dict["fit_kwargs"] = self.fit_kwargs
-        if not isinstance(privacy, BasicPrivacy):
-            ret_dict["privacy"] = privacy.to_dict()
+            fit_dict["fit_kwargs"] = self.fit_kwargs
+
+        if len(fit_dict) != 0:
+            ret_dict["fitter"] = fit_dict
+
         return ret_dict
 
     def __str__(self):

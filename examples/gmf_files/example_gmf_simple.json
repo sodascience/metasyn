@@ -5,9 +5,9 @@
     "provenance": {
         "created by": {
             "name": "metasyn",
-            "version": "1.1.1.dev34+g59e65a26b.d20251010"
+            "version": "1.1.1.dev33+g0df642883"
         },
-        "creation time": "2025-10-10T10:53:38.821661"
+        "creation time": "2025-10-15T11:10:30.997379"
     },
     "vars": [
         {
@@ -27,7 +27,19 @@
             },
             "creation_method": {
                 "created_by": "metasyn",
-                "unique": true
+                "distribution": {
+                    "unique": true
+                },
+                "fitter": {
+                    "name": "UniqueKeyFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev33+g0df642883"
+                }
             }
         },
         {
@@ -52,7 +64,17 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "MultinoulliFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev33+g0df642883"
+                }
             }
         },
         {
@@ -72,7 +94,19 @@
             },
             "creation_method": {
                 "created_by": "metasyn",
-                "unique": false
+                "distribution": {
+                    "unique": false
+                },
+                "fitter": {
+                    "name": "DiscreteUniformFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev33+g0df642883"
+                }
             }
         },
         {
@@ -97,7 +131,17 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "MultinoulliFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev33+g0df642883"
+                }
             }
         },
         {
@@ -116,7 +160,17 @@
                 }
             },
             "creation_method": {
-                "created_by": "metasyn"
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "DiscreteUniformFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev33+g0df642883"
+                }
             }
         }
     ]

@@ -166,7 +166,7 @@ class MetaVar:
             series = pl.Series(series)
         var_type = get_var_type(series)
         dist_spec = DistributionSpec.parse(dist_spec)
-        distribution = dist_registry.fit(series, var_type, dist_spec, privacy)
+        distribution, fitter = dist_registry.fit(series, var_type, dist_spec, privacy)
         if prop_missing is None:
             prop_missing = (len(series) - len(series.drop_nulls())) / len(series)
         return cls(
@@ -176,7 +176,7 @@ class MetaVar:
             dtype=str(series.dtype),
             description=description,
             prop_missing=prop_missing,
-            creation_method=dist_spec.get_creation_method(privacy),
+            creation_method=dist_spec.get_creation_method(fitter),
         )
 
     def draw(self) -> Any:

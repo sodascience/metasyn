@@ -10,8 +10,8 @@ from metasyn.distribution.base import (
     BaseFitter,
     ScipyDistribution,
     ScipyFitter,
+    builtin_fitter,
     metadist,
-    metafit,
 )
 
 
@@ -51,7 +51,7 @@ class ContinuousNormalDistribution(ScipyDistribution):
             "sd": {"type": "number"},
         }
 
-@metafit(distribution=ContinuousNormalDistribution, var_type="continuous")
+@builtin_fitter(distribution=ContinuousNormalDistribution, var_type="continuous")
 class ContinuousNormalFitter(ScipyFitter):
     """Fitter for continuous normal distribution."""
 
@@ -90,7 +90,7 @@ class LogNormalDistribution(ScipyDistribution):
             "sd": {"type": "number"},
         }
 
-@metafit(distribution=LogNormalDistribution, var_type="continuous")
+@builtin_fitter(distribution=LogNormalDistribution, var_type="continuous")
 class LogNormalFitter(BaseFitter):
     """Fitter for log normal distribution."""
 
@@ -144,7 +144,7 @@ class ContinuousTruncatedNormalDistribution(ScipyDistribution):
             "sd": {"type": "number"},
         }
 
-@metafit(distribution=ContinuousTruncatedNormalDistribution, var_type="continuous")
+@builtin_fitter(distribution=ContinuousTruncatedNormalDistribution, var_type="continuous")
 class ContinuousTruncatedNormalFitter(BaseFitter):
     """Fitter for continuous truncated normal fitter."""
 
@@ -191,7 +191,7 @@ class DiscreteNormalDistribution(ContinuousNormalDistribution):
         return int(super().draw())
 
 
-@metafit(distribution=DiscreteNormalDistribution, var_type="discrete")
+@builtin_fitter(distribution=DiscreteNormalDistribution, var_type="discrete")
 class DiscreteNormalFitter(ScipyFitter):
     """Fitter for discrete normal distribution."""
 
@@ -219,6 +219,6 @@ class DiscreteTruncatedNormalDistribution(ContinuousTruncatedNormalDistribution)
     def draw(self):
         return int(super().draw())
 
-@metafit(distribution=DiscreteTruncatedNormalDistribution, var_type="discrete")
+@builtin_fitter(distribution=DiscreteTruncatedNormalDistribution, var_type="discrete")
 class DiscreteTruncatedNormalFitter(ContinuousTruncatedNormalFitter):
     """Fitter for discrete truncated normal distribution."""

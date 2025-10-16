@@ -7,9 +7,9 @@ import polars as pl
 from metasyn.distribution.base import (
     BaseDistribution,
     BaseFitter,
+    builtin_fitter,
     convert_to_series,
     metadist,
-    metafit,
 )
 from metasyn.distribution.util import convert_numpy_datetime
 
@@ -245,26 +245,26 @@ class StringConstantDistribution(BaseConstantDistribution):
         }
 
 
-@metafit(distribution=DiscreteConstantDistribution, var_type="discrete")
+@builtin_fitter(distribution=DiscreteConstantDistribution, var_type="discrete")
 class DiscreteConstantFitter(BaseConstantFitter):
     """Fitter for constant discrete distribution."""
 
-@metafit(distribution=ContinuousConstantDistribution, var_type="continuous")
+@builtin_fitter(distribution=ContinuousConstantDistribution, var_type="continuous")
 class ContinuousConstantFitter(BaseConstantFitter):
     """Fitter for constant continuous distribution."""
 
-@metafit(distribution=DateConstantDistribution, var_type="date")
+@builtin_fitter(distribution=DateConstantDistribution, var_type="date")
 class DateConstantFitter(BaseConstantFitter):
     """Fitter for constant date distribution."""
 
-@metafit(distribution=TimeConstantDistribution, var_type="time")
+@builtin_fitter(distribution=TimeConstantDistribution, var_type="time")
 class TimeConstantFitter(BaseConstantFitter):
     """Fitter for constant time distribution."""
 
-@metafit(distribution=DateTimeConstantDistribution, var_type="datetime")
+@builtin_fitter(distribution=DateTimeConstantDistribution, var_type="datetime")
 class DateTimeConstantFitter(BaseConstantFitter):
     """Fitter for constant datetime distribution."""
 
-@metafit(distribution=StringConstantDistribution, var_type="string")
+@builtin_fitter(distribution=StringConstantDistribution, var_type="string")
 class StringConstantFitter(BaseConstantFitter):
     """Fitter for constant string distribution."""

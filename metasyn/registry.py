@@ -84,7 +84,7 @@ class DistributionRegistry():
     def fit(self, series: pl.Series,
             var_type: str,
             dist_spec: DistributionSpec,
-            privacy: BasePrivacy = BasicPrivacy()) -> BaseDistribution:
+            privacy: BasePrivacy = BasicPrivacy()) -> tuple[BaseDistribution, Optional[BaseFitter]]:
         """Fit a distribution to a column/series.
 
         Parameters
@@ -102,7 +102,7 @@ class DistributionRegistry():
             Level of privacy that will be used in the fit.
         """
         if dist_spec.distribution is not None:
-            return dist_spec.distribution
+            return dist_spec.distribution, None
         if dist_spec.name is not None:
             return self._fit_distribution(series, dist_spec, var_type, privacy)
         return self._find_best_fit(series, var_type, dist_spec.unique, privacy)
@@ -141,7 +141,7 @@ class DistributionRegistry():
 
     def _find_best_fit(self, series: pl.Series, var_type: str,
                        unique: Optional[bool],
-                       privacy: BasePrivacy) -> BaseDistribution:
+                       privacy: BasePrivacy) -> tuple[BaseDistribution, Optional[BaseFitter]]:
         """Fit a distribution to a series.
 
         Search for the distribution within all available distributions in the tree.
@@ -163,28 +163,28 @@ class DistributionRegistry():
             Distribution fitted to the series.
         """
         if len(series.drop_nulls()) == 0:
-            return NADistribution()
+            return NADistribution(), None
         try_unique = unique is True
         fitters = self.filter_fitters(privacy=privacy, var_type=var_type, unique=try_unique)
         if len(fitters) == 0:
             raise ValueError(f"No available distributions with variable type: '{var_type}'"
                              f" and unique={try_unique}")
         fit_instances = [f(privacy) for f in fitters]
-        dist_instances = [d.fit(series) for d in fit_instances]
-        dist_bic = [d.information_criterion(series) for d in dist_instances]
+        dist_instances = [(f.fit(series), f) for f in fit_instances]
+        dist_bic = [d.information_criterion(series) for d, _ in dist_instances]
         if unique is None:
-            dist_list_unq = self.filter_fitters(privacy=privacy, var_type=var_type, unique=True)
-            if len(dist_list_unq) > 0:
-                fit_inst_unq = [f(privacy) for f in dist_list_unq]
-                dist_inst_unq = [d.fit(series) for d in fit_inst_unq]
-                dist_bic_unq = [d.information_criterion(series) for d in dist_inst_unq]
+            fit_list_unq = self.filter_fitters(privacy=privacy, var_type=var_type, unique=True)
+            if len(fit_list_unq) > 0:
+                fit_inst_unq = [f(privacy) for f in fit_list_unq]
+                dist_inst_unq = [(f.fit(series), f) for f in fit_inst_unq]
+                dist_bic_unq = [d.information_criterion(series) for d, _ in dist_inst_unq]
                 # We don't want to warn about potential uniqueness too easily
                 # The offset is a heuristic that ensures about 12 rows are needed for uniqueness
                 # Or 5 rows for consecutive values.
                 if np.min(dist_bic_unq) + 16 < np.min(dist_bic):
-                    best_dist = dist_inst_unq[np.argmin(dist_bic_unq)]
+                    best_dist, best_fitter = dist_inst_unq[np.argmin(dist_bic_unq)]
                     if best_dist.name == "core.unique_key" and best_dist.consecutive:  # type: ignore
-                        return best_dist
+                        return best_dist, best_fitter
                     warnings.warn(
                         f"\nMetasyn detected that variable '{series.name}' is potentially unique.\n"
                         f"Use var_spec=[VarSpec(\"{series.name}\", unique=True)] to make it unique."
@@ -280,7 +280,7 @@ class DistributionRegistry():
     def _fit_distribution(self, series: pl.Series,
                           dist_spec: DistributionSpec,
                           var_type: str,
-                          privacy: BasePrivacy) -> BaseDistribution:
+                          privacy: BasePrivacy) -> tuple[BaseDistribution, Optional[BaseFitter]]:
         """Fit a specific distribution to a series.
 
         In contrast the fit method, this needs a supplied distribution(type).
@@ -308,14 +308,15 @@ class DistributionRegistry():
         # If the parameters are already specified, the privacy level doesn't matter anymore.
         if dist_spec.parameters is not None:
             dist_class = self.find_distribution(dist_spec.name, var_type, unique=unique)
-            return dist_class(**dist_spec.parameters)
+            return dist_class(**dist_spec.parameters), None
 
         fitter_class = self.find_fitter(dist_spec.name, var_type, privacy=privacy,
                                         unique=unique)
 
         fit_kwargs = dist_spec.fit_kwargs
-        dist_instance = fitter_class(privacy).fit(series, **fit_kwargs)
-        return dist_instance
+        fitter = fitter_class(privacy)
+        dist_instance = fitter.fit(series, **fit_kwargs)
+        return dist_instance, fitter
 
     def filter_fitters(self,
                        name: Optional[str] = None,
