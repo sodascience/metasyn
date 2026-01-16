@@ -1,9 +1,10 @@
 """Module for distribution and variable specifications."""
 from __future__ import annotations
 
+import inspect
+
 # from metasyn.util import VarSpec
 from dataclasses import dataclass, field
-import inspect
 from typing import Any, Optional, Union
 
 from metasyn.distribution.base import BaseDistribution, BaseFitter
