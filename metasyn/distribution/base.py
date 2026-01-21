@@ -52,6 +52,8 @@ class BaseFitter(ABC):
     plugin_version: str = "1.0"
 
     def __init__(self, privacy: BasePrivacy):
+        if not isinstance(privacy, BasePrivacy):
+            raise TypeError(f"To initialize fitter, supply a Privacy object, not {type(privacy)}.")
         self.privacy = privacy
 
     def fit(self, values: Union[npt.NDArray, pl.Series]) -> BaseDistribution:
