@@ -7,6 +7,7 @@ from datetime import date, datetime, time, timedelta
 from importlib.resources import files
 from pathlib import Path
 
+import faker
 import numpy as np
 import polars as pl
 
@@ -48,6 +49,17 @@ class BaseDataset(ABC):
     @property
     def var_specs(self):
         return []
+
+
+class BaseMultiDataset(BaseDataset):
+    @property
+    @abstractmethod
+    def file_location(self):
+        pass
+
+    def get_dataframe(self):
+        return {name: pl.read_csv(path, schema_overrides=self.schema, try_parse_dates=True)
+                for name, path in self.file_location.items()}
 
 
 @register
@@ -273,6 +285,63 @@ class TestDataset(BaseDataset):
 
         # Write to a csv file
         pl.DataFrame(all_series).write_csv(csv_file)
+
+class ShopMultiDataset(BaseMultiDataset):
+    @property
+    def name(self):
+        return "shop_multi"
+
+    @property
+    def schema(self):
+        return {}
+
+    @property
+    def file_location(self):
+        return {
+            "customers": files(__package__) / self.name / "customers.csv",
+            "products": files(__package__) / self.name / "products.csv",
+            "purchases": files(__package__) / self.name / "purchases.csv",
+        }
+
+    @classmethod
+    def create(cls, data_dir: Path, n_user: int = 200, n_product: int = 500, n_purchases: int = 1000):
+        user_ids = np.unique(np.random.randint(123, 123456+100*n_user, size=2*n_user))[:n_user]
+        np.random.shuffle(user_ids)
+
+        product_ids = np.unique(np.random.randint(123, 123456+100*n_product, size=2*n_product))[:n_product]
+        np.random.shuffle(product_ids)
+
+        fake = faker.Faker()
+        df_customers = pl.DataFrame(
+            {
+                "id": user_ids,
+                "address": [fake.address() for _ in range(n_user)],
+                "credit_card_nr": [fake.credit_card_number() for _ in range(n_user)],
+                "signup_date": [fake.date() for _ in range (n_user)]
+            }
+        )
+        df_customers
+
+        df_products = pl.DataFrame(
+            {
+                "id": product_ids,
+                "name": [fake.word() for _ in range(n_product)],
+                "current_price":  [fake.pricetag() for _ in range(n_product)],
+                "stock": np.random.randint(0, 10, size=n_product)
+            }
+        )
+
+        df_purchases = pl.DataFrame(
+            {
+                "id": np.arange(n_purchases),
+                "customer_id": df_customers["id"].sample(n_purchases, with_replacement=True, shuffle=True),
+                "price_paid": [fake.pricetag() for _ in range(n_purchases)],
+                "product_id": df_products["id"].sample(n_purchases, with_replacement=True, shuffle=True),
+            }
+        )
+        df_products.write_csv(data_dir / "products.csv")
+        df_purchases.write_csv(data_dir / "purchases.csv")
+        df_customers.write_csv(data_dir / "customers.csv")
 
 
 def _get_demo_class(name):
