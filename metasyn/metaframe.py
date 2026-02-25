@@ -355,7 +355,7 @@ class MetaFrame:
                 json.dump(self_dict, f, indent=4)
 
     @classmethod
-    def load_json(cls, fp: Union[pathlib.Path, str], validate: bool = True) -> MetaFrame:
+    def load_json(cls, fp: Union[pathlib.Path, str, dict], validate: bool = True) -> MetaFrame:
         """Read a MetaFrame from a JSON file.
 
         Parameters
@@ -370,8 +370,11 @@ class MetaFrame:
         MetaFrame:
             A restored MetaFrame from the file.
         """
-        with open(fp, "r", encoding="utf-8") as f:
-            self_dict = json.load(f)
+        if isinstance(fp, dict):
+            self_dict = fp
+        else:
+            with open(fp, "r", encoding="utf-8") as f:
+                self_dict = json.load(f)
 
         if validate:
             validate_gmf_dict(self_dict)

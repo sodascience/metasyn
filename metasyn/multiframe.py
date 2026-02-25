@@ -1,17 +1,44 @@
+import json
+import pathlib
+import re
+from copy import deepcopy
 from dataclasses import dataclass
 from enum import Enum
-import re
+from typing import Optional, Union
+
 import polars as pl
-from typing import Optional
+
+from metasyn.metaframe import _jsonify, MetaFrame
 
 
 class RelationType(Enum):
-    Subset = 1
-    Equal = 2
-    EqualOrdered = 3
-    Infer = 4
+    Subset = "subset"
+    Equal = "equal"
+    EqualOrdered = "equal_ordered"
+    Infer = "infer"
 
+    def __str__(self):
+        return self.value
+        # if self.value == 1:
+        #     return "Subset"
+        # if self.value == 2:
+        #     return "Equal"
+        # if self.value == 3:
+        #     return "EqualOrdered"
+        # if self.value == 4:
+        #     return "Infer"
 
+    # @classmethod
+    # def parse(cls, value):
+    #     if value == "Subset":
+    #         return cls.Subset
+    #     if value == "Equal":
+    #         return cls.Equal
+    #     if value == "EqualOrdered":
+    #         return cls.EqualOrdered
+    #     if value == "Equal":
+    #         return cls.Equal
+    #     raise ValueError("Cannot parse RelationType {value}")
 @dataclass
 class ColumnRelation():
     primary_table: str
@@ -28,13 +55,24 @@ class ColumnRelation():
 
     @classmethod
     def parse(cls, relation_str, relation_type: RelationType = RelationType.Infer):
-        # prima_combi, foreign_combi = relation_str.split("->")
-        # prima_table, prima_key = prima_combi.strip().split(":")
-        # foreign_table, foreign_key = foreign_combi.strip().
         regex = re.compile(r"([\w]+):([\w]+) -> ([\w]+):([\w]+)")
         match = regex.fullmatch(relation_str)
         return cls(*match.groups(), relation_type)
 
+    def to_dict(self):
+        return {
+            "primary_table": self.primary_table,
+            "primary_key": self.primary_key,
+            "foreign_table": self.foreign_table,
+            "foreign_key": self.foreign_key,
+            "relation_type": str(self.relation_type),
+        }
+
+    @classmethod
+    def from_dict(cls, col_dict):
+        new_col_dict = deepcopy(col_dict)
+        new_col_dict["relation_type"] = RelationType(col_dict["relation_type"])
+        return cls(**new_col_dict)
 
 class MultiFrame():
     def __init__(self, metaframes: dict, relations: list[ColumnRelation],
@@ -73,16 +111,24 @@ class MultiFrame():
             elif pl.union((primary_series, foreign_series)).unique().len() == primary_series.unique().len():
                 rel.relation_type = RelationType.Subset
             else:
-                print(rel.primary_table, rel.primary_key, rel.foreign_table, rel.foreign_key)
-                print(primary_series.sort())
-                print(foreign_series.sort())
-                print(pl.union((primary_series, foreign_series)).unique().len())
-                print(primary_series.unique().len())
                 raise ValueError(f"Cannot infer relation type for relation {rel}, possible issues: new item in foreign table.")
 
+    def synthesize(self, n: Optional[dict]):
+        if n is None:
+            n = {}
 
-    def synthesize(self):
-        dfs = {key: mf.synthesize() for key, mf in self.metaframes.items()}
+        n_rows = {key: n.get(key, self.metaframes[key].n_rows) for key in self.metaframes}
+        for rel in self.relations:
+            if rel.relation_type in (RelationType.Equal, RelationType.EqualOrdered):
+                nrow_prime, nrow_for = n_rows[rel.primary_table], n_rows[rel.foreign_table]
+                if nrow_prime != nrow_for:
+                    raise ValueError(
+                        f"Cannot synthesize multiframe, because table {rel.primary_table}"
+                        f"({nrow_prime}) and table {rel.foreign_table}({nrow_for}) should have "
+                        f"the same number of rows, since column {rel.primary_key} and "
+                        f"{rel.foreign_key} should have the same number of rows.")
+
+        dfs = {key: mf.synthesize(n_rows[key]) for key, mf in self.metaframes.items()}
         for rel in self.relations:
             n = len(dfs[rel.foreign_table])
             primary_series = dfs[rel.primary_table][rel.primary_key]
@@ -100,3 +146,22 @@ class MultiFrame():
                                  "RelationType.Subset, RelationType.Equal, "
                                  "RelationType.EqualOrdered")
         return dfs
+
+    def save_json(self, fp: Optional[Union[pathlib.Path, str]] = None):
+        json_dict = {
+            "relations": [rel.to_dict() for rel in self.relations],
+            "metaframes": {name: _jsonify(mf.to_dict()) for name, mf in self.metaframes.items()}
+        }
+        if fp is None:
+            print(json.dumps(json_dict, indent=4))
+        else:
+            with open(fp, "w", encoding="utf=8") as f:
+                json.dump(json_dict, f, indent=4)
+
+    @classmethod
+    def load_json(cls, fp: Union[pathlib.Path, str]):
+        with open(fp, "r", encoding="utf-8") as handle:
+            json_dict = json.load(handle)
+        relations = [ColumnRelation.from_dict(rel) for rel in json_dict["relations"]]
+        metaframes = {name: MetaFrame.load_json(mf) for name, mf in json_dict["metaframes"].items()}
+        return cls(metaframes, relations)
