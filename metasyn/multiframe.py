@@ -12,33 +12,28 @@ from metasyn.metaframe import _jsonify, MetaFrame
 
 
 class RelationType(Enum):
-    Subset = "subset"
-    Equal = "equal"
-    EqualOrdered = "equal_ordered"
-    Infer = "infer"
+    Subset = "subset" # <-
+    Equal = "equal"  # <~
+    EqualOrdered = "equal_ordered"  # <=
+    Infer = "infer"  # <?
 
     def __str__(self):
         return self.value
-        # if self.value == 1:
-        #     return "Subset"
-        # if self.value == 2:
-        #     return "Equal"
-        # if self.value == 3:
-        #     return "EqualOrdered"
-        # if self.value == 4:
-        #     return "Infer"
 
-    # @classmethod
-    # def parse(cls, value):
-    #     if value == "Subset":
-    #         return cls.Subset
-    #     if value == "Equal":
-    #         return cls.Equal
-    #     if value == "EqualOrdered":
-    #         return cls.EqualOrdered
-    #     if value == "Equal":
-    #         return cls.Equal
-    #     raise ValueError("Cannot parse RelationType {value}")
+    @classmethod
+    def parse(cls, symbol):
+        match symbol:
+            case "-":
+                return cls.Subset
+            case "~":
+                return cls.Equal
+            case "=":
+                return cls.EqualOrdered
+            case "?":
+                return cls.Infer
+        raise ValueError(f"Cannot parse relation type '{symbol}': symbol unknown.")
+
+
 @dataclass
 class ColumnRelation():
     primary_table: str
@@ -50,14 +45,21 @@ class ColumnRelation():
 
     def __post_init__(self):
         if self.primary_key == self.foreign_key and self.primary_table == self.foreign_table:
-            raise ValueError("Cannot have a primary -> foreign key relation between the "
+            raise ValueError("Cannot have a primary <- foreign key relation between the "
                              "same table and column.")
 
     @classmethod
-    def parse(cls, relation_str, relation_type: RelationType = RelationType.Infer):
-        regex = re.compile(r"([\w]+):([\w]+) -> ([\w]+):([\w]+)")
-        match = regex.fullmatch(relation_str)
-        return cls(*match.groups(), relation_type)
+    def parse(cls, relation_str):
+        regex = re.compile(
+            r"(?P<ptab>[\s\S]+)\[(?P<pcol>[\s\S]+)\]\s?<(?P<rel>[=~\-?])\s?(?P<ftab>[\s\S]+)\[(?P<fcol>[\s\S]+)\]")
+        match = regex.match(relation_str)
+        return cls(
+            primary_table = match.group("ptab"),
+            primary_key = match.group("pcol"),
+            foreign_table = match.group("ftab"),
+            foreign_key = match.group("fcol"),
+            relation_type = RelationType.parse(match.group("rel"))
+        )
 
     def to_dict(self):
         return {
