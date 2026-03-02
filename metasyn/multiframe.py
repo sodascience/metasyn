@@ -2,6 +2,7 @@
 import json
 import pathlib
 import re
+import warnings
 from copy import deepcopy
 from dataclasses import dataclass
 from enum import Enum
@@ -184,6 +185,10 @@ class MultiFrame():
                         and rel.primary_key == other_rel.foreign_key):
                     raise ValueError(f"Column in {rel.primary_table}: {rel.primary_key} cannot be "
                                      "a foreign and primary key at the same time.")
+            if (self.dfs is not None
+                    and self.dfs[rel.primary_table][rel.primary_key].is_unique.all()):
+                warnings.warn(f"Column '{rel.primary_key}' in table '{rel.primary_table}' is a "
+                              "primary key, but not unique.")
 
     def _infer_relations(self):
         """For all relations that have RelationType.Infer try to guess the relation.
