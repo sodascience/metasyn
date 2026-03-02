@@ -81,6 +81,11 @@ class ColumnRelation():
             column names with brackets [] and symbols <~-=? this method might fail. I this case
             you should use the normal initialization method.
 
+        Raises
+        ------
+        ValueError:
+            If the relation string cannot be parsed.
+
         Returns
         -------
             An initialized column relation.
@@ -88,6 +93,9 @@ class ColumnRelation():
         regex = re.compile(
             r"(?P<ptab>[\s\S]+)\[(?P<pcol>[\s\S]+)\]\s?<(?P<rel>[=~\-?])\s?(?P<ftab>[\s\S]+)\[(?P<fcol>[\s\S]+)\]")
         match = regex.match(relation_str)
+        if match is None:
+            raise ValueError(f"Cannot parse relation '{relation_str}'. It should be of the form:"
+                             "tab1[col1] <- tab2[col2].")
         return cls(
             primary_table = match.group("ptab"),
             primary_key = match.group("pcol"),
@@ -140,7 +148,7 @@ class MultiFrame():
     """
 
     def __init__(self, metaframes: dict, relations: list[ColumnRelation],
-                 dataframes: Optional[list[pl.DataFrame]] = None):
+                 dataframes: Optional[dict[str, pl.DataFrame]] = None):
         """Initialize the MultiFrame object.
 
         Parameters
@@ -244,19 +252,19 @@ class MultiFrame():
 
         # Implement the relations.
         for rel in self.relations:
-            n = len(dfs[rel.foreign_table])
+            cur_n = len(dfs[rel.foreign_table])
             primary_series = dfs[rel.primary_table][rel.primary_key]
             if rel.relation_type == RelationType.EqualOrdered:
                 dfs[rel.foreign_table] = dfs[rel.foreign_table].with_columns(
-                    **{rel.foreign_key: rel.primary_series.head(n)})
+                    **{rel.foreign_key: primary_series.head(cur_n)})
             elif rel.relation_type == RelationType.Equal:
                 dfs[rel.foreign_table] = dfs[rel.foreign_table].with_columns(
                     **{rel.foreign_key: primary_series.sample(
-                    n, with_replacement=False, shuffle=True)})
+                    cur_n, with_replacement=False, shuffle=True)})
             elif rel.relation_type == RelationType.Subset:
                 dfs[rel.foreign_table] = dfs[rel.foreign_table].with_columns(
                     **{rel.foreign_key: primary_series.sample(
-                    n, with_replacement=True, shuffle=True)})
+                    cur_n, with_replacement=True, shuffle=True)})
 
             else:
                 raise ValueError(f"Unknown relation: {rel.relation_type}, choose one of "
