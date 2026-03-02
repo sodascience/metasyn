@@ -5,7 +5,7 @@ import re
 from copy import deepcopy
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Optional, Sequence, Union
+from typing import Any, Optional, Union
 
 import polars as pl
 

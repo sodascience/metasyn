@@ -52,12 +52,25 @@ class BaseDataset(ABC):
 
 
 class BaseMultiDataset(BaseDataset):
+    """Abstract class to define a dataset with multiple tables."""
+
+    def get_dataframe(self):
+        """Alias for get_dataframes()."""
+        return self.get_dataframes()
+
     @property
     @abstractmethod
     def file_location(self):
         pass
 
-    def get_dataframe(self):
+    def get_dataframes(self):
+        """Create the dataframes (from file for example).
+
+        Returns
+        -------
+        dataframes:
+            Dictionary with dataframes.
+        """
         return {name: pl.read_csv(path, schema_overrides=self.schema, try_parse_dates=True)
                 for name, path in self.file_location.items()}
 
@@ -287,6 +300,8 @@ class TestDataset(BaseDataset):
         pl.DataFrame(all_series).write_csv(csv_file)
 
 class ShopMultiDataset(BaseMultiDataset):
+    """An example dataset containing customers, products and purchases."""
+
     @property
     def name(self):
         return "shop_multi"
@@ -304,11 +319,13 @@ class ShopMultiDataset(BaseMultiDataset):
         }
 
     @classmethod
-    def create(cls, data_dir: Path, n_user: int = 200, n_product: int = 500, n_purchases: int = 1000):
+    def create(cls, data_dir: Path, n_user: int = 200, n_product: int = 500,
+               n_purchases: int = 1000):
         user_ids = np.unique(np.random.randint(123, 123456+100*n_user, size=2*n_user))[:n_user]
         np.random.shuffle(user_ids)
 
-        product_ids = np.unique(np.random.randint(123, 123456+100*n_product, size=2*n_product))[:n_product]
+        product_ids = np.unique(np.random.randint(123, 123456+100*n_product, size=2*n_product)
+                                )[:n_product]
         np.random.shuffle(product_ids)
 
         fake = faker.Faker()
@@ -334,9 +351,11 @@ class ShopMultiDataset(BaseMultiDataset):
         df_purchases = pl.DataFrame(
             {
                 "id": np.arange(n_purchases),
-                "customer_id": df_customers["id"].sample(n_purchases, with_replacement=True, shuffle=True),
+                "customer_id": df_customers["id"].sample(n_purchases, with_replacement=True,
+                                                         shuffle=True),
                 "price_paid": [fake.pricetag() for _ in range(n_purchases)],
-                "product_id": df_products["id"].sample(n_purchases, with_replacement=True, shuffle=True),
+                "product_id": df_products["id"].sample(n_purchases, with_replacement=True,
+                                                       shuffle=True),
             }
         )
         df_products.write_csv(data_dir / "products.csv")
