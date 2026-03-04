@@ -160,3 +160,6 @@ uv.lock
 # Schema stuff
 create_schema.py
 schemas/
+
+# marimo stuff
+**/__marimo__/
