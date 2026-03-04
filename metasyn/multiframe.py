@@ -186,7 +186,7 @@ class MultiFrame():
                     raise ValueError(f"Column in {rel.primary_table}: {rel.primary_key} cannot be "
                                      "a foreign and primary key at the same time.")
             if (self.dfs is not None
-                    and self.dfs[rel.primary_table][rel.primary_key].is_unique.all()):
+                    and not self.dfs[rel.primary_table][rel.primary_key].is_unique().all()):
                 warnings.warn(f"Column '{rel.primary_key}' in table '{rel.primary_table}' is a "
                               "primary key, but not unique.")
 
@@ -215,7 +215,7 @@ class MultiFrame():
                 raise ValueError(f"Cannot infer relation type for relation {rel}, possible issues:"
                                  " new item in foreign table.")
 
-    def synthesize(self, n: Optional[dict]) -> dict[str, pl.DataFrame]:
+    def synthesize(self, n: Optional[dict] = None) -> dict[str, pl.DataFrame]:
         """Synthesize multiple tables.
 
         Parameters
