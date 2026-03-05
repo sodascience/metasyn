@@ -286,13 +286,16 @@ def _get_demo_class(name):
 def demo_file(name: str = "titanic") -> Path:
     """Get the path for a demo data file.
 
-    There are six options:
+    There are eight options:
         - titanic (Included in pandas, but post-processed to contain more columns)
         - spaceship (CC-BY from https://www.kaggle.com/competitions/spaceship-titanic)
         - synthea_imaging (CC-BY from https://synthea.mitre.org/downloads)
         - fruit (very basic example data from Polars)
         - survey (columns from ESS round 11 Human Values Scale questionnaire for the Netherlands)
         - test (columns with all supported data types)
+        - hospital (Example electronic health record hospital dataset)
+        - druguse (Example dataset with answers to an open question on study participants'
+          daily drug use)
 
     Arguments
     ---------
@@ -315,18 +318,21 @@ def demo_file(name: str = "titanic") -> Path:
 def demo_dataframe(name: str = "titanic") -> pl.DataFrame:
     """Get a demonstration dataset as a prepared polars dataframe.
 
-    There are six options:
+    There are eight options:
         - titanic (Included in pandas, but post-processed to contain more columns)
         - spaceship (CC-BY from https://www.kaggle.com/competitions/spaceship-titanic)
         - synthea_imaging (CC-BY from https://synthea.mitre.org/downloads)
         - fruit (very basic example data from Polars)
         - survey (columns from ESS round 11 Human Values Scale questionnaire for the Netherlands)
         - test (columns with all supported data types)
+        - hospital (Example electronic health record hospital dataset)
+        - druguse (Example dataset with answers to an open question on study participants'
+          daily drug use)
 
     Arguments
     ---------
     name:
-        Name of the demo dataset: spaceship, fruit, or titanic.
+        Name of the demo dataset.
 
     Returns
     -------
