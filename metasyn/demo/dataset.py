@@ -299,6 +299,7 @@ class TestDataset(BaseDataset):
         # Write to a csv file
         pl.DataFrame(all_series).write_csv(csv_file)
 
+@register
 class ShopMultiDataset(BaseMultiDataset):
     """An example dataset containing customers, products and purchases."""
 

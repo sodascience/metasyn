@@ -48,6 +48,11 @@ class RelationType(Enum):
                 return cls.Infer
         raise ValueError(f"Cannot parse relation type '{symbol}': symbol unknown.")
 
+def _create_re(name):
+    return r"(?P<" + name + r">(?:\\\]|\\\[|[^\s\]\[]|[\s])+)"
+
+def _unescape(result):
+    return result.replace(r"\[", "[").replace(r"\]", "]")
 
 @dataclass
 class ColumnRelation():
@@ -92,16 +97,18 @@ class ColumnRelation():
             An initialized column relation.
         """
         regex = re.compile(
-            r"(?P<ptab>[\s\S]+)\[(?P<pcol>[\s\S]+)\]\s?<(?P<rel>[=~\-?])\s?(?P<ftab>[\s\S]+)\[(?P<fcol>[\s\S]+)\]")
+            _create_re("ptab") + r"\[" + _create_re("pcol") + r"\]\s+<(?P<rel>[=~\-?])\s?"
+            + _create_re("ftab") + r"\[" + _create_re("fcol") + r"\]"
+        )
         match = regex.match(relation_str)
         if match is None:
             raise ValueError(f"Cannot parse relation '{relation_str}'. It should be of the form:"
-                             "tab1[col1] <- tab2[col2].")
+                             " tab1[col1] <- tab2[col2].")
         return cls(
-            primary_table = match.group("ptab"),
-            primary_key = match.group("pcol"),
-            foreign_table = match.group("ftab"),
-            foreign_key = match.group("fcol"),
+            primary_table = _unescape(match.group("ptab")),
+            primary_key = _unescape(match.group("pcol")),
+            foreign_table = _unescape(match.group("ftab")),
+            foreign_key = _unescape(match.group("fcol")),
             relation_type = RelationType.parse(match.group("rel"))
         )
 
@@ -202,11 +209,12 @@ class MultiFrame():
                 raise ValueError("Cannot infer any relations without the original dataframes.")
             primary_series = self.dfs[rel.primary_table][rel.primary_key]
             foreign_series = self.dfs[rel.foreign_table][rel.foreign_key]
+            print(primary_series, foreign_series)
             if (len(primary_series) == len(foreign_series)
-                    and pl.all(primary_series == foreign_series)):
-                rel.relation_type = RelationType.EqualOrderd
+                    and (primary_series == foreign_series).all()):
+                rel.relation_type = RelationType.EqualOrdered
             elif (len(primary_series) == len(foreign_series)
-                    and primary_series.sort() == foreign_series.sort()):
+                    and (primary_series.sort() == foreign_series.sort()).all()):
                 rel.relation_type = RelationType.Equal
             elif (pl.union((primary_series, foreign_series)).unique().len()
                     == primary_series.unique().len()):

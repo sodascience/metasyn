@@ -137,7 +137,7 @@ def test_prs_chunking():
     assert len(df) == 20
 
 @mark.parametrize("dataset_name",
-                  _AVAILABLE_DATASETS)
+                  [x for x in _AVAILABLE_DATASETS if x != "shop_multi"])
 def test_csv_interface(dataset_name, tmpdir):
     filename = demo_file(dataset_name)
     direct_df, _ = CsvFileInterface.read_file(filename)

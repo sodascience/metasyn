@@ -7,8 +7,15 @@ import polars as pl
 import pytest
 from pytest import mark
 
-from metasyn.demo.dataset import _AVAILABLE_DATASETS, _get_demo_class, demo_dataframe, demo_file
+from metasyn.demo.dataset import (
+    _AVAILABLE_DATASETS,
+    BaseMultiDataset,
+    _get_demo_class,
+    demo_dataframe,
+    demo_file,
+)
 from metasyn.metaframe import MetaFrame
+from metasyn.multiframe import MultiFrame
 from metasyn.privacy import BasicPrivacy
 from metasyn.registry import DistributionRegistry
 from metasyn.var import MetaVar
@@ -130,14 +137,16 @@ def test_distributions(tmp_path):
             dataset.save_json(tmp_fp)
 
 @mark.parametrize(
-    "dataset_name", list(_AVAILABLE_DATASETS)
+    "dataset_name", list(_AVAILABLE_DATASETS),
 )
 def test_demo_datasets(tmp_path, dataset_name):
     """Test all built-in demo datasets and see if they can be synthesized."""
     demo_fp = demo_file(dataset_name)
     demo_df = demo_dataframe(dataset_name)
     demo_class = _get_demo_class(dataset_name)
-
+    print(demo_class)
+    if isinstance(demo_class, BaseMultiDataset):
+        return
     assert demo_fp.is_file()
     assert isinstance(demo_df, pl.DataFrame)
 
@@ -157,6 +166,17 @@ def test_demo_datasets(tmp_path, dataset_name):
     for col, dtype in demo_class.schema.items():
         assert dtype == df_syn[col].dtype
 
+def test_demo_multi(tmp_path):
+    dfs = demo_dataframe("shop_multi")
+    demo_class = _get_demo_class("shop_multi")
+    assert isinstance(demo_file("shop_multi"), dict)
+    assert isinstance(dfs, dict)
+    demo_class.create(tmp_path)
+    for fp in demo_class.file_location.values():
+        assert fp.is_file()
+    mf = MultiFrame.fit_dataframes(dfs, relations = ["customers[id] <- purchases[customer_id]"])
+    dfs = mf.synthesize()
+    assert isinstance(dfs, dict)
 
 def test_demo_non_exist():
     """Check that trying to get a demo dataset that doesn't exist raises an error."""
