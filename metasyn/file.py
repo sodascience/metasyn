@@ -327,10 +327,13 @@ class SavFileInterface(ReadStatInterface):
             "variable_format": prs_metadata.original_variable_types,
             "compress": compress,
             "variable_display_width": prs_metadata.variable_display_width,
-            "file_label": prs_metadata.file_label,
             "variable_value_labels": prs_metadata.variable_value_labels,
             "variable_measure": prs_metadata.variable_measure,
         }
+        # Workaround for TOML files that don't like None values.
+        if prs_metadata.file_label is not None:
+            metadata["file_label"] = prs_metadata.file_label
+
         return metadata
 
 
@@ -378,9 +381,12 @@ class StataFileInterface(ReadStatInterface):
         metadata = {
             "column_labels": prs_metadata.column_labels,
             "variable_format": prs_metadata.original_variable_types,
-            "file_label": prs_metadata.file_label,
             "variable_value_labels": prs_metadata.variable_value_labels,
         }
+        # Workaround for TOML files that don't like None values.
+        if prs_metadata.file_label is not None:
+            metadata["file_label"] = prs_metadata.file_label
+
         return metadata
 
     def _prep_df_for_writing(self, df):
