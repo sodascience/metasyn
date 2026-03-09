@@ -15,6 +15,9 @@ If you want to open an issue, make sure to follow these steps:
 
 Nice to see that you are interested in contributing to our code! Here is a general workflow for contributing to our project.
 
+>[!NOTE]
+>We are a privacy-focused project which thrives on trust and accountability. Therefore, we __do not allow any GenAI created code__ in this repository. The only exception is documentation.
+
 1. Add an [issue](https://github.com/sodascience/metasyn/issues) describing the feature you want to add, or comment on an existing issue that you want to try solving it. The goal of this is to prevent you from spending time working on things that will not be accepted into our project. In general, we like to have some discussion on our issues before we start programming.
 2. Fork the project and create a new branch on your fork (e.g., `add-cool-feature`)
 3. Code the code 💻
