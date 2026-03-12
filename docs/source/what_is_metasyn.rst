@@ -32,8 +32,49 @@ Key features
 - **Structured String Detection**: Metasyn identifies structured strings within your dataset, which can include formatted text, codes, identifiers, or any string that follows a specific pattern.
 - **Handling Unique Values**: Metasyn can identify and process variables with unique values or keys in the data, preserving their uniqueness in the synthetic dataset.
 
+How does metasyn work?
+----------------------
 
-For more detail on how metasyn works, see our `paper <https://github.com/sodascience/metasyn/blob/main/docs/paper/paper.pdf>`_.
+At a high level, metasyn analyzes your dataset column by column and learns how to generate new, synthetic data that follows the same patterns. Here's how it works:
+
+What does metasyn do with a dataframe?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When you provide a dataframe to metasyn, it processes each column independently to understand its characteristics and generate synthetic versions that preserve statistical properties while protecting privacy.
+
+What does metasyn do with each column?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For each column in your dataset, metasyn follows these steps:
+
+1. **Look at data type and privacy requirements**
+   
+   Metasyn first identifies the data type (categorical, string, integer, float, date, time, datetime, etc.) and considers any privacy constraints you've specified. This helps select appropriate generation strategies.
+
+2. **Select candidate distributions**
+   
+   Based on the data type, metasyn selects a set of *candidate distributions* that are well-suited for generating that type of data. For example:
+   
+   - Categorical data might use multinomial distributions
+   - Integer data might use uniform or Poisson distributions
+   - Continuous data might use normal or exponential distributions
+   - String data might use regex patterns or Faker templates
+
+3. **Fit these distributions**
+   
+   Metasyn estimates the parameters for each candidate distribution based on your actual data. If you've specified privacy constraints (like differential privacy), these constraints are applied during the fitting process to limit how much information is captured.
+
+4. **Select the best-fitting distribution**
+   
+   Among the candidate distributions, metasyn chooses the one that best fits your data while respecting privacy requirements. This selection balances statistical accuracy with privacy preservation.
+
+5. **Store only the parameters**
+   
+   Once the best distribution is selected, metasyn stores only its parameters (e.g., mean and standard deviation for a normal distribution, or probabilities for categorical values) in the :ref:`metaframe and GMF file <metaframes and GMF>`. Your original data is not stored—only the mathematical description needed to generate new data.
+
+This approach ensures that the synthetic data preserves the essential statistical characteristics of your original dataset while minimizing the risk of exposing sensitive information.
+
+For a more detailed technical explanation, see our `paper published in the Journal of Open Source Software (JOSS) <https://doi.org/10.21105/joss.06176>`_.
 
 .. _metaframes and GMF:
 
