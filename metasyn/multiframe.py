@@ -322,6 +322,32 @@ class MultiFrame():
         metaframes = {name: MetaFrame.load_json(mf) for name, mf in json_dict["metaframes"].items()}
         return cls(metaframes, relations)
 
+    def save(self, fp: Optional[Union[pathlib.Path, str]]):
+        """Save the MultiFrame to a file.
+
+        Parameters
+        ----------
+        fp
+            File to save to.
+        """
+        self.save_json(fp)
+
+
+    @classmethod
+    def load(cls, fp: Union[pathlib.Path, str]) -> "MultiFrame":
+        """Load a MultiFrame from a GMF file.
+
+        Parameters
+        ----------
+        fp
+            GMF file to read.
+
+        Returns
+        -------
+            A multiframe read from the GMF file.
+        """
+        return cls.save(fp)
+
     @classmethod
     def fit_dataframes(cls, dataframes: dict[str, pl.DataFrame], relations: list[ColumnRelation],
                        extra_kwargs: Optional[dict] = None) -> "MultiFrame":

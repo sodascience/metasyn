@@ -2,6 +2,7 @@
 
 # import random
 import string
+import warnings
 from abc import ABC, abstractmethod
 from datetime import date, datetime, time, timedelta
 from importlib.resources import files
@@ -38,6 +39,9 @@ class BaseDataset(ABC):
     def file_location(self):
         return files(__package__) / f"demo_{self.name}.csv"
 
+    def get_data(self):
+        return self.get_dataframe()
+
     def get_dataframe(self):
         return pl.read_csv(self.file_location, schema_overrides=self.schema, try_parse_dates=True)
 
@@ -54,7 +58,7 @@ class BaseDataset(ABC):
 class BaseMultiDataset(BaseDataset):
     """Abstract class to define a dataset with multiple tables."""
 
-    def get_dataframe(self):
+    def get_data(self):
         """Alias for get_dataframes()."""
         return self.get_dataframes()
 
@@ -401,7 +405,7 @@ def demo_file(name: str = "titanic") -> Path:
     return _get_demo_class(name).file_location
 
 
-def demo_dataframe(name: str = "titanic") -> pl.DataFrame:
+def demo_data(name: str = "titanic") -> pl.DataFrame:
     """Get a demonstration dataset as a prepared polars dataframe.
 
     There are six options:
@@ -428,3 +432,10 @@ def demo_dataframe(name: str = "titanic") -> pl.DataFrame:
     Research. https://doi.org/10.21338/ess11e01_0
     """
     return _get_demo_class(name).get_dataframe()
+
+def demo_dataframe(name: str = "titanic") -> pl.DataFrame:
+    """Legacy alias for demo_data."""
+    warnings.warn("The function demo_dataframe is deprecated in favor of demo_data.",
+                  DeprecationWarning,
+                  stacklevel=2)
+    return demo_data(name)
