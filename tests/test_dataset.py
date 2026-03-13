@@ -13,6 +13,7 @@ from metasyn.demo.dataset import (
     _get_demo_class,
     demo_dataframe,
     demo_file,
+    demo_data,
 )
 from metasyn.metaframe import MetaFrame
 from metasyn.multiframe import MultiFrame

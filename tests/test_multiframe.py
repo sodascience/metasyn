@@ -119,12 +119,13 @@ def test_multi_synthesize(mock_data):
         {"a": mock_data, "b": mock_data},
         relations=[
             "a[id] <- b[id_chosen]",
-            "a[id] <~ b[shuffled]",
+            "a[id] <~ b[id_shuffled]",
             "a[id] <= b[id]",
         ])
     dfs = mfs.synthesize()
     assert len(dfs) == 2
     assert all(len(df) == len(mock_data) for df in dfs.values())
+    assert (dfs["a"]["id"] == dfs["b"]["id"]).all()
     with pytest.raises(ValueError):
         mfs.synthesize(n={"a": 100, "b": 50})
 

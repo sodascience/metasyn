@@ -78,6 +78,8 @@ class BaseMultiDataset(BaseDataset):
         return {name: pl.read_csv(path, schema_overrides=self.schema, try_parse_dates=True)
                 for name, path in self.file_location.items()}
 
+    def get_dataframe(self):
+        return self.get_dataframes()
 
 @register
 class TitanicDataset(BaseDataset):
@@ -431,7 +433,7 @@ def demo_data(name: str = "titanic") -> pl.DataFrame:
     file, edition 1.0 [Data set]. Sikt - Norwegian Agency for Shared Services in Education and
     Research. https://doi.org/10.21338/ess11e01_0
     """
-    return _get_demo_class(name).get_dataframe()
+    return _get_demo_class(name).get_data()
 
 def demo_dataframe(name: str = "titanic") -> pl.DataFrame:
     """Legacy alias for demo_data."""
