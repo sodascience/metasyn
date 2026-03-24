@@ -12,7 +12,8 @@ description = "Package for creating synthetic datasets while preserving privacy.
 readme = "README.md"
 requires-python = ">=3.10"
 keywords = ["metadata", "open-data", "privacy", "synthetic-data", "tabular datasets"]
-license = { file = "LICENSE" }
+license = "MIT"
+license-files = ["LICENSE"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
