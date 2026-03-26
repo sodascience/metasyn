@@ -104,7 +104,7 @@ class ColumnRelation():
         match = regex.match(relation_str)
         if match is None:
             raise ValueError(f"Cannot parse relation '{relation_str}'. It should be of the form:"
-                             " tab1[col1] <- tab2[col2].")
+                             " table_a[primary_column] <- table_b[foreign_column].")
         return cls(
             primary_table = _unescape(match.group("ptab")),
             primary_key = _unescape(match.group("pcol")),
