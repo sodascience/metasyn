@@ -62,7 +62,18 @@ SCHEMA_BASE_v2 = {
         "gmf_version": {"type": "string"},
         "relations": {
             "type": "array",
-            "items": {"type": "string"},
+            "items": {
+                "type": "object",
+                "properties": {
+                    "primary_table": {"type": "string"},
+                    "primary_key": {"type": "string"},
+                    "foreign_table": {"type": "string"},
+                    "foreign_key": {"type": "string"},
+                    "relation_type": {"type": "string"}
+                },
+                "required": ["primary_table", "primary_key", "foreign_table", "foreign_key",
+                             "relation_type"]
+            },
         },
         "provenance": {
             "type": "object",
