@@ -177,8 +177,9 @@ def create_md_report(file_name, out_md_file):
                 parameters = [f"\t- {label}: {round(prob*n_rows*(1-var.prop_missing))}\n"
                             for label, prob in zip(var.distribution.labels, var.distribution.probs)]
             elif isinstance(var.distribution, NADistribution):
-                variables += (f"### {var.name}\n- Distribution NADistribution\n- Only missing values"
-                            "\n- Examples: NA, NA, NA, ...\n")
+                variables += (f"### {var.name}\n- Distribution NADistribution\n"
+                              "- Only missing values\n"
+                              "- Examples: NA, NA, NA, ...\n")
                 continue
             else:
                 parameters = [f"\t - {name}: {value}\n"
@@ -191,7 +192,8 @@ def create_md_report(file_name, out_md_file):
                 examples = [str(x) for x in var.draw_series(5, None)]
 
             if "privacy" in var_dict["creation_method"]:
-                partition_size = var_dict["creation_method"]["privacy"]["parameters"]["partition_size"]
+                partition_size = var_dict["creation_method"]["privacy"]["parameters"][
+                    "partition_size"]
                 disclosure = f" using micro aggregation with a partition size of {partition_size}"
             else:
                 disclosure = ""
