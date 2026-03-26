@@ -10,6 +10,7 @@ from typing import Any, Optional, Union
 
 import polars as pl
 
+from metasyn.gmf import parse_gmf_dict, validate_gmf_dict
 from metasyn.metaframe import MetaFrame, _jsonify
 
 
@@ -300,7 +301,7 @@ class MultiFrame():
                                  "RelationType.EqualOrdered")
         return dfs
 
-    def save_json(self, fp: Optional[Union[pathlib.Path, str]] = None):
+    def save_json(self, fp: Optional[Union[pathlib.Path, str]] = None, validate: bool = True):
         """Save the MultiFrame object to a file.
 
         Parameters
@@ -308,10 +309,16 @@ class MultiFrame():
         fp:
            File to save the metadata to. If left at None, it will print it instead.
         """
-        json_dict = {
-            "relations": [rel.to_dict() for rel in self.relations],
-            "metaframes": {name: _jsonify(mf.to_dict()) for name, mf in self.metaframes.items()}
-        }
+        relations = [rel.to_dict() for rel in self.relations]
+        json_dict = {"relations": relations, "tables": []}
+        for name, mf in self.metaframes.items():
+            meta_dict = _jsonify(mf.to_dict())
+            table = meta_dict.pop("tables")
+            json_dict.update(meta_dict)
+            json_dict["tables"].extend(table)
+
+        if validate:
+            validate_gmf_dict(json_dict)
         if fp is None:
             print(json.dumps(json_dict, indent=4))
         else:
@@ -319,7 +326,7 @@ class MultiFrame():
                 json.dump(json_dict, f, indent=4)
 
     @classmethod
-    def load_json(cls, fp: Union[pathlib.Path, str]) -> "MultiFrame":
+    def load_json(cls, fp: Union[pathlib.Path, str], validate: bool = True) -> "MultiFrame":
         """Create a MultiFrame from a file with metadata.
 
         Parameters
@@ -333,8 +340,11 @@ class MultiFrame():
         """
         with open(fp, "r", encoding="utf-8") as handle:
             json_dict = json.load(handle)
+        json_dict = parse_gmf_dict(json_dict, validate=validate)
+
         relations = [ColumnRelation.from_dict(rel) for rel in json_dict["relations"]]
-        metaframes = {name: MetaFrame.load_json(mf) for name, mf in json_dict["metaframes"].items()}
+        metaframes = {name: MetaFrame.load_json(mf, table_name=name, validate=validate)
+                      for name, mf in json_dict["tables"].items()}
         return cls(metaframes, relations)
 
     def save(self, fp: Optional[Union[pathlib.Path, str]]):
@@ -389,5 +399,6 @@ class MultiFrame():
                      for rel in relations]
         _validate_relations(relations, dataframes)
         _infer_relations(relations, dataframes)
-        mfs = {name: MetaFrame.fit_dataframe(df, **extra_kwargs) for name, df in dataframes.items()}
+        mfs = {name: MetaFrame.fit_dataframe(df, **extra_kwargs, name=name)
+               for name, df in dataframes.items()}
         return cls(mfs, relations, dataframes)

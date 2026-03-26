@@ -36,12 +36,14 @@ from metasyn.file import (
     write_tsv,
 )
 from metasyn.metaframe import MetaFrame
+from metasyn.multiframe import MultiFrame
 from metasyn.var import MetaVar
 from metasyn.varspec import VarSpec
 
 __all__ = [
     "MetaVar",
     "MetaFrame",
+    "MultiFrame",
     "demo_file",
     "demo_dataframe",
     "metadist",
