@@ -83,8 +83,8 @@ SCHEMA_BASE_v2 = {
                             "properties": {
                                 "name": {"type": "string"},
                                 "description": {"type": "string"},
-                                "type": {"enum": ["discrete", "continuous", "string", "categorical", "date",
-                                                "datetime", "time"]},
+                                "type": {"enum": ["discrete", "continuous", "string", "categorical",
+                                                  "date", "datetime", "time"]},
                                 "dtype": {"type": "string"},
                                 "prop_missing": {"type": "number"},
                                 "distribution": {
@@ -92,7 +92,8 @@ SCHEMA_BASE_v2 = {
                                 }
                             }
                         },
-                        "required": ["name", "type", "dtype", "provenance", "prop_missing", "distribution"]
+                        "required": ["name", "type", "dtype", "provenance", "prop_missing",
+                                     "distribution"]
                     }
                 },
                 "required": ["n_rows", "n_columns", "vars"],
@@ -104,6 +105,8 @@ SCHEMA_BASE_v2 = {
 
 
 class BaseGmfParser(ABC):
+    """Base class for parsing GmfFiles."""
+
     def distribution_schema(self, packages) -> dict:
         defs: list[dict] = []
         for fitter in DistributionRegistry.parse(packages).fitters:
@@ -134,6 +137,17 @@ class BaseGmfParser(ABC):
         return schema
 
     def parse(self, gmf_dict):
+        """Convert the specific version of the gmf dictionary to the current standard.
+
+        Parameters
+        ----------
+        gmf_dict
+            Dictionary to be converted.
+
+        Returns
+        -------
+            Converted dictionary.
+        """
         return gmf_dict
 
     def validate_gmf_dict(self, gmf_dict: dict):
@@ -152,6 +166,8 @@ class BaseGmfParser(ABC):
         jsonschema.validate(gmf_dict, schema)
 
 class GmfV11Parser(BaseGmfParser):
+    """GMF parser for version 1.1 and earlier."""
+
     versions: list[str] = ["1.1"]
     base_schema = SCHEMA_BASE_v11
 
@@ -172,6 +188,8 @@ class GmfV11Parser(BaseGmfParser):
         return new_gmf_dict
 
 class GmfV20Parser(BaseGmfParser):
+    """GMF parser for version 2.0 and later."""
+
     versions: list[str] = ["2.0", "*"]
     base_schema: str = SCHEMA_BASE_v2
 
@@ -197,10 +215,32 @@ def _get_parser_class(gmf_dict):
     return best_parser_class
 
 def validate_gmf_dict(gmf_dict: dict):
+    """Validate gmf dictionary as read from the file for different GMF versions.
+
+    Parameters
+    ----------
+    gmf_dict
+        Dictionary to be validated.
+    """
     parser = _get_parser_class(gmf_dict)()
     parser.validate_gmf_dict(gmf_dict)
 
 def parse_gmf_dict(gmf_dict: dict, validate: bool = True):
+    """Parse GMF dictionary to convert it to the standard dictionary.
+
+    This acts as a compatibility layer for different versions of the GMF standard.
+
+    Parameters
+    ----------
+    gmf_dict:
+        Dictionary to be converted
+    validate:
+        Whether to validate the dictionary with the JSON schema, by default True
+
+    Returns
+    -------
+        A potentially validated and converted dictionary.
+    """
     parser = _get_parser_class(gmf_dict)()
     if validate:
         parser.validate_gmf_dict(gmf_dict)

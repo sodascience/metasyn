@@ -385,7 +385,8 @@ class MultiFrame():
             relationships.
         """
         extra_kwargs = {} if extra_kwargs is None else extra_kwargs
-        relations = [ColumnRelation.parse(rel) if isinstance(rel, str) else rel for rel in relations]
+        relations = [ColumnRelation.parse(rel) if isinstance(rel, str) else rel
+                     for rel in relations]
         _validate_relations(relations, dataframes)
         _infer_relations(relations, dataframes)
         mfs = {name: MetaFrame.fit_dataframe(df, **extra_kwargs) for name, df in dataframes.items()}
