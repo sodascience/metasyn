@@ -343,8 +343,9 @@ class MultiFrame():
         json_dict = parse_gmf_dict(json_dict, validate=validate)
 
         relations = [ColumnRelation.from_dict(rel) for rel in json_dict["relations"]]
-        metaframes = {name: MetaFrame.load_json(mf, table_name=name, validate=validate)
-                      for name, mf in json_dict["tables"].items()}
+        metaframes = {mf_dict["name"]: MetaFrame.load_json(json_dict, table_name=mf_dict["name"],
+                                                           validate=validate)
+                      for mf_dict in json_dict["tables"]}
         return cls(metaframes, relations)
 
     def save(self, fp: Optional[Union[pathlib.Path, str]]):
