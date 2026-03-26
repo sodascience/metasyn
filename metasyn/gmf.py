@@ -60,7 +60,10 @@ SCHEMA_BASE_v2 = {
     "type": "object",
     "properties": {
         "gmf_version": {"type": "string"},
-
+        "relations": {
+            "type": "array",
+            "items": {"type": "string"},
+        },
         "provenance": {
             "type": "object",
             "properties": {

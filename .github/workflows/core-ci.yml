@@ -76,7 +76,7 @@ jobs:
       run: |
         metasyn schema -o current_schema.json
         MD5_DATA=(`md5sum current_schema.json`)
-        [[ ${MD5_DATA[0]} == "8e9351c9b1513a6586ad94fa8b82d94e" ]]
+        [[ ${MD5_DATA[0]} == "0b93f7d620791c59b3ac33e4f114df58" ]]
 
 
 
