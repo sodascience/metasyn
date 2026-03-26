@@ -11,7 +11,7 @@ import metasyn as ms
 from metasyn import MetaFrame
 from metasyn.__main__ import main
 from metasyn.file import _AVAILABLE_FILE_INTERFACES
-from metasyn.validation import validate_gmf_dict
+from metasyn.gmf import validate_gmf_dict
 
 TMP_DIR_PATH = None
 

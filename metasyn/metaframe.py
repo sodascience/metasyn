@@ -22,9 +22,9 @@ from tqdm import tqdm
 
 from metasyn.config import MetaConfig
 from metasyn.file import BaseFileInterface, file_interface_from_dict
+from metasyn.gmf import parse_gmf_dict
 from metasyn.privacy import BasePrivacy, get_privacy
 from metasyn.util import set_global_seeds
-from metasyn.validation import validate_gmf_dict
 from metasyn.var import MetaVar
 from metasyn.varspec import VarSpec
 
@@ -61,11 +61,13 @@ class MetaFrame:
         meta_vars: List[MetaVar],
         n_rows: Optional[int] = None,
         file_format: Union[None, BaseFileInterface, dict[str, Any]] = None,
+        name: str = "single_table"
     ):
         self.meta_vars = meta_vars
         self.n_rows = n_rows
         self._file_format: Union[None, dict[str, Any]]
         self.file_format = file_format  # type: ignore
+        self.name = name
 
     @property
     def n_columns(self) -> int:
@@ -83,6 +85,7 @@ class MetaFrame:
         progress_bar: bool = True,
         config: Optional[Union[pathlib.Path, str, MetaConfig]] = None,
         file_format: Union[dict[str, Any], BaseFileInterface, None] = None,
+        name: str = "single_table",
     ):
         """Create a metasyn object from a polars (or pandas) dataframe.
 
@@ -189,9 +192,9 @@ class MetaFrame:
                 raise ValueError(
                     "Please provide the number of rows in the configuration, or supply a DataFrame."
                 )
-            return cls(all_vars, meta_config.n_rows, file_format)
+            return cls(all_vars, meta_config.n_rows, file_format, name=name)
         n_rows = len(df) if n_rows is None else n_rows
-        return cls(all_vars, n_rows, file_format)
+        return cls(all_vars, n_rows, file_format, name=name)
 
     @classmethod
     def from_config(cls, meta_config: MetaConfig) -> MetaFrame:
@@ -211,9 +214,7 @@ class MetaFrame:
     def to_dict(self) -> Dict[str, Any]:
         """Create dictionary with the properties for recreation."""
         self_dict = {
-            "gmf_version": "1.1",
-            "n_rows": self.n_rows,
-            "n_columns": self.n_columns,
+            "gmf_version": "2.0",
             "provenance": {
                 "created by": {
                     "name": "metasyn",
@@ -221,12 +222,36 @@ class MetaFrame:
                 },
                 "creation time": datetime.now().isoformat(),
             },
-            "file_format": self.file_format,
-            "vars": [var.to_dict() for var in self.meta_vars],
+            "tables": [
+                {
+                    "name": self.name,
+                    "n_rows": self.n_rows,
+                    "n_columns": self.n_columns,
+                    "vars": [var.to_dict() for var in self.meta_vars],
+                    "file_format": self.file_format,
+                }
+            ]
         }
         if self.file_format is None:
-            self_dict.pop("file_format")
+            self_dict["tables"][0].pop("file_format")
         return self_dict
+
+    @classmethod
+    def from_dict(cls, gmf_dict: dict, table_name: Optional[str] = None):
+        if table_name is None:
+            table_name = gmf_dict["tables"][0]["name"]
+
+        table_dict = None
+        for cur_table_dict in gmf_dict["tables"]:
+            if cur_table_dict["name"] == table_name:
+                table_dict = cur_table_dict
+                break
+        if table_dict is None:
+            raise KeyError(f"Cannot find table with name {table_name} in GMF file.")
+
+        n_rows = table_dict["n_rows"]
+        meta_vars = [MetaVar.from_dict(d) for d in table_dict["vars"]]
+        return cls(meta_vars, n_rows, table_dict.get("file_format"), name=table_name)
 
     def __getitem__(self, key: Union[int, str]) -> MetaVar:
         """Return meta var either by variable name or index."""
@@ -307,7 +332,8 @@ class MetaFrame:
             self.save_json(fp, validate)
 
     @classmethod
-    def load(cls, fp: Union[pathlib.Path, str], validate: bool = True) -> MetaFrame:
+    def load(cls, fp: Union[pathlib.Path, str], validate: bool = True,
+             table_name: Optional[str] = None) -> MetaFrame:
         """Read a MetaFrame from a JSON or TOML GMF file.
 
         Optionally, validate the saved JSON file against the JSON schema(s) included in the
@@ -328,9 +354,9 @@ class MetaFrame:
         """
         fp_path = Path(fp)
         if fp_path.suffix == ".toml":
-            return cls.load_toml(fp, validate)
+            return cls.load_toml(fp, validate, table_name=table_name)
         else:
-            return cls.load_json(fp, validate)
+            return cls.load_json(fp, validate, table_name=table_name)
 
     def save_json(self, fp: Optional[Union[pathlib.Path, str]], validate: bool = True) -> None:
         """Serialize and save the MetaFrame to a JSON file, following the GMF format.
@@ -347,7 +373,7 @@ class MetaFrame:
         """
         self_dict = _jsonify(self.to_dict())
         if validate:
-            validate_gmf_dict(self_dict)
+            parse_gmf_dict(self_dict, validate=True)
         if fp is None:
             print(json.dumps(self_dict, indent=4))
         else:
@@ -355,7 +381,8 @@ class MetaFrame:
                 json.dump(self_dict, f, indent=4)
 
     @classmethod
-    def load_json(cls, fp: Union[pathlib.Path, str, dict], validate: bool = True) -> MetaFrame:
+    def load_json(cls, fp: Union[pathlib.Path, str, dict], validate: bool = True,
+                  table_name: Optional[str] = None) -> MetaFrame:
         """Read a MetaFrame from a JSON file.
 
         Parameters
@@ -376,12 +403,8 @@ class MetaFrame:
             with open(fp, "r", encoding="utf-8") as f:
                 self_dict = json.load(f)
 
-        if validate:
-            validate_gmf_dict(self_dict)
-
-        n_rows = self_dict["n_rows"]
-        meta_vars = [MetaVar.from_dict(d) for d in self_dict["vars"]]
-        return cls(meta_vars, n_rows, self_dict.get("file_format"))
+        self_dict = parse_gmf_dict(self_dict, validate=validate)
+        return cls.from_dict(self_dict, table_name=table_name)
 
     def to_json(self, fp: Union[pathlib.Path, str], validate: bool = True) -> None:
         """Export, deprecated method, use Metaframe.save_json instead."""
@@ -424,9 +447,10 @@ class MetaFrame:
             )
         self_dict = _jsonify(self.to_dict())
         if validate:
-            validate_gmf_dict(self_dict)
+            parse_gmf_dict(self_dict, validate=True)
 
-        doc = tomlkit.loads(tomlkit.dumps(self_dict))
+        all_doc = tomlkit.loads(tomlkit.dumps(self_dict))
+        doc = all_doc["tables"][0]
         doc["n_rows"].comment("Number of rows")
         doc["n_columns"].comment("""Number of columns
 
@@ -478,22 +502,19 @@ class MetaFrame:
             par_comment = "\n# ".join(parameter_comments) + "\n\n"
             doc["vars"][i]["distribution"]["parameters"].add(tomlkit.comment(par_comment))
         if fp is None:
-            print(tomlkit.dumps(doc))
+            print(tomlkit.dumps(all_doc))
         else:
             with open(fp, "w", encoding="utf-8") as f:
-                tomlkit.dump(doc, f)
+                tomlkit.dump(all_doc, f)
 
     @classmethod
-    def load_toml(cls, fp: Union[pathlib.Path, str], validate: bool = True) -> MetaFrame:
+    def load_toml(cls, fp: Union[pathlib.Path, str], validate: bool = True,
+                  table_name: Optional[str] = None) -> MetaFrame:
         with open(fp, "rb") as f:
             self_dict = tomllib.load(f)
 
-        if validate:
-            validate_gmf_dict(self_dict)
-
-        n_rows = self_dict["n_rows"]
-        meta_vars = [MetaVar.from_dict(d) for d in self_dict["vars"]]
-        return cls(meta_vars, n_rows, self_dict.get("file_format"))
+        self_dict = parse_gmf_dict(self_dict, validate=validate)
+        return cls.from_dict(self_dict, table_name=table_name)
 
     def synthesize(
         self,
