@@ -6,7 +6,7 @@ This ensures that the Generative Metadata Format (GMF) files are interoperable a
 from __future__ import annotations
 
 import warnings
-from abc import ABC, abstractmethod
+from abc import ABC
 from copy import deepcopy
 from importlib.metadata import entry_points
 
