@@ -106,8 +106,11 @@ SCHEMA_BASE_v2 = {
 
 class BaseGmfParser(ABC):
     """Base class for parsing GmfFiles."""
+    base_schema: dict = {}
+    versions: list[str] = []
 
-    def distribution_schema(self, packages) -> dict:
+
+    def distribution_schema(self, packages: list[str]) -> list[dict]:
         defs: list[dict] = []
         for fitter in DistributionRegistry.parse(packages).fitters:
             defs.append(fitter.distribution.schema())
@@ -136,7 +139,7 @@ class BaseGmfParser(ABC):
         schema.update({"$defs": {"all_dist_def": {"anyOf": defs}}})
         return schema
 
-    def parse(self, gmf_dict):
+    def parse(self, gmf_dict: dict):
         """Convert the specific version of the gmf dictionary to the current standard.
 
         Parameters
@@ -169,7 +172,7 @@ class GmfV11Parser(BaseGmfParser):
     """GMF parser for version 1.1 and earlier."""
 
     versions: list[str] = ["1.1"]
-    base_schema = SCHEMA_BASE_v11
+    base_schema: dict = SCHEMA_BASE_v11
 
     def parse(self, gmf_dict: dict):
         new_gmf_dict = deepcopy(gmf_dict)
@@ -191,9 +194,9 @@ class GmfV20Parser(BaseGmfParser):
     """GMF parser for version 2.0 and later."""
 
     versions: list[str] = ["2.0", "*"]
-    base_schema: str = SCHEMA_BASE_v2
+    base_schema: dict = SCHEMA_BASE_v2
 
-def _get_parser_class(gmf_dict):
+def _get_parser_class(gmf_dict: dict) -> type[BaseGmfParser]:
     version = gmf_dict.get("gmf_version", "1.1")
 
     all_parsers = [GmfV11Parser, GmfV20Parser]
@@ -212,6 +215,7 @@ def _get_parser_class(gmf_dict):
 
         warnings.warn("Reading GMF file with unknown GMF version, update metasyn to ensure correct "
                       "reading of the GMF file.")
+    assert best_parser_class is not None
     return best_parser_class
 
 def validate_gmf_dict(gmf_dict: dict):
@@ -225,7 +229,7 @@ def validate_gmf_dict(gmf_dict: dict):
     parser = _get_parser_class(gmf_dict)()
     parser.validate_gmf_dict(gmf_dict)
 
-def parse_gmf_dict(gmf_dict: dict, validate: bool = True):
+def parse_gmf_dict(gmf_dict: dict, validate: bool = True) -> dict:
     """Parse GMF dictionary to convert it to the standard dictionary.
 
     This acts as a compatibility layer for different versions of the GMF standard.

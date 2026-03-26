@@ -227,13 +227,13 @@ class MetaFrame:
                     "name": self.name,
                     "n_rows": self.n_rows,
                     "n_columns": self.n_columns,
-                    "vars": [var.to_dict() for var in self.meta_vars],
                     "file_format": self.file_format,
+                    "vars": [var.to_dict() for var in self.meta_vars],
                 }
             ]
         }
         if self.file_format is None:
-            self_dict["tables"][0].pop("file_format")
+            self_dict["tables"][0].pop("file_format")  # type: ignore
         return self_dict
 
     @classmethod
