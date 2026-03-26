@@ -11,7 +11,6 @@ from metasyn.demo.dataset import (
     _AVAILABLE_DATASETS,
     BaseMultiDataset,
     _get_demo_class,
-    demo_dataframe,
     demo_file,
     demo_data,
 )
@@ -143,7 +142,7 @@ def test_distributions(tmp_path):
 def test_demo_datasets(tmp_path, dataset_name):
     """Test all built-in demo datasets and see if they can be synthesized."""
     demo_fp = demo_file(dataset_name)
-    demo_df = demo_dataframe(dataset_name)
+    demo_df = demo_data(dataset_name)
     demo_class = _get_demo_class(dataset_name)
     print(demo_class)
     if isinstance(demo_class, BaseMultiDataset):
@@ -168,7 +167,7 @@ def test_demo_datasets(tmp_path, dataset_name):
         assert dtype == df_syn[col].dtype
 
 def test_demo_multi(tmp_path):
-    dfs = demo_dataframe("shop_multi")
+    dfs = demo_data("shop_multi")
     demo_class = _get_demo_class("shop_multi")
     assert isinstance(demo_file("shop_multi"), dict)
     assert isinstance(dfs, dict)
