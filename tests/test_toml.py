@@ -64,6 +64,8 @@ def test_varspec_update():
     "gmf_file", [
         Path("examples", "gmf_files", "example_gmf_simple.json"),
         Path("examples", "gmf_files", "example_gmf_titanic.json"),
+        Path("tests", "data", "example_gmf_simple_v11.json"),
+        Path("tests", "data", "example_gmf_titanic_v11.json"),
     ]
 )
 def test_md_output(tmpdir, gmf_file):
