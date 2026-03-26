@@ -106,6 +106,7 @@ SCHEMA_BASE_v2 = {
 
 class BaseGmfParser(ABC):
     """Base class for parsing GmfFiles."""
+
     base_schema: dict = {}
     versions: list[str] = []
 
