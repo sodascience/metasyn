@@ -8,3 +8,4 @@ Demonstration datasets
    :inherited-members:
    :private-members:
    :show-inheritance:
+   :no-index:
