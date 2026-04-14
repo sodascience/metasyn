@@ -13,13 +13,12 @@ This section is intended for those that want to contribute to the metasyn packag
    demo
    distribution
    file
-   gmf
    metaframe
-   multiframe
    privacy
    registry
    schema
    testutils
    util
+   validation
    var
    varspec
