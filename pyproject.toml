@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools==75.8.0", "setuptools-scm[toml]>=6.2"] # metadata-version = "2.2" for pypi
+requires = ["setuptools>=77.0.3", "setuptools-scm[toml]>=6.2"] # metadata-version = "2.2" for pypi
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -21,7 +21,6 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Development Status :: 5 - Production/Stable",
-    "License :: OSI Approved :: MIT License",
 ]
 
 dependencies = [
