@@ -1,40 +1,72 @@
-{% extends "!autosummary/module.rst" %}
+{{ fullname | escape | underline}}
 
-{# This file is almost the same as the default, but adds :toctree: to the autosummary directives.
-   The original can be found at `sphinx/ext/autosummary/templates/autosummary/module.rst`. #}
+.. automodule:: {{ fullname }}
 
-{% block attributes %}
+{% if modules %}
+.. rubric:: Submodules
+
+.. autosummary::
+   :toctree:
+{% for item in modules %}
+   {{ item }}
+{%- endfor %}
+{% endif %}
+
 {% if attributes %}
-   .. rubric:: Module Attributes
+.. rubric:: Module Attributes
 
-   .. autosummary::
-      :toctree:
-   {% for item in attributes %}
-      {{ item }}
-   {%- endfor %}
+.. autosummary::
+{% for item in attributes %}
+   {{ item }}
+{%- endfor %}
+
+{% for item in attributes %}
+.. autodata:: {{ item }}
+   :no-index:
+{% endfor %}
 {% endif %}
-{% endblock %}
 
-{% block functions %}
 {% if functions %}
-   .. rubric:: Functions
+.. rubric:: Functions
 
-   .. autosummary::
-      :toctree:
-   {% for item in functions %}
-      {{ item }}
-   {%- endfor %}
+.. autosummary::
+{% for item in functions %}
+   {{ item }}
+{%- endfor %}
+
+{% for item in functions %}
+.. autofunction:: {{ item }}
+   :no-index:
+{% endfor %}
 {% endif %}
-{% endblock %}
 
-{% block classes %}
 {% if classes %}
-   .. rubric:: Classes
+.. rubric:: Classes
 
-   .. autosummary::
-      :toctree:
-   {% for item in classes %}
-      {{ item }}
-   {%- endfor %}
+.. autosummary::
+{% for item in classes %}
+   {{ item }}
+{%- endfor %}
+
+{% for item in classes %}
+.. autoclass:: {{ item }}
+   :members:
+   :show-inheritance:
+   :no-index:
+
+{% endfor %}
 {% endif %}
-{% endblock %}
+
+{% if exceptions %}
+.. rubric:: Exceptions
+
+.. autosummary::
+{% for item in exceptions %}
+   {{ item }}
+{%- endfor %}
+
+{% for item in exceptions %}
+.. autoexception:: {{ item }}
+   :no-index:
+{% endfor %}
+{% endif %}

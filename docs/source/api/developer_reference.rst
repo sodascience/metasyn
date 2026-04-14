@@ -5,6 +5,9 @@ This section is intended for those that want to contribute to the metasyn packag
 
 .. currentmodule:: metasyn
 
+Modules
+-------
+
 .. autosummary::
    :toctree: generated
    :recursive:
@@ -22,3 +25,33 @@ This section is intended for those that want to contribute to the metasyn packag
    validation
    var
    varspec
+
+Top-level classes
+-----------------
+
+.. autosummary::
+   :toctree: generated
+
+   MetaFrame
+   MetaVar
+   VarSpec
+
+Top-level functions
+-------------------
+
+.. autosummary::
+   :toctree: generated
+
+   demo_dataframe
+   demo_file
+   metadist
+   read_csv
+   read_dta
+   read_excel
+   read_sav
+   read_tsv
+   write_csv
+   write_dta
+   write_excel
+   write_sav
+   write_tsv
