@@ -190,6 +190,10 @@ class DiscreteNormalDistribution(ContinuousNormalDistribution):
     def draw(self):
         return int(super().draw())
 
+    @classmethod
+    def default_distribution(cls, var_type=None): # noqa: ARG003
+        return cls(2, 20)
+
 
 @builtin_fitter(distribution=DiscreteNormalDistribution, var_type="discrete")
 class DiscreteNormalFitter(ScipyFitter):
@@ -218,6 +222,12 @@ class DiscreteTruncatedNormalDistribution(ContinuousTruncatedNormalDistribution)
 
     def draw(self):
         return int(super().draw())
+
+    @classmethod
+    def default_distribution(cls, var_type=None): # noqa: ARG003
+        return cls(2, 20, 0, 50)
+
+
 
 @builtin_fitter(distribution=DiscreteTruncatedNormalDistribution, var_type="discrete")
 class DiscreteTruncatedNormalFitter(ContinuousTruncatedNormalFitter):
