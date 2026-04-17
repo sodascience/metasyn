@@ -212,6 +212,8 @@ class ReadStatInterface(BaseFileInterface, ABC):
 
         disable = max_rows < 1000
         for i_row in tqdm(range(0, n_rows, skip_factor*chunk_size), disable=disable):
+            if len(all_df) >= max_rows // chunk_size:
+                break
             temp_df, prs_meta = prs_func(fp, row_offset=i_row, row_limit=chunk_size,
                                          apply_value_formats=True, output_format="polars")
             all_df.append(temp_df)
