@@ -149,9 +149,13 @@ class ContinuousTruncatedNormalFitter(BaseFitter):
     """Fitter for continuous truncated normal fitter."""
 
     def _fit(self, series):
-        lower = series.min() - 1e-8
-        upper = series.max() + 1e-8
-        return self._fit_with_bounds(series, lower, upper)
+        lower = series.min()
+        upper = series.max()
+        if lower == upper:
+            return self.distribution(lower, upper, lower, 1e-8)
+        # lower = series.min() - 1e-8
+        # upper = series.max() + 1e-8
+        return self._fit_with_bounds(series, series.min(), series.max())
 
     def _fit_with_bounds(self, values, lower, upper):
         def minimizer(param):
