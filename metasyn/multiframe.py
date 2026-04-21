@@ -317,7 +317,7 @@ class MultiFrame():
             meta_dict = _jsonify(mf.to_dict())
             table = meta_dict.pop("tables")
             json_dict.update(meta_dict)
-            json_dict["tables"].extend(table)
+            json_dict["tables"].extend(table)  # type: ignore
 
         if validate:
             validate_gmf_dict(json_dict)
