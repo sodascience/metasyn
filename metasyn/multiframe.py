@@ -18,7 +18,8 @@ class RelationType(Enum):
     """Enumeration for the different relation types between columns.
 
     There are multiple types of relations that have different associated symbols:
-    Subset (``<-``), Equal (``<~``), EqualOrdered (``<?``) and Infer (``<?``).
+    Subset (``SUBSET OF``), Equal (``EQUALS``), EqualOrdered (``EQUAL ORDERED``)
+    and Infer (``INFER FROM``).
     Subset means that the foreign column contains values from the primary column, but
     not all values from the primary column need to be present in the foreign column.
     Equal means that all values in the primary column are present in the foreign column
@@ -39,13 +40,13 @@ class RelationType(Enum):
     @classmethod
     def parse(cls, symbol: str) -> "RelationType":
         match symbol:
-            case "-":
+            case "SUBSET OF":
                 return cls.Subset
-            case "~":
+            case "EQUALS":
                 return cls.Equal
-            case "=":
+            case "EQUAL ORDERED":
                 return cls.EqualOrdered
-            case "?":
+            case "INFER FROM":
                 return cls.Infer
         raise ValueError(f"Cannot parse relation type '{symbol}': symbol unknown.")
 
@@ -98,13 +99,14 @@ class ColumnRelation():
             An initialized column relation.
         """
         regex = re.compile(
-            _create_re("ptab") + r"\[" + _create_re("pcol") + r"\]\s+<(?P<rel>[=~\-?])\s?"
+            _create_re("ptab") + r"\[" + _create_re("pcol")
+            + r"\]\s+(?P<rel>SUBSET OF|EQUALS|INFER FROM|EQUAL ORDERED)\s?"
             + _create_re("ftab") + r"\[" + _create_re("fcol") + r"\]"
         )
         match = regex.match(relation_str)
         if match is None:
             raise ValueError(f"Cannot parse relation '{relation_str}'. It should be of the form:"
-                             " table_a[primary_column] <- table_b[foreign_column].")
+                             " table_a[primary_column] SUBSET OF table_b[foreign_column].")
         return cls(
             primary_table = _unescape(match.group("ptab")),
             primary_key = _unescape(match.group("pcol")),

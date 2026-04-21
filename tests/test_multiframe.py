@@ -19,9 +19,9 @@ def mock_data():
                          "unrelated": id_b})
 
 @mark.parametrize("obj,symbol,obj_str", [
-    (RelationType.Subset, "-", "subset"),
-    (RelationType.Equal, "~", "equal"),
-    (RelationType.EqualOrdered, "=", "equal_ordered"),
+    (RelationType.Subset, "SUBSET OF", "subset"),
+    (RelationType.Equal, "EQUALS", "equal"),
+    (RelationType.EqualOrdered, "EQUAL ORDERED", "equal_ordered"),
 ])
 def test_rel_type_parse(obj, symbol, obj_str):
     assert obj == RelationType.parse(symbol)
@@ -34,12 +34,12 @@ def test_rel_type_error():
         RelationType.parse("??")
 
 @mark.parametrize("rel_str,expected", [
-    ("a[b] <- c[d]", ("a", "b", "c", "d", RelationType.Subset)),
-    (r"a[\[\]] <~ c[()]", ("a", "[]", "c", "()", RelationType.Equal)),
-    (" a[ b ]    <=    c[d]", (" a", " b ", "   c", "d", RelationType.EqualOrdered)),
-    ("a[\nb] <? c[d]", ("a", "\nb", "c", "d", RelationType.Infer)),
+    ("a[b] SUBSET OF c[d]", ("a", "b", "c", "d", RelationType.Subset)),
+    (r"a[\[\]] EQUALS c[()]", ("a", "[]", "c", "()", RelationType.Equal)),
+    (" a[ b ]    EQUAL ORDERED    c[d]", (" a", " b ", "   c", "d", RelationType.EqualOrdered)),
+    ("a[\nb] INFER FROM c[d]", ("a", "\nb", "c", "d", RelationType.Infer)),
     ("a[b]<<c[d]", None),
-    ("[] <- []", None),
+    ("[] SUBSET OF []", None),
 ])
 def test_col_rel_parse(rel_str, expected):
     if expected is None:
@@ -79,7 +79,7 @@ def test_col_to_from_dict():
 ])
 def test_multiframe_infer(mock_data, col_a, col_b, expected_relation):
     kwargs = {"dataframes": {"a": mock_data, "b": mock_data},
-              "relations": [f"a[{col_a}] <? b[{col_b}]"]}
+              "relations": [f"a[{col_a}] INFER FROM b[{col_b}]"]}
     if expected_relation is None:
         with pytest.raises(ValueError):
             mf = MultiFrame.fit_dataframes(**kwargs)
@@ -94,19 +94,19 @@ def test_multiframe_infer_errors(mock_data):
     mfs = {"a": mf1, "b": mf2}
     dfs = {"a": mock_data, "b": mock_data}
     with pytest.raises(ValueError):
-        MultiFrame(mfs, ["c[id] <- a[id]"])
+        MultiFrame(mfs, ["c[id] SUBSET OF a[id]"])
     with pytest.raises(ValueError):
-        MultiFrame(mfs, ["a[id] <- c[id]"])
+        MultiFrame(mfs, ["a[id] SUBSET OF c[id]"])
     with pytest.raises(ValueError):
-        MultiFrame(mfs, ["a[id] <? b[id]"])
+        MultiFrame(mfs, ["a[id] INFER FROM b[id]"])
     with pytest.raises(ValueError):
-        MultiFrame(mfs, ["a[id] <- b[id]", "b[id] <- a[id]"])
+        MultiFrame(mfs, ["a[id] SUBSET OF b[id]", "b[id] SUBSET OF a[id]"])
     with pytest.warns():
-        MultiFrame(mfs, ["a[id_chosen] <- a[id]"], dfs)
+        MultiFrame(mfs, ["a[id_chosen] SUBSET OF a[id]"], dfs)
 
 def test_load_save_json(mock_data, tmp_path):
     mfs = MultiFrame.fit_dataframes({"a": mock_data, "b": mock_data},
-                                    relations=["a[id] <- b[id_chosen]"])
+                                    relations=["a[id] SUBSET OF b[id_chosen]"])
 
     mfs.save_json()
     mfs.save_json(tmp_path / "test.json")
@@ -118,9 +118,9 @@ def test_multi_synthesize(mock_data):
     mfs = MultiFrame.fit_dataframes(
         {"a": mock_data, "b": mock_data},
         relations=[
-            "a[id] <- b[id_chosen]",
-            "a[id] <~ b[id_shuffled]",
-            "a[id] <= b[id]",
+            "a[id] SUBSET OF b[id_chosen]",
+            "a[id] EQUALS b[id_shuffled]",
+            "a[id] EQUAL ORDERED b[id]",
         ])
     dfs = mfs.synthesize()
     assert len(dfs) == 2

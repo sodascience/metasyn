@@ -174,7 +174,8 @@ def test_demo_multi(tmp_path):
     demo_class.create(tmp_path)
     for fp in demo_class.file_location.values():
         assert fp.is_file()
-    mf = MultiFrame.fit_dataframes(dfs, relations = ["customers[id] <- purchases[customer_id]"])
+    mf = MultiFrame.fit_dataframes(dfs,
+                                   relations = ["customers[id] SUBSET OF purchases[customer_id]"])
     dfs = mf.synthesize()
     assert isinstance(dfs, dict)
 
