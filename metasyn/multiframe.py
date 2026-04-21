@@ -29,10 +29,10 @@ class RelationType(Enum):
     inferred.
     """
 
-    Subset = "subset" # <-
-    Equal = "equal"  # <~
-    EqualOrdered = "equal_ordered"  # <=
-    Infer = "infer"  # <?
+    Subset = "subset"
+    Equal = "equal"
+    EqualOrdered = "equal_ordered"
+    Infer = "infer"
 
     def __str__(self):
         return self.value
@@ -64,10 +64,10 @@ class ColumnRelation():
     :meth:`ColumnRelation.parse` method.
     """
 
-    primary_table: str
-    primary_key: str
     foreign_table: str
     foreign_key: str
+    primary_table: str
+    primary_key: str
     relation_type: RelationType = RelationType.Infer
 
 
@@ -99,19 +99,19 @@ class ColumnRelation():
             An initialized column relation.
         """
         regex = re.compile(
-            _create_re("ptab") + r"\[" + _create_re("pcol")
+            _create_re("ftab") + r"\[" + _create_re("fcol")
             + r"\]\s+(?P<rel>SUBSET OF|EQUALS|INFER FROM|EQUAL ORDERED)\s?"
-            + _create_re("ftab") + r"\[" + _create_re("fcol") + r"\]"
+            + _create_re("ptab") + r"\[" + _create_re("pcol") + r"\]"
         )
         match = regex.match(relation_str)
         if match is None:
             raise ValueError(f"Cannot parse relation '{relation_str}'. It should be of the form:"
-                             " table_a[primary_column] SUBSET OF table_b[foreign_column].")
+                             " table_a[foreign_column] SUBSET OF table_b[primary_column].")
         return cls(
-            primary_table = _unescape(match.group("ptab")),
-            primary_key = _unescape(match.group("pcol")),
             foreign_table = _unescape(match.group("ftab")),
             foreign_key = _unescape(match.group("fcol")),
+            primary_table = _unescape(match.group("ptab")),
+            primary_key = _unescape(match.group("pcol")),
             relation_type = RelationType.parse(match.group("rel"))
         )
 

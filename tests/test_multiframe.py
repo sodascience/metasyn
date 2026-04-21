@@ -47,10 +47,10 @@ def test_col_rel_parse(rel_str, expected):
             ColumnRelation.parse(rel_str)
     else:
         colrel = ColumnRelation.parse(rel_str)
-        assert colrel.primary_table == expected[0]
-        assert colrel.primary_key == expected[1]
-        assert colrel.foreign_table == expected[2]
-        assert colrel.foreign_key == expected[3]
+        assert colrel.foreign_table == expected[0]
+        assert colrel.foreign_key == expected[1]
+        assert colrel.primary_table == expected[2]
+        assert colrel.primary_key == expected[3]
         assert colrel.relation_type == expected[4]
 
 def test_col_rel_error():
@@ -62,10 +62,10 @@ def test_col_to_from_dict():
     assert isinstance(col_dict, dict)
     assert all(isinstance(k, str) and isinstance(v, str) for k, v in col_dict.items())
     col_rel = ColumnRelation.from_dict(col_dict)
-    assert col_rel.primary_table == "a"
-    assert col_rel.primary_key == "b"
-    assert col_rel.foreign_table == "c"
-    assert col_rel.foreign_key == "d"
+    assert col_rel.foreign_table == "a"
+    assert col_rel.foreign_key == "b"
+    assert col_rel.primary_table == "c"
+    assert col_rel.primary_key == "d"
     assert col_rel.relation_type == RelationType.Equal
 
 @mark.parametrize(
@@ -79,7 +79,7 @@ def test_col_to_from_dict():
 ])
 def test_multiframe_infer(mock_data, col_a, col_b, expected_relation):
     kwargs = {"dataframes": {"a": mock_data, "b": mock_data},
-              "relations": [f"a[{col_a}] INFER FROM b[{col_b}]"]}
+              "relations": [f"b[{col_b}] INFER FROM a[{col_a}]"]}
     if expected_relation is None:
         with pytest.raises(ValueError):
             mf = MultiFrame.fit_dataframes(**kwargs)
@@ -94,15 +94,15 @@ def test_multiframe_infer_errors(mock_data):
     mfs = {"a": mf1, "b": mf2}
     dfs = {"a": mock_data, "b": mock_data}
     with pytest.raises(ValueError):
-        MultiFrame(mfs, ["c[id] SUBSET OF a[id]"])
-    with pytest.raises(ValueError):
         MultiFrame(mfs, ["a[id] SUBSET OF c[id]"])
     with pytest.raises(ValueError):
-        MultiFrame(mfs, ["a[id] INFER FROM b[id]"])
+        MultiFrame(mfs, ["c[id] SUBSET OF a[id]"])
+    with pytest.raises(ValueError):
+        MultiFrame(mfs, ["b[id] INFER FROM a[id]"])
     with pytest.raises(ValueError):
         MultiFrame(mfs, ["a[id] SUBSET OF b[id]", "b[id] SUBSET OF a[id]"])
     with pytest.warns():
-        MultiFrame(mfs, ["a[id_chosen] SUBSET OF a[id]"], dfs)
+        MultiFrame(mfs, ["a[id] SUBSET OF a[id_chosen]"], dfs)
 
 def test_load_save_json(mock_data, tmp_path):
     mfs = MultiFrame.fit_dataframes({"a": mock_data, "b": mock_data},
@@ -118,9 +118,9 @@ def test_multi_synthesize(mock_data):
     mfs = MultiFrame.fit_dataframes(
         {"a": mock_data, "b": mock_data},
         relations=[
-            "a[id] SUBSET OF b[id_chosen]",
-            "a[id] EQUALS b[id_shuffled]",
-            "a[id] EQUAL ORDERED b[id]",
+            "b[id] SUBSET OF a[id_chosen]",
+            "b[id] EQUALS a[id_shuffled]",
+            "b[id] EQUAL ORDERED a[id]",
         ])
     dfs = mfs.synthesize()
     assert len(dfs) == 2
