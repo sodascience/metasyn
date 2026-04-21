@@ -125,10 +125,10 @@ class ColumnRelation():
             Dictionary containing the required information of the column relation.
         """
         return {
-            "primary_table": self.primary_table,
-            "primary_key": self.primary_key,
             "foreign_table": self.foreign_table,
             "foreign_key": self.foreign_key,
+            "primary_table": self.primary_table,
+            "primary_key": self.primary_key,
             "relation_type": str(self.relation_type),
         }
 
@@ -312,7 +312,7 @@ class MultiFrame():
            File to save the metadata to. If left at None, it will print it instead.
         """
         relations = [rel.to_dict() for rel in self.relations]
-        json_dict = {"relations": relations, "tables": []}
+        json_dict = {"gmf_version": "", "provenance": {}, "relations": relations, "tables": []}
         for name, mf in self.metaframes.items():
             meta_dict = _jsonify(mf.to_dict())
             table = meta_dict.pop("tables")
