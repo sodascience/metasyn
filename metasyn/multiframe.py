@@ -73,7 +73,7 @@ class ColumnRelation():
 
     def __post_init__(self):
         if self.primary_key == self.foreign_key and self.primary_table == self.foreign_table:
-            raise ValueError("Cannot have a primary <- foreign key relation between the "
+            raise ValueError("Cannot have a primary <-> foreign key relation between the "
                              "same table and column.")
 
     @classmethod

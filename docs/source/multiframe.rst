@@ -49,8 +49,8 @@ relations between columns across tables.
 Column relations
 ----------------
 
-Metasyn implements a few different kinds of relations between columns: ``subset`` (``<-``), ``equal`` (``<~``) and
-``equal_ordered`` (``<=``). There is one extra relation ``infer`` (``<?``), which signals to metasyn to attempts to
+Metasyn implements a few different kinds of relations between columns: ``subset`` (``SUBSET OF``), ``equal`` (``EQUALS``) and
+``equal_ordered`` (``EQUAL ORDERED``). There is one extra relation ``infer`` (``INFER FROM``), which signals to metasyn to attempts to
 infer the relation automatically. There are two ways to define a relation between two columns: one using a string, the other
 using the :class:`metasyn.multiframe.ColumnRelation` class:
 
@@ -60,7 +60,7 @@ using the :class:`metasyn.multiframe.ColumnRelation` class:
 
         from metasyn.multiframe import ColumnRelation
 
-        relation_str = "passengers.csv[PassengerId] <- medical_data.csv[PassengerId]"
+        relation_str = "medical_data.csv[PassengerId] SUBSET OF passengers.csv[PassengerId]"
         relation = ColumnRelation.parse(relation_str)
 
 .. tab:: direct
@@ -88,7 +88,7 @@ multiple tables. The class can be created directly using initialized metaframes 
 
         dfs = {"a": pl.read_csv(...), "b": pl.read_csv(...)}
 
-        relations = ["a[ID] <- b[passengerId]", "a[userId] <= b[userId]"]
+        relations = ["b[passengerId] SUBSET OF a[ID]", "a[userId] <= b[userId]"]
         multi_frame = MultiFrame.fit_dataframes(dfs, relations=relations, extra_kwargs={"a": {...}, "b": {...})
 
 .. tab:: direct initialization
@@ -101,7 +101,7 @@ multiple tables. The class can be created directly using initialized metaframes 
         mfs = {"a": MetaFrame.fit_dataframe(dfs["a"], ...), "b": MetaFrame.fit_dataframe(dfs["b"], ...)}
 
 
-        relations = ["a[ID] <- b[passengerId]", "a[userId] <= b[userId]"]
+        relations = ["b[passengerId] SUBSET OF a[ID]", "b[userId] EQUALS a[userId]"]
         multi_frame = MultiFrame(mfs, relations=relations, dataframes=dfs)
 
 
