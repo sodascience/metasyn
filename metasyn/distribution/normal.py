@@ -153,7 +153,7 @@ class ContinuousTruncatedNormalFitter(BaseFitter):
         upper = series.max()
         if lower == upper:
             return self.distribution(lower-1e-8, upper+1e-8, lower, 1)
-        return self._fit_with_bounds(series, series.min(), series.max())
+        return self._fit_with_bounds(series, lower, upper)
 
     def _fit_with_bounds(self, values, lower, upper):
         def minimizer(param):
