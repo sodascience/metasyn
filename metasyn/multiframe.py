@@ -83,11 +83,9 @@ class ColumnRelation():
         Parameters
         ----------
         relation_str
-            String of the form primary_table[primary_column] <{relation_type_symbol}
-            foreign_table[foreign_column]. See :class:`RelationType` for the relation_type_symbol.
-            Note that the tables and columns can have spaces. For some very strange and specific
-            column names with brackets [] and symbols <~-=? this method might fail. I this case
-            you should use the normal initialization method.
+            String of the form primary_table[primary_column] {relation type}
+            foreign_table[foreign_column]. See :class:`RelationType` for the different relations
+            types. Note that the tables and columns can have spaces.
 
         Raises
         ------
