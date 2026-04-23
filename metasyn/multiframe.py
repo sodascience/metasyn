@@ -376,7 +376,8 @@ class MultiFrame():
 
     @classmethod
     def fit_dataframes(cls, dataframes: dict[str, pl.DataFrame], relations: list[ColumnRelation],
-                       extra_kwargs: Optional[dict] = None) -> "MultiFrame":
+                       extra_kwargs: Optional[dict[str, dict]] = None,
+                       **global_kwargs) -> "MultiFrame":
         """Fit multiple dataframes to create a MultiFrame.
 
         Parameters
@@ -388,7 +389,12 @@ class MultiFrame():
             Relations between different columns, where primary/foreign key relationships are
             defined.
         extra_kwargs:
-            Extra keyword arguments to be supplied for fitting the dataframes.
+            Extra keyword arguments to be supplied for fitting each of the individual dataframes.
+            If supplied, this should be a dictionary of dictionaries, where the first dictionary
+            has keys that correspond to the keys of the dataframes.
+        global_kwargs:
+            Extra keyword arguments applied to all dataframes equally. This gets overridden by the
+            the extra_kwargs keyword argument if supplied for individual dataframes.
 
         Returns
         -------
@@ -396,10 +402,19 @@ class MultiFrame():
             relationships.
         """
         extra_kwargs = {} if extra_kwargs is None else extra_kwargs
+        for key in extra_kwargs:
+            if key not in dataframes:
+                raise ValueError(f"Key '{key}' is not the name of a dataframe supplied with the "
+                                 f"dataframe argument. Available tables: {list(dataframes)}.")
         relations = [ColumnRelation.parse(rel) if isinstance(rel, str) else rel
                      for rel in relations]
         _validate_relations(relations, dataframes)
         _infer_relations(relations, dataframes)
-        mfs = {name: MetaFrame.fit_dataframe(df, **extra_kwargs, name=name)
-               for name, df in dataframes.items()}
+        mfs = {}
+        for name, df in dataframes.items():
+            cur_extra_kwargs = extra_kwargs.get(name, {})
+            cur_kwargs = deepcopy(global_kwargs)
+            cur_kwargs.update(cur_extra_kwargs)
+            mfs[name] = MetaFrame.fit_dataframe(df, **cur_kwargs, name=name)
+
         return cls(mfs, relations, dataframes)
