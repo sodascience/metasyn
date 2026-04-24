@@ -29,17 +29,17 @@ class RelationType(Enum):
     inferred.
     """
 
-    Subset = "subset"
-    Equal = "equal"
-    EqualOrdered = "equal_ordered"
-    Infer = "infer"
+    Subset = "SUBSET OF"
+    Equal = "EQUALS"
+    EqualOrdered = "EQUAL ORDERED"
+    Infer = "INFER FROM"
 
     def __str__(self):
         return self.value
 
     @classmethod
     def parse(cls, symbol: str) -> "RelationType":
-        match symbol:
+        match symbol.upper():
             case "SUBSET OF":
                 return cls.Subset
             case "EQUALS":
@@ -75,6 +75,10 @@ class ColumnRelation():
         if self.primary_key == self.foreign_key and self.primary_table == self.foreign_table:
             raise ValueError("Cannot have a primary <-> foreign key relation between the "
                              "same table and column.")
+
+    def __str__(self):
+        return (f"{self.foreign_table}[{self.foreign_key}] {self.relation_type}"
+                f" {self.primary_table}[{self.primary_key}]")
 
     @classmethod
     def parse(cls, relation_str: str) -> "ColumnRelation":
@@ -238,6 +242,29 @@ class MultiFrame():
                           for rel in relations]
         _validate_relations(self.relations, metaframes if dataframes is None else dataframes)
         _infer_relations(self.relations, dataframes)
+
+    def __getitem__(self, key: str):
+        if key not in self.metaframes:
+            raise KeyError(f"No table/metaframe with '{key}' available, choose from "
+                           f"{list(self.metaframes)}.")
+        return self.metaframes[key]
+
+    def __str__(self) -> str:
+        all_str = ""
+        for key, mf in self.metaframes.items():
+            mf_str = f"Table {key}:\n"
+            mf_str += f"    Number of rows: {mf.n_rows}\n"
+            mf_str += f"    Number of columns: {mf.n_columns}\n"
+            col_names = [var.name for var in mf.meta_vars][:5]
+            if len(col_names) < len(mf.meta_vars):
+                col_names[-1] == "..."
+            mf_str += f"    Columns: {', '.join(col_names)}\n"
+            all_str += mf_str + "\n"
+        if len(self.relations) > 0:
+            all_str += "Relations between columns:\n"
+            for rel in self.relations:
+                all_str += "    " + str(rel) + "\n"
+        return all_str
 
     def synthesize(self, n: Optional[dict] = None) -> dict[str, pl.DataFrame]:
         """Synthesize multiple tables.
