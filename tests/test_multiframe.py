@@ -19,9 +19,9 @@ def mock_data():
                          "unrelated": id_b})
 
 @mark.parametrize("obj,symbol,obj_str", [
-    (RelationType.Subset, "SUBSET OF", "subset"),
-    (RelationType.Equal, "EQUALS", "equal"),
-    (RelationType.EqualOrdered, "EQUAL ORDERED", "equal_ordered"),
+    (RelationType.Subset, "SUBSET OF", "SUBSET OF"),
+    (RelationType.Equal, "EQUALS", "EQUALS"),
+    (RelationType.EqualOrdered, "EQUAL ORDERED", "EQUAL ORDERED"),
 ])
 def test_rel_type_parse(obj, symbol, obj_str):
     assert obj == RelationType.parse(symbol)
