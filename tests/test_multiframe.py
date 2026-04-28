@@ -18,6 +18,23 @@ def mock_data():
     return pl.DataFrame({"id": id_a, "id_shuffled": id_a_shuffled, "id_chosen": id_a_chosen,
                          "unrelated": id_b})
 
+@pytest.fixture()
+def mock_multi_frame(mock_data):
+    mf1 = MetaFrame.fit_dataframe(mock_data)
+    mf2 = MetaFrame.fit_dataframe(mock_data)
+    mfs = {"df_a": mf1, "b": mf2}
+    multi_frame = MultiFrame(mfs, ["df_a[id] EQUALS b[id]"])
+    return multi_frame
+
+def test_print_metaframe(mock_multi_frame):
+    mf_str = str(mock_multi_frame)
+    assert "id" in mf_str
+    assert "df_a" in mf_str
+    assert "4" in mf_str  # Number of columns
+
+def test_multi_getitem(mock_multi_frame):
+    assert isinstance(mock_multi_frame["df_a"], MetaFrame)
+
 @mark.parametrize("obj,symbol,obj_str", [
     (RelationType.Subset, "SUBSET OF", "SUBSET OF"),
     (RelationType.Equal, "EQUALS", "EQUALS"),
