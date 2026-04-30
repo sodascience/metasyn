@@ -143,10 +143,7 @@ def test_prs_chunking(max_rows, chunk_size, length):
     sav_fp = Path("tests", "data", "GlastonburyFestival.sav")
     df, _ = ms.read_sav(sav_fp, max_rows=max_rows, chunk_size=chunk_size)
     assert len(df) == length
-    # df, _ = ms.read_sav(sav_fp, max_rows=10)
-    # assert len(df) == 10
-    # df, _ = ms.read_sav(sav_fp, max_rows=20, chunk_size=2)
-    # assert len(df) == 20
+
 
 @mark.parametrize("dataset_name",
                   _AVAILABLE_DATASETS)
