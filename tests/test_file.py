@@ -138,6 +138,7 @@ def test_sav_interface(filename, tmpdir):
         (800, 650, 800),
         (810, 405, 810),
         (810, 23, 810),
+        (1230, 10, 810),
     ])
 def test_prs_chunking(max_rows, chunk_size, length):
     sav_fp = Path("tests", "data", "GlastonburyFestival.sav")
