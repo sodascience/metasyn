@@ -127,14 +127,26 @@ def test_sav_interface(filename, tmpdir):
     assert new_df.columns == df.columns
 
 
-def test_prs_chunking():
+@mark.parametrize(
+    "max_rows,chunk_size,length",
+    [
+        (None, None, 810),
+        (10, None, 10),
+        (20, 2, 20),
+        (19, 2, 19),
+        (800, 33, 800),
+        (800, 650, 800),
+        (810, 405, 810),
+        (810, 23, 810),
+    ])
+def test_prs_chunking(max_rows, chunk_size, length):
     sav_fp = Path("tests", "data", "GlastonburyFestival.sav")
-    df, _ = ms.read_sav(sav_fp)
-    assert len(df) == 810
-    df, _ = ms.read_sav(sav_fp, max_rows=10)
-    assert len(df) == 10
-    df, _ = ms.read_sav(sav_fp, max_rows=20, chunk_size=2)
-    assert len(df) == 20
+    df, _ = ms.read_sav(sav_fp, max_rows=max_rows, chunk_size=chunk_size)
+    assert len(df) == length
+    # df, _ = ms.read_sav(sav_fp, max_rows=10)
+    # assert len(df) == 10
+    # df, _ = ms.read_sav(sav_fp, max_rows=20, chunk_size=2)
+    # assert len(df) == 20
 
 @mark.parametrize("dataset_name",
                   _AVAILABLE_DATASETS)
