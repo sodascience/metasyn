@@ -29,7 +29,7 @@ def test_datafree_create(tmpdir):
 @mark.parametrize(
     "toml_input,data", [
         (Path("examples", "config_files", "example_all.toml"), None),
-        # (Path("examples", "config_files", "example_config.toml"), demo_dataframe("titanic")),
+        # (Path("examples", "config_files", "example_config.toml"), demo_data("titanic")),
         (Path("examples", "config_files", "example_datafree.toml"), None),
     ]
 )
@@ -64,6 +64,8 @@ def test_varspec_update():
     "gmf_file", [
         Path("examples", "gmf_files", "example_gmf_simple.json"),
         Path("examples", "gmf_files", "example_gmf_titanic.json"),
+        Path("tests", "data", "example_gmf_simple_v11.json"),
+        Path("tests", "data", "example_gmf_titanic_v11.json"),
     ]
 )
 def test_md_output(tmpdir, gmf_file):

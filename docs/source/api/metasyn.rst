@@ -10,5 +10,6 @@ This section aims to give an overview of all classes, functions and methods in t
    metasyn.demo
    metaframe
    varspec
+   multiframe
    developer_reference
 

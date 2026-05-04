@@ -14,7 +14,7 @@ from typing import Optional
 from metasyn import MetaFrame
 from metasyn.config import MetaConfig
 from metasyn.file import file_interface_from_dict, get_file_interface_class, read_file
-from metasyn.validation import create_schema
+from metasyn.gmf import GmfV20Parser
 
 EXAMPLE_CREATE_META="metasyn create-meta your_dataset.csv -o your_gmf_file.json --config your_config.toml" # noqa: E501
 EXAMPLE_CREATE_TOML="metasyn create-meta your_dataset.csv -o your_gmf_file.toml --config your_config.toml" # noqa: E501
@@ -265,7 +265,7 @@ def schema(input_args) -> None:
             f"\n  Available plugins: {pl_avail}"
         )
         parser.error(errmsg)
-    jsonschema = create_schema(list(plugins))
+    jsonschema = GmfV20Parser().create_schema(list(plugins))
     if args.output is None:
         print(json.dumps(jsonschema, indent=4))
     else:

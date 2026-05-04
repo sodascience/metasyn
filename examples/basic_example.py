@@ -1,10 +1,10 @@
 from pathlib import Path
 
-from metasyn import MetaFrame, demo_dataframe
+from metasyn import MetaFrame, demo_data
 from metasyn.config import VarSpec
 
 # example dataframe from polars website
-df = demo_dataframe("fruit")
+df = demo_data("fruit")
 
 # set A to unique and B to not unique
 specs = [
