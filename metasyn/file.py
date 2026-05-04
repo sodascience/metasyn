@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Optional, Type, Union
 
 import polars as pl
+from tqdm import tqdm
 
 _AVAILABLE_FILE_INTERFACES = {}
 
@@ -202,22 +203,24 @@ class ReadStatInterface(BaseFileInterface, ABC):
 
         _, metadata = prs_func(fp, metadataonly=True)
         n_rows = metadata.number_rows
-        if max_rows >= 2*n_rows:  # Not enough rows to used chunked sampling, read first max_rows
+
+        # Number of chunks is maximum number of rows divided by chunksize, rounded up
+        n_chunks = ((max_rows-1) // chunk_size) + 1
+        # Starts of chunks are separated by total number of rows divided by number of chunks
+        skip_size = n_rows // n_chunks
+        if skip_size <= chunk_size:  # Sampling useless when all chunks are packed together
             return prs_func(fp, apply_value_formats=True, output_format="polars",
                             row_limit=max_rows)
 
-        skip_factor = n_rows // max_rows
         all_df = []
-        i_chunk = 0
-        for temp_df, prs_meta in pyreadstat.read_file_in_chunks(
-                prs_func, fp, apply_value_formats=True, output_format="polars",
-                chunksize=chunk_size):
-            # Done
-            if (i_chunk//skip_factor)*chunk_size >= max_rows:
-                break
-            if i_chunk % skip_factor == 0:
-                all_df.append(temp_df)
-            i_chunk += 1
+
+        disable = max_rows < 1000
+        for i_row in tqdm(range(0, n_rows, skip_size), disable=disable):
+            # If we need less than a chunk
+            row_limit = min(chunk_size, max_rows - (i_row//skip_size)*chunk_size)
+            temp_df, prs_meta = prs_func(fp, row_offset=i_row, row_limit=row_limit,
+                                         apply_value_formats=True, output_format="polars")
+            all_df.append(temp_df)
 
         return pl.concat(all_df, how="vertical_relaxed"), prs_meta
 
@@ -225,7 +228,6 @@ class ReadStatInterface(BaseFileInterface, ABC):
     def _get_df_metadata(cls, fp: Union[Path, str], **kwargs):
         """Read the dataset including the metadata."""
         df, prs_metadata = cls._read_data(fp, **kwargs)
-        # df = pl.DataFrame(pandas_df)
         return cls._convert_with_orig_format(df, prs_metadata), prs_metadata
 
 
