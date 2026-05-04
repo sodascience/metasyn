@@ -5,7 +5,7 @@ import pytest
 from pytest import mark
 
 import metasyn as ms
-from metasyn.demo.dataset import _AVAILABLE_DATASETS, demo_dataframe, demo_file
+from metasyn.demo.dataset import _AVAILABLE_DATASETS, demo_data, demo_file
 from metasyn.file import (
     _AVAILABLE_FILE_INTERFACES,
     BaseFileInterface,
@@ -127,17 +127,27 @@ def test_sav_interface(filename, tmpdir):
     assert new_df.columns == df.columns
 
 
-def test_prs_chunking():
+@mark.parametrize(
+    "max_rows,chunk_size,length",
+    [
+        (None, None, 810),
+        (10, None, 10),
+        (20, 2, 20),
+        (19, 2, 19),
+        (800, 33, 800),
+        (800, 650, 800),
+        (810, 405, 810),
+        (810, 23, 810),
+        (1230, 10, 810),
+    ])
+def test_prs_chunking(max_rows, chunk_size, length):
     sav_fp = Path("tests", "data", "GlastonburyFestival.sav")
-    df, _ = ms.read_sav(sav_fp)
-    assert len(df) == 810
-    df, _ = ms.read_sav(sav_fp, max_rows=10)
-    assert len(df) == 10
-    df, _ = ms.read_sav(sav_fp, max_rows=20, chunk_size=2)
-    assert len(df) == 20
+    df, _ = ms.read_sav(sav_fp, max_rows=max_rows, chunk_size=chunk_size)
+    assert len(df) == length
+
 
 @mark.parametrize("dataset_name",
-                  _AVAILABLE_DATASETS)
+                  [x for x in _AVAILABLE_DATASETS if x != "shop_multi"])
 def test_csv_interface(dataset_name, tmpdir):
     filename = demo_file(dataset_name)
     direct_df, _ = CsvFileInterface.read_file(filename)
@@ -194,7 +204,7 @@ def test_file_interface_errors():
 @mark.parametrize("interface_class",
                   [x for x in _AVAILABLE_FILE_INTERFACES.values() if not x.__name__.startswith("Bad")])
 def test_default_file_interfaces(interface_class, tmpdir):
-    df = demo_dataframe("test")
+    df = demo_data("test")
     suffix = interface_class.extensions[0]
     fp = Path(tmpdir/f"test_file{suffix}")
     interface_class.default_interface(fp).write_file(df, fp)
@@ -210,7 +220,7 @@ def test_default_file_interfaces(interface_class, tmpdir):
     assert df_new.shape == df.shape
 
 def test_stata(tmpdir):
-    df = demo_dataframe("test")
+    df = demo_data("test")
     file_out = tmpdir / "test.dta"
     ms.write_dta(df, file_out)
     # StataFileInterface.default_interface(file_out).write_file(df, file_out)

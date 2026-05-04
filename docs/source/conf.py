@@ -25,7 +25,7 @@ author = "SoDa Team"
 
 
 # The full version, including alpha/beta/rc tags
-release = '2.0.0'
+release = '2.1.0'
 
 # -- General configuration ---------------------------------------------------
 
@@ -66,7 +66,7 @@ html_logo = "images/logos/white_med.png"
 html_theme_options = {
     "logo_only": True,
     "navigation_depth": -1,
-    "display_version": True,
+    "version_selector": True,
     "style_external_links": False,
 }
 

@@ -149,8 +149,10 @@ class ContinuousTruncatedNormalFitter(BaseFitter):
     """Fitter for continuous truncated normal fitter."""
 
     def _fit(self, series):
-        lower = series.min() - 1e-8
-        upper = series.max() + 1e-8
+        lower = series.min()
+        upper = series.max()
+        if lower == upper:
+            return self.distribution(lower-1e-8, upper+1e-8, lower, 1)
         return self._fit_with_bounds(series, lower, upper)
 
     def _fit_with_bounds(self, values, lower, upper):
@@ -190,6 +192,10 @@ class DiscreteNormalDistribution(ContinuousNormalDistribution):
     def draw(self):
         return int(super().draw())
 
+    @classmethod
+    def default_distribution(cls, var_type=None): # noqa: ARG003
+        return cls(2, 20)
+
 
 @builtin_fitter(distribution=DiscreteNormalDistribution, var_type="discrete")
 class DiscreteNormalFitter(ScipyFitter):
@@ -218,6 +224,12 @@ class DiscreteTruncatedNormalDistribution(ContinuousTruncatedNormalDistribution)
 
     def draw(self):
         return int(super().draw())
+
+    @classmethod
+    def default_distribution(cls, var_type=None): # noqa: ARG003
+        return cls(2, 20, 0, 50)
+
+
 
 @builtin_fitter(distribution=DiscreteTruncatedNormalDistribution, var_type="discrete")
 class DiscreteTruncatedNormalFitter(ContinuousTruncatedNormalFitter):

@@ -31,6 +31,7 @@ Key features
 - **Integration with Faker**: Metasyn integrates with the `faker <https://github.com/joke2k/faker>`__ package, a Python library for generating fake data such as names and emails. Allowing for more realistic synthetic data.
 - **Structured String Detection**: Metasyn identifies structured strings within your dataset, which can include formatted text, codes, identifiers, or any string that follows a specific pattern.
 - **Handling Unique Values**: Metasyn can identify and process variables with unique values or keys in the data, preserving their uniqueness in the synthetic dataset.
+- **Multiple table support**: Metasyn supports the synthesis of multiple tables at the same time. Primary/foreign key relations can be preserved so that the synthetic tables can be joined correctly.
 
 
 For more detail on how metasyn works, see our `paper <https://github.com/sodascience/metasyn/blob/main/docs/paper/paper.pdf>`_.

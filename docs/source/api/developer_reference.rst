@@ -1,86 +1,57 @@
 Developer reference
 ===================
 
-This section is intended for those that want to contribute to the metasyn package, or simply want a deeper understanding of how it works. It contains the classes, functions and modules that are not in the rest of the reference API. These are mostly elements that are not directly used by users, but are important for developers of the metasyn package to understand the architecture.
+This section is intended for those that want to contribute to the metasyn package, or simply want a deeper understanding of how it works. It contains all the classes, functions and modules in the metasyn package. Most elements are not directly used by users, but are important for developers of the metasyn package to understand the architecture.
 
-DistSpec
-^^^^^^^^
+.. currentmodule:: metasyn
 
-.. autoclass:: metasyn.varspec.DistributionSpec
-   :members:
-   :undoc-members:
-   :show-inheritance:
+Modules
+-------
 
-metasyn.config module
-^^^^^^^^^^^^^^^^^^^^^
+.. autosummary::
+   :toctree: generated
+   :recursive:
 
-.. automodule:: metasyn.config
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   config
+   demo
+   distribution
+   file
+   metaframe
+   privacy
+   registry
+   schema
+   testutils
+   util
+   validation
+   var
+   varspec
 
+Top-level classes
+-----------------
 
-metasyn.registry module
-^^^^^^^^^^^^^^^^^^^^^^^
+.. autosummary::
+   :toctree: generated
 
-.. automodule:: metasyn.registry
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   MetaFrame
+   MetaVar
+   VarSpec
 
-metasyn.var module
-^^^^^^^^^^^^^^^^^^
+Top-level functions
+-------------------
 
-.. automodule:: metasyn.var
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. autosummary::
+   :toctree: generated
 
-metasyn.testutils module
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: metasyn.testutils
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metasyn.validation module
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: metasyn.validation
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metasyn.privacy module
-^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: metasyn.privacy
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metasyn.util module
-^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: metasyn.util
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-metasyn.file module
-^^^^^^^^^^^^^^^^^^^
-.. automodule:: metasyn.file
-   :members:
-   :private-members:
-   :undoc-members:
-   :show-inheritance:
-
-metasyn.distribution.base module
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: metasyn.distribution.base
-   :members:
-   :show-inheritance:
-   :private-members:
-
+   demo_dataframe
+   demo_file
+   metadist
+   read_csv
+   read_dta
+   read_excel
+   read_sav
+   read_tsv
+   write_csv
+   write_dta
+   write_excel
+   write_sav
+   write_tsv

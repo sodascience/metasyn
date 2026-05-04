@@ -8,3 +8,6 @@ to help you get started.
 You can access it here:
    - Google Colab: `Open in Google Colab <https://colab.research.google.com/github/sodascience/metasyn/blob/main/examples/getting_started.ipynb>`__
    - GitHub: `View on GitHub <https://github.com/sodascience/metasyn/blob/main/examples/getting_started.ipynb>`__
+
+Multiple table tutorial on `Google Colab <https://colab.research.google.com/github/sodascience/metasyn/blob/main/examples/multiframe.ipynb>`__ or
+`GitHub <https://github.com/sodascience/metasyn/blob/main/examples/multiframe.ipynb>`__.

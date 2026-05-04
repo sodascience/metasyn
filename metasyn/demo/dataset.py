@@ -2,11 +2,13 @@
 
 # import random
 import string
+import warnings
 from abc import ABC, abstractmethod
 from datetime import date, datetime, time, timedelta
 from importlib.resources import files
 from pathlib import Path
 
+import faker
 import numpy as np
 import polars as pl
 
@@ -37,6 +39,9 @@ class BaseDataset(ABC):
     def file_location(self):
         return files(__package__) / f"demo_{self.name}.csv"
 
+    def get_data(self):
+        return self.get_dataframe()
+
     def get_dataframe(self):
         return pl.read_csv(self.file_location, schema_overrides=self.schema, try_parse_dates=True)
 
@@ -49,6 +54,32 @@ class BaseDataset(ABC):
     def var_specs(self):
         return []
 
+
+class BaseMultiDataset(BaseDataset):
+    """Abstract class to define a dataset with multiple tables."""
+
+    def get_data(self):
+        """Alias for get_dataframes()."""
+        return self.get_dataframes()
+
+    @property
+    @abstractmethod
+    def file_location(self):
+        pass
+
+    def get_dataframes(self):
+        """Create the dataframes (from file for example).
+
+        Returns
+        -------
+        dataframes:
+            Dictionary with dataframes.
+        """
+        return {name: pl.read_csv(path, schema_overrides=self.schema, try_parse_dates=True)
+                for name, path in self.file_location.items()}
+
+    def get_dataframe(self):
+        return self.get_dataframes()
 
 @register
 class TitanicDataset(BaseDataset):
@@ -274,6 +305,70 @@ class TestDataset(BaseDataset):
         # Write to a csv file
         pl.DataFrame(all_series).write_csv(csv_file)
 
+@register
+class ShopMultiDataset(BaseMultiDataset):
+    """An example dataset containing customers, products and purchases."""
+
+    @property
+    def name(self):
+        return "shop_multi"
+
+    @property
+    def schema(self):
+        return {}
+
+    @property
+    def file_location(self):
+        return {
+            "customers": files(__package__) / self.name / "customers.csv",
+            "products": files(__package__) / self.name / "products.csv",
+            "purchases": files(__package__) / self.name / "purchases.csv",
+        }
+
+    @classmethod
+    def create(cls, data_dir: Path, n_user: int = 200, n_product: int = 500,
+               n_purchases: int = 1000):
+        user_ids = np.unique(np.random.randint(123, 123456+100*n_user, size=2*n_user))[:n_user]
+        np.random.shuffle(user_ids)
+
+        product_ids = np.unique(np.random.randint(123, 123456+100*n_product, size=2*n_product)
+                                )[:n_product]
+        np.random.shuffle(product_ids)
+
+        fake = faker.Faker()
+        df_customers = pl.DataFrame(
+            {
+                "id": user_ids,
+                "address": [fake.address() for _ in range(n_user)],
+                "credit_card_nr": [fake.credit_card_number() for _ in range(n_user)],
+                "signup_date": [fake.date() for _ in range (n_user)]
+            }
+        )
+        df_customers
+
+        df_products = pl.DataFrame(
+            {
+                "id": product_ids,
+                "name": [fake.word() for _ in range(n_product)],
+                "current_price":  [fake.pricetag() for _ in range(n_product)],
+                "stock": np.random.randint(0, 10, size=n_product)
+            }
+        )
+
+        df_purchases = pl.DataFrame(
+            {
+                "id": np.arange(n_purchases),
+                "customer_id": df_customers["id"].sample(n_purchases, with_replacement=True,
+                                                         shuffle=True),
+                "price_paid": [fake.pricetag() for _ in range(n_purchases)],
+                "product_id": df_products["id"].sample(n_purchases, with_replacement=True,
+                                                       shuffle=True),
+            }
+        )
+        df_products.write_csv(data_dir / "products.csv")
+        df_purchases.write_csv(data_dir / "purchases.csv")
+        df_customers.write_csv(data_dir / "customers.csv")
+
 
 def _get_demo_class(name):
     if name in _AVAILABLE_DATASETS:
@@ -286,13 +381,16 @@ def _get_demo_class(name):
 def demo_file(name: str = "titanic") -> Path:
     """Get the path for a demo data file.
 
-    There are six options:
+    There are eight options:
         - titanic (Included in pandas, but post-processed to contain more columns)
         - spaceship (CC-BY from https://www.kaggle.com/competitions/spaceship-titanic)
         - synthea_imaging (CC-BY from https://synthea.mitre.org/downloads)
         - fruit (very basic example data from Polars)
         - survey (columns from ESS round 11 Human Values Scale questionnaire for the Netherlands)
         - test (columns with all supported data types)
+        - hospital (Example electronic health record hospital dataset)
+        - druguse (Example dataset with answers to an open question on study participants'
+          daily drug use)
 
     Arguments
     ---------
@@ -312,21 +410,24 @@ def demo_file(name: str = "titanic") -> Path:
     return _get_demo_class(name).file_location
 
 
-def demo_dataframe(name: str = "titanic") -> pl.DataFrame:
+def demo_data(name: str = "titanic") -> pl.DataFrame:
     """Get a demonstration dataset as a prepared polars dataframe.
 
-    There are six options:
+    There are eight options:
         - titanic (Included in pandas, but post-processed to contain more columns)
         - spaceship (CC-BY from https://www.kaggle.com/competitions/spaceship-titanic)
         - synthea_imaging (CC-BY from https://synthea.mitre.org/downloads)
         - fruit (very basic example data from Polars)
         - survey (columns from ESS round 11 Human Values Scale questionnaire for the Netherlands)
         - test (columns with all supported data types)
+        - hospital (Example electronic health record hospital dataset)
+        - druguse (Example dataset with answers to an open question on study participants'
+          daily drug use)
 
     Arguments
     ---------
     name:
-        Name of the demo dataset: spaceship, fruit, or titanic.
+        Name of the demo dataset.
 
     Returns
     -------
@@ -338,4 +439,11 @@ def demo_dataframe(name: str = "titanic") -> pl.DataFrame:
     file, edition 1.0 [Data set]. Sikt - Norwegian Agency for Shared Services in Education and
     Research. https://doi.org/10.21338/ess11e01_0
     """
-    return _get_demo_class(name).get_dataframe()
+    return _get_demo_class(name).get_data()
+
+def demo_dataframe(name: str = "titanic") -> pl.DataFrame:
+    """Legacy alias for demo_data."""
+    warnings.warn("The function demo_dataframe is deprecated in favor of demo_data.",
+                  DeprecationWarning,
+                  stacklevel=2)
+    return demo_data(name)

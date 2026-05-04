@@ -1,0 +1,177 @@
+{
+    "gmf_version": "1.1",
+    "n_rows": 5,
+    "n_columns": 5,
+    "provenance": {
+        "created by": {
+            "name": "metasyn",
+            "version": "1.1.1.dev33+g0df642883"
+        },
+        "creation time": "2025-10-15T11:10:30.997379"
+    },
+    "vars": [
+        {
+            "name": "ID",
+            "type": "discrete",
+            "dtype": "Int64",
+            "prop_missing": 0.0,
+            "distribution": {
+                "name": "core.unique_key",
+                "version": "1.0",
+                "class_name": "UniqueKeyDistribution",
+                "unique": true,
+                "parameters": {
+                    "lower": 1,
+                    "consecutive": true
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn",
+                "distribution": {
+                    "unique": true
+                },
+                "fitter": {
+                    "name": "UniqueKeyFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev33+g0df642883"
+                }
+            }
+        },
+        {
+            "name": "fruits",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "name": "core.multinoulli",
+                "version": "1.0",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "apple",
+                        "banana"
+                    ],
+                    "probs": [
+                        0.4,
+                        0.6
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "MultinoulliFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev33+g0df642883"
+                }
+            }
+        },
+        {
+            "name": "B",
+            "type": "discrete",
+            "dtype": "Int64",
+            "prop_missing": 0.0,
+            "distribution": {
+                "name": "core.uniform",
+                "version": "1.0",
+                "class_name": "DiscreteUniformDistribution",
+                "unique": false,
+                "parameters": {
+                    "lower": 1,
+                    "upper": 6
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn",
+                "distribution": {
+                    "unique": false
+                },
+                "fitter": {
+                    "name": "DiscreteUniformFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev33+g0df642883"
+                }
+            }
+        },
+        {
+            "name": "cars",
+            "type": "categorical",
+            "dtype": "Categorical",
+            "prop_missing": 0.0,
+            "distribution": {
+                "name": "core.multinoulli",
+                "version": "1.0",
+                "class_name": "MultinoulliDistribution",
+                "unique": false,
+                "parameters": {
+                    "labels": [
+                        "audi",
+                        "beetle"
+                    ],
+                    "probs": [
+                        0.2,
+                        0.8
+                    ]
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "MultinoulliFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev33+g0df642883"
+                }
+            }
+        },
+        {
+            "name": "optional",
+            "type": "discrete",
+            "dtype": "Int64",
+            "prop_missing": 0.2,
+            "distribution": {
+                "name": "core.uniform",
+                "version": "1.0",
+                "class_name": "DiscreteUniformDistribution",
+                "unique": false,
+                "parameters": {
+                    "lower": -30,
+                    "upper": 301
+                }
+            },
+            "creation_method": {
+                "created_by": "metasyn",
+                "fitter": {
+                    "name": "DiscreteUniformFitter",
+                    "privacy": {
+                        "name": "none",
+                        "parameters": {}
+                    },
+                    "version": "1.0",
+                    "plugin": "builtin",
+                    "plugin_version": "1.1.1.dev33+g0df642883"
+                }
+            }
+        }
+    ]
+}

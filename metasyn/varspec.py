@@ -1,6 +1,8 @@
 """Module for distribution and variable specifications."""
 from __future__ import annotations
 
+import inspect
+
 # from metasyn.util import VarSpec
 from dataclasses import dataclass, field
 from typing import Any, Optional, Union
@@ -78,8 +80,12 @@ class DistributionSpec():
             return cls(**dist_spec)
         if isinstance(dist_spec, DistributionSpec):
             return dist_spec
-        if issubclass(dist_spec, BaseDistribution):
+        if inspect.isclass(dist_spec) and issubclass(dist_spec, BaseDistribution):
             return cls(name=dist_spec.name, unique=dist_spec.unique)
+        if (isinstance(dist_spec, BaseFitter)
+                or (inspect.isclass(dist_spec) and issubclass(dist_spec, BaseFitter))):
+            raise TypeError(f"Supplied Fitter {dist_spec}, but you should supply a distribution "
+                            "for parsing.")
         raise TypeError("Error parsing distribution specification of unknown type "
                         f"'{type(dist_spec)}' with value '{dist_spec}'")
 

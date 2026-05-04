@@ -283,10 +283,10 @@ name = "core.truncated_normal"
 unique = false
 
 [var.distribution.parameters]
-lower = -1
-upper = 2
+lower = 2
+upper = 20
 mean = 0
-sd = 1
+sd = 50
 
 
 [[var]]
@@ -313,8 +313,8 @@ name = "core.normal"
 unique = false
 
 [var.distribution.parameters]
-mean = 0
-sd = 1
+mean = 2
+sd = 20
 
 
 [[var]]

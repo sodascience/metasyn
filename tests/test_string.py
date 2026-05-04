@@ -30,9 +30,9 @@ def test_faker(series_type):
     "series,lang,avg_sentences,avg_words", [
             (pl.Series(
                 ["hotdog", "mother", "yes", "tip", "crate",
-                 "sink", "dark", "crossbar", "toilet", "grow", "patient"]), "EN", None, 1),
+                 "sink", "dark", "crossbar", "toilet", "grow", "patient"]), "EN", 0.0, 1),
             (pl.Series(["hotdog mother", "yes tip", "crate sink", "dark crossbar", "toilet grow",
-                        "patient is"]), "EN", None, 2),
+                        "patient is"]), "EN", 0.0, 2),
             (pl.Series(["hotdog mother.", "yes tip.", "crate sink.", "dark crossbar.",
                         "toilet grow.", "patient is."]), "EN", 1, 2),
             (pl.Series(["gaat naar school. Ik ben benieuwd.", "Wat is vraag? Wanneer komt hij."]),

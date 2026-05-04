@@ -41,7 +41,7 @@ class FreeTextDistribution(BaseDistribution):
 
     """
 
-    def __init__(self, locale: str, avg_sentences: Optional[float], avg_words: float):
+    def __init__(self, locale: str, avg_sentences: float, avg_words: float):
         self.locale: str = locale
         self.avg_sentences = avg_sentences
         self.avg_words = avg_words
@@ -49,7 +49,7 @@ class FreeTextDistribution(BaseDistribution):
 
 
     def draw(self):
-        if self.avg_sentences is None:
+        if self.avg_sentences is None or self.avg_sentences < 0.01:
             n_words = max(1, poisson(self.avg_words).rvs())
             sentence = self.fake.sentence(n_words)
             return sentence[:-1]
@@ -110,7 +110,7 @@ class FreeTextFitter(BaseFitter):
         n_punctuation = len(list(PUNCTUATION.finditer(all_text)))
         n_words = len(list(LETTERS.finditer(all_text)))
         if n_punctuation < n_non_empty//3:
-            avg_sentence = None
+            avg_sentence = 0.0
         else:
             avg_sentence = n_punctuation/len(series)
         avg_words = n_words/len(series)
