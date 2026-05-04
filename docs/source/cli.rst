@@ -73,13 +73,13 @@ Here's how you can use Docker to access Metasyn's CLI:
 
 
 .. note:: 
-   You can also specify which ``metasyn`` version to use in docker, by adding a tag to the docker image. For example, to use version 1.1.0, you can use the following command:
+   You can also specify which ``metasyn`` version to use in docker, by adding a tag to the docker image. For example, to use version 2.1.0, you can use the following command:
 
    .. tab:: Installing a specific version
       
       .. code-block:: console
 
-         docker pull sodateam/metasyn:v1.1.0
+         docker pull sodateam/metasyn:v2.1.0
 
    .. tab:: Using a command on a specific version
 
@@ -87,13 +87,13 @@ Here's how you can use Docker to access Metasyn's CLI:
 
          .. code-block:: console
 
-            docker run -v %cd%:/wd sodateam/metasyn:v1.1.0 --help
+            docker run -v %cd%:/wd sodateam/metasyn:v2.1.0 --help
 
       .. tab:: Unix or MacOS:
 
          .. code-block:: console
 
-            docker run -v $(pwd):/wd sodateam/metasyn:v1.1.0 --help
+            docker run -v $(pwd):/wd sodateam/metasyn:v2.1.0 --help
 
 
 Creating generative metadata
