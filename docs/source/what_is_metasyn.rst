@@ -17,7 +17,9 @@ Below are a few possible use cases for metasyn:
 
 - A researcher who cannot share their dataset because of privacy concerns, but shares a synthetic version for reproducibility.
 - A data provider wants to show a preview of their sensitive data using synthetic versions of their datasets.
-- A developer can create synthetic data before they have real data so they can write and test data analysis scripts.
+- A developer can create synthetic data before they have real data so they can write and test data analysis scripts. 
+
+.. note: How can a developer create synthetic data without real data?
 
 Metasyn is specifically **not** designed for creating highly accurate synthetic data, where all relationships between columns are reproduced.
 
@@ -32,6 +34,21 @@ Key features
 - **Structured String Detection**: Metasyn identifies structured strings within your dataset, which can include formatted text, codes, identifiers, or any string that follows a specific pattern.
 - **Handling Unique Values**: Metasyn can identify and process variables with unique values or keys in the data, preserving their uniqueness in the synthetic dataset.
 
+How does metasyn work?
+----------------------
+
+Metasyn generates synthetic data by fitting models to each column independently based on the column's data type, then it uses those models to generate new synthetic data.
+
+It starts with a tidy dataframe, meaning each column has the correct data type (categorical, numeric, datetime, etc.), and missing data represented as missing values. Next, metasyn models each column independently, 
+which is known as marginal independence. For each column, metasyn considers multiple candidate distributions based on the column's data type and optionally with additional privacy constraints. 
+After fitting all candidate distributions to the data, it selects the best-fitting one.
+
+.. note: need to add examples of distributions?
+.. note: do we want to explain best-fitting based on what?
+
+
+Once the MetaFrame is created, metasyn generates synthetic data by randomly sampling values from the fitted distribution. 
+Finally, you can save your MetaFrame to a file (as JSON or TOML format).
 
 For more detail on how metasyn works, see our `paper <https://github.com/sodascience/metasyn/blob/main/docs/paper/paper.pdf>`_.
 
