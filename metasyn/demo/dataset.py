@@ -1,6 +1,6 @@
 """Create and retrieve demo datasets."""
+from __future__ import annotations
 
-# import random
 import string
 import warnings
 from abc import ABC, abstractmethod
@@ -14,7 +14,7 @@ import polars as pl
 
 from metasyn.varspec import VarSpec
 
-_AVAILABLE_DATASETS = {}
+_AVAILABLE_DATASETS: dict[str, BaseDataset] = {}
 
 
 def register(*args):
