@@ -40,11 +40,24 @@ Metasyn generates synthetic data by fitting models to each column independently 
 
 It starts with a tidy dataframe, meaning each column has the correct data type (categorical, numeric, datetime, etc.), and missing data represented as missing values. Next, metasyn models each column independently, 
 which is known as marginal independence. For each column, metasyn considers multiple candidate distributions based on the column's data type and optionally with additional privacy constraints. 
-After fitting all candidate distributions to the data, it selects the best-fitting one.
 
-.. note: need to add examples of distributions?
-.. note: do we want to explain best-fitting based on what?
+.. list-table:: Candidate distributions by data type
+   :header-rows: 1
 
+   * - Data type
+     - Candidate distributions
+   * - Categorical
+     - Categorical, Constant
+   * - Continuous
+     - Uniform, Normal, LogNormal, TruncatedNormal, Exponential, Constant
+   * - Discrete
+     - Poisson, Uniform, Normal, TruncatedNormal, Categorical, Constant
+   * - String
+     - Regex, Categorical, Faker, FreeText, Constant
+   * - Date/time
+     - Uniform, Constant
+
+After fitting all candidate distributions to the data, it selects the best-fitting one using a `BIC <https://en.wikipedia.org/wiki/Bayesian_information_criterion>`_ (or pseudo-BIC when not applicable).
 
 Once the MetaFrame is created, metasyn generates synthetic data by randomly sampling values from the fitted distribution. 
 Finally, you can save your MetaFrame to a file (as JSON or TOML format).
