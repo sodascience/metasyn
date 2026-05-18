@@ -9,7 +9,7 @@ from typing import Any, Optional, Type, Union
 import polars as pl
 from tqdm import tqdm
 
-_AVAILABLE_FILE_INTERFACES = {}
+_AVAILABLE_FILE_INTERFACES: dict[str, type[BaseFileInterface]] = {}
 
 
 def fileinterface(*args):
