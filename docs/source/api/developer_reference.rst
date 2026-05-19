@@ -16,13 +16,14 @@ Modules
    demo
    distribution
    file
+   gmf
    metaframe
+   multiframe
    privacy
    registry
    schema
    testutils
    util
-   validation
    var
    varspec
 
@@ -33,6 +34,7 @@ Top-level classes
    :toctree: generated
 
    MetaFrame
+   MultiFrame
    MetaVar
    VarSpec
 
@@ -42,6 +44,7 @@ Top-level functions
 .. autosummary::
    :toctree: generated
 
+   demo_data
    demo_dataframe
    demo_file
    metadist
