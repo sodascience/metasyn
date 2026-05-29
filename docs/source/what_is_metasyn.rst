@@ -64,8 +64,9 @@ Finally, you can save your MetaFrame to a file (as JSON or TOML format).
 
 For more detail on how metasyn works, see our `paper <https://github.com/sodascience/metasyn/blob/main/docs/paper/paper.pdf>`_.
 
-Additionally, metasyn supports generation of synthetic data across related tables, allowing you to fit multiple tables while preserving primary and foreign key relationships between them, 
-ensuring that the synthetic data mimics the structure and relationships of your original data.
+Additionally, metasyn supports generation of synthetic data across related tables. The above process is applied to each table independently, and the relationships between tables can be preserved through defining primary and foreign key information (subset, equal, or equal ordered). After synthesizing the tables, the primary column is used to (re)generate the foreign column according to the specified relationship.
+
+A detailed explanation of how multiple table generation works can be found :doc:`here <multiframe>`.
 
 .. _metaframes and GMF:
 
