@@ -16,13 +16,13 @@ Modules
    demo
    distribution
    file
+   gmf
    metaframe
    privacy
    registry
    schema
    testutils
    util
-   validation
    var
    varspec
 

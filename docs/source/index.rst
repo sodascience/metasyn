@@ -48,6 +48,7 @@ for data owners to share the structure and approximation of the content of their
    improve_synth
    datafree
    multiframe
+   privacy_guide
 
 .. toctree::
    :hidden:
