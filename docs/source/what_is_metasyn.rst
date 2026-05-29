@@ -33,8 +33,40 @@ Key features
 - **Handling Unique Values**: Metasyn can identify and process variables with unique values or keys in the data, preserving their uniqueness in the synthetic dataset.
 - **Multiple table support**: Metasyn supports the synthesis of multiple tables at the same time. Primary/foreign key relations can be preserved so that the synthetic tables can be joined correctly.
 
+How does metasyn work?
+----------------------
+
+Metasyn generates synthetic data by fitting models to each column independently based on the column's data type, then it uses those models to generate new synthetic data.
+
+It starts with a tidy dataframe, meaning each column has the correct data type (categorical, numeric, datetime, etc.), and missing data represented as missing values. Next, metasyn models each column independently, 
+which is known as marginal independence. For each column, metasyn considers multiple candidate distributions based on the column's data type and optionally with additional privacy constraints. 
+
+.. list-table:: Candidate distributions by data type
+   :header-rows: 1
+
+   * - Data type
+     - Candidate distributions
+   * - Categorical
+     - Categorical, Constant
+   * - Continuous
+     - Uniform, Normal, LogNormal, TruncatedNormal, Exponential, Constant
+   * - Discrete
+     - Poisson, Uniform, Normal, TruncatedNormal, Categorical, Constant
+   * - String
+     - Regex, Categorical, Faker, FreeText, Constant
+   * - Date/time
+     - Uniform, Constant
+
+After fitting all candidate distributions to the data, it selects the best-fitting one using a `BIC <https://en.wikipedia.org/wiki/Bayesian_information_criterion>`_ (or pseudo-BIC when not applicable).
+
+Once the MetaFrame is created, metasyn generates synthetic data by randomly sampling values from the fitted distribution. 
+Finally, you can save your MetaFrame to a file (as JSON or TOML format).
 
 For more detail on how metasyn works, see our `paper <https://github.com/sodascience/metasyn/blob/main/docs/paper/paper.pdf>`_.
+
+Additionally, metasyn supports generation of synthetic data across related tables. The above process is applied to each table independently, and the relationships between tables can be preserved through defining primary and foreign key information (subset, equal, or equal ordered). After synthesizing the tables, the primary column is used to (re)generate the foreign column according to the specified relationship.
+
+A detailed explanation of how multiple table generation works can be found :doc:`here <multiframe>`.
 
 .. _metaframes and GMF:
 
