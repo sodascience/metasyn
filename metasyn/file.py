@@ -86,7 +86,7 @@ class BaseFileInterface(ABC):
         raise NotImplementedError("Write synthetic is not implemented for the BaseFileInterface.")
 
     def write_file(self, df: pl.DataFrame, fp: Union[None, Path, str] = None,
-                        overwrite: bool = False):
+                        overwrite: bool = False, file_prefix: str = ""):
         """Write the synthetic dataframe to a file.
 
         Parameters
@@ -105,11 +105,12 @@ class BaseFileInterface(ABC):
         FileExistsError
             If the file already exists and the overwrite argument is False.
         """
-        fp = self.check_filename(fp, overwrite=overwrite)
+        fp = self.check_filename(fp, overwrite=overwrite, file_prefix=file_prefix)
         self._write_file(df, fp)
 
     def check_filename(self,  fp: Union[None, Path, str] = None,
-                        overwrite: bool = False) -> Union[Path, str]:
+                        overwrite: bool = False,
+                        file_prefix: str = "") -> Union[Path, str]:
         """Check whether the filename can be written to.
 
         Parameters
@@ -131,7 +132,7 @@ class BaseFileInterface(ABC):
             If the parent directory of fp does not exist.
         """
         if fp is None:
-            fp = self.file_name
+            fp = file_prefix + self.file_name
         if Path(fp).is_file() and not overwrite:
             raise FileExistsError(f"File '{fp}' already exists, choose a different name or write "
                                   "to a different directory.")
