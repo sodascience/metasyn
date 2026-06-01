@@ -101,7 +101,127 @@ class BaseFitter(ABC):
             "plugin_version": self.plugin_version,
         }
 
-class BaseDistribution(ABC):
+class DistributionLike(ABC):
+    def __add__(self, other):
+        return ArithmeticDistribution(self, other, op_type="+")
+
+    def __radd__(self, other):
+        return ArithmeticDistribution(other, self, op_type="+")
+
+    def __mul__(self, other):
+        return ArithmeticDistribution(self, other, op_type="*")
+
+    def __rmul__(self, other):
+        return ArithmeticDistribution(other, self, op_type="*")
+
+    def __eq__(self, other):
+        return EqualsCondition(self, other)
+
+    @property
+    def dependencies(self) -> set:
+        return set()
+
+    @abstractmethod
+    def draw_reset(self):
+        pass
+
+    @abstractmethod
+    def draw_list(self):
+        pass
+
+class EqualsCondition(DistributionLike):
+    def __init__(self, left_operand, right_operand):
+        self.left_operand = left_operand
+        self.right_operand = right_operand
+
+    def draw_reset(self):
+        self.left_operand.draw_reset()
+        self.right_operand.draw_reset()
+
+
+    def draw_list(self, n, synth_dict):
+        left_list = self.left_operand.draw_list(n, synth_dict)
+        right_list = self.right_operand.draw_list(n, synth_dict)
+        return [left == right for left, right in zip(left_list, right_list)]
+
+    @property
+    def dependencies(self):
+        return self.left_operand.dependencies | self.right_operand.dependencies
+
+class IfThenElse(DistributionLike):
+    def __init__(self, condition: DistributionLike, then_operand: DistributionLike,
+                 else_operand: DistributionLike):
+        self.condition = condition
+        self.then_operand = then_operand
+        self.else_operand = else_operand
+
+    def draw_reset(self):
+        self.condition.draw_reset()
+        self.then_operand.draw_reset()
+        self.else_operand.draw_reset()
+
+    @property
+    def dependencies(self):
+        return self.then_operand.dependencies | self.condition.dependencies | self.else_operand.dependencies
+
+    def draw_list(self, n, synth_dict):
+        return [then_val if cond else else_val for cond, then_val, else_val in
+                zip(self.condition.draw_list(n, synth_dict),
+                    self.then_operand.draw_list(n, synth_dict),
+                    self.else_operand.draw_list(n, synth_dict))]
+
+class ArithmeticDistribution(DistributionLike):
+    def __init__(self, left_operand, right_operand, op_type):
+        self.left_operand = left_operand
+        self.right_operand = right_operand
+        self.op_type = op_type
+
+    def draw_series(self, n, data_cache):
+        left_series = self.left_operand.draw_series(n, data_cache)
+        right_series = self.right_operand.draw_series(n, data_cache)
+        if self.op_type == "*":
+            return left_series*right_series
+        elif self.op_type == "+":
+            return left_series + right_series
+
+    def draw_reset(self):
+        self.left_operand.draw_reset()
+        self.right_operand.draw_reset()
+
+    @property
+    def dependencies(self) -> set:
+        return self.left_operand.dependencies | self.right_operand.dependencies
+
+    def draw_list(self, n, synth_dict):
+        left_list = self.left_operand.draw_list(n, synth_dict)
+        right_list = self.right_operand.draw_list(n, synth_dict)
+        if self.op_type == "*":
+            return [x*y for x, y in zip(left_list, right_list)]
+        if self.op_type == "+":
+            return [x+y for x, y in zip(left_list, right_list)]
+
+
+class ColumnReference(DistributionLike):
+    def __init__(self, name):
+        self.name = name
+
+    def draw_list(self, n, synth_dict):
+        return synth_dict[self.name].to_list()
+
+    @property
+    def dependencies(self) -> set:
+        return set([self.name])
+
+    def draw_reset(self):
+        pass
+    # def synthesize(self, n, var_args):
+        # synth_dict = var_args[0]
+        # ref_var_or_series = synth_dict[self.name]
+        # if isinstance(ref_var_or_series, 
+        # return synth_dict
+
+
+class BaseDistribution(DistributionLike):
     """Abstract base class to define a distribution.
 
     All distributions should be derived from this class, and should implement
@@ -144,6 +264,21 @@ class BaseDistribution(ABC):
             f"- Parameters:\n"
             f"{self._params_formatted}\n"
         )
+
+    # def __add__(self, other):
+    #     return ArithmeticDistribution(self, other, op_type="+")
+
+    # def __radd__(self, other):
+    #     return ArithmeticDistribution(other, self, op_type="+")
+
+    # def __mul__(self, other):
+    #     return ArithmeticDistribution(self, other, op_type="*")
+
+    # def __rmul__(self, other):
+    #     return ArithmeticDistribution(other, self, op_type="*")
+
+    def __equals__(self, other):
+        return EqualsCondition(self, other)
 
     @abstractmethod
     def _param_dict(self):
@@ -230,7 +365,7 @@ class BaseDistribution(ABC):
         """Get a distribution with default parameters."""
         return cls()
 
-    def draw_list(self, n: int) -> list:
+    def draw_list(self, n: int, synth_dict: dict) -> list:
         """Draw a list of values from the distribution.
 
         Parameters
@@ -247,7 +382,7 @@ class BaseDistribution(ABC):
         -------
             List of values.
         """
-        raise NotImplementedError()
+        return [self.draw() for _ in range(n)]
 
 def metadist(
         name: Optional[str] = None,
@@ -446,7 +581,7 @@ class ScipyDistribution(BaseDistribution):
             return int(val)
         return val
 
-    def draw_list(self, n: int) -> list:
+    def draw_list(self, n: int, synth_dict: dict) -> list:
         values = self.dist.rvs(n)
         if self.var_type == "discrete":
             values = values.astype(np.int64)
