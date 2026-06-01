@@ -110,7 +110,7 @@ class BaseFileInterface(ABC):
 
     def check_filename(self,  fp: Union[None, Path, str] = None,
                         overwrite: bool = False,
-                        file_prefix: str = "") -> Union[Path, str]:
+                        file_prefix: str = "") -> Path:
         """Check whether the filename can be written to.
 
         Parameters
@@ -137,15 +137,15 @@ class BaseFileInterface(ABC):
             raise FileExistsError(f"File '{fp}' already exists, choose a different name or write "
                                   "to a different directory.")
         elif Path(fp).is_dir():
-            fp = Path(fp) / self.file_name
+            fp = Path(fp) / (file_prefix + self.file_name)
         elif not Path(fp).parent.is_dir():
             raise FileNotFoundError(f"Parent directory does not exist for '{fp}'.")
-        return fp
+        return Path(fp)
 
     @classmethod
     @abstractmethod
     def default_interface(cls, fp: Union[Path, str]):
-        """Create a defeault interface with the most likely settings for writing.
+        """Create a default interface with the most likely settings for writing.
 
         Parameters
         ----------
@@ -160,7 +160,7 @@ class BaseFileInterface(ABC):
 
     @classmethod
     @abstractmethod
-    def read_file(cls, fp: Union[Path, str]):
+    def read_file(cls, fp: Union[Path, str]) -> tuple[pl.DataFrame, BaseFileInterface]:
         """Create a file interface from a path.
 
         Parameters

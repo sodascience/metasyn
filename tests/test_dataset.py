@@ -14,6 +14,7 @@ from metasyn.demo.dataset import (
     demo_data,
     demo_file,
 )
+from metasyn.file import CsvFileInterface
 from metasyn.metaframe import MetaFrame
 from metasyn.multiframe import MultiFrame
 from metasyn.privacy import BasicPrivacy
@@ -52,6 +53,7 @@ def test_dataset(tmp_path, dataframe_lib):
     titanic_fp = Path("tests", "data", "titanic.csv")
     tmp_fp = tmp_path / "tmp.json"
     df = _read_csv(titanic_fp, dataframe_lib)
+    _, file_format = CsvFileInterface.read_file(titanic_fp)
     dataset = MetaFrame.fit_dataframe(
         df,
         var_specs=[
@@ -59,7 +61,8 @@ def test_dataset(tmp_path, dataframe_lib):
                 {"name": "Ticket", "description": "test_description"},
                 {"name": "Fare", "distribution": {"name": "normal"}},
                 {"name": "PassengerId", "distribution": {"unique": True}},
-             ])
+             ],
+        file_format=file_format)
 
     def check_dataset(dataset):
         assert dataset.n_columns == 12
@@ -113,9 +116,16 @@ def test_dataset(tmp_path, dataframe_lib):
     assert isinstance(repr(dataset), str)
 
     # Check whether non-columns raise an error
-    with pytest.raises(KeyError):
-        dataset = MetaFrame.fit_dataframe(df, var_specs=[{"name": "unicorn", "prop_missing": 0.5}])
+    with pytest.raises(ValueError):
+        _bad_dataset = MetaFrame.fit_dataframe(df, var_specs=[{"name": "unicorn", "prop_missing": 0.5}])
 
+    dest_path = file_format.check_filename(fp=tmp_path, file_prefix="syn_")
+    dataset.write_synthetic(file_name=tmp_path, file_prefix="syn_", column_prefix="SYNTHETIC_")
+    out_path = Path(tmp_path) / "syn_titanic.csv"
+    assert out_path == dest_path
+    assert out_path.is_file()
+    new_df = pl.read_csv(out_path)
+    assert "SYNTHETIC_PassengerId" in new_df.columns
 
 def test_distributions(tmp_path):
     """Create all available distributions and save a metaframe with it."""

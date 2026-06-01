@@ -496,7 +496,8 @@ class MetaFrame:
                 " Use write_synthetic(..., file_format=your_file_handler.to_dict())"
             )
         file_handler = file_interface_from_dict(self.file_format)
-        file_handler.check_filename(file_name, overwrite=overwrite, file_prefix=file_prefix)  # Check filename before synth
+        # Check whether file exists before synthesis
+        file_handler.check_filename(file_name, overwrite=overwrite, file_prefix=file_prefix)
         syn_df = self.synthesize(n, seed, column_prefix=column_prefix)
         file_handler.write_file(syn_df, file_name, overwrite=overwrite, file_prefix=file_prefix)
 
