@@ -101,6 +101,35 @@ class BaseFitter(ABC):
             "plugin_version": self.plugin_version,
         }
 
+class EqualsCondition():
+    def __init__(self, left_operand, right_operand):
+        self.left_operand = left_operand
+        self.right_operand = right_operand
+
+    
+
+class ArithmeticDistribution():
+    def __init__(self, left_operand, right_operand, op_type):
+        self.left_operand = left_operand
+        self.right_operand = right_operand
+        self.op_type = op_type
+
+    def __add__(self, other):
+        return self.__class__(self, other, op_type="+")
+
+    def __radd__(self, other):
+        return self.__class__(other, self, op_type="+")
+
+    def __mul__(self, other):
+        return self.__class__(self, other, op_type="*")
+
+    def __rmul__(self, other):
+        return self.__class__(other, self, op_type="*")
+
+    def draw(self):
+        return self.left_operand.draw()*self.right_operand.draw()
+
+
 class BaseDistribution(ABC):
     """Abstract base class to define a distribution.
 
@@ -144,6 +173,21 @@ class BaseDistribution(ABC):
             f"- Parameters:\n"
             f"{self._params_formatted}\n"
         )
+
+    def __add__(self, other):
+        return ArithmeticDistribution(self, other, op_type="+")
+
+    def __radd__(self, other):
+        return ArithmeticDistribution(other, self, op_type="+")
+
+    def __mul__(self, other):
+        return ArithmeticDistribution(self, other, op_type="*")
+
+    def __rmul__(self, other):
+        return ArithmeticDistribution(other, self, op_type="*")
+
+    def __equals__(self, other):
+        return EqualsCondition(self, other)
 
     @abstractmethod
     def _param_dict(self):
