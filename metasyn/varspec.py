@@ -26,10 +26,10 @@ class DistributionSpec():
 
     name: Optional[str] = None
     unique: Optional[bool] = None
-    parameters: Optional[dict] = None
-    fit_kwargs: dict = field(default_factory=dict)
-    version: Optional[str] = None
-    distribution: Optional[BaseDistribution] = None
+    # parameters: Optional[dict] = None
+    # fit_kwargs: dict = field(default_factory=dict)
+    # version: Optional[str] = None
+    # distribution: Optional[BaseDistribution] = None
 
     def __post_init__(self):
         if self.name is None:
@@ -68,10 +68,10 @@ class DistributionSpec():
         TypeError
             If the input has the wrong type and cannot be parsed.
         """
-        if isinstance(dist_spec, BaseDistribution):
-            dist_dict = {key: value for key, value in dist_spec.to_dict().items()
-                         if key in ["name", "version", "unique", "parameters"]}
-            return cls(**dist_dict, distribution=dist_spec)
+        # if isinstance(dist_spec, BaseDistribution):
+        #     dist_dict = {key: value for key, value in dist_spec.to_dict().items()
+        #                  if key in ["name", "version", "unique", "parameters"]}
+        #     return cls(**dist_dict, distribution=dist_spec)
         if isinstance(dist_spec, str):
             return cls(name=dist_spec, unique=unique)
         if dist_spec is None:

@@ -106,7 +106,6 @@ class EqualsCondition():
         self.left_operand = left_operand
         self.right_operand = right_operand
 
-    
 
 class ArithmeticDistribution():
     def __init__(self, left_operand, right_operand, op_type):
@@ -126,11 +125,36 @@ class ArithmeticDistribution():
     def __rmul__(self, other):
         return self.__class__(other, self, op_type="*")
 
-    def draw(self):
-        return self.left_operand.draw()*self.right_operand.draw()
+    def draw_series(self, n, data_cache):
+        left_series = self.left_operand.draw_series(n, data_cache)
+        right_series = self.right_operand.draw_series(n, data_cache)
+        if self.op_type == "*":
+            return left_series*right_series
+        elif self.op_type == "+":
+            return left_series + right_series
+
+class DistributionLike():
+    def __add__(self, other):
+        return ArithmeticDistribution(self, other, op_type="+")
+
+    def __radd__(self, other):
+        return ArithmeticDistribution(other, self, op_type="+")
+
+    def __mul__(self, other):
+        return ArithmeticDistribution(self, other, op_type="*")
+
+    def __rmul__(self, other):
+        return ArithmeticDistribution(other, self, op_type="*")
+
+class ColumnDistribution():
+    def __init__(self, name):
+        self.name = name
+
+    def draw_series(self, n, data_cache):
+        return data_cache[self.name]
 
 
-class BaseDistribution(ABC):
+class BaseDistribution(ABC, DistributionLike):
     """Abstract base class to define a distribution.
 
     All distributions should be derived from this class, and should implement
@@ -174,17 +198,17 @@ class BaseDistribution(ABC):
             f"{self._params_formatted}\n"
         )
 
-    def __add__(self, other):
-        return ArithmeticDistribution(self, other, op_type="+")
+    # def __add__(self, other):
+    #     return ArithmeticDistribution(self, other, op_type="+")
 
-    def __radd__(self, other):
-        return ArithmeticDistribution(other, self, op_type="+")
+    # def __radd__(self, other):
+    #     return ArithmeticDistribution(other, self, op_type="+")
 
-    def __mul__(self, other):
-        return ArithmeticDistribution(self, other, op_type="*")
+    # def __mul__(self, other):
+    #     return ArithmeticDistribution(self, other, op_type="*")
 
-    def __rmul__(self, other):
-        return ArithmeticDistribution(other, self, op_type="*")
+    # def __rmul__(self, other):
+    #     return ArithmeticDistribution(other, self, op_type="*")
 
     def __equals__(self, other):
         return EqualsCondition(self, other)

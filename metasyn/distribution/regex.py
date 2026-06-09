@@ -90,7 +90,7 @@ class RegexDistribution(BaseDistribution):
     def information_criterion(self, values):
         mean_len = values.str.len_chars().mean()
         diff = ((values.str.len_chars() - mean_len)**2).mean()
-        if mean_len > 3 and diff < 1:
+        if mean_len is None or mean_len > 3 and diff < 1:
             return -2
         return 0
 
