@@ -32,7 +32,7 @@ class BaseConstantDistribution(BaseDistribution):
 
     def information_criterion(self, values):
         vals = convert_to_series(values)
-        return -np.inf if vals.n_unique() < 2 else np.inf
+        return -np.inf if vals.n_unique() == 1 else np.inf
 
 
 class BaseConstantFitter(BaseFitter):

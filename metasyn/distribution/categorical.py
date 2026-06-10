@@ -75,6 +75,8 @@ class MultinoulliDistribution(BaseDistribution):
                               values: Union[pl.Series, npt.NDArray]
                               ) -> float:
         series = convert_to_series(values)
+        if len(series) == 0:
+            return 9999999
         labels, counts = np.unique(series, return_counts=True)
         log_lik = 0.0
         pdict = dict(zip(self.labels, self.probs))

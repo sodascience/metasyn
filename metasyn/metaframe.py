@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import pathlib
+from collections import defaultdict
 from datetime import datetime
 from importlib.metadata import version
 from pathlib import Path
@@ -28,6 +29,50 @@ from metasyn.util import set_global_seeds
 from metasyn.var import MetaVar
 from metasyn.varspec import VarSpec
 
+
+class DependencyGraph():
+    def __init__(self):
+        self.dependency_of  = defaultdict(set)
+        self.depends_on = {}
+        self.queue = []
+
+    def add(self, name: str, depends_on: list[str]):
+        self.depends_on[name] = depends_on
+        for other_name in depends_on:
+            self.dependency_of[other_name].add(name)
+        if len(depends_on) == 0:
+            self.queue.append(name)
+
+    def __iter__(self):
+        while len(self) > 0:
+            name = self.queue.pop()
+            for dependency_col in self.dependency_of[name]:
+                self.depends_on[dependency_col].remove(name)
+                if len(self.depends_on[dependency_col]) == 0:
+                    self.queue.append(dependency_col)
+            self.depends_on.pop(name)
+            self.dependency_of.pop(name, None)
+            yield name
+
+    # def next_column(self):
+    #     name = self.queue.pop()
+    #     self.running.add(op_id)
+    #     return op_id
+
+    # def finish_op(self, op_id):
+    #     self.running.remove(op_id)
+    #     for dep_op_id in self.dependency_of[op_id]:
+    #         self.depends_on[dep_op_id].remove(op_id)
+    #         if len(self.depends_on[dep_op_id]) == 0:
+    #             self.queue.append(dep_op_id)
+    #     self.depends_on.pop(op_id)
+    #     self.dependency_of.pop(op_id, None)
+
+    def __str__(self):
+        return f"{self.queue} {self.depends_on} {self.dependency_of}"
+
+    def __len__(self):
+        return len(self.depends_on)
 
 class MetaFrame:
     """Container for statistical metadata describing a dataset.
@@ -546,12 +591,20 @@ class MetaFrame:
         if seed is not None:
             set_global_seeds(seed)
 
+        dep_graph = DependencyGraph()
+        for var in self.meta_vars:
+            dep_graph.add(var.name, var.distribution.dependencies)
+
         synth_dict = {}
-        for var in (pbar := tqdm(self.meta_vars, disable=not progress_bar, unit="variables")):
+        for name in  (pbar := tqdm(dep_graph, disable=not progress_bar, unit="variables")):
+        # for var in (pbar := tqdm(self.meta_vars, disable=not progress_bar, unit="variables")):
+            var = self.meta_vars[[x.name for x in self.meta_vars].index(name)]
             desc = var.name[:5] + "…" + var.name[-6:] if len(var.name) > 11 else var.name
             pbar.set_description(f"{desc:>12}")
-            synth_dict[var.name] = var.draw_series(n, seed=None, progress_bar=progress_bar)
+            synth_dict[var.name] = var.draw_series(n, synth_dict, seed=None, progress_bar=progress_bar)
+            # print(dep_graph)
 
+        synth_dict = {var.name: synth_dict[var.name] for var in self.meta_vars}
         return pl.DataFrame(synth_dict)
 
     def write_synthetic(

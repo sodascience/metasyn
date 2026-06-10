@@ -43,7 +43,9 @@ class VarBuilder():
     @property
     def var_type(self):
         distribution = {} if self.distribution is None else self.distribution
-        return distribution.get("var_type", get_var_type(self.series))
+        if isinstance(distribution, dict):
+            return distribution.get("var_type", get_var_type(self.series))
+        return get_var_type(self.series)
 
     @property
     def dtype(self):
@@ -183,12 +185,6 @@ class UnqFindDistributionRecipe():
             )
         return dist, fitter
 
-class ColumnReference(DistributionLike):
-    def __init__(self, name):
-        self.name = name
-
-    def fit(self):
-        pass
 
 
 # class ColumnReferenceRecipe():

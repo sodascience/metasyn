@@ -186,7 +186,7 @@ class MetaVar:
             return None
         return self.distribution.draw()
 
-    def draw_series(self, n: int, seed: Optional[int], progress_bar: bool = True) -> pl.Series:
+    def draw_series(self, n: int, synth_dict, seed: Optional[int], progress_bar: bool = True) -> pl.Series:
         """Draw a new synthetic series from the metadata.
 
         Parameters
@@ -208,18 +208,18 @@ class MetaVar:
 
         self.distribution.draw_reset()
 
-        is_not_na = np.random.rand(n) >= self.prop_missing
-        n_draw: int = np.sum(is_not_na)  # type: ignore
-        try:
-            not_na_values = self.distribution.draw_list(n_draw)
-        except NotImplementedError:
-            not_na_values = [self.distribution.draw()
-                             for _ in tqdm(range(n_draw), disable=not progress_bar, leave=False,
-                                           desc="synthesizing")]
+        # is_not_na = np.random.rand(n) >= self.prop_missing
+        # n_draw: int = np.sum(is_not_na)  # type: ignore
+        # try:
+        value_list = self.distribution.draw_list(n, synth_dict)
+        # except NotImplementedError:
+            # not_na_values = [self.distribution.draw()
+                            #  for _ in tqdm(range(n_draw), disable=not progress_bar, leave=False,
+                                        #    desc="synthesizing")]
 
         # Mix the values with Nones
-        cum_not_na = np.cumsum(is_not_na)
-        value_list = [not_na_values[cum_not_na[i]-1] if is_not_na[i] else None for i in range(n)]
+        # cum_not_na = np.cumsum(is_not_na)
+        # value_list = [not_na_values[cum_not_na[i]-1] if is_not_na[i] else None for i in range(n)]
         pl_type = self.dtype.split("(")[0]
 
         # Workaround for polars issue with numpy 2.0
@@ -228,6 +228,57 @@ class MetaVar:
 
         # Some dtypes have extra information, discard that
         return pl.Series(value_list, dtype=getattr(pl, pl_type))
+
+    def fill_synthetic(self, n: int, synth_dict: dict, seed: Optional[int], progress_bar: bool = True) -> pl.Series:
+        """Draw a new synthetic series from the metadata.
+
+        Parameters
+        ----------
+        n:
+            Length of the series to be created.
+        seed:
+            Seed value for the internal random number generator. Set this to ensure reproducibility.
+        progress_bar:
+            Whether to display a progress bar.
+
+        Returns
+        -------
+        polars.Series:
+            Polars series with the synthetic data.
+        """
+        # if self.name not in synth_dict:
+            # raise ValueError(f"Cannot synthesize variable {self.name}. Did you create looping dependencies between columns?")
+        # Check if the column has already been synthesized.
+        # if isinstance(synth_dict[self.name], pl.Series):
+            # return
+        synth_dict.pop(self.name)
+
+        if seed is not None:
+            set_global_seeds(seed)
+
+        self.distribution.draw_reset()
+        value_list = self.distribution.draw_list(n, synth_dict)
+        # is_not_na = np.random.rand(n) >= self.prop_missing
+        # n_draw: int = np.sum(is_not_na)  # type: ignore
+        # try:
+        #     not_na_values = self.distribution.draw_list(n_draw)
+        # except NotImplementedError:
+        #     not_na_values = [self.distribution.draw()
+        #                      for _ in tqdm(range(n_draw), disable=not progress_bar, leave=False,
+        #                                    desc="synthesizing")]
+
+        # Mix the values with Nones
+        # cum_not_na = np.cumsum(is_not_na)
+        # value_list = [not_na_values[cum_not_na[i]-1] if is_not_na[i] else None for i in range(n)]
+        pl_type = self.dtype.split("(")[0]
+
+        # Workaround for polars issue with numpy 2.0
+        if pl_type == "Boolean":
+            value_list = [None if x is None else bool(x) for x in value_list]
+
+        # Some dtypes have extra information, discard that
+        return pl.Series(value_list, dtype=getattr(pl, pl_type))
+
 
     @classmethod
     def from_dict(
