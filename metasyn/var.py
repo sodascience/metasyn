@@ -82,7 +82,8 @@ class MetaVar:
             if self.var_type == "categorical":
                 self.dtype = "Categorical"
             else:
-                self.dtype = str(pl.Series([self.distribution.draw()]).dtype)
+                self.dtype = None
+                # self.dtype = str(pl.Series([self.distribution.draw()]).dtype)
 
     def to_dict(self) -> Dict[str, Any]:
         """Create a dictionary from the variable."""
@@ -212,6 +213,8 @@ class MetaVar:
         # n_draw: int = np.sum(is_not_na)  # type: ignore
         # try:
         value_list = self.distribution.draw_list(n, synth_dict)
+        if self.dtype is None:
+            self.dtype = str(pl.Series(value_list).dtype)
         # except NotImplementedError:
             # not_na_values = [self.distribution.draw()
                             #  for _ in tqdm(range(n_draw), disable=not progress_bar, leave=False,

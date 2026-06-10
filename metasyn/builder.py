@@ -49,7 +49,9 @@ class VarBuilder():
 
     @property
     def dtype(self):
-        return str(self.series.dtype)
+        if self.series is not None:
+            return str(self.series.dtype)
+        return "unknown"
 
     @property
     def recipe(self):
@@ -69,6 +71,8 @@ class VarBuilder():
     def fit(self):
         if self.prop_missing is None:
             prop_missing = (len(self.series) - len(self.series.drop_nulls())) / len(self.series)
+        else:
+            prop_missing = self.prop_missing
         return MetaVar(self.name, self.var_type, self.recipe.fit()[0], self.dtype, self.description,
                        prop_missing, creation_method="metasyn")
 
@@ -107,6 +111,11 @@ class MetaFrameBuilder():
         for col in df.columns:
             self.var_builders[col] = VarBuilder(col, self)
             self.var_builders[col].series = df[col]
+
+    def add_column(self, name):
+        self.var_builders[name] = VarBuilder(name, self)
+        self.columns.append(name)
+        self.var_builders[name].prop_missing = 0.0
 
     def set_privacy(self, privacy):
         if isinstance(privacy, dict):

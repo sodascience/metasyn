@@ -85,6 +85,7 @@ builtin_fitters = [
 ]
 
 __all__ = [
+    "MetaFrameBuilder",
     "MultinoulliDistribution",
     "ExponentialDistribution",
     "LogNormalDistribution",
