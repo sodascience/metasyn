@@ -20,6 +20,7 @@ from abc import ABC, abstractmethod
 from copy import deepcopy
 from importlib import metadata
 from typing import Any, Optional, Sequence, Union
+from dataclasses import dataclass, fields
 
 import numpy as np
 import polars as pl
@@ -103,19 +104,28 @@ class BaseFitter(ABC):
 
 class DistributionLike(ABC):
     def __add__(self, other):
-        return ArithmeticDistribution(self, other, op_type="+")
+        return PlusOperator(self, other)
 
     def __radd__(self, other):
-        return ArithmeticDistribution(other, self, op_type="+")
+        return PlusOperator(other, self)
 
     def __mul__(self, other):
-        return ArithmeticDistribution(self, other, op_type="*")
+        return MultiplyOperator(self, other)
 
     def __rmul__(self, other):
-        return ArithmeticDistribution(other, self, op_type="*")
+        return MultiplyOperator(other, self)
+
+    def __sub__(self, other):
+        return SubOperator(self, other)
+
+    def __rsub__(self, other):
+        return SubOperator(other, self)
 
     def __eq__(self, other):
         return EqualsCondition(self, other)
+
+    def __neg__(self):
+        return SubOperator(0, self)
 
     @property
     def dependencies(self) -> set:
@@ -129,76 +139,107 @@ class DistributionLike(ABC):
     def draw_list(self):
         pass
 
-class EqualsCondition(DistributionLike):
-    def __init__(self, left_operand, right_operand):
-        self.left_operand = left_operand
-        self.right_operand = right_operand
 
+@dataclass
+class Operator(DistributionLike):
     def draw_reset(self):
-        self.left_operand.draw_reset()
-        self.right_operand.draw_reset()
+        for operand_name in self:
+            val = getattr(self, operand_name)
+            if isinstance(val, DistributionLike):
+                val.draw_reset()
 
+
+    def __iter__(self):
+        for op_field in fields(self.__class__):
+            yield op_field.name
+
+    @abstractmethod
+    def compute(self, **kwargs):
+        pass
 
     def draw_list(self, n, synth_dict):
-        left_list = self.left_operand.draw_list(n, synth_dict)
-        right_list = self.right_operand.draw_list(n, synth_dict)
-        return [left == right for left, right in zip(left_list, right_list)]
+        all_lists = {}
+        for op_name in self:
+            val = getattr(self, op_name)
+            if isinstance(val, DistributionLike):
+                all_lists[op_name] = val.draw_list(n, synth_dict)
+            else:
+                all_lists[op_name] = n*[val]
+        results = []
+        for i_val in range(n):
+            results.append(self.compute(**{name: all_lists[name][i_val] for name in all_lists.keys()}))
+        return results
 
     @property
     def dependencies(self):
-        return self.left_operand.dependencies | self.right_operand.dependencies
+        deps = set()
+        for op_name in self:
+            dist_like = getattr(self, op_name)
+            if isinstance(dist_like, DistributionLike):
+                deps |= dist_like.dependencies
+        return deps
 
-class IfThenElse(DistributionLike):
-    def __init__(self, condition: DistributionLike, then_operand: DistributionLike,
-                 else_operand: DistributionLike):
-        self.condition = condition
-        self.then_operand = then_operand
-        self.else_operand = else_operand
 
-    def draw_reset(self):
-        self.condition.draw_reset()
-        self.then_operand.draw_reset()
-        self.else_operand.draw_reset()
+@dataclass
+class EqualsCondition(Operator):
+    left_operand: Any
+    right_operand: Any
 
-    @property
-    def dependencies(self):
-        return self.then_operand.dependencies | self.condition.dependencies | self.else_operand.dependencies
+    def compute(self, left_operand, right_operand):
+        if left_operand is None or right_operand is None:
+            return None
+        return left_operand == right_operand
 
-    def draw_list(self, n, synth_dict):
-        return [then_val if cond else else_val for cond, then_val, else_val in
-                zip(self.condition.draw_list(n, synth_dict),
-                    self.then_operand.draw_list(n, synth_dict),
-                    self.else_operand.draw_list(n, synth_dict))]
 
-class ArithmeticDistribution(DistributionLike):
-    def __init__(self, left_operand, right_operand, op_type):
-        self.left_operand = left_operand
-        self.right_operand = right_operand
-        self.op_type = op_type
+@dataclass
+class IfThenElse(Operator):
+    condition: Any
+    then_operand: Any
+    else_operand: Any
 
-    def draw_series(self, n, data_cache):
-        left_series = self.left_operand.draw_series(n, data_cache)
-        right_series = self.right_operand.draw_series(n, data_cache)
-        if self.op_type == "*":
-            return left_series*right_series
-        elif self.op_type == "+":
-            return left_series + right_series
+    def compute(self, condition, then_operand, else_operand):
+        return then_operand if condition else else_operand
 
-    def draw_reset(self):
-        self.left_operand.draw_reset()
-        self.right_operand.draw_reset()
+@dataclass
+class PlusOperator(Operator):
+    left_operand: Any
+    right_operand: Any
 
-    @property
-    def dependencies(self) -> set:
-        return self.left_operand.dependencies | self.right_operand.dependencies
+    def compute(self, left_operand, right_operand):
+        if left_operand is None or right_operand is None:
+            return None
+        return left_operand + right_operand
 
-    def draw_list(self, n, synth_dict):
-        left_list = self.left_operand.draw_list(n, synth_dict)
-        right_list = self.right_operand.draw_list(n, synth_dict)
-        if self.op_type == "*":
-            return [x*y for x, y in zip(left_list, right_list)]
-        if self.op_type == "+":
-            return [x+y for x, y in zip(left_list, right_list)]
+@dataclass
+class MinusOperator(Operator):
+    left_operand: Any
+    right_operand: Any
+
+    def compute(self, left_operand, right_operand):
+        if left_operand is None or right_operand is None:
+            return None
+        return left_operand - right_operand
+
+
+@dataclass
+class MultiplyOperator(Operator):
+    left_operand: Any
+    right_operand: Any
+
+    def compute(self, left_operand, right_operand):
+        if left_operand is None or right_operand is None:
+            return None
+        return left_operand * right_operand
+
+@dataclass
+class SubOperator(Operator):
+    left_operand: Any
+    right_operand: Any
+
+    def compute(self, left_operand, right_operand):
+        if left_operand is None or right_operand is None:
+            return None
+        return left_operand - right_operand
 
 
 class ColumnReference(DistributionLike):
@@ -214,11 +255,6 @@ class ColumnReference(DistributionLike):
 
     def draw_reset(self):
         pass
-    # def synthesize(self, n, var_args):
-        # synth_dict = var_args[0]
-        # ref_var_or_series = synth_dict[self.name]
-        # if isinstance(ref_var_or_series, 
-        # return synth_dict
 
 
 class BaseDistribution(DistributionLike):
