@@ -16,11 +16,11 @@ which is used to set the class attributes of a distribution.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractproperty
 from copy import deepcopy
+from dataclasses import dataclass, fields
 from importlib import metadata
 from typing import Any, Optional, Sequence, Union
-from dataclasses import dataclass, fields
 
 import numpy as np
 import polars as pl
@@ -139,14 +139,21 @@ class DistributionLike(ABC):
     def draw_list(self):
         pass
 
+    @abstractmethod
+    def to_dict(self):
+        pass
+
+    # @abstractproperty
+    # def generates_na(self, var_dict):
+    #     pass
+
 
 @dataclass
 class Operator(DistributionLike):
     def draw_reset(self):
-        for operand_name in self:
-            val = getattr(self, operand_name)
-            if isinstance(val, DistributionLike):
-                val.draw_reset()
+        for operand in self.operands:
+            if isinstance(operand, DistributionLike):
+                operand.draw_reset()
 
 
     def __iter__(self):
@@ -173,12 +180,37 @@ class Operator(DistributionLike):
     @property
     def dependencies(self):
         deps = set()
-        for op_name in self:
-            dist_like = getattr(self, op_name)
-            if isinstance(dist_like, DistributionLike):
-                deps |= dist_like.dependencies
+        for operand in self.operands:
+            operand
+            if isinstance(operand, DistributionLike):
+                deps |= operand.dependencies
         return deps
 
+    @property
+    def name(self):
+        return f"{self.__class__.__name__}({', '.join('...' for _ in self)})"
+
+    @property
+    def operands(self):
+        for op_name in self:
+            yield getattr(self, op_name)
+
+    def to_dict(self):
+        return {
+            "name": self.__class__.__name__,
+            "operands": [op.to_dict() if isinstance(op, DistributionLike) else op
+                         for op in self.operands]
+        }
+    # @property
+    # def generates_na(self, var_dict):
+    #     prop_non_na = 1
+    #     for op_name in self:
+    #         val = getattr(self, op_name)
+    #         if isinstance(val, DistributionLike):
+    #             prop_non_na *= (1-val.generates_na(var_dict))
+    #         elif val is None:
+    #             prop_non_na = 0
+    #     return 1-prop_non_na
 
 @dataclass
 class EqualsCondition(Operator):
@@ -190,7 +222,6 @@ class EqualsCondition(Operator):
             return None
         return left_operand == right_operand
 
-
 @dataclass
 class IfThenElse(Operator):
     condition: Any
@@ -199,6 +230,24 @@ class IfThenElse(Operator):
 
     def compute(self, condition, then_operand, else_operand):
         return then_operand if condition else else_operand
+
+
+    # @property
+    # def generates_na(self, var_dict):
+    #     prop_non_na = 1
+    #     if isinstance(self.then_operand, DistributionLike):
+    #         prop_non_na = 0.5*(1-self.then_operand.generates_na(var_dict))
+    #     elif self.then_operand is None:
+    #         prop_non_na = 0.0
+    #     else:
+    #         prop_non_na = 0.5
+
+    #     if isinstance(self.else_operand, DistributionLike):
+    #         prop_non_na += 0.5*(1-self.then_operand.generates_na(var_dict))
+    #     elif self.else_operand is not None:
+    #         prop_non_na += 0.5
+    #     return 1-prop_non_na
+
 
 @dataclass
 class PlusOperator(Operator):
@@ -243,19 +292,28 @@ class SubOperator(Operator):
 
 
 class ColumnReference(DistributionLike):
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, ref_name):
+        self.ref_name = ref_name
 
     def draw_list(self, n, synth_dict):
-        return synth_dict[self.name].to_list()
+        return synth_dict[self.ref_name].to_list()
 
     @property
     def dependencies(self) -> set:
-        return set([self.name])
+        return set([self.ref_name])
 
     def draw_reset(self):
         pass
 
+    @property
+    def name(self):
+        return f"ref{{\"{self.ref_name}\"}}"
+
+    def to_dict(self):
+        return {
+            "name": self.__class__.__name__,
+            "ref_name": self.ref_name,
+        }
 
 class BaseDistribution(DistributionLike):
     """Abstract base class to define a distribution.
