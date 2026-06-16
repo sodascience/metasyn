@@ -12,8 +12,6 @@ import faker
 import numpy as np
 import polars as pl
 
-from metasyn.varspec import VarSpec
-
 _AVAILABLE_DATASETS: dict[str, BaseDataset] = {}
 
 
@@ -95,7 +93,7 @@ class TitanicDataset(BaseDataset):
 
     @property
     def var_specs(self):
-        return [VarSpec("PassengerId", unique=True)]
+        return [("PassengerId", {"unique": True})]
 
 
 @register

@@ -2,6 +2,7 @@ import inspect
 import warnings
 from copy import deepcopy
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import numpy as np
 import polars as pl
@@ -12,6 +13,11 @@ from metasyn.metaframe import MetaFrame
 from metasyn.registry import DistributionRegistry
 from metasyn.util import get_var_type
 from metasyn.var import MetaVar
+
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib  # type: ignore  # noqa
 
 
 class VarBuilder():
@@ -58,6 +64,11 @@ class VarBuilder():
         if isinstance(self.distribution, DistributionLike):
             return DistributionRecipe(self.distribution)
         if isinstance(self.distribution, dict) or self.distribution is None:
+            if self.distribution is not None and "parameters" in self.distribution:
+                parameters = self.distribution.pop("parameters")
+                dist_class = self.registry.find_distribution(**self.distribution,
+                                                             var_type=self.var_type)
+                return DistributionRecipe(dist_class(**parameters))
             if self.distribution is None or self.distribution.get("unique", None) is None:
                 fitters = self._find_fitters(False)
                 unq_fitters = self._find_fitters(True)
@@ -111,11 +122,38 @@ class MetaFrameBuilder():
         for col in df.columns:
             self.var_builders[col] = VarBuilder(col, self)
             self.var_builders[col].series = df[col]
+        self.n_rows = len(df) if self.n_rows is None else self.n_rows
 
     def add_column(self, name):
         self.var_builders[name] = VarBuilder(name, self)
         self.columns.append(name)
         self.var_builders[name].prop_missing = 0.0
+
+    def add_config(self, config: Path | str | dict) -> "MetaFrameBuilder":
+        if not isinstance(config, dict):
+            with open(config, "rb") as handle:
+                config = tomllib.load(handle)
+
+        config_version = config.get("config_version", None)
+        # try:
+            # config_version = config["version"]
+        # except KeyError:
+            # raise ValueError("Configuration or configuration file does not contain a version number.")
+
+        if config_version is None:
+            raise warnings.warn(UserWarning, "Unknown version of configuration file.")
+
+        config = deepcopy(config["table"][0])
+
+        # TODO: do some error checking on versions
+        self.name = config.get("name", self.name)
+        self.file_format = config.get("file_format", )
+
+        if config["table_type"] == "dataframe":
+            for var_config in config["var"]:
+                col_name = var_config.pop("name")
+                for attr, val in var_config.items():
+                    setattr(self[col_name], attr, val)
 
     def set_privacy(self, privacy):
         if isinstance(privacy, dict):
@@ -127,9 +165,9 @@ class MetaFrameBuilder():
     def preview(self):
         pass
 
-    def fit(self):
+    def fit(self, progress_bar: bool = True):
         vars = []
-        for col in tqdm(self.columns):
+        for col in tqdm(self.columns, disable=not progress_bar):
             vars.append(self.var_builders[col].fit())
         return MetaFrame(vars, self.n_rows, self.file_format, self.name)
 

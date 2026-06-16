@@ -38,7 +38,6 @@ from metasyn.file import (
 from metasyn.metaframe import MetaFrame
 from metasyn.multiframe import MultiFrame
 from metasyn.var import MetaVar
-from metasyn.varspec import VarSpec
 
 __all__ = [
     "MetaVar",
@@ -48,7 +47,6 @@ __all__ = [
     "demo_data",
     "demo_dataframe",
     "metadist",
-    "VarSpec",
     "read_csv",
     "read_sav",
     "read_tsv",

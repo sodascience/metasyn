@@ -18,7 +18,8 @@ from metasyn.distribution.base import BaseDistribution, BaseFitter
 from metasyn.distribution.na import NADistribution
 from metasyn.privacy import BasePrivacy, BasicPrivacy
 from metasyn.util import get_registry
-from metasyn.varspec import DistributionSpec
+
+# from metasyn.varspec import DistributionSpec
 
 if TYPE_CHECKING:
     from metasyn.config import VarSpec, VarSpecAccess
@@ -83,7 +84,7 @@ class DistributionRegistry():
 
     def fit(self, series: pl.Series,
             var_type: str,
-            dist_spec: DistributionSpec,
+            dist_spec: Any,
             privacy: BasePrivacy = BasicPrivacy()) -> tuple[BaseDistribution, Optional[BaseFitter]]:
         """Fit a distribution to a column/series.
 
@@ -198,12 +199,12 @@ class DistributionRegistry():
 
     def find_distribution(
             self,
-            dist_name: str,
+            name: str,
             var_type: Optional[str],
             unique: bool = False,
             version: Optional[str] = None
         ) -> type[BaseDistribution]:
-        dist_classes = self.filter_distributions(name=dist_name, var_type=var_type,
+        dist_classes = self.filter_distributions(name=name, var_type=var_type,
                                                  unique=unique, version=version)
         if len(dist_classes) == 1:
             return dist_classes[0]
@@ -211,15 +212,15 @@ class DistributionRegistry():
         if len(dist_classes) > 1:
             dist_str = [f"({d.__name__}, {d.var_type}, {d.unique}, {d.version})"
                         for d in dist_classes]
-            raise ValueError(f"Multiple valid distributions found with name {dist_name}, var_type "
+            raise ValueError(f"Multiple valid distributions found with name {name}, var_type "
                              f"{var_type}, unique {unique}, version {version}."
                              f" Alternatives: {dist_str}")
-        name_classes = self.filter_distributions(name=dist_name)
+        name_classes = self.filter_distributions(name=name)
         if len(name_classes) == 0:
-            raise ValueError(f"No known distributions with name '{dist_name}'.")
+            raise ValueError(f"No known distributions with name '{name}'.")
         dist_str = [f"({d.__name__}, {d.var_type}, {d.unique}, {d.version})"
             for d in name_classes]
-        raise ValueError(f"No distribution found with name {dist_name}, var_type "
+        raise ValueError(f"No distribution found with name {name}, var_type "
                          f"{var_type}, unique {unique}, version {version}."
                          f" Alternatives: {dist_str}")
 
@@ -278,7 +279,7 @@ class DistributionRegistry():
                          f" Alternatives: {fitter_str}")
 
     def _fit_distribution(self, series: pl.Series,
-                          dist_spec: DistributionSpec,
+                          dist_spec: Any,
                           var_type: str,
                           privacy: BasePrivacy) -> tuple[BaseDistribution, Optional[BaseFitter]]:
         """Fit a specific distribution to a series.

@@ -19,7 +19,7 @@ from metasyn.varspec import DistributionSpec, VarSpec
         ({"name": {"uniform": False}}, False),
         (ContinuousUniformDistribution, False),
         (ContinuousUniformDistribution(0, 2), False),
-        (DistributionSpec(), False),
+        ({}, False),
         ({"fit_kwargs": {"param": 3}}, True),
         ({"version": "2.0"}, True),
         ({"parameters": {"param": 2}}, True),

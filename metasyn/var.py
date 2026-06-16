@@ -12,7 +12,8 @@ from metasyn.distribution.base import BaseDistribution
 from metasyn.privacy import BasePrivacy, BasicPrivacy
 from metasyn.registry import DistributionRegistry
 from metasyn.util import get_var_type, set_global_seeds
-from metasyn.varspec import DistributionSpec
+
+# from metasyn.varspec import DistributionSpec
 
 
 class MetaVar:
