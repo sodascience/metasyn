@@ -21,8 +21,8 @@ from metasyn.util import get_registry
 
 # from metasyn.varspec import DistributionSpec
 
-if TYPE_CHECKING:
-    from metasyn.config import VarSpec, VarSpecAccess
+# if TYPE_CHECKING:
+#     from metasyn.config import VarSpec, VarSpecAccess
 
 
 class DistributionRegistry():
@@ -108,37 +108,37 @@ class DistributionRegistry():
             return self._fit_distribution(series, dist_spec, var_type, privacy)
         return self._find_best_fit(series, var_type, dist_spec.unique, privacy)
 
-    def create(self, var_spec: Union[VarSpec, VarSpecAccess]) -> BaseDistribution:
-        """Create a distribution without any data.
+    # def create(self) -> BaseDistribution:
+    #     """Create a distribution without any data.
 
-        Parameters
-        ----------
-        var_spec
-            A variable configuration that provides all the information to create the distribution.
+    #     Parameters
+    #     ----------
+    #     var_spec
+    #         A variable configuration that provides all the information to create the distribution.
 
-        Returns
-        -------
-            A distribution according to the variable specifications.
-        """
-        dist_spec = var_spec.dist_spec
-        unique = dist_spec.unique if dist_spec.unique else False
-        if dist_spec.name is None:
-            raise ValueError("Cannot create distribution without specifying the 'name' key.")
-        dist_class = self.find_distribution(
-            dist_spec.name, var_spec.var_type, unique=unique)
-        try:
-            return dist_class(**dist_spec.parameters)  # type: ignore
-        except TypeError as err:
-            dist_param = set(signature(dist_class.__init__).parameters) - {"self"}  # type: ignore
-            unknown_param = set(dist_spec.parameters) - dist_param  # type: ignore
-            missing_param = dist_param - set(dist_spec.parameters)  # type: ignore
-            if len(unknown_param) > 0:
-                raise TypeError(f"Unknown parameters {unknown_param} for variable {var_spec.name}."
-                                f"Available parameters: {dist_param}")
-            if len(missing_param) > 0:
-                raise ValueError(f"Missing parameters for variable {var_spec.name}:"
-                                 f" {missing_param}.")
-            raise err
+    #     Returns
+    #     -------
+    #         A distribution according to the variable specifications.
+    #     """
+    #     dist_spec = var_spec.dist_spec
+    #     unique = dist_spec.unique if dist_spec.unique else False
+    #     if dist_spec.name is None:
+    #         raise ValueError("Cannot create distribution without specifying the 'name' key.")
+    #     dist_class = self.find_distribution(
+    #         dist_spec.name, var_spec.var_type, unique=unique)
+    #     try:
+    #         return dist_class(**dist_spec.parameters)  # type: ignore
+    #     except TypeError as err:
+    #         dist_param = set(signature(dist_class.__init__).parameters) - {"self"}  # type: ignore
+    #         unknown_param = set(dist_spec.parameters) - dist_param  # type: ignore
+    #         missing_param = dist_param - set(dist_spec.parameters)  # type: ignore
+    #         if len(unknown_param) > 0:
+    #             raise TypeError(f"Unknown parameters {unknown_param} for variable {var_spec.name}."
+    #                             f"Available parameters: {dist_param}")
+    #         if len(missing_param) > 0:
+    #             raise ValueError(f"Missing parameters for variable {var_spec.name}:"
+    #                              f" {missing_param}.")
+    #         raise err
 
     def _find_best_fit(self, series: pl.Series, var_type: str,
                        unique: Optional[bool],
@@ -224,12 +224,12 @@ class DistributionRegistry():
                          f"{var_type}, unique {unique}, version {version}."
                          f" Alternatives: {dist_str}")
 
-    def find_fitter(self,
-                    dist_name: str,
-                    var_type: Optional[str],
-                    privacy: Optional[BasePrivacy] = BasicPrivacy(),
-                    unique: bool = False,
-                    version: Optional[str] = None) -> type[BaseFitter]:
+    def find_fitters(self,
+                     dist_name: str,
+                     var_type: Optional[str],
+                     privacy: Optional[BasePrivacy] = BasicPrivacy(),
+                     unique: bool = False,
+                     version: Optional[str] = None) -> list[type[BaseFitter]]:
         """Find a distribution and fit keyword arguments from a name.
 
         Sometimes there might be multiple possible fitters that satisfy the criteria.
@@ -260,14 +260,14 @@ class DistributionRegistry():
         fitter_classes = self.filter_fitters(
             name=dist_name, privacy=privacy, var_type=var_type, unique=unique, version=version)
         if len(fitter_classes) == 1:
-            return fitter_classes[0]
+            return fitter_classes
 
         if len(fitter_classes) > 1:
             if var_type is None and not all([
                     f.var_type == fitter_classes[0] for f in fitter_classes]):
                 raise ValueError(f"Multiple valid fitters found with name {dist_name}, "
                                  "please specify var_type.")
-            return fitter_classes[0]
+            return fitter_classes
 
         name_classes = self.filter_fitters(name=dist_name)
         if len(name_classes) == 0:
@@ -311,8 +311,8 @@ class DistributionRegistry():
             dist_class = self.find_distribution(dist_spec.name, var_type, unique=unique)
             return dist_class(**dist_spec.parameters), None
 
-        fitter_class = self.find_fitter(dist_spec.name, var_type, privacy=privacy,
-                                        unique=unique)
+        fitter_class = self.find_fitters(dist_spec.name, var_type, privacy=privacy,
+                                            unique=unique)[0]
 
         fit_kwargs = dist_spec.fit_kwargs
         fitter = fitter_class(privacy)

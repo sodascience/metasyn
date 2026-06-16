@@ -128,7 +128,7 @@ class DistributionLike(ABC):
         return SubOperator(0, self)
 
     @property
-    def dependencies(self) -> set:
+    def dependencies(self) -> set[str]:
         return set()
 
     @abstractmethod
@@ -136,7 +136,7 @@ class DistributionLike(ABC):
         pass
 
     @abstractmethod
-    def draw_list(self):
+    def draw_list(self, n: int, synth_dict: dict):
         pass
 
     @abstractmethod

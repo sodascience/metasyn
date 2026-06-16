@@ -188,7 +188,7 @@ class MetaVar:
     #         return None
     #     return self.distribution.draw()
 
-    def draw_series(self, n: int, synth_dict, seed: Optional[int], progress_bar: bool = True) -> pl.Series:
+    def draw_series(self, n: int, synth_dict: dict | None = None, seed: Optional[int] = None, progress_bar: bool = True) -> pl.Series:
         """Draw a new synthetic series from the metadata.
 
         Parameters
@@ -209,7 +209,7 @@ class MetaVar:
             set_global_seeds(seed)
 
         self.distribution.draw_reset()
-
+        synth_dict = {} if synth_dict is None else synth_dict
         value_list = self.distribution.draw_list(n, synth_dict)
         if self.dtype is None:
             self.dtype = str(pl.Series(value_list).dtype)

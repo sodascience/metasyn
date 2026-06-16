@@ -35,7 +35,7 @@ class DependencyGraph():
         self.depends_on = {}
         self.queue = []
 
-    def add(self, name: str, depends_on: list[str]):
+    def add(self, name: str, depends_on: set[str]):
         self.depends_on[name] = depends_on
         for other_name in depends_on:
             self.dependency_of[other_name].add(name)
@@ -122,12 +122,12 @@ class MetaFrame:
     def fit_dataframe(  # noqa: PLR0912
         cls,
         df: Optional[pl.DataFrame],
-        var_specs: list[tuple[str, dict(str, Any)]] | None = None,
+        var_specs: list[tuple[str, dict[str, Any]]] | None = None,
         plugins: Optional[list[str]] = None,
         privacy: Optional[Union[BasePrivacy, dict]] = None,
         n_rows: Optional[int] = None,
         progress_bar: bool = True,
-        config: Optional[Union[pathlib.Path, str, MetaConfig]] = None,
+        config: None | pathlib.Path | str | dict = None,
         file_format: Union[dict[str, Any], BaseFileInterface, None] = None,
         name: str = "single_table",
     ):
@@ -186,14 +186,23 @@ class MetaFrame:
             # meta_config = config
         from metasyn.builder import MetaFrameBuilder
 
+        if df is not None and not isinstance(df, pl.DataFrame):
+            if isinstance(df, (str, pathlib.Path)):
+                raise ValueError("Please provide a DataFrame as input, not a string or path.")
+            df = pl.DataFrame(df)
+
         builder = MetaFrameBuilder(name)
         builder.privacy = privacy
         builder.n_rows = n_rows
         builder.plugins = plugins
-        builder.add_dataframe(df, file_format)
-        for var_name, var_dict in var_specs:
-            for attr_name, attr_val in var_dict.items():
-                setattr(builder[var_name], attr_name, attr_val)
+        if df is not None:
+            builder.add_dataframe(df, file_format)
+        if config is not None:
+            builder.add_config(config)
+        if var_specs is not None:
+            for var_name, var_dict in var_specs:
+                for attr_name, attr_val in var_dict.items():
+                    setattr(builder[var_name], attr_name, attr_val)
         return builder.fit(progress_bar=progress_bar)
 
         # var_specs overrules variable specifications in the configuration (file).
@@ -205,10 +214,7 @@ class MetaFrame:
         # if privacy is not None:
             # meta_config.defaults.privacy = privacy  # type: ignore
 
-        # if df is not None and not isinstance(df, pl.DataFrame):
-            # if isinstance(df, (str, pathlib.Path)):
-                # raise ValueError("Please provide a DataFrame as input, not a string or path.")
-            # df = pl.DataFrame(df)
+
         # all_vars = []
         # columns = df.columns if df is not None else []
         # if df is not None:
@@ -252,7 +258,7 @@ class MetaFrame:
         # return cls(all_vars, n_rows, file_format, name=name)
 
     @classmethod
-    def from_config(cls, meta_config: MetaConfig) -> MetaFrame:
+    def from_config(cls, meta_config: str | Path | dict) -> MetaFrame:
         """Create a MetaFrame using a configuration, but without a DataFrame.
 
         Parameters
