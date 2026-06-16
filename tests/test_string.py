@@ -58,7 +58,7 @@ def test_unique_regex():
     assert len(series.unique()) == 10
 
     with pytest.raises(ValueError):
-        var.draw()
+        var.distribution.draw()
 
 def test_unique_faker():
     dist = UniqueFakerDistribution("city")

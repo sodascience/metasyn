@@ -12,6 +12,7 @@ import polars as pl
 import pytest
 from pytest import mark, raises
 
+from metasyn.builder import VarBuilder
 from metasyn.distribution.categorical import MultinoulliDistribution
 from metasyn.distribution.normal import (
     ContinuousNormalDistribution,
@@ -54,14 +55,14 @@ def check_var(series, var_type, temp_path, all_nan=False):
         assert has_nans_a == has_nans_b
 
     def check_random_draw(var, n_series):
-        series_1 = var.draw_series(n_series, 1234)
-        series_2 = var.draw_series(n_series, 1234)
+        series_1 = var.draw_series(n_series, seed=1234)
+        series_2 = var.draw_series(n_series, seed=1234)
         assert all(_series_drop_nans(series_1) == _series_drop_nans(series_2))
 
     assert isinstance(series, (pd.Series, pl.Series))
 
-    var = MetaVar.fit(series)
-    new_series = var.draw_series(len(series), 5123)
+    var = VarBuilder(series).fit()
+    new_series = var.draw_series(len(series), seed=5123)
     check_random_draw(var, len(series))
     check_similar(series, new_series)
     assert var.var_type == var_type
@@ -80,7 +81,7 @@ def check_var(series, var_type, temp_path, all_nan=False):
         var_dict["distribution"].update({"name": "unknown"})
         MetaVar.from_dict(var_dict)
 
-    newer_series = new_var.draw_series(len(series), 6789)
+    newer_series = new_var.draw_series(len(series), seed=6789)
     check_similar(newer_series, series)
 
     assert type(new_var) is type(var)
@@ -223,8 +224,8 @@ def test_bool(tmp_path, series_type):
     """Test whether booleans are correctly handled as categorical variables."""
     series = series_type(np.random.choice([True, False], size=100))
     check_var(series, "categorical", tmp_path)
-    var = MetaVar.fit(series)
-    new_series = var.draw_series(10, 1234)
+    var = VarBuilder(series).fit()
+    new_series = var.draw_series(10, seed=1234)
     assert new_series.dtype == pl.Boolean
 
 
@@ -273,17 +274,18 @@ def test_unsupported_type():
      pl.Series([np.random.rand() for _ in range(5000)])]
 )
 def test_manual_fit(series):
-    """Test adding dist_spec to MetaVar.fit call."""
-    var = MetaVar.fit(series)
+    """Test adding distribution specifications to MetaVar.fit call."""
+    var = VarBuilder(series).fit()
     assert isinstance(var.distribution, (ContinuousUniformDistribution, ContinuousTruncatedNormalDistribution))
-    var = MetaVar.fit(series, dist_spec={"name": "normal"})
+    var = VarBuilder(series, distribution={"name": "normal"}).fit()
     assert isinstance(var.distribution, ContinuousNormalDistribution)
-    var = MetaVar.fit(series, dist_spec=ContinuousUniformDistribution)
+    var = VarBuilder(series, distribution=ContinuousUniformDistribution).fit()
     assert isinstance(var.distribution, ContinuousUniformDistribution)
-    var = MetaVar.fit(series, dist_spec=ContinuousNormalDistribution(0, 1))
+    var = VarBuilder(series, distribution=ContinuousNormalDistribution(0, 1)).fit()
     assert isinstance(var.distribution, ContinuousNormalDistribution)
     with raises(TypeError):
-        var.fit(10)
+        var_builder = VarBuilder(10, distribution=ContinuousNormalDistribution(0, 1))
+        var_builder.fit()
 
 
 @mark.parametrize(
@@ -293,7 +295,7 @@ def test_manual_fit(series):
 )
 def test_na_zero(series):
     """Test whether fitting a series with only NA works."""
-    var = MetaVar.fit(series)
+    var = VarBuilder(series).fit()
     assert var.var_type == "continuous"
     assert var.prop_missing == 1.0
 
@@ -305,7 +307,7 @@ def test_na_zero(series):
 )
 def test_na_one(series):
     """Test whether fitting a series with exactly one non-NA values works."""
-    var = MetaVar.fit(series)
+    var = VarBuilder(series).fit()
     assert var.var_type == "continuous"
     assert abs(var.prop_missing-0.9) < 1e7
 
@@ -317,7 +319,7 @@ def test_na_one(series):
 )
 def test_na_two(series):
     """Test whether fitting a series with exactly two non-NA values works."""
-    var = MetaVar.fit(series)
+    var = VarBuilder(series).fit()
     assert var.var_type == "continuous"
     assert abs(var.prop_missing-0.8) < 1e7
 
@@ -329,9 +331,9 @@ def test_na_two(series):
 )
 def test_manual_unique_integer(series):
     """Test whether discrete uniform/unique key are correctly inferred."""
-    var = MetaVar.fit(series)
+    var = VarBuilder(series).fit()
     assert isinstance(var.distribution, DiscreteUniformDistribution)
-    var = MetaVar.fit(series, dist_spec = {"unique": True})
+    var = VarBuilder(series, distribution={"unique": True}).fit()
     assert isinstance(var.distribution, UniqueKeyDistribution)
 
 
@@ -344,9 +346,9 @@ def test_manual_unique_integer(series):
 )
 def test_manual_unique_string(series):
     """Test which regexmodel is used dependent on the uniqueness."""
-    var = MetaVar.fit(series)
+    var = VarBuilder(series).fit()
     assert isinstance(var.distribution, RegexDistribution)
-    var = MetaVar.fit(series, dist_spec={"unique": True})
+    var = VarBuilder(series, distribution={"unique": True}).fit()
     assert isinstance(var.distribution, UniqueRegexDistribution)
 
 
@@ -360,7 +362,7 @@ def test_manual_unique_string(series):
 )
 def test_int_multinoulli(series):
     """Test whether the multinoulli distribution is correctly inferred."""
-    var = MetaVar.fit(series)
+    var = VarBuilder(series).fit()
     assert isinstance(var.distribution, MultinoulliDistribution)
 
 

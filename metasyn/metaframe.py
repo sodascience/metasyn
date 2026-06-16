@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import pathlib
 from collections import defaultdict
+from copy import deepcopy
 from datetime import datetime
 from importlib.metadata import version
 from pathlib import Path
@@ -21,22 +22,32 @@ except ImportError:
 
 from tqdm import tqdm
 
-from metasyn.config import MetaConfig
+# from metasyn.config import MetaConfig
 from metasyn.file import BaseFileInterface, file_interface_from_dict
 from metasyn.gmf import parse_gmf_dict
 from metasyn.privacy import BasePrivacy, get_privacy
 from metasyn.util import set_global_seeds
 from metasyn.var import MetaVar
-from metasyn.varspec import VarSpec
 
 
 class DependencyGraph():
+    """Data structure to compute in which order columns need to be processed."""
+
     def __init__(self):
         self.dependency_of  = defaultdict(set)
         self.depends_on = {}
         self.queue = []
 
-    def add(self, name: str, depends_on: list[str]):
+    def add(self, name: str, depends_on: set[str]):
+        """Add a new column to the graph.
+
+        Parameters
+        ----------
+        name
+            Name of the column
+        depends_on
+            Columns that the current column depends on for generation.
+        """
         self.depends_on[name] = depends_on
         for other_name in depends_on:
             self.dependency_of[other_name].add(name)
@@ -53,20 +64,6 @@ class DependencyGraph():
             self.depends_on.pop(name)
             self.dependency_of.pop(name, None)
             yield name
-
-    # def next_column(self):
-    #     name = self.queue.pop()
-    #     self.running.add(op_id)
-    #     return op_id
-
-    # def finish_op(self, op_id):
-    #     self.running.remove(op_id)
-    #     for dep_op_id in self.dependency_of[op_id]:
-    #         self.depends_on[dep_op_id].remove(op_id)
-    #         if len(self.depends_on[dep_op_id]) == 0:
-    #             self.queue.append(dep_op_id)
-    #     self.depends_on.pop(op_id)
-    #     self.dependency_of.pop(op_id, None)
 
     def __str__(self):
         return f"{self.queue} {self.depends_on} {self.dependency_of}"
@@ -104,7 +101,7 @@ class MetaFrame:
     def __init__(
         self,
         meta_vars: List[MetaVar],
-        n_rows: Optional[int] = None,
+        n_rows: int,
         file_format: Union[None, BaseFileInterface, dict[str, Any]] = None,
         name: str = "single_table"
     ):
@@ -113,6 +110,8 @@ class MetaFrame:
         self._file_format: Union[None, dict[str, Any]]
         self.file_format = file_format  # type: ignore
         self.name = name
+        if self.n_rows is None:
+            raise ValueError("Please set the number of rows for the metaframe: mf_builder.mf = ...")
 
     @property
     def n_columns(self) -> int:
@@ -123,12 +122,12 @@ class MetaFrame:
     def fit_dataframe(  # noqa: PLR0912
         cls,
         df: Optional[pl.DataFrame],
-        var_specs: Optional[Union[list[VarSpec]]] = None,
+        var_specs: list[tuple[str, dict[str, Any]]] | None = None,
         plugins: Optional[list[str]] = None,
         privacy: Optional[Union[BasePrivacy, dict]] = None,
         n_rows: Optional[int] = None,
         progress_bar: bool = True,
-        config: Optional[Union[pathlib.Path, str, MetaConfig]] = None,
+        config: None | pathlib.Path | str | dict = None,
         file_format: Union[dict[str, Any], BaseFileInterface, None] = None,
         name: str = "single_table",
     ):
@@ -169,80 +168,31 @@ class MetaFrame:
         MetaFrame:
             Initialized metasyn metaframe.
         """
-        if isinstance(var_specs, (str, pathlib.Path, MetaConfig)) and config is None:
-            warn(
-                "Supplying the configuration through var_specs is deprecated and will be removed"
-                f" in metasyn version 2.0. Use config={var_specs} instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            config = var_specs
-            var_specs = None
-        # Parse the var_specs into a MetaConfig instance.
-        if config is None:
-            meta_config = MetaConfig([], plugins, defaults={"privacy": privacy})
-        elif isinstance(config, (pathlib.Path, str)):
-            meta_config = MetaConfig.from_toml(config)
-        else:
-            meta_config = config
-
-        # var_specs overrules variable specifications in the configuration (file).
-        if var_specs is not None:
-            meta_config.update_varspecs(var_specs)
-
-        if plugins is not None:
-            meta_config.plugins = plugins  # type: ignore
-        if privacy is not None:
-            meta_config.defaults.privacy = privacy  # type: ignore
+        from metasyn.builder import MetaFrameBuilder  #noqa: PLC0415
 
         if df is not None and not isinstance(df, pl.DataFrame):
             if isinstance(df, (str, pathlib.Path)):
                 raise ValueError("Please provide a DataFrame as input, not a string or path.")
             df = pl.DataFrame(df)
-        all_vars = []
-        columns = df.columns if df is not None else []
-        if df is not None:
-            for col_name in (pbar := tqdm(columns, disable=not progress_bar, unit="variables")):
-                desc = col_name[:5] + "…" + col_name[-6:] if len(col_name) > 11 else col_name
-                pbar.set_description(f"{desc:>12}")
-                var_spec = meta_config.get(col_name)
-                var = MetaVar.fit(
-                    df[col_name],
-                    var_spec.dist_spec,
-                    meta_config.plugins,
-                    var_spec.privacy,
-                    var_spec.prop_missing,
-                    var_spec.description,
-                )
-                all_vars.append(var)
 
-        # Data free columns to be appended
-        for var_spec in meta_config.iter_var(exclude=columns):
-            if not var_spec.data_free:
-                raise ValueError(
-                    f"Column with name '{var_spec.name}' not found and not declared as data_free."
-                )
-            distribution = meta_config.plugins.create(var_spec)
-            prop_missing = 0.0 if var_spec.prop_missing is None else var_spec.prop_missing
-            var = MetaVar(
-                var_spec.name,
-                var_spec.var_type,
-                distribution,
-                description=var_spec.description,
-                prop_missing=prop_missing,
-            )
-            all_vars.append(var)
-        if df is None:
-            if meta_config.n_rows is None:
-                raise ValueError(
-                    "Please provide the number of rows in the configuration, or supply a DataFrame."
-                )
-            return cls(all_vars, meta_config.n_rows, file_format, name=name)
-        n_rows = len(df) if n_rows is None else n_rows
-        return cls(all_vars, n_rows, file_format, name=name)
+        builder = MetaFrameBuilder(name)
+        builder.privacy = privacy
+        builder.n_rows = n_rows
+        builder.plugins = plugins
+        if df is not None:
+            builder.add_dataframe(df, file_format)
+        if config is not None:
+            builder.add_config(config)
+        if var_specs is not None:
+            var_specs = deepcopy(var_specs)
+            for var_dict in var_specs:
+                var_name = var_dict.pop("name")
+                for attr_name, attr_val in var_dict.items():
+                    setattr(builder[var_name], attr_name, attr_val)
+        return builder.fit(progress_bar=progress_bar)
 
     @classmethod
-    def from_config(cls, meta_config: MetaConfig) -> MetaFrame:
+    def from_config(cls, meta_config: str | Path | dict) -> MetaFrame:
         """Create a MetaFrame using a configuration, but without a DataFrame.
 
         Parameters
@@ -597,12 +547,11 @@ class MetaFrame:
 
         synth_dict = {}
         for name in  (pbar := tqdm(dep_graph, disable=not progress_bar, unit="variables")):
-        # for var in (pbar := tqdm(self.meta_vars, disable=not progress_bar, unit="variables")):
             var = self.meta_vars[[x.name for x in self.meta_vars].index(name)]
             desc = var.name[:5] + "…" + var.name[-6:] if len(var.name) > 11 else var.name
             pbar.set_description(f"{desc:>12}")
-            synth_dict[var.name] = var.draw_series(n, synth_dict, seed=None, progress_bar=progress_bar)
-            # print(dep_graph)
+            synth_dict[var.name] = var.draw_series(n, synth_dict, seed=None,
+                                                   progress_bar=progress_bar)
 
         synth_dict = {var.name: synth_dict[var.name] for var in self.meta_vars}
         return pl.DataFrame(synth_dict)
