@@ -104,7 +104,7 @@ class MetaFrame:
     def __init__(
         self,
         meta_vars: List[MetaVar],
-        n_rows: Optional[int] = None,
+        n_rows: int,
         file_format: Union[None, BaseFileInterface, dict[str, Any]] = None,
         name: str = "single_table"
     ):
@@ -113,6 +113,8 @@ class MetaFrame:
         self._file_format: Union[None, dict[str, Any]]
         self.file_format = file_format  # type: ignore
         self.name = name
+        if self.n_rows is None:
+            raise ValueError("Please set the number of rows for the metaframe: mf_builder.mf = ...")
 
     @property
     def n_columns(self) -> int:

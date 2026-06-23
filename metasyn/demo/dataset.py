@@ -93,7 +93,7 @@ class TitanicDataset(BaseDataset):
 
     @property
     def var_specs(self):
-        return [("PassengerId", {"unique": True})]
+        return [{"name": "PassengerId", "distribution": {"unique": True}}]
 
 
 @register
@@ -129,7 +129,8 @@ class FruitDataset(BaseDataset):
 
     @property
     def var_specs(self):
-        return [VarSpec("ID", unique=True), VarSpec("B", unique=False)]
+        return [{"name": "ID", "distribution": {"unique": True}},
+                {"name": "B", "distribution": {"unique": False}}]
 
 
 @register

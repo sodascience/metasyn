@@ -131,8 +131,9 @@ Examples:
 
 
     args = parser.parse_args(input_args)
+    if args.config is None and args.input is None:
+        raise parser.error("Please supply either an input dataset or a configuration file.")
     builder = MetaFrameBuilder()
-    # builder.
     if args.config is not None:
         with open(args.config, "rb") as handle:
             meta_config = tomllib.load(handle)
@@ -140,14 +141,10 @@ Examples:
     else:
         meta_config = None
         file_format = {}
-    # if args.config is not None:
-        # meta_config = MetaConfig.from_toml(args.config)
-    # else:
-        # meta_config = None
 
     if args.input is not None:
         data_frame, file_handler = read_file(args.input, **file_format)
-        builder.file_format = file_format
+        builder.add_dataframe(data_frame, file_format)
     elif len(file_format) > 0:
         builder.file_format = file_format
 

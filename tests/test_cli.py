@@ -48,6 +48,8 @@ def tmp_dir(tmp_path_factory) -> Path:
         config_fp = TMP_DIR_PATH / "config.ini"
         with open(config_fp, "w") as handle:
             handle.write("""
+config_version = "1.0"
+
 [[var]]
 name = "PassengerId"
 distribution = {unique = true}
