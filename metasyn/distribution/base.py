@@ -16,7 +16,7 @@ which is used to set the class attributes of a distribution.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod, abstractproperty
+from abc import ABC, abstractmethod
 from copy import deepcopy
 from dataclasses import dataclass, fields
 from importlib import metadata
@@ -258,7 +258,7 @@ class PlusOperator(Operator):
         if left_operand is None or right_operand is None:
             return None
         return left_operand + right_operand
-    
+
 
 @dataclass
 class MultiplyOperator(Operator):
