@@ -258,17 +258,7 @@ class PlusOperator(Operator):
         if left_operand is None or right_operand is None:
             return None
         return left_operand + right_operand
-
-@dataclass
-class MinusOperator(Operator):
-    left_operand: Any
-    right_operand: Any
-
-    def compute(self, left_operand, right_operand):
-        if left_operand is None or right_operand is None:
-            return None
-        return left_operand - right_operand
-
+    
 
 @dataclass
 class MultiplyOperator(Operator):

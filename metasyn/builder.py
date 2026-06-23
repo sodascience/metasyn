@@ -38,10 +38,11 @@ class VarBuilder():
         self.prop_missing = prop_missing
         self._privacy = privacy
         self.mf_builder = mf_builder
-        self.distribution: str | DistributionLike | dict | None = distribution
+        self._distribution: str | DistributionLike | dict | None = distribution
         self.fitter = fitter
         self.description: str | None = description
         self.plugins = None
+        self._var_type = None
 
     @property
     def registry(self):
@@ -53,8 +54,8 @@ class VarBuilder():
 
     @property
     def privacy(self):
-        if self._privacy is None:
-            return self.mf_builder.privacy
+        if self.mf_builder is not None and self._privacy is None:
+            return self.mf_builder.defaults.get("privacy", None)
         return self._privacy
 
     @privacy.setter
@@ -62,11 +63,34 @@ class VarBuilder():
         self._privacy = value
 
     @property
+    def distribution(self):
+        if self.mf_builder is not None and self._distribution is None and self._var_type is not None:
+            return self.mf_builder.get_default_distribution(self._var_type)
+        return self._distribution
+
+    @distribution.setter
+    def distribution(self, value):
+        self._distribution = value
+
+    @privacy.setter
+    def privacy(self, value):
+        self._distribution = value
+
+    @property
     def var_type(self):
+        if self._var_type is not None:
+            return self._var_type
         distribution = {} if self.distribution is None else self.distribution
+
+        series_var_type = None if self.series is None else get_var_type(self.series)
+
         if isinstance(distribution, dict):
-            return distribution.get("var_type", get_var_type(self.series))
-        return get_var_type(self.series)
+            return distribution.get("var_type", series_var_type)
+        return series_var_type
+
+    @var_type.setter
+    def var_type(self, value: str):
+        self._var_type = value
 
     @property
     def dtype(self):
@@ -82,22 +106,6 @@ class VarBuilder():
             recipe = recipe_class.create(self)
             if recipe is not None:
                 return recipe
-        # if isinstance(self.distribution, DistributionLike):
-        #     return DistributionRecipe(self.distribution)
-        # if isinstance(self.distribution, dict) or self.distribution is None:
-        #     if self.distribution is not None and "parameters" in self.distribution:
-        #         parameters = self.distribution.pop("parameters")
-        #         dist_class = self.registry.find_distribution(**self.distribution,
-        #                                                      var_type=self.var_type)
-        #         return DistributionRecipe(dist_class(**parameters))
-        #     if self.distribution is None or self.distribution.get("unique", None) is None:
-        #         fitters = self._find_fitters(False)
-        #         unq_fitters = self._find_fitters(True)
-        #         return UnqFindDistributionRecipe(self.series, fitters, unq_fitters)
-        #     fitters = self._find_fitters(self.distribution["unique"])
-        #     return FindDistributionRecipe(self.series, fitters)
-        # if inspect.isclass(self.distribution) and issubclass(self.distribution, DistributionLike):
-            # return FindDistributionRecipe(self.series, self.registry.find_fitter(self.distribution))
         raise TypeError(f"Unknown type for recipe: {type(self.distribution)}.")
 
     def get_creation_method(self, fitter: BaseFitter | str | None) -> dict:
@@ -136,6 +144,9 @@ class VarBuilder():
         else:
             prop_missing = self.prop_missing
         dist, fitter = self.recipe.fit()
+        # print(self.name, self.distribution, self.dtype, self.series, self.recipe)
+        # print(self.name, MetaVar(self.name, self.var_type, dist, self.dtype, self.description,
+                    #    prop_missing, creation_method=self.get_creation_method(fitter)).to_dict())
         return MetaVar(self.name, self.var_type, dist, self.dtype, self.description,
                        prop_missing, creation_method=self.get_creation_method(fitter))
 
@@ -154,14 +165,15 @@ class MetaFrameBuilder():
     def __init__(self, name="single"):
         # self.df = None
         self.file_format = None
-        self.default_privacy = None
+        # self.default_privacy = None
         # self.override_privacy = {}
-        self.privacy = None
+        # self.privacy = None
         self.columns = []
         self.var_builders = {}
         self.n_rows = None
         self.plugins = None
         self.name = name
+        self.defaults = {}
 
     def __getitem__(self, item: str):
         return self.var_builders[item]
@@ -172,40 +184,66 @@ class MetaFrameBuilder():
 
         self.file_format = file_format
         for col in df.columns:
-            self.var_builders[col] = VarBuilder(col, self)
-            self.var_builders[col].series = df[col]
+            self.var_builders[col] = VarBuilder(df[col], col, self)
         self.n_rows = len(df) if self.n_rows is None else self.n_rows
 
     def add_column(self, name):
-        self.var_builders[name] = VarBuilder(name, self)
+        self.var_builders[name] = VarBuilder(None, name, self)
         self.columns.append(name)
         self.var_builders[name].prop_missing = 0.0
 
     def add_config(self, config: Path | str | dict) -> "MetaFrameBuilder":
         if isinstance(config, (Path, str)):
-            with open(config, "rb") as handle:
-                config = tomllib.load(handle)
+            try:
+                with open(config, "rb") as handle:
+                    config = tomllib.load(handle)
+            except FileNotFoundError as fnf_error:
+                raise FileNotFoundError(f"It appears '{config}' is not a valid filepath."
+                                        f" Please provide a path to a .toml file to load a MetaConfig"
+                                        f" from.") from fnf_error
+            except tomllib.TOMLDecodeError as value_error:
+                if Path(config).suffix != ".toml":
+                    raise ValueError(f"It appears '{Path(config).name}' is a"
+                                    f" '{Path(config).suffix}' file."
+                                    f" To load a MetaConfig, "
+                                    f"provide the configuration as a .toml file.") from value_error
+                raise value_error
 
-        config_version = config.get("config_version", None)
+        config_version = config.get("config_version", "2.0")
+
+        for parser in [ConfigV1XParser()]:
+            if config_version in parser.supports:
+                parser.read_dict(config, self)
+                return
+        raise ValueError(f"Cannot read configuration file, because version {config_version} is not "
+                         "supported.")
+        # config_version = config.get("config_version", None)
+        # # try:
+        #     # config_version = config["version"]
+        # # except KeyError:
+        #     # raise ValueError("Configuration or configuration file does not contain a version number.")
+
+        # if config_version is None:
+        #     raise warnings.warn("Unknown version of configuration file.", UserWarning)
+
         # try:
-            # config_version = config["version"]
+        #     config = deepcopy(config["table"][0])
         # except KeyError:
-            # raise ValueError("Configuration or configuration file does not contain a version number.")
+        #     pass
 
-        if config_version is None:
-            raise warnings.warn("Unknown version of configuration file.", UserWarning)
+        # # TODO: do some error checking on versions
+        # self.name = config.get("name", self.name)
+        # self.file_format = config.get("file_format", )
 
-        config = deepcopy(config["table"][0])
+        # if config["table_type"] == "dataframe":
+        #     for var_config in config["var"]:
+        #         col_name = var_config.pop("name")
+        #         for attr, val in var_config.items():
+        #             setattr(self[col_name], attr, val)
 
-        # TODO: do some error checking on versions
-        self.name = config.get("name", self.name)
-        self.file_format = config.get("file_format", )
-
-        if config["table_type"] == "dataframe":
-            for var_config in config["var"]:
-                col_name = var_config.pop("name")
-                for attr, val in var_config.items():
-                    setattr(self[col_name], attr, val)
+    def get_default_distribution(self, var_type):
+        # print(self.defaults.get("distribution", {}).get(var_type, None))
+        return self.defaults.get("distribution", {}).get(var_type, None)
 
     def set_privacy(self, privacy):
         if isinstance(privacy, dict):
@@ -214,7 +252,7 @@ class MetaFrameBuilder():
         else:
             self.privacy = privacy
 
-    def preview(self):
+    def preview(self, n_row_synthesize: int = 10, n_row_fit: None | int = None):
         pass
 
     def fit(self, progress_bar: bool = True):
@@ -222,6 +260,37 @@ class MetaFrameBuilder():
         for col in tqdm(self.columns, disable=not progress_bar):
             vars.append(self.var_builders[col].fit())
         return MetaFrame(vars, self.n_rows, self.file_format, self.name)
+
+class ConfigV1XParser():
+    keys = ["n_rows", "config_version", "file", "privacy", "defaults", "plugins",
+            "var"]
+    supports = ["1.0", "1.1", "1.2"]
+
+    def read_dict(self, config_dict: dict, builder: MetaFrameBuilder):
+        config_dict = deepcopy(config_dict)
+        if not set(config_dict.keys()) <= set(self.keys):
+            raise ValueError(f"Error parsing configuration."
+                             f" Unknown keys detected: '{list(config_dict)}'")
+
+        for var_dict in config_dict.get("var", []):
+            if var_dict.get("data_free", config_dict.get("defaults", {}).get("data_free", False)):
+                builder.add_column(var_dict["name"])
+            for attr, val in var_dict.items():
+                setattr(builder[var_dict["name"]], attr, val)
+
+        if "n_rows" in config_dict:
+            builder.n_rows = config_dict["n_rows"]
+        if "plugins" in config_dict:
+            builder.plugins = config_dict["plugins"]
+        if "file" in config_dict:
+            builder.file_format = config_dict["file"]
+        if "privacy" in config_dict and "defaults" in config_dict:
+            raise ValueError("Error parsing configuration file: cannot have both [privacy]"
+                                 " and [defaults] tables.")
+        if "privacy" in config_dict:
+            builder.defaults["privacy"] = config_dict["privacy"]
+        if "defaults" in config_dict:
+            builder.defaults = config_dict["defaults"]
 
 
 @dataclass
@@ -234,7 +303,19 @@ class DistributionRecipe():
     @classmethod
     def create(cls, var_builder: VarBuilder):
         if isinstance(var_builder.distribution, BaseDistribution):
+            if var_builder.series is None:
+                var_builder.series = pl.Series([var_builder.distribution.draw()])
             return cls(var_builder.distribution)
+        elif isinstance(var_builder.distribution, dict) and "parameters" in var_builder.distribution:
+            dist_class = var_builder.registry.find_distribution(
+                var_builder.distribution.get("name"),
+                var_builder.var_type,
+                var_builder.distribution.get("unique", False),
+                var_builder.distribution.get("version", None))
+            dist = dist_class(**var_builder.distribution["parameters"])
+            if var_builder.series is None:
+                var_builder.series = pl.Series([dist.draw()])
+            return cls(dist)
         return None
 
 @dataclass

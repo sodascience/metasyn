@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import pathlib
 from collections import defaultdict
+from copy import deepcopy
 from datetime import datetime
 from importlib.metadata import version
 from pathlib import Path
@@ -200,7 +201,9 @@ class MetaFrame:
         if config is not None:
             builder.add_config(config)
         if var_specs is not None:
-            for var_name, var_dict in var_specs:
+            var_specs = deepcopy(var_specs)
+            for var_dict in var_specs:
+                var_name = var_dict.pop("name")
                 for attr_name, attr_val in var_dict.items():
                     setattr(builder[var_name], attr_name, attr_val)
         return builder.fit(progress_bar=progress_bar)
