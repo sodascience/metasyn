@@ -137,7 +137,7 @@ Examples:
     if args.config is not None:
         with open(args.config, "rb") as handle:
             meta_config = tomllib.load(handle)
-        file_format = meta_config.get("file_format", {})
+        file_format = meta_config.get("file", {})
     else:
         meta_config = None
         file_format = {}
