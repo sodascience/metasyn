@@ -144,9 +144,6 @@ class VarBuilder():
         else:
             prop_missing = self.prop_missing
         dist, fitter = self.recipe.fit()
-        # print(self.name, self.distribution, self.dtype, self.series, self.recipe)
-        # print(self.name, MetaVar(self.name, self.var_type, dist, self.dtype, self.description,
-                    #    prop_missing, creation_method=self.get_creation_method(fitter)).to_dict())
         return MetaVar(self.name, self.var_type, dist, self.dtype, self.description,
                        prop_missing, creation_method=self.get_creation_method(fitter))
 
@@ -163,11 +160,7 @@ class VarBuilder():
 
 class MetaFrameBuilder():
     def __init__(self, name="single"):
-        # self.df = None
         self.file_format = None
-        # self.default_privacy = None
-        # self.override_privacy = {}
-        # self.privacy = None
         self.columns = []
         self.var_builders = {}
         self.n_rows = None
@@ -217,29 +210,6 @@ class MetaFrameBuilder():
                 return
         raise ValueError(f"Cannot read configuration file, because version {config_version} is not "
                          "supported.")
-        # config_version = config.get("config_version", None)
-        # # try:
-        #     # config_version = config["version"]
-        # # except KeyError:
-        #     # raise ValueError("Configuration or configuration file does not contain a version number.")
-
-        # if config_version is None:
-        #     raise warnings.warn("Unknown version of configuration file.", UserWarning)
-
-        # try:
-        #     config = deepcopy(config["table"][0])
-        # except KeyError:
-        #     pass
-
-        # # TODO: do some error checking on versions
-        # self.name = config.get("name", self.name)
-        # self.file_format = config.get("file_format", )
-
-        # if config["table_type"] == "dataframe":
-        #     for var_config in config["var"]:
-        #         col_name = var_config.pop("name")
-        #         for attr, val in var_config.items():
-        #             setattr(self[col_name], attr, val)
 
     def get_default_distribution(self, var_type):
         # print(self.defaults.get("distribution", {}).get(var_type, None))

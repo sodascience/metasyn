@@ -54,20 +54,6 @@ class DependencyGraph():
             self.dependency_of.pop(name, None)
             yield name
 
-    # def next_column(self):
-    #     name = self.queue.pop()
-    #     self.running.add(op_id)
-    #     return op_id
-
-    # def finish_op(self, op_id):
-    #     self.running.remove(op_id)
-    #     for dep_op_id in self.dependency_of[op_id]:
-    #         self.depends_on[dep_op_id].remove(op_id)
-    #         if len(self.depends_on[dep_op_id]) == 0:
-    #             self.queue.append(dep_op_id)
-    #     self.depends_on.pop(op_id)
-    #     self.dependency_of.pop(op_id, None)
-
     def __str__(self):
         return f"{self.queue} {self.depends_on} {self.dependency_of}"
 
@@ -171,22 +157,6 @@ class MetaFrame:
         MetaFrame:
             Initialized metasyn metaframe.
         """
-        # if isinstance(var_specs, (str, pathlib.Path, MetaConfig)) and config is None:
-        #     warn(
-        #         "Supplying the configuration through var_specs is deprecated and will be removed"
-        #         f" in metasyn version 2.0. Use config={var_specs} instead.",
-        #         DeprecationWarning,
-        #         stacklevel=2,
-        #     )
-        #     config = var_specs
-        #     var_specs = None
-        # Parse the var_specs into a MetaConfig instance.
-        # if config is None:
-            # meta_config = MetaConfig([], plugins, defaults={"privacy": privacy})
-        # elif isinstance(config, (pathlib.Path, str)):
-            # meta_config = MetaConfig.from_toml(config)
-        # else:
-            # meta_config = config
         from metasyn.builder import MetaFrameBuilder
 
         if df is not None and not isinstance(df, pl.DataFrame):
@@ -209,58 +179,6 @@ class MetaFrame:
                 for attr_name, attr_val in var_dict.items():
                     setattr(builder[var_name], attr_name, attr_val)
         return builder.fit(progress_bar=progress_bar)
-
-        # var_specs overrules variable specifications in the configuration (file).
-        # if var_specs is not None:
-            # meta_config.update_varspecs(var_specs)
-
-        # if plugins is not None:
-            # meta_config.plugins = plugins  # type: ignore
-        # if privacy is not None:
-            # meta_config.defaults.privacy = privacy  # type: ignore
-
-
-        # all_vars = []
-        # columns = df.columns if df is not None else []
-        # if df is not None:
-        #     for col_name in (pbar := tqdm(columns, disable=not progress_bar, unit="variables")):
-        #         desc = col_name[:5] + "…" + col_name[-6:] if len(col_name) > 11 else col_name
-        #         pbar.set_description(f"{desc:>12}")
-        #         var_spec = meta_config.get(col_name)
-        #         var = MetaVar.fit(
-        #             df[col_name],
-        #             var_spec.dist_spec,
-        #             meta_config.plugins,
-        #             var_spec.privacy,
-        #             var_spec.prop_missing,
-        #             var_spec.description,
-        #         )
-        #         all_vars.append(var)
-
-        # # Data free columns to be appended
-        # for var_spec in meta_config.iter_var(exclude=columns):
-        #     if not var_spec.data_free:
-        #         raise ValueError(
-        #             f"Column with name '{var_spec.name}' not found and not declared as data_free."
-        #         )
-        #     distribution = meta_config.plugins.create(var_spec)
-        #     prop_missing = 0.0 if var_spec.prop_missing is None else var_spec.prop_missing
-        #     var = MetaVar(
-        #         var_spec.name,
-        #         var_spec.var_type,
-        #         distribution,
-        #         description=var_spec.description,
-        #         prop_missing=prop_missing,
-        #     )
-        #     all_vars.append(var)
-        # if df is None:
-        #     if meta_config.n_rows is None:
-        #         raise ValueError(
-        #             "Please provide the number of rows in the configuration, or supply a DataFrame."
-        #         )
-        #     return cls(all_vars, meta_config.n_rows, file_format, name=name)
-        # n_rows = len(df) if n_rows is None else n_rows
-        # return cls(all_vars, n_rows, file_format, name=name)
 
     @classmethod
     def from_config(cls, meta_config: str | Path | dict) -> MetaFrame:

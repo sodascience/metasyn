@@ -154,21 +154,6 @@ Examples:
 
     mf = builder.fit()
     mf.save(args.output)
-    # if len(file_format) > 0:
-        # builder.file_format = file_format
-
-
-        # if meta_config is None:
-            # raise parser.error("Please supply either an input dataset or a configuration file.")
-        # meta_frame = MetaFrame.from_config(meta_config)
-    # else:
-        # if meta_config is not None and meta_config.file_config is not None:
-            # data_frame, file_handler = read_file(args.input, **file_format)
-        # else:
-            # data_frame, file_handler = read_file(args.input)
-        # meta_frame = MetaFrame.fit_dataframe(data_frame, config=meta_config)
-        # meta_frame.file_format = file_handler.to_dict()
-    # meta_frame.save(args.output)
 
 
 def synthesize(input_args) -> None:

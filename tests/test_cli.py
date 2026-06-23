@@ -80,12 +80,16 @@ def test_cli(tmp_dir, ext):
     ]
 
     # Run the cli with different extensions
-    main(cmd)
+    if ext == ".csv":
+        main(cmd)
+    else:
+        with pytest.warns(UserWarning):
+            main(cmd)
+
     assert out_file.is_file()
     if ext == ".csv":
         df = pl.read_csv(out_file)
         assert len(df) == 25
-
     main(["synthesize", tmp_dir / "titanic.json", "--preview"])
 
     # Check if errors are raised when a csv file is supplied.
