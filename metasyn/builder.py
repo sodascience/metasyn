@@ -1,4 +1,6 @@
 """Builder classes to build your metaframe one step at a time."""
+from __future__ import annotations
+
 import inspect
 import warnings
 from abc import ABC, abstractclassmethod, abstractmethod
@@ -130,7 +132,7 @@ class VarBuilder():
         return "unknown"
 
     @property
-    def recipe(self) -> "BaseRecipe":
+    def recipe(self) -> BaseRecipe:
         """Get recipe to create a distribution."""
         avail_recipes = [DistributionRecipe, FitterRecipe, FindDistributionRecipe,
                          UnqFindDistributionRecipe]
@@ -188,6 +190,7 @@ class VarBuilder():
 
     def _find_fitters(self, unique):
         distribution = {} if self.distribution is None else deepcopy(self.distribution)
+        distribution = {"name": distribution} if isinstance(distribution, str) else distribution
         distribution.update({"privacy": self.privacy})
         var_type = distribution.pop("var_type", get_var_type(self.series))
         distribution.pop("unique", None)
@@ -383,7 +386,7 @@ class BaseRecipe(ABC):
         pass
 
     @abstractclassmethod
-    def create(cls, var_builder: VarBuilder) -> "BaseRecipe" | None:
+    def create(cls, var_builder: VarBuilder) -> BaseRecipe | None:
         """Create a recipe from the information in the var builder.
 
         If the recipe cannot build itself from the provided information, None will be returned.
@@ -437,6 +440,7 @@ class FitterRecipe():
     def create(cls, var_builder: VarBuilder):
         if isinstance(var_builder.fitter, BaseFitter):
             return cls(var_builder.series, var_builder.fitter)
+
         return None
 
 
@@ -505,9 +509,15 @@ class UnqFindDistributionRecipe():
     @classmethod
     def create(cls, var_builder: VarBuilder):
         dist = var_builder.distribution
-        if (dist is None or (isinstance(dist, dict) and dist.get("unique", None) is None)
-                and var_builder.series is not None):
+        if ((
+                isinstance(dist, str)
+                or dist is None
+                or (isinstance(dist, dict) and dist.get("unique", None) is None))
+                    and var_builder.series is not None):
             fitters = var_builder._find_fitters(False)
             unq_fitters = var_builder._find_fitters(True)
             return cls(var_builder.series, fitters, unq_fitters)
-
+        # elif isinstance(var_builder.distribution, str):
+            # fitters = var_builder._find_fitters(True)
+            # unq_fitters = var_builder._find_fitters(False)
+            # 

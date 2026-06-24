@@ -550,8 +550,7 @@ class MetaFrame:
             var = self.meta_vars[[x.name for x in self.meta_vars].index(name)]
             desc = var.name[:5] + "…" + var.name[-6:] if len(var.name) > 11 else var.name
             pbar.set_description(f"{desc:>12}")
-            synth_dict[var.name] = var.draw_series(n, synth_dict, seed=None,
-                                                   progress_bar=progress_bar)
+            synth_dict[var.name] = var.draw_series(n, synth_dict, seed=None)
 
         synth_dict = {var.name: synth_dict[var.name] for var in self.meta_vars}
         return pl.DataFrame(synth_dict)
