@@ -102,7 +102,12 @@ class BaseFitter(ABC):
             "plugin_version": self.plugin_version,
         }
 
-class DistributionLike(ABC):
+class DistributionLike(ABC):  #noqa: PLW1641
+    """Objects that behave like distributions.
+
+    That includes the BaseDistributions and Operators (which are factually composed distributions).
+    """
+
     def __add__(self, other):
         return PlusOperator(self, other)
 
@@ -129,27 +134,34 @@ class DistributionLike(ABC):
 
     @property
     def dependencies(self) -> set[str]:
+        """The column dependencies of the distribution."""
         return set()
 
     @abstractmethod
     def draw_reset(self):
-        pass
+        """Reset the distribution so that it will start again from the start."""
 
     @abstractmethod
     def draw_list(self, n: int, synth_dict: dict):
-        pass
+        """Draw a list of values from the distribution."""
 
     @abstractmethod
-    def to_dict(self):
-        pass
+    def to_dict(self) -> dict:
+        """Create a dictionary from the distribution like.
 
-    # @abstractproperty
-    # def generates_na(self, var_dict):
-    #     pass
+        Returns
+        -------
+            A serialized version of the object.
+        """
 
 
 @dataclass
 class Operator(DistributionLike):
+    """Base class for distribution operators.
+
+    These include basic operations such as '+' and '-'.
+    """
+
     def draw_reset(self):
         for operand in self.operands:
             if isinstance(operand, DistributionLike):
@@ -174,7 +186,8 @@ class Operator(DistributionLike):
                 all_lists[op_name] = n*[val]
         results = []
         for i_val in range(n):
-            results.append(self.compute(**{name: all_lists[name][i_val] for name in all_lists.keys()}))
+            results.append(self.compute(**{name: all_lists[name][i_val]
+                                           for name in all_lists.keys()}))
         return results
 
     @property
@@ -201,56 +214,36 @@ class Operator(DistributionLike):
             "operands": [op.to_dict() if isinstance(op, DistributionLike) else op
                          for op in self.operands]
         }
-    # @property
-    # def generates_na(self, var_dict):
-    #     prop_non_na = 1
-    #     for op_name in self:
-    #         val = getattr(self, op_name)
-    #         if isinstance(val, DistributionLike):
-    #             prop_non_na *= (1-val.generates_na(var_dict))
-    #         elif val is None:
-    #             prop_non_na = 0
-    #     return 1-prop_non_na
+
 
 @dataclass
 class EqualsCondition(Operator):
+    """Operator to test whether two values are the same."""
+
     left_operand: Any
     right_operand: Any
 
-    def compute(self, left_operand, right_operand):
+    def compute(self, left_operand: Any, right_operand: Any) -> bool | None:
         if left_operand is None or right_operand is None:
             return None
         return left_operand == right_operand
 
 @dataclass
 class IfThenElse(Operator):
+    """Ternary operator that tests a condition and returns from two alternatives."""
+
     condition: Any
     then_operand: Any
     else_operand: Any
 
-    def compute(self, condition, then_operand, else_operand):
+    def compute(self, condition: Any, then_operand: Any, else_operand: Any) -> Any:
         return then_operand if condition else else_operand
-
-
-    # @property
-    # def generates_na(self, var_dict):
-    #     prop_non_na = 1
-    #     if isinstance(self.then_operand, DistributionLike):
-    #         prop_non_na = 0.5*(1-self.then_operand.generates_na(var_dict))
-    #     elif self.then_operand is None:
-    #         prop_non_na = 0.0
-    #     else:
-    #         prop_non_na = 0.5
-
-    #     if isinstance(self.else_operand, DistributionLike):
-    #         prop_non_na += 0.5*(1-self.then_operand.generates_na(var_dict))
-    #     elif self.else_operand is not None:
-    #         prop_non_na += 0.5
-    #     return 1-prop_non_na
 
 
 @dataclass
 class PlusOperator(Operator):
+    """Add two values together."""
+
     left_operand: Any
     right_operand: Any
 
@@ -262,30 +255,36 @@ class PlusOperator(Operator):
 
 @dataclass
 class MultiplyOperator(Operator):
+    """Multiply two values."""
+
     left_operand: Any
     right_operand: Any
 
-    def compute(self, left_operand, right_operand):
+    def compute(self, left_operand: Any, right_operand: Any) -> Any:
         if left_operand is None or right_operand is None:
             return None
         return left_operand * right_operand
 
 @dataclass
 class SubOperator(Operator):
+    """Subtract two values."""
+
     left_operand: Any
     right_operand: Any
 
-    def compute(self, left_operand, right_operand):
+    def compute(self, left_operand: Any, right_operand: Any) -> Any:
         if left_operand is None or right_operand is None:
             return None
         return left_operand - right_operand
 
 
 class ColumnReference(DistributionLike):
+    """Returns the value of another already synthesized column."""
+
     def __init__(self, ref_name):
         self.ref_name = ref_name
 
-    def draw_list(self, n, synth_dict):
+    def draw_list(self, n, synth_dict):  # noqa: ARG002
         return synth_dict[self.ref_name].to_list()
 
     @property
@@ -449,7 +448,7 @@ class BaseDistribution(DistributionLike):
         """Get a distribution with default parameters."""
         return cls()
 
-    def draw_list(self, n: int, synth_dict: dict) -> list:
+    def draw_list(self, n: int, synth_dict: dict) -> list:  #noqa: ARG002
         """Draw a list of values from the distribution.
 
         Parameters
@@ -665,7 +664,7 @@ class ScipyDistribution(BaseDistribution):
             return int(val)
         return val
 
-    def draw_list(self, n: int, synth_dict: dict) -> list:
+    def draw_list(self, n: int, synth_dict: dict) -> list:  #noqa: ARG002
         values = self.dist.rvs(n)
         if self.var_type == "discrete":
             values = values.astype(np.int64)

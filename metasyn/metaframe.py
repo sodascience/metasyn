@@ -31,12 +31,23 @@ from metasyn.var import MetaVar
 
 
 class DependencyGraph():
+    """Data structure to compute in which order columns need to be processed."""
+
     def __init__(self):
         self.dependency_of  = defaultdict(set)
         self.depends_on = {}
         self.queue = []
 
     def add(self, name: str, depends_on: set[str]):
+        """Add a new column to the graph.
+
+        Parameters
+        ----------
+        name
+            Name of the column
+        depends_on
+            Columns that the current column depends on for generation.
+        """
         self.depends_on[name] = depends_on
         for other_name in depends_on:
             self.dependency_of[other_name].add(name)
@@ -157,7 +168,7 @@ class MetaFrame:
         MetaFrame:
             Initialized metasyn metaframe.
         """
-        from metasyn.builder import MetaFrameBuilder
+        from metasyn.builder import MetaFrameBuilder  #noqa: PLC0415
 
         if df is not None and not isinstance(df, pl.DataFrame):
             if isinstance(df, (str, pathlib.Path)):
@@ -536,12 +547,11 @@ class MetaFrame:
 
         synth_dict = {}
         for name in  (pbar := tqdm(dep_graph, disable=not progress_bar, unit="variables")):
-        # for var in (pbar := tqdm(self.meta_vars, disable=not progress_bar, unit="variables")):
             var = self.meta_vars[[x.name for x in self.meta_vars].index(name)]
             desc = var.name[:5] + "…" + var.name[-6:] if len(var.name) > 11 else var.name
             pbar.set_description(f"{desc:>12}")
-            synth_dict[var.name] = var.draw_series(n, synth_dict, seed=None, progress_bar=progress_bar)
-            # print(dep_graph)
+            synth_dict[var.name] = var.draw_series(n, synth_dict, seed=None,
+                                                   progress_bar=progress_bar)
 
         synth_dict = {var.name: synth_dict[var.name] for var in self.meta_vars}
         return pl.DataFrame(synth_dict)

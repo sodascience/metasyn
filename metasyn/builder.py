@@ -1,5 +1,7 @@
+"""Builder classes to build your metaframe one step at a time."""
 import inspect
 import warnings
+from abc import ABC, abstractclassmethod, abstractmethod
 from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
@@ -10,6 +12,7 @@ import polars as pl
 from tqdm import tqdm
 
 from metasyn.distribution.base import BaseDistribution, BaseFitter, DistributionLike
+from metasyn.file import BaseFileInterface
 from metasyn.metaframe import MetaFrame
 from metasyn.privacy import BasePrivacy, BasicPrivacy
 from metasyn.registry import DistributionRegistry
@@ -23,6 +26,33 @@ except ImportError:
 
 
 class VarBuilder():
+    """MetaVar builder class to set the details of the distribution.
+
+    MetaVar instances will be generated step by step.
+
+    Parameters
+    ----------
+    series:
+        Series/column that contains the data to fit the distributions to. Can
+        be None if the distribution is completely determined otherwise.
+    name:
+        Name of the column.
+    mf_builder:
+        MetaFrame builder. This is mainly used to get default values for the whole
+        synthetic dataframe.
+    prop_missing:
+        Proportion of missing values. If None, get this proportion from the original data.
+    privacy:
+        Privacy object which will be used for the fitting method.
+    distribution:
+        Distribution to be used. If None, find the distribution with the best statistical
+        fit.
+    fitter:
+        Currently unused.
+    description:
+        Description attached to the column.
+    """
+
     def __init__(self, series: pl.Series | None = None,
                  name: str | None = None,
                  mf_builder: Optional["MetaFrameBuilder"] = None,
@@ -45,7 +75,8 @@ class VarBuilder():
         self._var_type = None
 
     @property
-    def registry(self):
+    def registry(self) -> DistributionRegistry:
+        """Distribution registry to be used for finding distributions and fitters."""
         plugins = self.plugins
         if plugins is None:
             plugins = getattr(getattr(self, "mf_builder", None), "plugins", None)
@@ -53,31 +84,30 @@ class VarBuilder():
         return DistributionRegistry.parse(plugins)
 
     @property
-    def privacy(self):
+    def privacy(self) -> BasePrivacy:
         if self.mf_builder is not None and self._privacy is None:
             return self.mf_builder.defaults.get("privacy", None)
         return self._privacy
 
     @privacy.setter
-    def privacy(self, value):
+    def privacy(self, value: BasePrivacy | None):
         self._privacy = value
 
     @property
-    def distribution(self):
-        if self.mf_builder is not None and self._distribution is None and self._var_type is not None:
+    def distribution(self) -> None | dict | str | BaseDistribution:
+        """Distribution directives for fitting a distribution."""
+        if (self.mf_builder is not None and self._distribution is None
+                and self._var_type is not None):
             return self.mf_builder.get_default_distribution(self._var_type)
         return self._distribution
 
     @distribution.setter
-    def distribution(self, value):
-        self._distribution = value
-
-    @privacy.setter
-    def privacy(self, value):
+    def distribution(self, value: None | dict | str | BaseDistribution):
         self._distribution = value
 
     @property
-    def var_type(self):
+    def var_type(self) -> str:
+        """Variable type for the distribution."""
         if self._var_type is not None:
             return self._var_type
         distribution = {} if self.distribution is None else self.distribution
@@ -93,13 +123,15 @@ class VarBuilder():
         self._var_type = value
 
     @property
-    def dtype(self):
+    def dtype(self) -> str:
+        """Type of the elements in the series to be generated."""
         if self.series is not None:
             return str(self.series.dtype)
         return "unknown"
 
     @property
-    def recipe(self):
+    def recipe(self) -> "BaseRecipe":
+        """Get recipe to create a distribution."""
         avail_recipes = [DistributionRecipe, FitterRecipe, FindDistributionRecipe,
                          UnqFindDistributionRecipe]
         for recipe_class in avail_recipes:
@@ -125,7 +157,8 @@ class VarBuilder():
         else:
             ret_dict: dict[str, Any] = {"created_by": "metasyn"}
         if isinstance(self.distribution, dict):
-            dist_dict = {var: self.distribution.get(var) for var in ["name", "unique", "parameters", "version"]
+            dist_dict = {var: self.distribution.get(var)
+                         for var in ["name", "unique", "parameters", "version"]
                          if var in self.distribution}
             if len(dist_dict) != 0:
                 ret_dict["distribution"] = dist_dict
@@ -139,6 +172,12 @@ class VarBuilder():
         return ret_dict
 
     def fit(self):
+        """Fit or create the distribution.
+
+        Returns
+        -------
+            A MetaVar with the fitted distribution.
+        """
         if self.prop_missing is None:
             prop_missing = (len(self.series) - len(self.series.drop_nulls())) / len(self.series)
         else:
@@ -159,6 +198,18 @@ class VarBuilder():
 
 
 class MetaFrameBuilder():
+    """Builder class for creating metaframes.
+
+    This class allows you to build your metaframe step by step instead of in one go with the
+    ``MetaFrame.fit_dataframe()` method.
+
+    Parameters
+    ----------
+    name:
+        Name of the dataframe. Only really used when you are synthesizing multiple datasets at
+        the same time.
+    """
+
     def __init__(self, name="single"):
         self.file_format = None
         self.columns = []
@@ -171,8 +222,16 @@ class MetaFrameBuilder():
     def __getitem__(self, item: str):
         return self.var_builders[item]
 
-    def add_dataframe(self, df, file_format):
-        # self.df = df
+    def add_dataframe(self, df: pl.DataFrame, file_format: BaseFileInterface | dict | None):
+        """Add a dataframe to the metaframe builder.
+
+        Parameters
+        ----------
+        df
+            DataFrame to be synthesized.
+        file_format
+            File format description linked to the dataframe.
+        """
         self.columns = df.columns
 
         self.file_format = file_format
@@ -180,20 +239,37 @@ class MetaFrameBuilder():
             self.var_builders[col] = VarBuilder(df[col], col, self)
         self.n_rows = len(df) if self.n_rows is None else self.n_rows
 
-    def add_column(self, name):
+    def add_column(self, name: str):
+        """Add a new column to the MetaFrame being built.
+
+        Parameters
+        ----------
+        name
+            Name of the new column.
+        """
         self.var_builders[name] = VarBuilder(None, name, self)
         self.columns.append(name)
         self.var_builders[name].prop_missing = 0.0
 
     def add_config(self, config: Path | str | dict) -> "MetaFrameBuilder":
+        """Configure the MetaFrame from a configuration file.
+
+        This configuration file can have new columns that are declared data free.
+
+        Parameters
+        ----------
+        config:
+            Configuration file or dictionary that will be applied to the MetaFrame.
+        """
         if isinstance(config, (Path, str)):
             try:
                 with open(config, "rb") as handle:
                     config = tomllib.load(handle)
             except FileNotFoundError as fnf_error:
-                raise FileNotFoundError(f"It appears '{config}' is not a valid filepath."
-                                        f" Please provide a path to a .toml file to load a MetaConfig"
-                                        f" from.") from fnf_error
+                raise FileNotFoundError(
+                    f"It appears '{config}' is not a valid filepath."
+                    f" Please provide a path to a .toml file to load a MetaConfig"
+                    f" from.") from fnf_error
             except tomllib.TOMLDecodeError as value_error:
                 if Path(config).suffix != ".toml":
                     raise ValueError(f"It appears '{Path(config).name}' is a"
@@ -211,32 +287,67 @@ class MetaFrameBuilder():
         raise ValueError(f"Cannot read configuration file, because version {config_version} is not "
                          "supported.")
 
-    def get_default_distribution(self, var_type):
-        # print(self.defaults.get("distribution", {}).get(var_type, None))
+    def get_default_distribution(self, var_type) -> str | dict | None | DistributionLike:
+        """Get the default distribution for a variable type.
+
+        Parameters
+        ----------
+        var_type
+            Variable type such as "string", "discrete", "categorical".
+
+        Returns
+        -------
+            The default distribution.
+        """
         return self.defaults.get("distribution", {}).get(var_type, None)
 
-    def set_privacy(self, privacy):
-        if isinstance(privacy, dict):
-            for name, priv in privacy.items():
-                self[name].privacy = priv
-        else:
-            self.privacy = privacy
+    @property
+    def privacy(self) -> BasePrivacy:
+        """The default privacy for all columns."""
+        return self.defaults.get("privacy", BasicPrivacy())
 
-    def preview(self, n_row_synthesize: int = 10, n_row_fit: None | int = None):
-        pass
+    @privacy.setter
+    def privacy(self, value: BasePrivacy):
+        self.defaults.update({"privacy": value})
 
-    def fit(self, progress_bar: bool = True):
+    # def preview(self, n_row_synthesize: int = 10, n_row_fit: None | int = None):
+        # pass
+
+    def fit(self, progress_bar: bool = True) -> MetaFrame:
+        """Create a MetaFrame from the builder.
+
+        Parameters
+        ----------
+        progress_bar:
+            Whether to display a progress bar.
+        """
         vars = []
         for col in tqdm(self.columns, disable=not progress_bar):
             vars.append(self.var_builders[col].fit())
         return MetaFrame(vars, self.n_rows, self.file_format, self.name)
 
 class ConfigV1XParser():
+    """TOML confifuration parser for versions 1.0, 1.1 and 1.2."""
+
     keys = ["n_rows", "config_version", "file", "privacy", "defaults", "plugins",
             "var"]
     supports = ["1.0", "1.1", "1.2"]
 
     def read_dict(self, config_dict: dict, builder: MetaFrameBuilder):
+        """Read a dictionary containing the configuration.
+
+        Parameters
+        ----------
+        config_dict
+            Configuration dictionary to parse.
+        builder
+            MetaFrame Builder to adjust from the configuration dictionary.
+
+        Raises
+        ------
+        ValueError
+            If unknown keys are detected or if there are both privacy and defaults sections.
+        """
         config_dict = deepcopy(config_dict)
         if not set(config_dict.keys()) <= set(self.keys):
             raise ValueError(f"Error parsing configuration."
@@ -263,8 +374,28 @@ class ConfigV1XParser():
             builder.defaults = config_dict["defaults"]
 
 
+class BaseRecipe(ABC):
+    """Base class for distribution recipes."""
+
+    @abstractmethod
+    def fit(self) -> DistributionLike:
+        """Use the recipe to fit or get the correct distribution."""
+        pass
+
+    @abstractclassmethod
+    def create(cls, var_builder: VarBuilder) -> "BaseRecipe" | None:
+        """Create a recipe from the information in the var builder.
+
+        If the recipe cannot build itself from the provided information, None will be returned.
+        """
+
 @dataclass
 class DistributionRecipe():
+    """Distribution recipe without any fitting.
+
+    Used for example if you use builder["col"].distribution = DiscreteUniformDistribution(0, 1).
+    """
+
     distribution: BaseDistribution
 
     def fit(self):
@@ -276,7 +407,8 @@ class DistributionRecipe():
             if var_builder.series is None:
                 var_builder.series = pl.Series([var_builder.distribution.draw()])
             return cls(var_builder.distribution)
-        elif isinstance(var_builder.distribution, dict) and "parameters" in var_builder.distribution:
+        elif (isinstance(var_builder.distribution, dict)
+                and "parameters" in var_builder.distribution):
             dist_class = var_builder.registry.find_distribution(
                 var_builder.distribution.get("name"),
                 var_builder.var_type,
@@ -290,6 +422,11 @@ class DistributionRecipe():
 
 @dataclass
 class FitterRecipe():
+    """Recipe where one candidate fitter is used.
+
+    For example when builder["col"].distribution = "uniform".
+    """
+
     series: pl.Series
     fitter: BaseFitter
 
@@ -305,6 +442,8 @@ class FitterRecipe():
 
 @dataclass
 class FindDistributionRecipe():
+    """Recipe where multiple fitters are considered."""
+
     series: pl.Series
     fitters: list[BaseFitter]
 
@@ -330,12 +469,15 @@ class FindDistributionRecipe():
             fitters = var_builder._find_fitters(dist["unique"])
             return cls(var_builder.series, fitters)
         if inspect.isclass(dist) and issubclass(dist, DistributionLike):
-            fitter_classes = var_builder.registry.find_fitters(dist.name, var_type=var_builder.var_type)
+            fitter_classes = var_builder.registry.find_fitters(dist.name,
+                                                               var_type=var_builder.var_type)
             return cls(var_builder.series, [f(var_builder.privacy) for f in fitter_classes])
         return None
 
 @dataclass
 class UnqFindDistributionRecipe():
+    """Recipe where we consider both unique and non-unique fitters."""
+
     series: pl.Series
     fitters: list[BaseFitter]
     unq_fitters: list[BaseFitter]
@@ -345,7 +487,8 @@ class UnqFindDistributionRecipe():
         dist, fitter, bic = FindDistributionRecipe(self.series, self.fitters).fit_with_bic(series)
         if len(self.unq_fitters) == 0:
             return dist, fitter
-        unq_dist, unq_fitter, unq_bic = FindDistributionRecipe(self.series, self.unq_fitters).fit_with_bic(series)
+        unq_dist, unq_fitter, unq_bic = FindDistributionRecipe(self.series,
+                                                               self.unq_fitters).fit_with_bic(series)
         if unq_bic + 16 < bic:
             if unq_dist.name == "core.unique_key" and unq_dist.consecutive:
                 return unq_dist, unq_fitter
@@ -362,7 +505,8 @@ class UnqFindDistributionRecipe():
     @classmethod
     def create(cls, var_builder: VarBuilder):
         dist = var_builder.distribution
-        if dist is None or (isinstance(dist, dict) and dist.get("unique", None) is None) and var_builder.series is not None:
+        if (dist is None or (isinstance(dist, dict) and dist.get("unique", None) is None)
+                and var_builder.series is not None):
             fitters = var_builder._find_fitters(False)
             unq_fitters = var_builder._find_fitters(True)
             return cls(var_builder.series, fitters, unq_fitters)

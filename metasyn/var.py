@@ -123,13 +123,16 @@ class MetaVar:
     def __repr__(self) -> str:
         return f"MetaVar <{self.name}, {self.distribution.name}>"
 
-    def draw_series(self, n: int, synth_dict: dict | None = None, seed: Optional[int] = None, progress_bar: bool = True) -> pl.Series:
+    def draw_series(self, n: int, synth_dict: dict | None = None,
+                    seed: Optional[int] = None) -> pl.Series:
         """Draw a new synthetic series from the metadata.
 
         Parameters
         ----------
         n:
             Length of the series to be created.
+        synth_dict:
+            Dictionary that contains the already synthesized columns.
         seed:
             Seed value for the internal random number generator. Set this to ensure reproducibility.
         progress_bar:
