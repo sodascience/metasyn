@@ -131,6 +131,15 @@ class DistributionLike(ABC):  #noqa: PLW1641
 
     def __neg__(self):
         return SubOperator(0, self)
+    
+    def __gt__(self, other):
+        return GreaterThanCondition(self, other)
+    
+    def __lt__(self, other):
+        return LessThanCondition(self, other)
+    
+    def __neq__(self, other):
+        return NotEqualsCondition(self, other)
 
     @property
     def dependencies(self) -> set[str]:
@@ -277,6 +286,41 @@ class SubOperator(Operator):
             return None
         return left_operand - right_operand
 
+@dataclass
+class GreaterThanCondition(Operator):
+    """Operator to test whether the left value is greater than the right value."""
+
+    left_operand: Any
+    right_operand: Any
+
+    def compute(self, left_operand: Any, right_operand: Any) -> bool | None:
+        if left_operand is None or right_operand is None:
+            return None
+        return left_operand > right_operand
+    
+@dataclass
+class LessThanCondition(Operator):
+    """Operator to test whether the left value is less than the right value."""
+
+    left_operand: Any
+    right_operand: Any
+
+    def compute(self, left_operand: Any, right_operand: Any) -> bool | None:
+        if left_operand is None or right_operand is None:
+            return None
+        return left_operand < right_operand
+    
+@dataclass
+class NotEqualsCondition(Operator):
+    """Operator to test whether two values are not equal."""
+
+    left_operand: Any
+    right_operand: Any
+
+    def compute(self, left_operand: Any, right_operand: Any) -> bool | None:
+        if left_operand is None or right_operand is None:
+            return None
+        return left_operand != right_operand
 
 class ColumnReference(DistributionLike):
     """Returns the value of another already synthesized column."""
