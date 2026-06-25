@@ -13,7 +13,7 @@ import numpy as np
 import polars as pl
 from tqdm import tqdm
 
-from metasyn.distribution.base import BaseDistribution, BaseFitter, DistributionLike
+from metasyn.distribution.base import BaseFitter, DistributionLike
 from metasyn.file import BaseFileInterface
 from metasyn.metaframe import MetaFrame
 from metasyn.privacy import BasePrivacy, BasicPrivacy
@@ -96,7 +96,7 @@ class VarBuilder():
         self._privacy = value
 
     @property
-    def distribution(self) -> None | dict | str | BaseDistribution:
+    def distribution(self) -> None | dict | str | DistributionLike:
         """Distribution directives for fitting a distribution."""
         if (self.mf_builder is not None and self._distribution is None
                 and self._var_type is not None):
@@ -104,7 +104,7 @@ class VarBuilder():
         return self._distribution
 
     @distribution.setter
-    def distribution(self, value: None | dict | str | BaseDistribution):
+    def distribution(self, value: None | dict | str | DistributionLike):
         self._distribution = value
 
     @property
@@ -399,14 +399,14 @@ class DistributionRecipe():
     Used for example if you use builder["col"].distribution = DiscreteUniformDistribution(0, 1).
     """
 
-    distribution: BaseDistribution
+    distribution: DistributionLike
 
     def fit(self):
         return self.distribution, "user"
 
     @classmethod
     def create(cls, var_builder: VarBuilder):
-        if isinstance(var_builder.distribution, BaseDistribution):
+        if isinstance(var_builder.distribution, DistributionLike):
             if var_builder.series is None:
                 var_builder.series = pl.Series([var_builder.distribution.draw()])
             return cls(var_builder.distribution)
