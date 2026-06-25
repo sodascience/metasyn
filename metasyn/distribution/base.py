@@ -113,33 +113,57 @@ class DistributionLike(ABC):  #noqa: PLW1641
 
     def __radd__(self, other):
         return PlusOperator(other, self)
+    
+    def __sub__(self, other):
+        return SubOperator(self, other)
 
+    def __rsub__(self, other):
+        return SubOperator(other, self)
+    
     def __mul__(self, other):
         return MultiplyOperator(self, other)
 
     def __rmul__(self, other):
         return MultiplyOperator(other, self)
 
-    def __sub__(self, other):
-        return SubOperator(self, other)
+    def __truediv__(self, other):
+        return DivideOperator(self, other)
+    
+    def __rtruediv__(self, other):
+        return DivideOperator(other, self)
 
-    def __rsub__(self, other):
-        return SubOperator(other, self)
+    def __pow__(self, other):
+        return PowerOperator(self, other)
+    
+    def __rpow__(self, other):
+        return PowerOperator(other, self)
+            
+    def __neg__(self):
+        return SubOperator(0, self)
+    
+    def __and__(self, other):
+        return AndCondition(self, other)
+    
+    def __or__(self, other):
+        return OrCondition(self, other)
 
     def __eq__(self, other):
         return EqualsCondition(self, other)
 
-    def __neg__(self):
-        return SubOperator(0, self)
-    
-    def __gt__(self, other):
-        return GreaterThanCondition(self, other)
+    def __ne__(self, other):
+        return NotEqualsCondition(self, other)
     
     def __lt__(self, other):
         return LessThanCondition(self, other)
-    
-    def __neq__(self, other):
-        return NotEqualsCondition(self, other)
+
+    def __gt__(self, other):
+        return GreaterThanCondition(self, other)
+
+    def __le__(self, other):
+        return OrCondition(LessThanCondition(self, other), EqualsCondition(self, other))
+
+    def __ge__(self, other):
+        return OrCondition(GreaterThanCondition(self, other), EqualsCondition(self, other))
 
     @property
     def dependencies(self) -> set[str]:
@@ -275,6 +299,18 @@ class MultiplyOperator(Operator):
         return left_operand * right_operand
 
 @dataclass
+class DivideOperator(Operator):
+    """Divide one value by another."""
+
+    left_operand: Any
+    right_operand: Any
+
+    def compute(self, left_operand: Any, right_operand: Any) -> Any:
+        if left_operand is None or right_operand is None:
+            return None
+        return left_operand / right_operand
+
+@dataclass
 class SubOperator(Operator):
     """Subtract two values."""
 
@@ -287,8 +323,20 @@ class SubOperator(Operator):
         return left_operand - right_operand
 
 @dataclass
-class GreaterThanCondition(Operator):
-    """Operator to test whether the left value is greater than the right value."""
+class PowerOperator(Operator):
+    """Raise a value to a power."""
+
+    left_operand: Any
+    right_operand: Any
+
+    def compute(self, left_operand: Any, right_operand: Any) -> Any:
+        if left_operand is None or right_operand is None:
+            return None
+        return left_operand ** right_operand
+
+@dataclass
+class AndCondition(Operator):
+    """Logical and between two values."""
 
     left_operand: Any
     right_operand: Any
@@ -296,7 +344,19 @@ class GreaterThanCondition(Operator):
     def compute(self, left_operand: Any, right_operand: Any) -> bool | None:
         if left_operand is None or right_operand is None:
             return None
-        return left_operand > right_operand
+        return bool(left_operand) and bool(right_operand)
+
+@dataclass
+class OrCondition(Operator):
+    """Logical or between two values."""
+
+    left_operand: Any
+    right_operand: Any
+
+    def compute(self, left_operand: Any, right_operand: Any) -> bool | None:
+        if left_operand is None or right_operand is None:
+            return None
+        return bool(left_operand) or bool(right_operand)
     
 @dataclass
 class LessThanCondition(Operator):
@@ -309,6 +369,18 @@ class LessThanCondition(Operator):
         if left_operand is None or right_operand is None:
             return None
         return left_operand < right_operand
+
+@dataclass
+class GreaterThanCondition(Operator):
+    """Operator to test whether the left value is greater than the right value."""
+
+    left_operand: Any
+    right_operand: Any
+
+    def compute(self, left_operand: Any, right_operand: Any) -> bool | None:
+        if left_operand is None or right_operand is None:
+            return None
+        return left_operand > right_operand
     
 @dataclass
 class NotEqualsCondition(Operator):
