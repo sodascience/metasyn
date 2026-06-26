@@ -58,6 +58,7 @@ class MetaVar:
         description: Optional[str] = None,
         prop_missing: float = 0.0,
         creation_method: Optional[dict] = None,
+        hidden: bool = False
     ):
         self.name = name
         if var_type is None:
@@ -69,6 +70,7 @@ class MetaVar:
         self.description = description
         self.prop_missing = prop_missing
         self.creation_method = creation_method
+        self.hidden = hidden
         if creation_method is None:
             self.creation_method = {"created_by": "user"}
         if self.prop_missing < -1e-8 or self.prop_missing > 1 + 1e-8:

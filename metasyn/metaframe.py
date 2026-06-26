@@ -552,7 +552,7 @@ class MetaFrame:
             pbar.set_description(f"{desc:>12}")
             synth_dict[var.name] = var.draw_series(n, synth_dict, seed=None)
 
-        synth_dict = {var.name: synth_dict[var.name] for var in self.meta_vars}
+        synth_dict = {var.name: synth_dict[var.name] for var in self.meta_vars if not var.hidden}
         return pl.DataFrame(synth_dict)
 
     def write_synthetic(

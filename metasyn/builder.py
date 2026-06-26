@@ -62,9 +62,11 @@ class VarBuilder():
                  privacy: BasePrivacy | None = BasicPrivacy(),
                  distribution: str | DistributionLike | dict | None = None,
                  fitter: BaseFitter | None = None,
-                 description: str | None = None):
-        if series is not None:
-            series = pl.Series(series)
+                 description: str | None = None,
+                 hidden: bool = False):
+        # if series is not None:
+            # series = pl.Series(series)
+        self._series = None
         self.series = series
         self.name = series.name if name is None and series is not None else name
         self.prop_missing = prop_missing
@@ -75,6 +77,7 @@ class VarBuilder():
         self.description: str | None = description
         self.plugins = None
         self._var_type = None
+        self.hidden = hidden
 
     @property
     def registry(self) -> DistributionRegistry:
@@ -84,6 +87,19 @@ class VarBuilder():
             plugins = getattr(getattr(self, "mf_builder", None), "plugins", None)
 
         return DistributionRegistry.parse(plugins)
+
+    @property
+    def series(self) -> pl.Series | None:
+        if self._series is None:
+            return None
+        if isinstance(self._series, DistributionLike):
+            synth_dict = {name: self.mf_builder[name].series for name in self._series.dependencies}
+            return pl.Series(self._series.draw_list(self.mf_builder.n_rows, synth_dict))
+        return pl.Series(self._series)
+
+    @series.setter
+    def series(self, value: pl.Series | list | None):
+        self._series = value
 
     @property
     def privacy(self) -> BasePrivacy:
@@ -186,7 +202,8 @@ class VarBuilder():
             prop_missing = self.prop_missing
         dist, fitter = self.recipe.fit()
         return MetaVar(self.name, self.var_type, dist, self.dtype, self.description,
-                       prop_missing, creation_method=self.get_creation_method(fitter))
+                       prop_missing, creation_method=self.get_creation_method(fitter),
+                       hidden=self.hidden)
 
     def _find_fitters(self, unique):
         distribution = {} if self.distribution is None else deepcopy(self.distribution)
@@ -242,7 +259,7 @@ class MetaFrameBuilder():
             self.var_builders[col] = VarBuilder(df[col], col, self)
         self.n_rows = len(df) if self.n_rows is None else self.n_rows
 
-    def add_column(self, name: str):
+    def add_column(self, name: str, hidden: bool = False):
         """Add a new column to the MetaFrame being built.
 
         Parameters
@@ -250,9 +267,8 @@ class MetaFrameBuilder():
         name
             Name of the new column.
         """
-        self.var_builders[name] = VarBuilder(None, name, self)
+        self.var_builders[name] = VarBuilder(None, name, self, hidden=hidden)
         self.columns.append(name)
-        self.var_builders[name].prop_missing = 0.0
 
     def add_config(self, config: Path | str | dict) -> "MetaFrameBuilder":
         """Configure the MetaFrame from a configuration file.
@@ -442,6 +458,18 @@ class FitterRecipe():
             return cls(var_builder.series, var_builder.fitter)
 
         return None
+
+# @dataclass
+# class SeriesRecipe():
+#     def fit(self):
+#         return self.fitter.fit(self.series), self.fitter
+
+#     @classmethod
+#     def create(cls, var_builder: VarBuilder):
+#         if isinstance(var_builder.fitter, BaseFitter):
+#             return cls(var_builder.series, var_builder.fitter)
+
+#         return None
 
 
 @dataclass
