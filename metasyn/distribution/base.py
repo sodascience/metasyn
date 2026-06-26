@@ -173,7 +173,7 @@ class Operator(DistributionLike):
             yield op_field.name
 
     @abstractmethod
-    def compute(self, **kwargs):
+    def compute(self, *args):
         pass
 
     def draw_list(self, n, synth_dict):
@@ -406,7 +406,7 @@ class BaseDistribution(DistributionLike):
         """Create a distribution from a dictionary."""
         return cls(**dist_dict["parameters"])
 
-    def information_criterion(self, values: Union[pl.Series, npt.NDArray]) -> float: # noqa: ARG002
+    def information_criterion(self, values: pl.Series | npt.NDArray) -> float: # noqa: ARG002
         """Get the BIC value for a particular set of values.
 
         Parameters
@@ -721,7 +721,7 @@ class UniqueDistributionMixin(BaseDistribution):
             n_retry += 1
         raise ValueError(f"Failed to draw unique string after {n_retry} tries.")
 
-    def information_criterion(self, values): # noqa: ARG002
+    def information_criterion(self, values: pl.Series | npt.NDArray): # noqa: ARG002
         return 9999999
 
 

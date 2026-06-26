@@ -13,7 +13,7 @@ import numpy as np
 import polars as pl
 from tqdm import tqdm
 
-from metasyn.distribution.base import BaseFitter, DistributionLike
+from metasyn.distribution.base import BaseDistribution, BaseFitter, DistributionLike
 from metasyn.file import BaseFileInterface
 from metasyn.metaframe import MetaFrame
 from metasyn.privacy import BasePrivacy, BasicPrivacy
@@ -55,18 +55,20 @@ class VarBuilder():
         Description attached to the column.
     """
 
-    def __init__(self, series: pl.Series | None = None,
+    def __init__(self, series: pl.Series | None | DistributionLike = None,
                  name: str | None = None,
                  mf_builder: Optional["MetaFrameBuilder"] = None,
                  prop_missing: float | None = None,
                  privacy: BasePrivacy | None = BasicPrivacy(),
                  distribution: str | DistributionLike | dict | None = None,
                  fitter: BaseFitter | None = None,
-                 description: str | None = None):
-        if series is not None:
-            series = pl.Series(series)
+                 description: str | None = None,
+                 hidden: bool = False):
+        # if series is not None:
+            # series = pl.Series(series)
+        self._series: pl.Series | DistributionLike | None = None
         self.series = series
-        self.name = series.name if name is None and series is not None else name
+        self.name = series.name if name is None and isinstance(series, pl.Series) else name
         self.prop_missing = prop_missing
         self._privacy = privacy
         self.mf_builder = mf_builder
@@ -74,7 +76,8 @@ class VarBuilder():
         self.fitter = fitter
         self.description: str | None = description
         self.plugins = None
-        self._var_type = None
+        self._var_type: str | None = None
+        self.hidden = hidden
 
     @property
     def registry(self) -> DistributionRegistry:
@@ -86,7 +89,22 @@ class VarBuilder():
         return DistributionRegistry.parse(plugins)
 
     @property
-    def privacy(self) -> BasePrivacy:
+    def series(self) -> pl.Series | None:
+        if self._series is None:
+            return None
+        if isinstance(self._series, DistributionLike):
+            if self.mf_builder is None:
+                raise ValueError("Cannot create series without correspondig Metaframe builder.")
+            synth_dict = {name: self.mf_builder[name].series for name in self._series.dependencies}
+            return pl.Series(self._series.draw_list(self.mf_builder.n_rows, synth_dict))
+        return pl.Series(self._series)
+
+    @series.setter
+    def series(self, value: pl.Series | DistributionLike | None):
+        self._series = value
+
+    @property
+    def privacy(self) -> BasePrivacy | None:
         if self.mf_builder is not None and self._privacy is None:
             return self.mf_builder.defaults.get("privacy", None)
         return self._privacy
@@ -108,7 +126,7 @@ class VarBuilder():
         self._distribution = value
 
     @property
-    def var_type(self) -> str:
+    def var_type(self) -> str | None:
         """Variable type for the distribution."""
         if self._var_type is not None:
             return self._var_type
@@ -117,6 +135,8 @@ class VarBuilder():
         series_var_type = None if self.series is None else get_var_type(self.series)
 
         if isinstance(distribution, dict):
+            var_type = distribution.get("var_type", series_var_type)
+            assert var_type is None or isinstance(var_type, str)
             return distribution.get("var_type", series_var_type)
         return series_var_type
 
@@ -134,10 +154,10 @@ class VarBuilder():
     @property
     def recipe(self) -> BaseRecipe:
         """Get recipe to create a distribution."""
-        avail_recipes = [DistributionRecipe, FitterRecipe, FindDistributionRecipe,
-                         UnqFindDistributionRecipe]
+        avail_recipes: list[type[BaseRecipe]] = [
+            DistributionRecipe, FitterRecipe, FindDistributionRecipe, UnqFindDistributionRecipe]
         for recipe_class in avail_recipes:
-            recipe = recipe_class.create(self)
+            recipe = recipe_class.create(self)  # type: ignore
             if recipe is not None:
                 return recipe
         raise TypeError(f"Unknown type for recipe: {type(self.distribution)}.")
@@ -157,7 +177,7 @@ class VarBuilder():
         if isinstance(fitter, str):
             ret_dict: dict[str, Any] = {"created_by": fitter}
         else:
-            ret_dict: dict[str, Any] = {"created_by": "metasyn"}
+            ret_dict = {"created_by": "metasyn"}
         if isinstance(self.distribution, dict):
             dist_dict = {var: self.distribution.get(var)
                          for var in ["name", "unique", "parameters", "version"]
@@ -180,13 +200,16 @@ class VarBuilder():
         -------
             A MetaVar with the fitted distribution.
         """
-        if self.prop_missing is None:
+        if self.prop_missing is None and self.series is not None:
             prop_missing = (len(self.series) - len(self.series.drop_nulls())) / len(self.series)
+        elif self.prop_missing is None:
+            prop_missing = 0.0
         else:
             prop_missing = self.prop_missing
         dist, fitter = self.recipe.fit()
         return MetaVar(self.name, self.var_type, dist, self.dtype, self.description,
-                       prop_missing, creation_method=self.get_creation_method(fitter))
+                       prop_missing, creation_method=self.get_creation_method(fitter),
+                       hidden=self.hidden)
 
     def _find_fitters(self, unique):
         distribution = {} if self.distribution is None else deepcopy(self.distribution)
@@ -242,7 +265,7 @@ class MetaFrameBuilder():
             self.var_builders[col] = VarBuilder(df[col], col, self)
         self.n_rows = len(df) if self.n_rows is None else self.n_rows
 
-    def add_column(self, name: str):
+    def add_column(self, name: str, hidden: bool = False):
         """Add a new column to the MetaFrame being built.
 
         Parameters
@@ -250,9 +273,8 @@ class MetaFrameBuilder():
         name
             Name of the new column.
         """
-        self.var_builders[name] = VarBuilder(None, name, self)
+        self.var_builders[name] = VarBuilder(None, name, self, hidden=hidden)
         self.columns.append(name)
-        self.var_builders[name].prop_missing = 0.0
 
     def add_config(self, config: Path | str | dict) -> "MetaFrameBuilder":
         """Configure the MetaFrame from a configuration file.
@@ -267,7 +289,7 @@ class MetaFrameBuilder():
         if isinstance(config, (Path, str)):
             try:
                 with open(config, "rb") as handle:
-                    config = tomllib.load(handle)
+                    config_dict: dict = tomllib.load(handle)
             except FileNotFoundError as fnf_error:
                 raise FileNotFoundError(
                     f"It appears '{config}' is not a valid filepath."
@@ -276,17 +298,18 @@ class MetaFrameBuilder():
             except tomllib.TOMLDecodeError as value_error:
                 if Path(config).suffix != ".toml":
                     raise ValueError(f"It appears '{Path(config).name}' is a"
-                                    f" '{Path(config).suffix}' file."
+                                    # f" '{Path(config).suffix}' file."
                                     f" To load a MetaConfig, "
                                     f"provide the configuration as a .toml file.") from value_error
                 raise value_error
-
-        config_version = config.get("config_version", "2.0")
+        else:
+            config_dict = config
+        config_version = config_dict.get("config_version", "2.0")
 
         for parser in [ConfigV1XParser()]:
             if config_version in parser.supports:
-                parser.read_dict(config, self)
-                return
+                parser.read_dict(config_dict, self)
+                return self
         raise ValueError(f"Cannot read configuration file, because version {config_version} is not "
                          "supported.")
 
@@ -385,7 +408,7 @@ class BaseRecipe(ABC):
         """Use the recipe to fit or get the correct distribution."""
         pass
 
-    @abstractclassmethod
+    @abstractclassmethod  # type: ignore
     def create(cls, var_builder: VarBuilder) -> BaseRecipe | None:
         """Create a recipe from the information in the var builder.
 
@@ -393,7 +416,7 @@ class BaseRecipe(ABC):
         """
 
 @dataclass
-class DistributionRecipe():
+class DistributionRecipe(BaseRecipe):
     """Distribution recipe without any fitting.
 
     Used for example if you use builder["col"].distribution = DiscreteUniformDistribution(0, 1).
@@ -406,14 +429,18 @@ class DistributionRecipe():
 
     @classmethod
     def create(cls, var_builder: VarBuilder):
-        if isinstance(var_builder.distribution, DistributionLike):
+        if isinstance(var_builder.distribution, BaseDistribution):
             if var_builder.series is None:
                 var_builder.series = pl.Series([var_builder.distribution.draw()])
             return cls(var_builder.distribution)
         elif (isinstance(var_builder.distribution, dict)
                 and "parameters" in var_builder.distribution):
+            name = var_builder.distribution.get("name")
+            if name is None or not isinstance(name, str):
+                raise TypeError("Distribution dictionary with parameters, but name missing or "
+                                f"wrong type for column {var_builder.name}.")
             dist_class = var_builder.registry.find_distribution(
-                var_builder.distribution.get("name"),
+                var_builder.distribution["name"],
                 var_builder.var_type,
                 var_builder.distribution.get("unique", False),
                 var_builder.distribution.get("version", None))
@@ -424,7 +451,7 @@ class DistributionRecipe():
         return None
 
 @dataclass
-class FitterRecipe():
+class FitterRecipe(BaseRecipe):
     """Recipe where one candidate fitter is used.
 
     For example when builder["col"].distribution = "uniform".
@@ -438,14 +465,26 @@ class FitterRecipe():
 
     @classmethod
     def create(cls, var_builder: VarBuilder):
-        if isinstance(var_builder.fitter, BaseFitter):
+        if isinstance(var_builder.fitter, BaseFitter) and var_builder.series is not None:
             return cls(var_builder.series, var_builder.fitter)
 
         return None
 
+# @dataclass
+# class SeriesRecipe():
+#     def fit(self):
+#         return self.fitter.fit(self.series), self.fitter
+
+#     @classmethod
+#     def create(cls, var_builder: VarBuilder):
+#         if isinstance(var_builder.fitter, BaseFitter):
+#             return cls(var_builder.series, var_builder.fitter)
+
+#         return None
+
 
 @dataclass
-class FindDistributionRecipe():
+class FindDistributionRecipe(BaseRecipe):
     """Recipe where multiple fitters are considered."""
 
     series: pl.Series
@@ -479,7 +518,7 @@ class FindDistributionRecipe():
         return None
 
 @dataclass
-class UnqFindDistributionRecipe():
+class UnqFindDistributionRecipe(BaseRecipe):
     """Recipe where we consider both unique and non-unique fitters."""
 
     series: pl.Series
@@ -517,7 +556,3 @@ class UnqFindDistributionRecipe():
             fitters = var_builder._find_fitters(False)
             unq_fitters = var_builder._find_fitters(True)
             return cls(var_builder.series, fitters, unq_fitters)
-        # elif isinstance(var_builder.distribution, str):
-            # fitters = var_builder._find_fitters(True)
-            # unq_fitters = var_builder._find_fitters(False)
-            # 

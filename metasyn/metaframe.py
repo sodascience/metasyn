@@ -122,9 +122,9 @@ class MetaFrame:
     def fit_dataframe(  # noqa: PLR0912
         cls,
         df: Optional[pl.DataFrame],
-        var_specs: list[tuple[str, dict[str, Any]]] | None = None,
+        var_specs: Sequence[dict[str, Any]] | None = None,
         plugins: Optional[list[str]] = None,
-        privacy: Optional[Union[BasePrivacy, dict]] = None,
+        privacy: BasePrivacy | None = None,
         n_rows: Optional[int] = None,
         progress_bar: bool = True,
         config: None | pathlib.Path | str | dict = None,
@@ -176,7 +176,8 @@ class MetaFrame:
             df = pl.DataFrame(df)
 
         builder = MetaFrameBuilder(name)
-        builder.privacy = privacy
+        if privacy is not None:
+            builder.privacy = privacy
         builder.n_rows = n_rows
         builder.plugins = plugins
         if df is not None:
@@ -545,14 +546,14 @@ class MetaFrame:
         for var in self.meta_vars:
             dep_graph.add(var.name, var.distribution.dependencies)
 
-        synth_dict = {}
+        synth_dict: dict[str, pl.Series] = {}
         for name in  (pbar := tqdm(dep_graph, disable=not progress_bar, unit="variables")):
             var = self.meta_vars[[x.name for x in self.meta_vars].index(name)]
             desc = var.name[:5] + "…" + var.name[-6:] if len(var.name) > 11 else var.name
             pbar.set_description(f"{desc:>12}")
             synth_dict[var.name] = var.draw_series(n, synth_dict, seed=None)
 
-        synth_dict = {var.name: synth_dict[var.name] for var in self.meta_vars}
+        synth_dict = {var.name: synth_dict[var.name] for var in self.meta_vars if not var.hidden}
         return pl.DataFrame(synth_dict)
 
     def write_synthetic(

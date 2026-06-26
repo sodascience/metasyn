@@ -145,13 +145,8 @@ class BaseGmfParser(ABC):
         schema:
             Schema containing all the distributions in the distribution packages.
         """
-        defs: list[dict] = []
-        for fitter in DistributionRegistry.parse(packages).fitters:
-            defs.append(fitter.distribution.schema())
-        defs.append(NADistribution.schema())
-
         schema = deepcopy(self.base_schema)
-        schema.update({"$defs": {"all_dist_def": {"anyOf": defs}}})
+        schema.update({"$defs": {"all_dist_def": {"anyOf": self.distribution_schema(packages)}}})
         return schema
 
     def parse(self, gmf_dict: dict):
