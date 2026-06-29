@@ -55,7 +55,7 @@ class VarBuilder():
         Description attached to the column.
     """
 
-    def __init__(self, series: pl.Series | None = None,
+    def __init__(self, series: pl.Series | None | DistributionLike = None,
                  name: str | None = None,
                  mf_builder: Optional["MetaFrameBuilder"] = None,
                  prop_missing: float | None = None,
@@ -68,7 +68,7 @@ class VarBuilder():
             # series = pl.Series(series)
         self._series = None
         self.series = series
-        self.name = series.name if name is None and series is not None else name
+        self.name = series.name if name is None and isinstance(series, pl.Series) else name
         self.prop_missing = prop_missing
         self._privacy = privacy
         self.mf_builder = mf_builder
@@ -196,8 +196,10 @@ class VarBuilder():
         -------
             A MetaVar with the fitted distribution.
         """
-        if self.prop_missing is None:
+        if self.prop_missing is None and self.series is not None:
             prop_missing = (len(self.series) - len(self.series.drop_nulls())) / len(self.series)
+        elif self.prop_missing is None:
+            prop_missing = 0.0
         else:
             prop_missing = self.prop_missing
         dist, fitter = self.recipe.fit()
