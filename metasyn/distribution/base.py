@@ -140,19 +140,19 @@ class DistributionLike(ABC):  #noqa: PLW1641
             
     def __neg__(self):
         return SubOperator(0, self)
-    
+
     def __and__(self, other):
-        return AndCondition(self, other)
+        return AndOperator(self, other)
     
     def __or__(self, other):
-        return OrCondition(self, other)
+        return OrOperator(self, other)
 
     def __eq__(self, other):
         return EqualsCondition(self, other)
 
     def __ne__(self, other):
         return NotEqualsCondition(self, other)
-    
+        
     def __lt__(self, other):
         return LessThanCondition(self, other)
 
@@ -160,10 +160,10 @@ class DistributionLike(ABC):  #noqa: PLW1641
         return GreaterThanCondition(self, other)
 
     def __le__(self, other):
-        return OrCondition(LessThanCondition(self, other), EqualsCondition(self, other))
+        return OrOperator(LessThanCondition(self, other), EqualsCondition(self, other))
 
     def __ge__(self, other):
-        return OrCondition(GreaterThanCondition(self, other), EqualsCondition(self, other))
+        return OrOperator(GreaterThanCondition(self, other), EqualsCondition(self, other))
 
     @property
     def dependencies(self) -> set[str]:
@@ -335,8 +335,8 @@ class PowerOperator(Operator):
         return left_operand ** right_operand
 
 @dataclass
-class AndCondition(Operator):
-    """Logical and between two values."""
+class AndOperator(Operator):
+    """Bitwise AND operator between two values."""
 
     left_operand: Any
     right_operand: Any
@@ -344,11 +344,11 @@ class AndCondition(Operator):
     def compute(self, left_operand: Any, right_operand: Any) -> bool | None:
         if left_operand is None or right_operand is None:
             return None
-        return bool(left_operand) and bool(right_operand)
+        return left_operand & right_operand
 
 @dataclass
-class OrCondition(Operator):
-    """Logical or between two values."""
+class OrOperator(Operator):
+    """Bitwise OR operator between two values."""
 
     left_operand: Any
     right_operand: Any
@@ -356,7 +356,7 @@ class OrCondition(Operator):
     def compute(self, left_operand: Any, right_operand: Any) -> bool | None:
         if left_operand is None or right_operand is None:
             return None
-        return bool(left_operand) or bool(right_operand)
+        return left_operand | right_operand
     
 @dataclass
 class LessThanCondition(Operator):
