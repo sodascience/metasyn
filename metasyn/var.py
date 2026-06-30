@@ -77,12 +77,9 @@ class MetaVar:
             raise ValueError(
                 f"Cannot create variable '{self.name}' with proportion missing outside range [0, 1]"
             )
-        if self.dtype == "unknown":
-            if self.var_type == "categorical":
+        if self.dtype == "unknown" and self.var_type == "categorical":
                 self.dtype = "Categorical"
-            else:
-                self.dtype = None
-                # self.dtype = str(pl.Series([self.distribution.draw()]).dtype)
+
 
     def to_dict(self) -> Dict[str, Any]:
         """Create a dictionary from the variable."""
@@ -151,7 +148,7 @@ class MetaVar:
         self.distribution.draw_reset()
         synth_dict = {} if synth_dict is None else synth_dict
         value_list = self.distribution.draw_list(n, synth_dict)
-        if self.dtype is None:
+        if self.dtype == "unknown":
             self.dtype = str(pl.Series(value_list).dtype)
 
         n_extra_none = round(self.prop_missing*len(value_list)) - sum(x is None for x in value_list)
