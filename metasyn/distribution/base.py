@@ -141,6 +141,9 @@ class DistributionLike(ABC):  #noqa: PLW1641
     def __neg__(self):
         return SubOperator(0, self)
 
+    def __invert__(self):
+        return NotOperator(self)
+
     def __and__(self, other):
         return AndOperator(self, other)
     
@@ -336,7 +339,7 @@ class PowerOperator(Operator):
 
 @dataclass
 class AndOperator(Operator):
-    """Bitwise AND operator between two values."""
+    """Logical AND operator between two values."""
 
     left_operand: Any
     right_operand: Any
@@ -344,11 +347,11 @@ class AndOperator(Operator):
     def compute(self, left_operand: Any, right_operand: Any) -> bool | None:
         if left_operand is None or right_operand is None:
             return None
-        return left_operand & right_operand
+        return left_operand and right_operand
 
 @dataclass
 class OrOperator(Operator):
-    """Bitwise OR operator between two values."""
+    """Logical OR operator between two values."""
 
     left_operand: Any
     right_operand: Any
@@ -356,7 +359,7 @@ class OrOperator(Operator):
     def compute(self, left_operand: Any, right_operand: Any) -> bool | None:
         if left_operand is None or right_operand is None:
             return None
-        return left_operand | right_operand
+        return left_operand or right_operand
     
 @dataclass
 class LessThanCondition(Operator):
@@ -393,6 +396,17 @@ class NotEqualsCondition(Operator):
         if left_operand is None or right_operand is None:
             return None
         return left_operand != right_operand
+
+@dataclass
+class NotOperator(Operator):
+    """Logical NOT operator that negates a value."""
+
+    operand: Any
+
+    def compute(self, operand: Any) -> bool | None:
+        if operand is None:
+            return None
+        return not operand
 
 class ColumnReference(DistributionLike):
     """Returns the value of another already synthesized column."""
