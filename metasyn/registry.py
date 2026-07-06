@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import warnings
 from importlib.metadata import entry_points
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 from metasyn.distribution.base import BaseDistribution, BaseFitter
 from metasyn.privacy import BasePrivacy, BasicPrivacy
@@ -39,7 +39,7 @@ class DistributionRegistry():
         self.fitters = fitters
 
     @classmethod
-    def parse(cls, plugins: Union[list[str], None, str]):
+    def parse(cls, plugins: list[str] | None | str | DistributionRegistry):
         """Initialize the distribution registry from plugin names.
 
         Parameters
@@ -47,6 +47,8 @@ class DistributionRegistry():
         plugins:
             Name of plugin(s) for fitters/distribution or a list of names.
         """
+        if isinstance(plugins, cls):
+            return plugins
         fitters = []
         if isinstance(plugins, str):
             plugins = [plugins]
@@ -75,9 +77,9 @@ class DistributionRegistry():
     def find_distribution(
             self,
             name: str,
-            var_type: Optional[str],
+            var_type: str | None,
             unique: bool = False,
-            version: Optional[str] = None
+            version: str | None = None
         ) -> type[BaseDistribution]:
         dist_classes = self.filter_distributions(name=name, var_type=var_type,
                                                  unique=unique, version=version)
