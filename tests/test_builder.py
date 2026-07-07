@@ -74,3 +74,15 @@ def test_recipes(builder):
     assert isinstance(builder["Int64"].recipe, UnqFindDistributionRecipe)
     builder["Int64"].series = DiscreteConstantDistribution(10)
     assert isinstance(builder["Int64"].recipe, UnqFindDistributionRecipe)
+
+def test_find_fitter_error(builder):
+    bld = MetaFrameBuilder()
+    bld.add_column("Int64")
+    bld["Int64"] = builder["Int64"]
+    bld["Int64"].distribution = "some_interesting_name"
+    bld["Int64"].series = builder.series
+    with pytest.raises(ValueError):
+        bld.fit()
+    bld["Int64"].distribution = "regex"
+    with pytest.raises(ValueError):
+        bld.fit()

@@ -113,13 +113,13 @@ class DistributionLike(ABC):  #noqa: PLW1641
 
     def __radd__(self, other):
         return PlusOperator(other, self)
-    
+
     def __sub__(self, other):
         return SubOperator(self, other)
 
     def __rsub__(self, other):
         return SubOperator(other, self)
-    
+
     def __mul__(self, other):
         return MultiplyOperator(self, other)
 
@@ -128,16 +128,16 @@ class DistributionLike(ABC):  #noqa: PLW1641
 
     def __truediv__(self, other):
         return DivideOperator(self, other)
-    
+
     def __rtruediv__(self, other):
         return DivideOperator(other, self)
 
     def __pow__(self, other):
         return PowerOperator(self, other)
-    
+
     def __rpow__(self, other):
         return PowerOperator(other, self)
-            
+
     def __neg__(self):
         return SubOperator(0, self)
 
@@ -146,16 +146,22 @@ class DistributionLike(ABC):  #noqa: PLW1641
 
     def __and__(self, other):
         return AndOperator(self, other)
-    
+
+    def __rand__(self, other):
+        return AndOperator(other, self)
+
     def __or__(self, other):
         return OrOperator(self, other)
+
+    def __ror__(self, other):
+        return OrOperator(other, self)
 
     def __eq__(self, other):
         return EqualsCondition(self, other)
 
     def __ne__(self, other):
         return NotEqualsCondition(self, other)
-        
+
     def __lt__(self, other):
         return LessThanCondition(self, other)
 
@@ -260,6 +266,8 @@ class EqualsCondition(Operator):
     right_operand: Any
 
     def compute(self, left_operand: Any, right_operand: Any) -> bool | None:
+        if left_operand is None and right_operand is None:
+            return True
         if left_operand is None or right_operand is None:
             return None
         return left_operand == right_operand
@@ -273,6 +281,8 @@ class IfThenElse(Operator):
     else_operand: Any
 
     def compute(self, condition: Any, then_operand: Any, else_operand: Any) -> Any:
+        if condition is None:
+            return None
         return then_operand if condition else else_operand
 
 
@@ -360,7 +370,7 @@ class OrOperator(Operator):
         if left_operand is None or right_operand is None:
             return None
         return left_operand or right_operand
-    
+
 @dataclass
 class LessThanCondition(Operator):
     """Operator to test whether the left value is less than the right value."""
@@ -384,7 +394,7 @@ class GreaterThanCondition(Operator):
         if left_operand is None or right_operand is None:
             return None
         return left_operand > right_operand
-    
+
 @dataclass
 class NotEqualsCondition(Operator):
     """Operator to test whether two values are not equal."""
@@ -393,6 +403,8 @@ class NotEqualsCondition(Operator):
     right_operand: Any
 
     def compute(self, left_operand: Any, right_operand: Any) -> bool | None:
+        if left_operand is None and right_operand is None:
+            return False
         if left_operand is None or right_operand is None:
             return None
         return left_operand != right_operand
@@ -477,21 +489,6 @@ class BaseDistribution(DistributionLike):
             f"- Parameters:\n"
             f"{self._params_formatted}\n"
         )
-
-    # def __add__(self, other):
-    #     return ArithmeticDistribution(self, other, op_type="+")
-
-    # def __radd__(self, other):
-    #     return ArithmeticDistribution(other, self, op_type="+")
-
-    # def __mul__(self, other):
-    #     return ArithmeticDistribution(self, other, op_type="*")
-
-    # def __rmul__(self, other):
-    #     return ArithmeticDistribution(other, self, op_type="*")
-
-    def __equals__(self, other):
-        return EqualsCondition(self, other)
 
     @abstractmethod
     def _param_dict(self):

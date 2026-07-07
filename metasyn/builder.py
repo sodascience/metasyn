@@ -13,7 +13,7 @@ import numpy as np
 import polars as pl
 from tqdm import tqdm
 
-from metasyn.distribution.base import BaseDistribution, BaseFitter, DistributionLike
+from metasyn.distribution.base import BaseFitter, DistributionLike
 from metasyn.file import BaseFileInterface
 from metasyn.metaframe import MetaFrame
 from metasyn.privacy import BasePrivacy, BasicPrivacy
@@ -63,6 +63,7 @@ class VarBuilder():
                  distribution: str | DistributionLike | dict | None = None,
                  fitter: BaseFitter | None = None,
                  description: str | None = None,
+                 var_type: str | None = None,
                  hidden: bool = False):
         # if series is not None:
             # series = pl.Series(series)
@@ -75,8 +76,8 @@ class VarBuilder():
         self._distribution: str | DistributionLike | dict | None = distribution
         self.fitter = fitter
         self.description: str | None = description
-        self.plugins = None
-        self._var_type: str | None = None
+        self.plugins: None | DistributionRegistry | str | list[str] = None
+        self._var_type: str | None = var_type
         self.hidden = hidden
 
     @property
@@ -211,6 +212,9 @@ class VarBuilder():
         else:
             prop_missing = self.prop_missing
         dist, fitter = self.recipe.fit()
+        if self.var_type is None:
+            raise ValueError("Could not detect variable type, please set variable type for "
+                             f"'{self.name}'.")
         return MetaVar(self.name, self.var_type, dist, self.dtype, self.description,
                        prop_missing, creation_method=self.get_creation_method(fitter),
                        hidden=self.hidden)
@@ -433,7 +437,7 @@ class DistributionRecipe(BaseRecipe):
 
     @classmethod
     def create(cls, var_builder: VarBuilder):
-        if isinstance(var_builder.distribution, BaseDistribution):
+        if isinstance(var_builder.distribution, DistributionLike):
             # if var_builder.series is None:
                 # var_builder.series = pl.Series([var_builder.distribution.draw()])
             return cls(var_builder.distribution)

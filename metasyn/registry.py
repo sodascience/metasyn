@@ -47,7 +47,7 @@ class DistributionRegistry():
         plugins:
             Name of plugin(s) for fitters/distribution or a list of names.
         """
-        if isinstance(plugins, cls):
+        if isinstance(plugins, DistributionRegistry):
             return plugins
         fitters = []
         if isinstance(plugins, str):
