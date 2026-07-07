@@ -78,9 +78,9 @@ def test_recipes(builder):
 def test_find_fitter_error(builder):
     bld = MetaFrameBuilder()
     bld.add_column("Int64")
-    bld["Int64"] = builder["Int64"]
+    bld.var_builders["Int64"] = builder["Int64"]
     bld["Int64"].distribution = "some_interesting_name"
-    bld["Int64"].series = builder.series
+    bld["Int64"].series = builder["Int64"].series
     with pytest.raises(ValueError):
         bld.fit()
     bld["Int64"].distribution = "regex"
