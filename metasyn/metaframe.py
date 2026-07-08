@@ -402,37 +402,6 @@ class MetaFrame:
         self_dict = parse_gmf_dict(self_dict, validate=validate)
         return cls.from_dict(self_dict, table_name=table_name)
 
-    def to_json(self, fp: Union[pathlib.Path, str], validate: bool = True) -> None:
-        """Export, deprecated method, use Metaframe.save_json instead."""
-        warn(
-            "to_json method of MetaFrame is deprecated and will be removed in the future, "
-            "Use MetaFrame.save_json or MetaFrame.save instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        self.save_json(fp, validate)
-
-    def export(self, fp: Union[pathlib.Path, str], validate: bool = True) -> None:
-        """Export, deprecated method, use Metaframe.save instead."""
-        warn(
-            "Export method of MetaFrame is deprecated and will be removed in the future, "
-            "Use MetaFrame.save_json or MetaFrame.save instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        self.save_json(fp, validate)
-
-    @classmethod
-    def from_json(cls, fp: Union[pathlib.Path, str], validate: bool = True) -> MetaFrame:
-        """Import, deprecated method, use Metaframe.load_json instead."""
-        warn(
-            "MetaFrame.from_json is deprecated and will be removed in the future, "
-            "use MetaFrame.load_json or MetaFrame.load instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return cls.load_json(fp, validate)
-
     @no_type_check
     def save_toml(self, fp: Optional[Union[pathlib.Path, str]], validate: bool = True) -> None:
         try:
