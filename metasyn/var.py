@@ -9,7 +9,7 @@ import polars as pl
 
 from metasyn.distribution.base import BaseDistribution
 from metasyn.registry import DistributionRegistry
-from metasyn.util import get_var_type, set_global_seeds
+from metasyn.util import set_global_seeds
 
 
 class MetaVar:
@@ -52,7 +52,7 @@ class MetaVar:
     def __init__(  # noqa: PLR0913
         self,
         name: str,
-        var_type: Optional[str],
+        var_type: str,
         distribution: BaseDistribution,
         dtype: str = "unknown",
         description: Optional[str] = None,
@@ -61,9 +61,6 @@ class MetaVar:
         hidden: bool = False
     ):
         self.name = name
-        if var_type is None:
-            var_type = get_var_type(pl.Series([distribution.draw()]))
-            distribution.draw_reset()
         self.var_type = var_type
         self.distribution = distribution
         self.dtype = dtype

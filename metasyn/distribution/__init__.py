@@ -10,6 +10,7 @@ information criterion, used for selecting the best distribution for
 a given set of values.
 """
 
+from metasyn.distribution.base import ColumnReference, IfThenElse
 from metasyn.distribution.categorical import MultinoulliDistribution, MultinoulliFitter
 from metasyn.distribution.constant import (
     ContinuousConstantDistribution,
@@ -85,6 +86,8 @@ builtin_fitters = [
 ]
 
 __all__ = [
+    "IfThenElse",
+    "ColumnReference",
     "MetaFrameBuilder",
     "MultinoulliDistribution",
     "ExponentialDistribution",
