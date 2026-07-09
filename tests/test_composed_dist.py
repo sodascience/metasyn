@@ -1,9 +1,29 @@
 import pytest
 from pytest import mark
-from metasyn.distribution import DiscreteConstantDistribution, IfThenElse, ColumnReference, NADistribution
+
 from metasyn.builder import MetaFrameBuilder, VarBuilder
+from metasyn.distribution import (
+    ColumnReference,
+    DiscreteConstantDistribution,
+    IfThenElse,
+    NADistribution,
+)
+from metasyn.distribution.base import BaseDistribution, Operator
+from metasyn.metaframe import MetaFrame
+from metasyn.gmf import parse_gmf_dict
 
 
+def _compare_dist(dist_orig, dist_new):
+    if dist_orig.__class__ != dist_new.__class__:
+        return False
+    if isinstance(dist_new, BaseDistribution):
+        return dist_orig._param_dict() == dist_new._param_dict()
+    elif isinstance(dist_new, Operator):
+        same = True
+        for op in dist_new:
+            same &= _compare_dist(getattr(dist_orig, op), getattr(dist_new, op))
+        return same
+    return dist_orig == dist_new
 
 @mark.parametrize(
     "dist,result",
@@ -47,11 +67,24 @@ from metasyn.builder import MetaFrameBuilder, VarBuilder
         (NADistribution() != 3, None)
     ]
 )
-def test_composed_results(dist, result):
-    builder = VarBuilder(distribution=dist, var_type="discrete")
-    var = builder.fit()
-    assert var.draw_series(1, {})[0] == result
-
+def test_composed_results(dist, result, tmpdir):
+    builder = MetaFrameBuilder()
+    builder.n_rows = 10
+    builder.add_column("test")
+    builder["test"].distribution = dist
+    builder["test"].var_type = "discrete"
+    mf = builder.fit()
+    # var = builder["test"].fit()
+    assert mf.meta_vars[0].draw_series(1, {})[0] == result
+    mf_dict = mf.to_dict()
+    parse_gmf_dict(mf_dict, validate=True)
+    new_mf = mf.from_dict(mf_dict)
+    # mf.save_json(tmpdir / "test.json")
+    # new_mf = MetaFrame.load_json(tmpdir / "test.json")
+    assert _compare_dist(mf["test"].distribution, new_mf["test"].distribution)
+    assert mf["test"].var_type == new_mf["test"].var_type
+    # assert new_mf["test"].distribution.__class__ == mf["test"].distribution.__class__
+    # assert new_mf["test"].distribution._param_dict() == mf["test"].distribution._param_dict()
 
 @mark.parametrize(
     "dist,deps",
@@ -63,7 +96,7 @@ def test_composed_results(dist, result):
 def test_dependencies(dist, deps):
     assert set(dist.dependencies) == set(deps)
 
-def test_reference():
+def test_reference(tmpdir):
     builder = MetaFrameBuilder()
     builder.n_rows = 1
     builder.add_column("a")
@@ -80,3 +113,9 @@ def test_reference():
     assert df["a"][0] == 130
     assert df["b"][0] == 13
     assert df["c"][0] == 10
+
+    mf.save_json(tmpdir / "test.json")
+    new_mf = MetaFrame.load_json(tmpdir / "test.json")
+    for col in ["a", "b", "c"]:
+        assert _compare_dist(mf[col].distribution, new_mf[col].distribution)
+        assert mf[col].var_type == new_mf[col].var_type
