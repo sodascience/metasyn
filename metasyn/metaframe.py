@@ -210,7 +210,7 @@ class MetaFrame:
     def to_dict(self) -> Dict[str, Any]:
         """Create dictionary with the properties for recreation."""
         self_dict = {
-            "gmf_version": "2.0",
+            "gmf_version": "2.1",
             "provenance": {
                 "created by": {
                     "name": "metasyn",
