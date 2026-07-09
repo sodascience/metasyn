@@ -79,6 +79,7 @@ from metasyn.distribution.uniform import (
     DateUniformFitter,
     DiscreteUniformDistribution,
     DiscreteUniformFitter,
+    DurationUniformDistribution,
     TimeUniformDistribution,
     TimeUniformFitter,
 )
@@ -149,4 +150,5 @@ __all__ = [
     "DateConstantDistribution",
     "TimeConstantDistribution",
     "DateTimeConstantDistribution",
+    "DurationUniformDistribution",
 ]

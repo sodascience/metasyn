@@ -1,11 +1,13 @@
 """Uniform distributions and fitters."""
 
 import datetime as dt
+import re
 from abc import abstractmethod
 from random import random
 from typing import Any, Dict
 
 import numpy as np
+import polars as pl
 from scipy.stats import randint, uniform
 
 from metasyn.distribution.base import (
@@ -180,10 +182,13 @@ class BaseDTUniformDistribution(BaseDistribution):
     def information_criterion(self, values): # noqa: ARG002
         return 0.0
 
+    def isoformat(self, val):
+        return val.isoformat()
+
     def _param_dict(self):
         return {
-            "lower": self.lower.isoformat(),
-            "upper": self.upper.isoformat(),
+            "lower": self.isoformat(self.lower),
+            "upper": self.isoformat(self.upper),
             "precision": self.precision,
         }
 
@@ -329,6 +334,38 @@ class DateUniformDistribution(BaseDTUniformDistribution):
             "upper": {"type": "string"},
         }
 
+@metadist(name="core.uniform", var_type="duration")
+class DurationUniformDistribution(BaseDTUniformDistribution):
+    def fromisoformat(self, dt_obj: str) -> dt.timedelta:
+        negative = False
+        time_delta = {}
+        for time_part in re.findall(r"[-\d\\.]+[A-Z]", dt_obj):
+            match time_part[-1]:
+                case "P":
+                    if time_part[0] == "-":
+                        negative = True
+                case "D":
+                    time_delta["days"] = int(time_part[:-1])
+                case "H":
+                    time_delta["hours"] = int(time_part[:-1])
+                case "M":
+                    time_delta["minutes"] = int(time_part[:-1])
+                case "S":
+                    try:
+                        time_delta["seconds"] = int(time_part[:-1])
+                    except ValueError:
+                        second_frac = float(time_part[:-1])
+                        time_delta["seconds"] = int(second_frac)
+                        second_frac -= int(second_frac)
+                        time_delta["milliseconds"] = int(second_frac*1000)
+                        second_frac -= time_delta["milliseconds"]/1000
+                        time_delta["microseconds"] = int(second_frac/1000000)
+        if negative:
+            return -dt.timedelta(**time_delta)
+        return dt.timedelta(**time_delta)
+
+    def isoformat(self, val: dt.timedelta):
+        pl.Series([val]).dt.to_string()[0]
 
 class BaseDTUniformFitter(BaseFitter):
     """Base class for date/time/datetime uniform distributions."""
