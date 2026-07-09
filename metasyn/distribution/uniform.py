@@ -161,7 +161,7 @@ class BaseDTUniformDistribution(BaseDistribution):
             time_obj = time_obj.replace(**{prec[:-1]: 0})
         try:
             time_obj = time_obj.replace(nanosecond=0)
-        except TypeError:
+        except (TypeError, AttributeError):
             pass
         return time_obj
 
@@ -192,6 +192,13 @@ class BaseDTUniformDistribution(BaseDistribution):
             "precision": self.precision,
         }
 
+    @classmethod
+    def _param_schema(cls):
+        return {
+            "lower": {"type": "string"},
+            "upper": {"type": "string"},
+            "precision": {"type": "string"},
+        }
 
 
 @metadist(name="core.uniform", var_type="datetime")
@@ -228,13 +235,6 @@ class DateTimeUniformDistribution(BaseDTUniformDistribution):
     def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
         return cls("2022-07-15T10:39:36", "2022-08-15T10:39:36", precision="seconds")
 
-    @classmethod
-    def _param_schema(cls):
-        return {
-            "lower": {"type": "string"},
-            "upper": {"type": "string"},
-            "precision": {"type": "string"},
-        }
 
 
 @metadist(name="core.uniform", var_type="time")
@@ -365,7 +365,10 @@ class DurationUniformDistribution(BaseDTUniformDistribution):
         return dt.timedelta(**time_delta)
 
     def isoformat(self, val: dt.timedelta):
-        pl.Series([val]).dt.to_string()[0]
+        return pl.Series([val]).dt.to_string()[0]
+
+    def default_distribution(cls):
+        return cls(dt.timedelta(days=-1, hours=2, minutes=2, seconds=3), precision="seconds")
 
 class BaseDTUniformFitter(BaseFitter):
     """Base class for date/time/datetime uniform distributions."""
@@ -405,3 +408,18 @@ class DateUniformFitter(BaseDTUniformFitter):
     precision_possibilities = ["days"]
     def _fit(self, values):
         return DateUniformDistribution(values.min(), values.max())
+
+@builtin_fitter(distribution=DurationUniformDistribution, var_type="duration")
+class DurationUniformFitter(BaseDTUniformFitter):
+
+    def _fit(self, values):
+        return DurationUniformDistribution(values.min(), values.max(), self._get_precision(values))
+
+    @classmethod
+    def _get_precision(cls, values):
+        cur_precision = 0
+        for precision in cls.precision_possibilities[:-1]:
+            if not np.all([getattr(d, precision) == 0 for d in values]):
+                break
+            cur_precision += 1
+        return cls.precision_possibilities[cur_precision]
