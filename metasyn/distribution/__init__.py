@@ -80,6 +80,7 @@ from metasyn.distribution.uniform import (
     DiscreteUniformDistribution,
     DiscreteUniformFitter,
     DurationUniformDistribution,
+    DurationUniformFitter,
     TimeUniformDistribution,
     TimeUniformFitter,
 )
@@ -87,7 +88,7 @@ from metasyn.distribution.uniquekey import UniqueKeyDistribution, UniqueKeyFitte
 
 builtin_fitters = [
     DiscreteUniformFitter, ContinuousUniformFitter, DateUniformFitter, TimeUniformFitter,
-    DateTimeUniformFitter,
+    DateTimeUniformFitter, DurationUniformFitter,
     RegexFitter, UniqueRegexFitter,
     ContinuousConstantFitter, DiscreteConstantFitter, DateConstantFitter,
     DateTimeConstantFitter, TimeConstantFitter, StringConstantFitter,
