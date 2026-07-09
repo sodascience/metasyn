@@ -10,6 +10,7 @@ import warnings
 from importlib.metadata import entry_points
 from typing import Any, Optional
 
+from metasyn.distribution import builtin_operators
 from metasyn.distribution.base import BaseDistribution, BaseFitter
 from metasyn.privacy import BasePrivacy, BasicPrivacy
 from metasyn.util import get_registry
@@ -222,16 +223,37 @@ class DistributionRegistry():
         BaseDistribution:
             Distribution representing the dictionary.
         """
+        return self._convert_dict(var_dict["distribution"], var_dict["type"])
+
+    def _convert_dict(self, dist_dict, var_type):
+        if not isinstance(dist_dict, dict):
+            return dist_dict
         try:
-            dist_name = var_dict["distribution"]["name"]
+            dist_name = dist_dict["class_name"]
+            var_type = None
         except KeyError:
-            dist_name = var_dict["distribution"]["implements"]
-        version = var_dict["distribution"].get("version", "1.0")
-        var_type = var_dict["type"]
-        unique = var_dict["distribution"]["unique"]
+            try:
+                dist_name = dist_dict["name"]
+            except KeyError:
+                dist_name = dist_dict["implements"]
+
+        if "operands" in dist_dict:
+            operands = [self._convert_dict(op_dict, var_type) for op_dict in dist_dict["operands"]]
+            dist_dict["operands"] = operands
+
+        version = dist_dict.get("version", "1.0")
+
+
+        # Operators
+        if "unique" not in dist_dict:
+            for op_class in builtin_operators:
+                if op_class.__name__ == dist_dict["name"]:
+                    return op_class.from_dict(dist_dict)
+
+        unique = dist_dict["unique"]
         dist_class = self.find_distribution(dist_name, version=version,
                                             var_type=var_type, unique=unique)
-        return dist_class.from_dict(var_dict["distribution"])
+        return dist_class.from_dict(dist_dict)
 
     @property
     def distributions(self):

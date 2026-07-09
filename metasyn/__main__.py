@@ -16,7 +16,7 @@ from metasyn.builder import MetaFrameBuilder
 
 # from metasyn.config import MetaConfig
 from metasyn.file import file_interface_from_dict, get_file_interface_class, read_file
-from metasyn.gmf import GmfV20Parser
+from metasyn.gmf import GmfV11Parser, GmfV20Parser, GmfV21Parser
 
 try:
     import tomllib
@@ -260,6 +260,12 @@ def schema(input_args) -> None:
         type=pathlib.Path,
     )
 
+    parser.add_argument(
+        "-v", "--version",
+        default="2.1",
+        help="Version of the GMF file to create a schema for."
+    )
+
     # parse the args without the subcommand
     args = parser.parse_args(input_args)
 
@@ -280,7 +286,17 @@ def schema(input_args) -> None:
             f"\n  Available plugins: {pl_avail}"
         )
         parser.error(errmsg)
-    jsonschema = GmfV20Parser().create_schema(list(plugins))
+    parsers = {
+        "1.1": GmfV11Parser(),
+        "2.0": GmfV20Parser(),
+        "2.1": GmfV21Parser(),
+    }
+    try:
+        jsonschema = parsers[args.version].create_schema(list(plugins))
+    except KeyError:
+        parser.error(f"Unknown gmf schema version {args.version}.")
+        return
+
     if args.output is None:
         print(json.dumps(jsonschema, indent=4))
     else:

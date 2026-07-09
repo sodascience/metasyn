@@ -13,6 +13,7 @@ from importlib.metadata import entry_points
 import jsonschema
 
 from metasyn.distribution.na import NADistribution
+from metasyn.distribution import builtin_operators
 from metasyn.registry import DistributionRegistry
 
 SCHEMA_BASE_v11 = {
@@ -129,7 +130,6 @@ class BaseGmfParser(ABC):
         defs: list[dict] = []
         for fitter in DistributionRegistry.parse(packages).fitters:
             defs.append(fitter.distribution.schema())
-        defs.append(NADistribution.schema())
         return defs
 
     def create_schema(self, packages: list[str]) -> dict:
@@ -201,15 +201,31 @@ class GmfV11Parser(BaseGmfParser):
         return new_gmf_dict
 
 class GmfV20Parser(BaseGmfParser):
-    """GMF parser for version 2.0 and later."""
+    """GMF parser for version 2.0."""
 
-    versions: list[str] = ["2.0", "*"]
+    versions: list[str] = ["2.0"]
     base_schema: dict = SCHEMA_BASE_v2
+
+class GmfV21Parser(GmfV20Parser):
+    """GMF parser for version 2.1 and later."""
+
+    versions = ["2.1", "*"]
+
+    def distribution_schema(self, packages: list[str]) -> list[dict]:
+        dist_schema = super().distribution_schema(packages)
+        for operator in builtin_operators:
+            dist_schema.append(operator.schema())
+        return dist_schema
+
+    def create_schema(self, packages: list[str]) -> list[dict]:
+        schema = super().create_schema(packages)
+        schema["$id"] = "http://sodascience.github.io/generative_metadata_format/core/2.1/generative_metadata_format"  # noqa: E501
+        return schema
 
 def _get_parser_class(gmf_dict: dict) -> type[BaseGmfParser]:
     version = gmf_dict.get("gmf_version", "1.1")
 
-    all_parsers = [GmfV11Parser, GmfV20Parser]
+    all_parsers = [GmfV11Parser, GmfV20Parser, GmfV21Parser]
 
     best_parser_class = None
     for parser_class in all_parsers:
