@@ -10,7 +10,22 @@ information criterion, used for selecting the best distribution for
 a given set of values.
 """
 
-from metasyn.distribution.base import ColumnReference, IfThenElse
+from metasyn.distribution.base import (
+    AndOperator,
+    ColumnReference,
+    DivideOperator,
+    EqualsCondition,
+    GreaterThanCondition,
+    IfThenElse,
+    LessThanCondition,
+    MultiplyOperator,
+    NotEqualsCondition,
+    NotOperator,
+    OrOperator,
+    PlusOperator,
+    PowerOperator,
+    SubOperator,
+)
 from metasyn.distribution.categorical import MultinoulliDistribution, MultinoulliFitter
 from metasyn.distribution.constant import (
     ContinuousConstantDistribution,
@@ -85,8 +100,26 @@ builtin_fitters = [
     NAFitter,
 ]
 
+builtin_operators = [
+    EqualsCondition, IfThenElse, PlusOperator, MultiplyOperator, DivideOperator,
+    SubOperator, PowerOperator, AndOperator, OrOperator, LessThanCondition, GreaterThanCondition,
+    NotEqualsCondition, NotOperator, ColumnReference
+]
+
 __all__ = [
+    "EqualsCondition",
     "IfThenElse",
+    "PlusOperator",
+    "MultiplyOperator",
+    "DivideOperator",
+    "SubOperator",
+    "PowerOperator",
+    "AndOperator",
+    "OrOperator",
+    "LessThanCondition",
+    "GreaterThanCondition",
+    "NotEqualsCondition",
+    "NotOperator",
     "ColumnReference",
     "MetaFrameBuilder",
     "MultinoulliDistribution",

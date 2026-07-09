@@ -165,7 +165,7 @@ class VarBuilder():
             recipe = recipe_class.create(self)  # type: ignore
             if recipe is not None:
                 return recipe
-        raise TypeError(f"Unknown type for recipe: {type(self.distribution)}.")
+        raise TypeError(f"Cannot find recipe for distribution {self.distribution}, wrong type?.")
 
     def get_creation_method(self, fitter: BaseFitter | str | None) -> dict:
         """Create a dictionary on how the distribution was created.

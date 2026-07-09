@@ -16,7 +16,7 @@ which is used to set the class attributes of a distribution.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABC, abstractclassmethod, abstractmethod
 from copy import deepcopy
 from dataclasses import dataclass, fields
 from importlib import metadata
@@ -196,6 +196,14 @@ class DistributionLike(ABC):  #noqa: PLW1641
             A serialized version of the object.
         """
 
+    @abstractclassmethod
+    def schema(cls) -> dict:
+        raise NotImplementedError()
+
+    @abstractclassmethod
+    def from_dict(cls, dict) -> DistributionLike:
+        raise NotImplementedError()
+
 
 @dataclass
 class Operator(DistributionLike):
@@ -256,6 +264,25 @@ class Operator(DistributionLike):
             "operands": [op.to_dict() if isinstance(op, DistributionLike) else op
                          for op in self.operands]
         }
+
+    @classmethod
+    def schema(cls):
+        return {
+            "type": "object",
+            "properties": {
+                "name": {"const": cls.__name__},
+                "operands": {
+                    "type": "array",
+                    "minItems": len(list(fields(cls))),
+                    "maxItems": len(list(fields(cls))),
+                },
+            },
+            "required": ["name", "operands"]
+        }
+
+    @classmethod
+    def from_dict(cls, dist_dict) -> Operator:
+        return cls(*dist_dict["operands"])
 
 
 @dataclass
@@ -444,6 +471,21 @@ class ColumnReference(DistributionLike):
         return {
             "name": self.__class__.__name__,
             "ref_name": self.ref_name,
+        }
+
+    @classmethod
+    def from_dict(cls, dist_dict) -> ColumnReference:
+        return cls(dist_dict["ref_name"])
+
+    @classmethod
+    def schema(cls) -> dict:
+        return {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string"},
+                "ref_name": {"type": "string"},
+            },
+            "required": ["name", "ref_name"],
         }
 
 class BaseDistribution(DistributionLike):
