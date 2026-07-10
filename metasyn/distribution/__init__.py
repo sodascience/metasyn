@@ -17,6 +17,7 @@ from metasyn.distribution.base import (
     EqualsCondition,
     GreaterThanCondition,
     IfThenElse,
+    IsNull,
     LessThanCondition,
     MultiplyOperator,
     NotEqualsCondition,
@@ -103,7 +104,7 @@ builtin_fitters = [
 builtin_operators = [
     EqualsCondition, IfThenElse, PlusOperator, MultiplyOperator, DivideOperator,
     SubOperator, PowerOperator, AndOperator, OrOperator, LessThanCondition, GreaterThanCondition,
-    NotEqualsCondition, NotOperator, ColumnReference
+    NotEqualsCondition, NotOperator, ColumnReference, IsNull,
 ]
 
 __all__ = [
