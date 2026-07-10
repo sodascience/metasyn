@@ -272,6 +272,15 @@ class TestDataset(BaseDataset):
                 dtype=pl.Time,
             )
         )
+        # all_series.append(
+        #     pl.Series(
+        #         "Duration",
+        #         [timedelta(days=np.random.randint(0, 10), hours=np.random.randint(0, 24),
+        #                    minutes=np.random.randint(0, 60), seconds=np.random.randint(0, 60),
+        #                    microseconds=np.random.randint(0, 1000000))
+        #          for _ in range(n_rows)]
+        #     )
+        # )
         all_series.append(
             pl.Series(
                 "String", np.random.choice(list(string.printable), size=n_rows), dtype=pl.String

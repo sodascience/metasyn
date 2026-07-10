@@ -11,6 +11,8 @@ from metasyn.distribution.uniform import (
     DateTimeUniformFitter,
     DateUniformDistribution,
     DateUniformFitter,
+    DurationUniformDistribution,
+    DurationUniformFitter,
     TimeUniformDistribution,
     TimeUniformFitter,
 )
@@ -107,3 +109,44 @@ def test_datetime(lower, upper, precision, series_type):
     assert new_dist.lower >= dist.lower
     assert new_dist.upper <= dist.upper
     assert new_dist.precision == dist.precision
+
+@mark.parametrize(
+    "lower,upper,precision",[
+        (dt.timedelta(microseconds=-21345), dt.timedelta(microseconds=123456), "microseconds"),
+        (dt.timedelta(days=-1, seconds=-1234), dt.timedelta(hours=123), "seconds"),
+        (dt.timedelta(minutes=12), dt.timedelta(minutes=24), "minutes"),
+        (dt.timedelta(hours=1234), dt.timedelta(hours=12345), "hours"),
+        (dt.timedelta(days=-1234), dt.timedelta(days=2934), "days")
+    ]
+)
+@mark.parametrize("series_type", [pl.Series, pd.Series])
+def test_duration(lower, upper, precision, series_type):
+    """Test duration uniform distribution."""
+    dist = DurationUniformDistribution(lower, upper, precision)
+    dist_fit = DurationUniformFitter(BasicPrivacy()).fit(pl.Series([lower, upper]))
+    assert dist_fit.lower == dist.lower
+    assert dist_fit.upper == dist.upper
+    assert dist_fit.precision == dist.precision
+
+    all_durations = []
+    for _ in range(100):
+        new_duration = dist.draw()
+        assert new_duration >= lower
+        assert new_duration <= upper
+        if precision == "seconds":
+            assert new_duration.microseconds == 0
+        if precision == "minutes":
+            assert new_duration.microseconds == 0 and new_duration.seconds % 60 == 0
+        if precision == "hours":
+            assert new_duration.microseconds == 0 and new_duration.seconds % 3600 == 0
+        if precision == "days":
+            assert new_duration.microseconds == 0 and new_duration.seconds == 0
+        all_durations.append(new_duration)
+
+    series = series_type(all_durations)
+
+    new_dist = DurationUniformFitter(BasicPrivacy()).fit(series)
+    assert new_dist.lower >= dist.lower
+    assert new_dist.upper <= dist.upper
+    assert new_dist.precision == dist.precision
+

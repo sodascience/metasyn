@@ -22,6 +22,7 @@ from metasyn.distribution.base import (
     MultiplyOperator,
     NotEqualsCondition,
     NotOperator,
+    Operator,
     OrOperator,
     PlusOperator,
     PowerOperator,
@@ -103,10 +104,10 @@ builtin_fitters = [
     NAFitter,
 ]
 
-builtin_operators = [
-    EqualsCondition, IfThenElse, PlusOperator, MultiplyOperator, DivideOperator,
-    SubOperator, PowerOperator, AndOperator, OrOperator, LessThanCondition, GreaterThanCondition,
-    NotEqualsCondition, NotOperator, ColumnReference, IsNull,
+builtin_operators: list[Operator]= [  # type: ignore
+    EqualsCondition, IfThenElse, PlusOperator, MultiplyOperator, DivideOperator,  # type: ignore
+    SubOperator, PowerOperator, AndOperator, OrOperator, LessThanCondition, GreaterThanCondition,  # type: ignore
+    NotEqualsCondition, NotOperator, ColumnReference, IsNull, # type: ignore
 ]
 
 __all__ = [

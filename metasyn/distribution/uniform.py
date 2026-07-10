@@ -336,6 +336,8 @@ class DateUniformDistribution(BaseDTUniformDistribution):
 
 @metadist(name="core.uniform", var_type="duration")
 class DurationUniformDistribution(BaseDTUniformDistribution):
+    """Uniform distribution for the duration type."""
+
     def fromisoformat(self, dt_obj: str) -> dt.timedelta:
         negative = False
         time_delta = {}
@@ -367,8 +369,41 @@ class DurationUniformDistribution(BaseDTUniformDistribution):
     def isoformat(self, val: dt.timedelta):
         return pl.Series([val]).dt.to_string()[0]
 
-    def default_distribution(cls):
-        return cls(dt.timedelta(days=-1, hours=2, minutes=2, seconds=3), precision="seconds")
+    @classmethod
+    def default_distribution(cls, var_type=None):  # noqa: ARG003
+        return cls(dt.timedelta(days=-1, hours=2, minutes=2, seconds=3),
+                   dt.timedelta(days=2, hours=3, minutes=4, seconds=5),
+                   precision="seconds")
+
+    def round(self, time_obj: Any) -> Any:
+        """Round down any time object with the precision.
+
+        Parameters
+        ----------
+        time_obj:
+            Object to round down.
+
+        Return
+        ------
+        obj:
+            Time/date/datetime object rounded down to the measured precision.
+        """
+        rounded_dict = {}
+        rounded_dict["days"] = time_obj.days
+        if self.precision == "hours":
+            rounded_dict["seconds"] = (time_obj.seconds // 3600) * 3600
+        elif self.precision == "minutes":
+            rounded_dict["seconds"] = (time_obj.seconds // 60) * 60
+        elif self.precision == "seconds":
+            rounded_dict["seconds"] = time_obj.seconds
+        elif self.precision != "days":
+            rounded_dict["seconds"] = time_obj.seconds
+            if self.precision == "microseconds":
+                rounded_dict["microseconds"] = time_obj.microseconds
+            else:
+                raise ValueError(f"Unknown precision {self.precision}")
+        return time_obj.__class__(**rounded_dict)
+
 
 class BaseDTUniformFitter(BaseFitter):
     """Base class for date/time/datetime uniform distributions."""
@@ -389,7 +424,6 @@ class BaseDTUniformFitter(BaseFitter):
 class TimeUniformFitter(BaseDTUniformFitter):
     """Fitter for time uniform distribution."""
 
-    # precision_possibilities = ["microseconds", "seconds", "minutes", "hours", "days"]
     def _fit(self, values):
         return TimeUniformDistribution(values.min(), values.max(), self._get_precision(values))
 
@@ -411,15 +445,25 @@ class DateUniformFitter(BaseDTUniformFitter):
 
 @builtin_fitter(distribution=DurationUniformDistribution, var_type="duration")
 class DurationUniformFitter(BaseDTUniformFitter):
+    """Fitter for the uniform duration distirbution."""
 
     def _fit(self, values):
         return DurationUniformDistribution(values.min(), values.max(), self._get_precision(values))
 
     @classmethod
     def _get_precision(cls, values):
+        precision_key = [
+            ("microseconds", 1000000),
+            ("seconds", 60),
+            ("seconds", 60*60),
+            ("seconds", 24*60*60),
+        ]
         cur_precision = 0
-        for precision in cls.precision_possibilities[:-1]:
-            if not np.all([getattr(d, precision) == 0 for d in values]):
+        for i_prec in range(len(cls.precision_possibilities[:-1])):
+            # precision = cls.precision_possibilities[i_prec]
+            attr, modulo = precision_key[i_prec]
+            # print(precision, [getattr(d, attr) % modulo == 0 for d in values])
+            if not np.all([getattr(d, attr) % modulo == 0 for d in values]):
                 break
             cur_precision += 1
         return cls.precision_possibilities[cur_precision]

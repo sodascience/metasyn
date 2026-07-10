@@ -12,7 +12,6 @@ from importlib.metadata import entry_points
 
 import jsonschema
 
-from metasyn.distribution.na import NADistribution
 from metasyn.distribution import builtin_operators
 from metasyn.registry import DistributionRegistry
 
@@ -40,7 +39,7 @@ SCHEMA_BASE_v11 = {
                     "name": {"type": "string"},
                     "description": {"type": "string"},
                     "type": {"enum": ["discrete", "continuous", "string", "categorical", "date",
-                                      "datetime", "time"]},
+                                      "datetime", "time", "duration"]},
                     "dtype": {"type": "string"},
                     "prop_missing": {"type": "number"},
                     "distribution": {
@@ -99,7 +98,7 @@ SCHEMA_BASE_v2 = {
                                 "name": {"type": "string"},
                                 "description": {"type": "string"},
                                 "type": {"enum": ["discrete", "continuous", "string", "categorical",
-                                                  "date", "datetime", "time"]},
+                                                  "date", "datetime", "time", "duration"]},
                                 "dtype": {"type": "string"},
                                 "prop_missing": {"type": "number"},
                                 "distribution": {
@@ -217,7 +216,7 @@ class GmfV21Parser(GmfV20Parser):
             dist_schema.append(operator.schema())
         return dist_schema
 
-    def create_schema(self, packages: list[str]) -> list[dict]:
+    def create_schema(self, packages: list[str]) -> dict:
         schema = super().create_schema(packages)
         schema["$id"] = "http://sodascience.github.io/generative_metadata_format/core/2.1/generative_metadata_format"  # noqa: E501
         return schema
