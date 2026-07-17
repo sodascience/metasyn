@@ -9,23 +9,16 @@ from copy import deepcopy
 from datetime import datetime
 from importlib.metadata import version
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Union, no_type_check
+from typing import Any, Dict, List, Optional, Sequence, Union
 from warnings import warn
 
 import numpy as np
 import polars as pl
-
-try:
-    import tomllib
-except ImportError:
-    import tomli as tomllib  # type: ignore  # noqa
-
 from tqdm import tqdm
 
-# from metasyn.config import MetaConfig
 from metasyn.file import BaseFileInterface, file_interface_from_dict
 from metasyn.gmf import parse_gmf_dict
-from metasyn.privacy import BasePrivacy, get_privacy
+from metasyn.privacy import BasePrivacy
 from metasyn.util import set_global_seeds
 from metasyn.var import MetaVar
 
@@ -318,14 +311,7 @@ class MetaFrame:
             Validate the JSON file with a schema. If the file is a TOML file, then this will
             be ignored.
         """
-        if fp is None:
-            self.save_json(fp, validate)
-            return
-        fp_path = Path(fp)
-        if fp_path.suffix == ".toml":
-            self.save_toml(fp, validate)
-        else:
-            self.save_json(fp, validate)
+        self.save_json(fp, validate)
 
     @classmethod
     def load(cls, fp: Union[pathlib.Path, str], validate: bool = True,
@@ -333,7 +319,7 @@ class MetaFrame:
         """Read a MetaFrame from a JSON or TOML GMF file.
 
         Optionally, validate the saved JSON file against the JSON schema(s) included in the
-        package. A TOML cannot be validated against a schema currently.
+        package.
 
         Parameters
         ----------
@@ -348,11 +334,7 @@ class MetaFrame:
         MetaFrame:
             A restored MetaFrame from the file.
         """
-        fp_path = Path(fp)
-        if fp_path.suffix == ".toml":
-            return cls.load_toml(fp, validate, table_name=table_name)
-        else:
-            return cls.load_json(fp, validate, table_name=table_name)
+        return cls.load_json(fp, validate, table_name=table_name)
 
     def save_json(self, fp: Optional[Union[pathlib.Path, str]], validate: bool = True) -> None:
         """Serialize and save the MetaFrame to a JSON file, following the GMF format.
@@ -398,82 +380,6 @@ class MetaFrame:
         else:
             with open(fp, "r", encoding="utf-8") as f:
                 self_dict = json.load(f)
-
-        self_dict = parse_gmf_dict(self_dict, validate=validate)
-        return cls.from_dict(self_dict, table_name=table_name)
-
-    @no_type_check
-    def save_toml(self, fp: Optional[Union[pathlib.Path, str]], validate: bool = True) -> None:
-        try:
-            import tomlkit  # noqa: PLC0415
-        except ImportError:
-            raise ValueError(
-                "Please install tomlkit (pip install tomlkit) to enable support for saving to toml."
-            )
-        self_dict = _jsonify(self.to_dict())
-        if validate:
-            parse_gmf_dict(self_dict, validate=True)
-
-        all_doc = tomlkit.loads(tomlkit.dumps(self_dict))
-        doc = all_doc["tables"][0]
-        doc["n_rows"].comment("Number of rows")
-        doc["n_columns"].comment("""Number of columns
-
-# This is a metadata file with (limited) statistical information about each column separately in
-# a dataset. No information about correlations or other relationships between columns is included.
-# This file can be used to generate privacy-conscious synthetic data, which consequently has zero
-# expected correlations and relationships between columns.
-# For each column, the statistics can be either manually specified or estimated from real data.
-# This information, including how the estimation was done, is shown in the metadata below.
-#
-# For more information, see https://github.com/sodascience/metasyn
-""")
-        for i in range(self.n_columns):
-            var = self.meta_vars[i]
-            doc["vars"][i].comment(f"Metadata for column with name {var.name}")
-            fmi = round(self.n_rows * (1 - var.prop_missing))
-            doc["vars"][i]["prop_missing"].comment(
-                f"Fraction of missing values, remaining: {fmi} values"
-            )
-            # The below comment does not work, a tomlkit bug?
-            # doc["vars"][i]["distribution"]["unique"].add(tomlkit.comment(
-            # "Whether to generate unique values or not"))
-            parameter_comments = []
-            multi_default = (
-                var.distribution.matches_name("multinoulli")
-                and len(var.distribution.labels)
-                == len(var.distribution.default_distribution(var_type=var.var_type).labels)
-                and np.all(
-                    var.distribution.labels == var.distribution.default_distribution(
-                        var_type=var.var_type).labels
-                )
-            )
-            if "parameters" in var.creation_method:
-                parameters = ", ".join(var.creation_method["parameters"])
-                parameter_comments.append(
-                    f"The parameters {parameters} for column '{var.name}' were "
-                    "manually set by the user, no data was (directly) used."
-                )
-            elif var.distribution.matches_name("multinoulli") and multi_default:
-                parameter_comments.append(
-                    "This mulinoulli distribution is the default one, no data was used."
-                )
-            elif "privacy" in var.creation_method:
-                privacy = get_privacy(**var.creation_method["privacy"])
-                parameter_comments.append(privacy.comment(var))
-            par_comment = "\n# ".join(parameter_comments) + "\n\n"
-            doc["vars"][i]["distribution"]["parameters"].add(tomlkit.comment(par_comment))
-        if fp is None:
-            print(tomlkit.dumps(all_doc))
-        else:
-            with open(fp, "w", encoding="utf-8") as f:
-                tomlkit.dump(all_doc, f)
-
-    @classmethod
-    def load_toml(cls, fp: Union[pathlib.Path, str], validate: bool = True,
-                  table_name: Optional[str] = None) -> MetaFrame:
-        with open(fp, "rb") as f:
-            self_dict = tomllib.load(f)
 
         self_dict = parse_gmf_dict(self_dict, validate=validate)
         return cls.from_dict(self_dict, table_name=table_name)

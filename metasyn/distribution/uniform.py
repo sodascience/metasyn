@@ -65,7 +65,8 @@ class DiscreteUniformDistribution(ScipyDistribution):
 class DiscreteUniformFitter(BaseFitter):
     """Fitter for discrete uniform distribution."""
 
-    def _fit(self, series):
+    def _fit(self, series, fit_log):
+        fit_log.add(method="Taking the highest and lowest value to compute the parameters.")
         return DiscreteUniformDistribution(series.min(), series.max()+1)
 
 
@@ -119,7 +120,8 @@ class ContinuousUniformDistribution(ScipyDistribution):
 class ContinuousUniformFitter(BaseFitter):
     """Fitter for continuous uniform distribution."""
 
-    def _fit(self, series):
+    def _fit(self, series, fit_log):
+        fit_log.add(method="Taking the highest and lowest value to compute the parameters.")
         return ContinuousUniformDistribution(series.min(), series.max())
 
 
@@ -424,14 +426,17 @@ class BaseDTUniformFitter(BaseFitter):
 class TimeUniformFitter(BaseDTUniformFitter):
     """Fitter for time uniform distribution."""
 
-    def _fit(self, values):
+    # precision_possibilities = ["microseconds", "seconds", "minutes", "hours", "days"]
+    def _fit(self, values, fit_log):
+        fit_log.add(method="Using earliest and latest times as parameters.")
         return TimeUniformDistribution(values.min(), values.max(), self._get_precision(values))
 
 @builtin_fitter(distribution=DateTimeUniformDistribution, var_type="datetime")
 class DateTimeUniformFitter(BaseDTUniformFitter):
     """Fitter for datetime uniform distribution."""
 
-    def _fit(self, values):
+    def _fit(self, values, fit_log):
+        fit_log.add(method="Using earliest and latest datetimes as parameters.")
         return DateTimeUniformDistribution(values.min(), values.max(), self._get_precision(values))
 
 
@@ -440,7 +445,8 @@ class DateUniformFitter(BaseDTUniformFitter):
     """Fitter for date uniform distribution."""
 
     precision_possibilities = ["days"]
-    def _fit(self, values):
+    def _fit(self, values, fit_log):
+        fit_log.add(method="Using earliest and latest dates as parameters.")
         return DateUniformDistribution(values.min(), values.max())
 
 @builtin_fitter(distribution=DurationUniformDistribution, var_type="duration")

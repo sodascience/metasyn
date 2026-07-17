@@ -55,8 +55,10 @@ class BasePrivacy(ABC):
         -------
             A comment on the privacy features.
         """
-        return "Above are the parameters for the column {var.name}"
+        return f"Above are the parameters for the column {var.name}"
 
+    def describe(self):
+        return "The privacy was done using the basic privacy features of metasyn."
 
 class BasicPrivacy(BasePrivacy):
     """Class representing no privacy level.

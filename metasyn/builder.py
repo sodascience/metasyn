@@ -13,7 +13,7 @@ import numpy as np
 import polars as pl
 from tqdm import tqdm
 
-from metasyn.distribution.base import BaseFitter, DistributionLike
+from metasyn.distribution.base import BaseFitter, DistributionLike, VarLog
 from metasyn.file import BaseFileInterface
 from metasyn.metaframe import MetaFrame
 from metasyn.privacy import BasePrivacy, BasicPrivacy
@@ -25,6 +25,37 @@ try:
     import tomllib
 except ImportError:
     import tomli as tomllib  # type: ignore  # noqa
+
+
+class FitLog():
+    def __init__(self):
+        self.log = {}
+
+    def write_csv(self, fp):
+        pl.write_csv(pl.DataFrame(self.log), fp)
+
+    def __getitem__(self, key):
+        return self.log[key]
+
+    def __setitem__(self, key, val):
+        self.log[key] = val
+
+    def add_col(self, name):
+        self.log[name] = VarLog()
+
+    def reset(self):
+        for key in self.log:
+            self.log[key] = VarLog()
+
+    def print(self):
+        pass
+        # print("\n\n".join(str(x) for x in self.log.values()))
+
+    def to_dataframe(self):
+        index = self.log[list(self.log)[0]].attrs
+        all_series = {"Index": index}
+        all_series.update({col: self.log[col].to_series(col) for col in self.log})
+        return pl.DataFrame(all_series)
 
 
 class VarBuilder():
@@ -167,38 +198,7 @@ class VarBuilder():
                 return recipe
         raise TypeError(f"Cannot find recipe for distribution {self.distribution}, wrong type?.")
 
-    def get_creation_method(self, fitter: BaseFitter | str | None) -> dict:
-        """Create a dictionary on how the distribution was created.
-
-        Parameters
-        ----------
-        privacy
-            Privacy object with which the dictionary is being created.
-
-        Returns
-        -------
-            Dictionary containing all the non-default settings for the creation method.
-        """
-        if isinstance(fitter, str):
-            ret_dict: dict[str, Any] = {"created_by": fitter}
-        else:
-            ret_dict = {"created_by": "metasyn"}
-        if isinstance(self.distribution, dict):
-            dist_dict = {var: self.distribution.get(var)
-                         for var in ["name", "unique", "parameters", "version"]
-                         if var in self.distribution}
-            if len(dist_dict) != 0:
-                ret_dict["distribution"] = dist_dict
-        fit_dict = {}
-        if fitter is not None and isinstance(fitter, BaseFitter):
-            fit_dict = fitter.to_dict()
-
-        if len(fit_dict) != 0:
-            ret_dict["fitter"] = fit_dict
-
-        return ret_dict
-
-    def fit(self):
+    def fit(self, fit_log: FitLog | None = None):
         """Fit or create the distribution.
 
         Returns
@@ -211,12 +211,14 @@ class VarBuilder():
             prop_missing = 0.0
         else:
             prop_missing = self.prop_missing
-        dist, fitter = self.recipe.fit()
         if self.var_type is None:
             raise ValueError("Could not detect variable type, please set variable type for "
                              f"'{self.name}'.")
+        if fit_log is None:
+            fit_log = VarLog()
+        dist = self.recipe.fit(fit_log)
         return MetaVar(self.name, self.var_type, dist, self.dtype, self.description,
-                       prop_missing, creation_method=self.get_creation_method(fitter),
+                       prop_missing, creation_method=fit_log.creation_method,
                        hidden=self.hidden)
 
     def _find_fitters(self, unique):
@@ -252,6 +254,7 @@ class MetaFrameBuilder():
         self.plugins = None
         self.name = name
         self.defaults = {}
+        self.fit_log = FitLog()
 
     def __getitem__(self, item: str):
         return self.var_builders[item]
@@ -271,6 +274,7 @@ class MetaFrameBuilder():
         self.file_format = file_format
         for col in df.columns:
             self.var_builders[col] = VarBuilder(df[col], col, self)
+            self.fit_log.add_col(col)
         self.n_rows = len(df) if self.n_rows is None else self.n_rows
 
     def add_column(self, name: str, hidden: bool = False, var_type: str | None = None):
@@ -282,6 +286,7 @@ class MetaFrameBuilder():
             Name of the new column.
         """
         self.var_builders[name] = VarBuilder(None, name, self, hidden=hidden, var_type=var_type)
+        self.fit_log.add_col(name)
         self.columns.append(name)
 
     def add_config(self, config: Path | str | dict) -> "MetaFrameBuilder":
@@ -356,8 +361,9 @@ class MetaFrameBuilder():
             Whether to display a progress bar.
         """
         vars = []
+        self.fit_log.reset()
         for col in tqdm(self.columns, disable=not progress_bar):
-            vars.append(self.var_builders[col].fit())
+            vars.append(self.var_builders[col].fit(self.fit_log[col]))
         return MetaFrame(vars, self.n_rows, self.file_format, self.name)
 
 class ConfigV1XParser():
@@ -412,7 +418,7 @@ class BaseRecipe(ABC):
     """Base class for distribution recipes."""
 
     @abstractmethod
-    def fit(self) -> DistributionLike:
+    def fit(self, fit_log: FitLog) -> DistributionLike:
         """Use the recipe to fit or get the correct distribution."""
         pass
 
@@ -432,8 +438,10 @@ class DistributionRecipe(BaseRecipe):
 
     distribution: DistributionLike
 
-    def fit(self):
-        return self.distribution, "user"
+    def fit(self, fit_log):
+        fit_log.add(created_by="user")
+        fit_log.add(recipe="User defined distribution.")
+        return self.distribution
 
     @classmethod
     def create(cls, var_builder: VarBuilder):
@@ -468,14 +476,16 @@ class FitterRecipe(BaseRecipe):
     series: pl.Series
     fitter: BaseFitter
 
-    def fit(self):
-        return self.fitter.fit(self.series), self.fitter
+    def fit(self, fit_log: FitLog):
+        fit_log.add(recipe="Single fitter.")
+        fit_log.add(created_by="metasyn")
+        fit_log.add(fitter=self.fitter)
+        return self.fitter.fit(self.series, fit_log)
 
     @classmethod
     def create(cls, var_builder: VarBuilder):
         if isinstance(var_builder.fitter, BaseFitter) and var_builder.series is not None:
             return cls(var_builder.series, var_builder.fitter)
-
         return None
 
 
@@ -486,18 +496,20 @@ class FindDistributionRecipe(BaseRecipe):
     series: pl.Series
     fitters: list[BaseFitter]
 
-    def fit(self):
-        if len(self.fitters) == 1:
-            return FitterRecipe(self.series, self.fitters[0]).fit()
-        if len(self.fitters) == 0:
-            raise ValueError()
-
-        return self.fit_with_bic(self.series)[:2]
+    def fit(self, fit_log):
+        fit_log.add(created_by="metasyn")
+        fit_log.add(recipe="Fit multiple distributions: "
+                    f"({', '.join(f.__class__.__name__ for f in self.fitters)}).")
+        dist, fit_dict = self.fit_with_bic(self.series)
+        fit_log.extend(fit_dict)
+        return dist
 
     def fit_with_bic(self, series):
-        distributions = [f.fit(series) for f in self.fitters]
+        fit_logs = [VarLog() for _ in range(len(self.fitters))]
+        distributions = [f.fit(series, f_log) for f, f_log in zip(self.fitters, fit_logs)]
         bic = [d.information_criterion(series) for d in distributions]
-        return distributions[np.argmin(bic)], self.fitters[np.argmin(bic)], np.min(bic)
+        return (distributions[np.argmin(bic)],
+                VarLog().extend(fit_logs[np.argmin(bic)]).add(bic=min(bic)).add(fitter=self.fitters[np.argmin(bic)]))
 
     @classmethod
     def create(cls, var_builder: VarBuilder):
@@ -514,7 +526,7 @@ class FindDistributionRecipe(BaseRecipe):
             if len(fitters) == 1:
                 return FitterRecipe(var_builder.series, fitters[0])
             elif len(fitters) > 1:
-                return cls(var_builder.series, )
+                return cls(var_builder.series, fitters)
         return None
 
 @dataclass
@@ -525,16 +537,18 @@ class UnqFindDistributionRecipe(BaseRecipe):
     fitters: list[BaseFitter]
     unq_fitters: list[BaseFitter]
 
-    def fit(self):
+    def fit(self, fit_log):
+        fit_log.add(created_by="metasyn")
+        fit_log.add(recipe="Fit multiple distributions, unique and non-unique (for warnings): "
+                     + ", ".join([x.__class__.__name__ for x in self.fitters + self.unq_fitters]))
         series = self.series
-        dist, fitter, bic = FindDistributionRecipe(self.series, self.fitters).fit_with_bic(series)
-        if len(self.unq_fitters) == 0:
-            return dist, fitter
-        unq_dist, unq_fitter, unq_bic = FindDistributionRecipe(self.series,
+        dist, non_fit_log = FindDistributionRecipe(self.series, self.fitters).fit_with_bic(series)
+        unq_dist, unq_fit_log = FindDistributionRecipe(self.series,
                                                                self.unq_fitters).fit_with_bic(series)
-        if unq_bic + 16 < bic:
+        if unq_fit_log.bic[-1] + 16 < non_fit_log.bic[-1]:
             if unq_dist.name == "core.unique_key" and unq_dist.consecutive:
-                return unq_dist, unq_fitter
+                fit_log.extend(unq_fit_log)
+                return unq_dist
             warnings.warn(
                 f"\nMetasyn detected that variable '{series.name}' is potentially unique.\n"
                 f"Use var_spec=[VarSpec(\"{series.name}\", unique=True)] to make it unique."
@@ -543,7 +557,8 @@ class UnqFindDistributionRecipe(BaseRecipe):
                 f" for the variable with name '{series.name}'.",
                 UserWarning
             )
-        return dist, fitter
+        fit_log.extend(non_fit_log)
+        return dist
 
     @classmethod
     def create(cls, var_builder: VarBuilder):
@@ -555,4 +570,12 @@ class UnqFindDistributionRecipe(BaseRecipe):
                     and var_builder.series is not None):
             fitters = var_builder._find_fitters(False)
             unq_fitters = var_builder._find_fitters(True)
+            if len(unq_fitters) == 0:
+                if len(fitters) == 1:
+                    return FitterRecipe(var_builder.series, fitters[0])
+                return FindDistributionRecipe(var_builder.series, fitters)
+            if len(fitters) == 0:
+                if len(unq_fitters) == 1:
+                    return FitterRecipe(var_builder.series, unq_fitters[0])
+                return FindDistributionRecipe(var_builder.series, unq_fitters)
             return cls(var_builder.series, fitters, unq_fitters)

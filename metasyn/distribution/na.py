@@ -45,5 +45,5 @@ class NADistribution(BaseDistribution):
 class NAFitter(BaseFitter):
     """Fitter for NA distribution."""
 
-    def _fit(self, series):  # noqa: ARG002
+    def _fit(self, series, fit_log):  # noqa: ARG002
         return self.distribution()
