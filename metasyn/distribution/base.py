@@ -284,6 +284,17 @@ class Operator(DistributionLike):
     def from_dict(cls, dist_dict) -> Operator:
         return cls(*dist_dict["operands"])
 
+@dataclass
+class IsNull(Operator):
+    """Operator to test whether a column is None/null."""
+
+    operand: Any
+
+    def compute(self, operand):
+        if operand is None:
+            return True
+        return False
+
 
 @dataclass
 class EqualsCondition(Operator):
@@ -293,8 +304,6 @@ class EqualsCondition(Operator):
     right_operand: Any
 
     def compute(self, left_operand: Any, right_operand: Any) -> bool | None:
-        if left_operand is None and right_operand is None:
-            return True
         if left_operand is None or right_operand is None:
             return None
         return left_operand == right_operand
@@ -430,8 +439,6 @@ class NotEqualsCondition(Operator):
     right_operand: Any
 
     def compute(self, left_operand: Any, right_operand: Any) -> bool | None:
-        if left_operand is None and right_operand is None:
-            return False
         if left_operand is None or right_operand is None:
             return None
         return left_operand != right_operand
