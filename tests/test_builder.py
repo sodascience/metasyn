@@ -3,12 +3,26 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from metasyn.builder import MetaFrameBuilder, VarBuilder
+from metasyn.builder import (
+    DistributionRecipe,
+    FindDistributionRecipe,
+    FitLog,
+    FitterRecipe,
+    MetaFrameBuilder,
+    UnqFindDistributionRecipe,
+    VarBuilder,
+)
 from metasyn.demo import demo_data
-from metasyn.distribution import DiscreteConstantDistribution
+from metasyn.distribution import (
+    ContinuousConstantDistribution,
+    DiscreteConstantDistribution,
+    DiscreteConstantFitter,
+    RegexDistribution,
+    RegexFitter,
+)
+from metasyn.distribution.base import BaseFitter, VarLog
 from metasyn.privacy import BasicPrivacy
 from metasyn.registry import DistributionRegistry
-from metasyn.builder import FitterRecipe, DistributionRecipe, FindDistributionRecipe, UnqFindDistributionRecipe
 
 
 @pytest.fixture(scope="module")
@@ -86,3 +100,21 @@ def test_find_fitter_error(builder):
     bld["Int64"].distribution = "regex"
     with pytest.raises(ValueError):
         bld.fit()
+
+def test_fit_log():
+    builder = MetaFrameBuilder()
+    builder.add_dataframe(demo_data("titanic")[:50])
+    builder["Fare"].distribution = ContinuousConstantDistribution(10)
+    builder["PassengerId"].distribution = {"unique": True}
+    builder["Age"].fitter = DiscreteConstantFitter(BasicPrivacy())
+    builder["Cabin"].fitter = RegexFitter(BasicPrivacy(), count_thres=20, method="fast")
+    builder.fit()
+    assert isinstance(builder.fit_log, FitLog)
+    assert isinstance(builder.fit_log["Age"], VarLog)
+    assert builder.fit_log["Fare"].created_by[0] == "user"
+    assert builder.fit_log["Fare"].recipe[0] == "User defined distribution."
+    assert builder.fit_log["PassengerId"].created_by[0] == "metasyn"
+    assert isinstance(builder.fit_log["PassengerId"].fitter[0], BaseFitter)
+    assert len(builder.fit_log["PassengerId"].bic) == 1
+    assert builder.fit_log["Cabin"].method[0].startswith("Fitting regex using method 'fast'") == 1
+    assert builder.fit_log["Cabin"].privacy[0].startswith("The privacy was done using the basic")
