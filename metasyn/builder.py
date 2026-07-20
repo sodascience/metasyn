@@ -500,7 +500,7 @@ class FitterRecipe(BaseRecipe):
     series: pl.Series
     fitter: BaseFitter
 
-    def fit(self, fit_log: FitLog):
+    def fit(self, fit_log: VarLog):
         fit_log.add(recipe="Single fitter.")
         fit_log.add(created_by="metasyn")
         fit_log.add(fitter=self.fitter)
