@@ -7,7 +7,7 @@ from abc import ABC, abstractclassmethod, abstractmethod
 from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
 
 import numpy as np
 import polars as pl
@@ -28,30 +28,54 @@ except ImportError:
 
 
 class FitLog():
+    """Logbook for the builder fitting process."""
+
     def __init__(self):
         self.log = {}
 
-    def write_csv(self, fp):
+    def write_csv(self, fp: Path | str):
+        """Create a CSV file containing fitting data for each column.
+
+        Parameters
+        ----------
+        fp:
+            File to write to.
+        """
         pl.write_csv(pl.DataFrame(self.log), fp)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> VarLog:
         return self.log[key]
 
-    def __setitem__(self, key, val):
+    def __setitem__(self, key: str, val: VarLog):
         self.log[key] = val
 
-    def add_col(self, name):
+    def add_col(self, name: str):
+        """Create fit log entry for column.
+
+        Parameters
+        ----------
+        name:
+            Name of the column to add.
+        """
         self.log[name] = VarLog()
 
     def reset(self):
+        """Remove all logs, but keep columns."""
         for key in self.log:
             self.log[key] = VarLog()
 
-    def print(self):
-        pass
+    # def print(self):
+        # pass
         # print("\n\n".join(str(x) for x in self.log.values()))
 
-    def to_dataframe(self):
+    def to_dataframe(self) -> pl.DataFrame:
+        """Create dataframe from fit log.
+
+        Returns
+        -------
+        df:
+            Dataframe containing all entries in the log.
+        """
         index = self.log[list(self.log)[0]].attrs
         all_series = {"Index": index}
         all_series.update({col: self.log[col].to_series(col) for col in self.log})
@@ -198,7 +222,7 @@ class VarBuilder():
                 return recipe
         raise TypeError(f"Cannot find recipe for distribution {self.distribution}, wrong type?.")
 
-    def fit(self, fit_log: FitLog | None = None):
+    def fit(self, fit_log: VarLog | None = None):
         """Fit or create the distribution.
 
         Returns
@@ -418,7 +442,7 @@ class BaseRecipe(ABC):
     """Base class for distribution recipes."""
 
     @abstractmethod
-    def fit(self, fit_log: FitLog) -> DistributionLike:
+    def fit(self, fit_log: VarLog) -> DistributionLike:
         """Use the recipe to fit or get the correct distribution."""
         pass
 

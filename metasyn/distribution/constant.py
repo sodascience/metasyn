@@ -10,6 +10,7 @@ from metasyn.distribution.base import (
     builtin_fitter,
     convert_to_series,
     metadist,
+    VarLog,
 )
 from metasyn.distribution.util import convert_numpy_datetime
 
@@ -40,7 +41,7 @@ class BaseConstantFitter(BaseFitter):
 
     distribution: type[BaseConstantDistribution]
 
-    def _fit(self, values: pl.Series, fit_log: list) -> BaseDistribution:
+    def _fit(self, values: pl.Series, fit_log: VarLog) -> BaseDistribution:
         # if unique, just get that value
         if values.n_unique() == 1:
             fit_log.add(method=f"All non-NA ){len(values)} values in the column are "

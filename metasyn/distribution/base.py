@@ -43,6 +43,8 @@ def convert_to_series(values: Union[npt.NDArray, pl.Series]) -> pl.Series:
     return series
 
 class VarLog():
+    """Log book for fitting single variables."""
+
     attrs = ["created_by", "method", "recipe", "fitter", "bic", "privacy"]
 
     def __init__(self):
@@ -53,7 +55,24 @@ class VarLog():
         self.bic = []
         self.privacy = []
 
-    def add(self, **kwargs):
+    def add(self, **kwargs) -> VarLog:
+        """Add a new entry to the log book.
+
+        Parameters
+        ----------
+        kwargs:
+            Entries to be added to the log book. Choose from
+            ["created_by", "method", "recipe", "fitter", "bic", "privacy"] for the keywords.
+
+        Examples
+        --------
+        >>> vlog = VarLog()
+        >>> vlog.add(method="This is a method message", bic=2.34)
+
+        Returns
+        -------
+            Itself.
+        """
         for key, val in kwargs.items():
             getattr(self, key).append(val)
             if isinstance(val, BaseFitter):
@@ -61,12 +80,29 @@ class VarLog():
         return self
 
     def extend(self, other):
+        """Extend the varlog with another one.
+
+        Parameters
+        ----------
+        other:
+            The other VarLog object to extend with.
+
+        Returns
+        -------
+            Itself.
+        """
         for attr in self.attrs:
             getattr(self, attr).extend(getattr(other, attr, []))
         return self
 
     @property
     def creation_method(self) -> dict:
+        """Get a dictionary with information on how the distribution was created.
+
+        Returns
+        -------
+            A dictionary with the keys "created_by" and "fitter".
+        """
         if len(self.fitter) == 0:
             fitter = None
         elif len(self.fitter) == 1:
@@ -78,13 +114,26 @@ class VarLog():
             "fitter": fitter,
         }
 
-    def to_series(self, name):
+    def to_series(self, name: str | None = None):
+        """Create a series from a var_log.
+
+        Parameters
+        ----------
+        name:
+
+
+        Returns
+        -------
+        series:
+            Polars series with the different attributes of the var log
+        """
         descriptions = []
         for attr in self.attrs:
             descriptions.append(self.describe(attr))
         return pl.Series(name=name, values=descriptions)
 
-    def describe(self, key):
+    def describe(self, key: str) -> str:
+        """Create a descriptions of one of the keywords."""
         match key:
             case "fitter":
                 return " ".join(f.describe() for f in self.fitter)
