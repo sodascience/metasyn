@@ -7,10 +7,10 @@ import polars as pl
 from metasyn.distribution.base import (
     BaseDistribution,
     BaseFitter,
+    VarLog,
     builtin_fitter,
     convert_to_series,
     metadist,
-    VarLog,
 )
 from metasyn.distribution.util import convert_numpy_datetime
 
