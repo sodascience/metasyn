@@ -4,6 +4,7 @@ from __future__ import annotations
 import inspect
 import warnings
 from abc import ABC, abstractclassmethod, abstractmethod
+from collections import defaultdict
 from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
@@ -41,7 +42,14 @@ class FitLog():
         fp:
             File to write to.
         """
-        pl.write_csv(pl.DataFrame(self.log), fp)
+        self.to_dataframe().write_csv(fp)
+
+    def write_md(self, fp: Path | str):
+        md_str = "# Fit log\n"
+        for key in self.log:
+            md_str += self.log[key].to_md(key) + "\n"
+        with open(fp, "w", encoding="utf-8") as handle:
+            handle.write(md_str)
 
     def __getitem__(self, key: str) -> VarLog:
         return self.log[key]
@@ -76,10 +84,13 @@ class FitLog():
         df:
             Dataframe containing all entries in the log.
         """
-        index = self.log[list(self.log)[0]].attrs
-        all_series = {"Index": index}
-        all_series.update({col: self.log[col].to_series(col) for col in self.log})
-        return pl.DataFrame(all_series)
+        data_dict = defaultdict(list)
+        data_dict["column"] = list(self.log)
+
+        for var_name, var_log in self.log.items():
+            for key, val in var_log.to_dict().items():
+                data_dict[key].append(val)
+        return pl.DataFrame(data_dict)
 
 
 class VarBuilder():
@@ -522,7 +533,7 @@ class FindDistributionRecipe(BaseRecipe):
 
     def fit(self, fit_log):
         fit_log.add(created_by="metasyn")
-        fit_log.add(recipe="Fit multiple distributions: "
+        fit_log.add(recipe="Fit multiple candidate distributions: "
                     f"({', '.join(f.__class__.__name__ for f in self.fitters)}).")
         dist, fit_dict = self.fit_with_bic(self.series)
         fit_log.extend(fit_dict)
@@ -563,7 +574,8 @@ class UnqFindDistributionRecipe(BaseRecipe):
 
     def fit(self, fit_log):
         fit_log.add(created_by="metasyn")
-        fit_log.add(recipe="Fit multiple distributions, unique and non-unique (for warnings): "
+        fit_log.add(recipe="Fit multiple candidate distributions, unique and non-unique "
+                    "(for warnings): "
                      + ", ".join([x.__class__.__name__ for x in self.fitters + self.unq_fitters]))
         series = self.series
         dist, non_fit_log = FindDistributionRecipe(self.series, self.fitters).fit_with_bic(series)

@@ -57,8 +57,10 @@ class BasePrivacy(ABC):
         """
         return f"Above are the parameters for the column {var.name}"
 
-    def describe(self):
-        return "The privacy was done using the basic privacy features of metasyn."
+    @abstractmethod
+    def describe(self) -> str:
+        pass
+
 
 class BasicPrivacy(BasePrivacy):
     """Class representing no privacy level.
@@ -71,6 +73,9 @@ class BasicPrivacy(BasePrivacy):
 
     def to_dict(self) -> dict:
         return BasePrivacy.to_dict(self)
+
+    def describe(self):
+        return "The privacy was done using the basic privacy features of metasyn."
 
 
 def get_privacy(name: str, parameters: Optional[dict] = None) -> BasePrivacy:

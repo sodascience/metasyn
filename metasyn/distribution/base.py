@@ -114,23 +114,16 @@ class VarLog():
             "fitter": fitter,
         }
 
-    def to_series(self, name: str | None = None):
-        """Create a series from a var_log.
+    def to_dict(self):
+        return {attr: self.describe(attr) for attr in self.attrs}
 
-        Parameters
-        ----------
-        name:
-
-
-        Returns
-        -------
-        series:
-            Polars series with the different attributes of the var log
-        """
-        descriptions = []
-        for attr in self.attrs:
-            descriptions.append(self.describe(attr))
-        return pl.Series(name=name, values=descriptions)
+    def to_md(self, name: str) -> str:
+        md_str = f"## {name}\n"
+        for key in self.attrs:
+            if len(getattr(self, key)) == 0:
+                continue
+            md_str += f"- {key}: {self.describe(key)}\n"
+        return md_str
 
     def describe(self, key: str) -> str:
         """Create a descriptions of one of the keywords."""
