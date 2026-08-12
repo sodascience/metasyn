@@ -27,7 +27,6 @@ from metasyn.distribution.base import (
     PlusOperator,
     PowerOperator,
     SubOperator,
-    IsNull,
 )
 from metasyn.distribution.categorical import MultinoulliDistribution, MultinoulliFitter
 from metasyn.distribution.constant import (
