@@ -196,12 +196,12 @@ class DistributionLike(ABC):  #noqa: PLW1641
             A serialized version of the object.
         """
 
-    @abstractclassmethod
+    @abstractclassmethod  # type: ignore
     def schema(cls) -> dict:
         raise NotImplementedError()
 
-    @abstractclassmethod
-    def from_dict(cls, dict) -> DistributionLike:
+    @abstractclassmethod  # type: ignore
+    def from_dict(cls, dist_dict) -> DistributionLike:
         raise NotImplementedError()
 
 

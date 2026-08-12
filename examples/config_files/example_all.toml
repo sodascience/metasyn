@@ -74,6 +74,20 @@ precision = "seconds"
 
 
 [[var]]
+name = "DurationUniformDistribution"
+var_type = "duration"
+
+[var.distribution]
+name = "core.uniform"
+unique = false
+
+[var.distribution.parameters]
+lower = "-PT21H57M57S"
+upper = "P2DT3H4M5S"
+precision = "seconds"
+
+
+[[var]]
 name = "RegexDistribution"
 var_type = "string"
 

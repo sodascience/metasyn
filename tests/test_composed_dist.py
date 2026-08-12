@@ -7,6 +7,7 @@ from metasyn.distribution import (
     DiscreteConstantDistribution,
     IfThenElse,
     NADistribution,
+    IsNull,
 )
 from metasyn.distribution.base import BaseDistribution, Operator
 from metasyn.metaframe import MetaFrame
@@ -57,13 +58,15 @@ def _compare_dist(dist_orig, dist_new):
         (DiscreteConstantDistribution(10) / None, None),
         (DiscreteConstantDistribution(10)**None, None),
         (IfThenElse(NADistribution() == 10, 1, 2), None),
-        (IfThenElse(NADistribution() == None, 1, 2), 1),
+        (IfThenElse(NADistribution() == None, 1, 2), None),
         (IfThenElse((DiscreteConstantDistribution(3) == 3) & None, 1, 2), None),
         (IfThenElse((DiscreteConstantDistribution(3) == 3) | None, 1, 2), None),
         (~NADistribution(), None),
         (NADistribution() < 3, None),
         (NADistribution() > 3, None),
-        (NADistribution() != None, False),
+        (NADistribution() != None, None),
+        (IsNull(NADistribution()), True),
+        (IsNull(DiscreteConstantDistribution(2)), False),
         (NADistribution() != 3, None)
     ]
 )
