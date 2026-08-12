@@ -133,7 +133,8 @@ class VarLog():
             case _:
                 return " ".join(str(x) for x in getattr(self, key))
 
-
+    def __str__(self) -> str:
+        return "\n".join(self.to_md("").split("\n")[1:])
 
 class BaseFitter(ABC):
     """Base class for fitters."""

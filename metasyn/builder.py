@@ -34,7 +34,7 @@ class FitLog():
     def __init__(self):
         self.log = {}
 
-    def write_csv(self, fp: Path | str):
+    def save_csv(self, fp: Path | str):
         """Create a CSV file containing fitting data for each column.
 
         Parameters
@@ -44,7 +44,7 @@ class FitLog():
         """
         self.to_dataframe().write_csv(fp)
 
-    def write_md(self, fp: Path | str):
+    def save_md(self, fp: Path | str):
         md_str = "# Fit log\n"
         for key in self.log:
             md_str += self.log[key].to_md(key) + "\n"
@@ -75,6 +75,19 @@ class FitLog():
     # def print(self):
         # pass
         # print("\n\n".join(str(x) for x in self.log.values()))
+
+    def __str__(self) -> str:
+        var_str_list = ["Fit notes:"]
+        for var_name, var_log in self.log.items():
+            var_str = str(var_log)
+            var_str.replace("\n", "  \n")
+            var_str.replace("\n  \n", "\n\n")
+            if len(var_str) == 0:
+                continue
+            var_str_list.append(f"Notes on column {var_name}:\n\n{var_str}")
+
+        return "\n\n".join(var_str_list)
+            # fit_str += var_str
 
     def to_dataframe(self) -> pl.DataFrame:
         """Create dataframe from fit log.
