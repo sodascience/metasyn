@@ -27,6 +27,7 @@ from metasyn.distribution.base import (
     PlusOperator,
     PowerOperator,
     SubOperator,
+    IsNull,
 )
 from metasyn.distribution.categorical import MultinoulliDistribution, MultinoulliFitter
 from metasyn.distribution.constant import (
@@ -120,6 +121,7 @@ __all__ = [
     "PowerOperator",
     "AndOperator",
     "OrOperator",
+    "IsNone",
     "LessThanCondition",
     "GreaterThanCondition",
     "NotEqualsCondition",
