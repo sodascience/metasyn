@@ -7,7 +7,7 @@ from typing import Any, Dict, Optional, Union
 import numpy as np
 import polars as pl
 
-from metasyn.distribution.base import BaseDistribution
+from metasyn.distribution.base import DistributionLike
 from metasyn.registry import DistributionRegistry
 from metasyn.util import set_global_seeds
 
@@ -53,7 +53,7 @@ class MetaVar:
         self,
         name: str,
         var_type: str,
-        distribution: BaseDistribution,
+        distribution: DistributionLike,
         dtype: str = "unknown",
         description: Optional[str] = None,
         prop_missing: float = 0.0,
@@ -117,7 +117,7 @@ class MetaVar:
         )
 
     def __repr__(self) -> str:
-        return f"MetaVar <{self.name}, {self.distribution.name}>"
+        return f"MetaVar <{self.name}, {self.distribution.__class__.__name__}>"
 
     def draw_series(self, n: int, synth_dict: dict | None = None,
                     seed: Optional[int] = None) -> pl.Series:

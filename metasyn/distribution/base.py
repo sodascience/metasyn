@@ -42,6 +42,100 @@ def convert_to_series(values: Union[npt.NDArray, pl.Series]) -> pl.Series:
         series = pl.Series(series_array)
     return series
 
+class VarLog():
+    """Log book for fitting single variables."""
+
+    attrs = ["created_by", "method", "recipe", "fitter", "bic", "privacy"]
+
+    def __init__(self):
+        self.created_by = []
+        self.method = []
+        self.recipe = []
+        self.fitter = []
+        self.bic = []
+        self.privacy = []
+
+    def add(self, **kwargs) -> VarLog:
+        """Add a new entry to the log book.
+
+        Parameters
+        ----------
+        kwargs:
+            Entries to be added to the log book. Choose from
+            ["created_by", "method", "recipe", "fitter", "bic", "privacy"] for the keywords.
+
+        Examples
+        --------
+        >>> vlog = VarLog()
+        >>> vlog.add(method="This is a method message", bic=2.34)
+
+        Returns
+        -------
+            Itself.
+        """
+        for key, val in kwargs.items():
+            getattr(self, key).append(val)
+            if isinstance(val, BaseFitter):
+                self.add(privacy=val.privacy.describe())
+        return self
+
+    def extend(self, other):
+        """Extend the varlog with another one.
+
+        Parameters
+        ----------
+        other:
+            The other VarLog object to extend with.
+
+        Returns
+        -------
+            Itself.
+        """
+        for attr in self.attrs:
+            getattr(self, attr).extend(getattr(other, attr, []))
+        return self
+
+    @property
+    def creation_method(self) -> dict:
+        """Get a dictionary with information on how the distribution was created.
+
+        Returns
+        -------
+            A dictionary with the keys "created_by" and "fitter".
+        """
+        if len(self.fitter) == 0:
+            fitter = None
+        elif len(self.fitter) == 1:
+            fitter = self.fitter[0].to_dict()
+        else:
+            fitter = [f.to_dict() for f in self.fitter]
+        return {
+            "created_by": " ".join(self.created_by),
+            "fitter": fitter,
+        }
+
+    def to_dict(self):
+        return {attr: self.describe(attr) for attr in self.attrs}
+
+    def to_md(self, name: str) -> str:
+        md_str = f"## {name}\n"
+        for key in self.attrs:
+            if len(getattr(self, key)) == 0:
+                continue
+            md_str += f"- {key}: {self.describe(key)}\n"
+        return md_str
+
+    def describe(self, key: str) -> str:
+        """Create a descriptions of one of the keywords."""
+        match key:
+            case "fitter":
+                return " ".join(f.describe() for f in self.fitter)
+            case _:
+                return " ".join(str(x) for x in getattr(self, key))
+
+    def __str__(self) -> str:
+        return "\n".join(self.to_md("").split("\n")[1:])
+
 class BaseFitter(ABC):
     """Base class for fitters."""
 
@@ -57,14 +151,18 @@ class BaseFitter(ABC):
             raise TypeError(f"To initialize fitter, supply a Privacy object, not {type(privacy)}.")
         self.privacy = privacy
 
-    def fit(self, values: Union[npt.NDArray, pl.Series]) -> BaseDistribution:
+    def fit(self, values: Union[npt.NDArray, pl.Series],
+            fit_log: VarLog | None = None) -> BaseDistribution:
+        if fit_log is None:
+            fit_log = VarLog()
         pl_series = convert_to_series(values)
         if len(pl_series) == 0:
+            fit_log.add(method="Using default distribution, because all values are NA.")
             return self.distribution.default_distribution(get_var_type(pl_series))
-        return self._fit(pl_series)
+        return self._fit(pl_series, fit_log)
 
     @abstractmethod
-    def _fit(self, series: pl.Series) -> BaseDistribution:
+    def _fit(self, series: pl.Series, fit_log) -> BaseDistribution:
         raise NotImplementedError
 
     @classmethod
@@ -101,6 +199,10 @@ class BaseFitter(ABC):
             "plugin": self.plugin,
             "plugin_version": self.plugin_version,
         }
+
+    def describe(self):
+        return (f"Fitter {self.__class__.__name__} version {self.version} from plugin "
+                f"{self.plugin}-{self.plugin_version}. " + self.privacy.describe())
 
 class DistributionLike(ABC):  #noqa: PLW1641
     """Objects that behave like distributions.
@@ -859,8 +961,9 @@ class ScipyDistribution(BaseDistribution):
 class ScipyFitter(BaseFitter):
     """Base fitter for scipy distributions."""
 
-    def _fit(self, series):
+    def _fit(self, series, fit_log):
         param = self.distribution.scipy_class.fit(series)  # type: ignore  # All derived classes have dist_class
+        fit_log.add(method="Using a scipy distribution.")
         return self.distribution(*param)
 
 

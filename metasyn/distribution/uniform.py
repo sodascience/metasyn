@@ -65,7 +65,8 @@ class DiscreteUniformDistribution(ScipyDistribution):
 class DiscreteUniformFitter(BaseFitter):
     """Fitter for discrete uniform distribution."""
 
-    def _fit(self, series):
+    def _fit(self, series, fit_log):
+        fit_log.add(method="Taking the highest and lowest value to compute the parameters.")
         return DiscreteUniformDistribution(series.min(), series.max()+1)
 
 
@@ -119,7 +120,8 @@ class ContinuousUniformDistribution(ScipyDistribution):
 class ContinuousUniformFitter(BaseFitter):
     """Fitter for continuous uniform distribution."""
 
-    def _fit(self, series):
+    def _fit(self, series, fit_log):
+        fit_log.add(method="Taking the highest and lowest value to compute the parameters.")
         return ContinuousUniformDistribution(series.min(), series.max())
 
 
@@ -424,15 +426,18 @@ class BaseDTUniformFitter(BaseFitter):
 class TimeUniformFitter(BaseDTUniformFitter):
     """Fitter for time uniform distribution."""
 
-    def _fit(self, values):
-        return TimeUniformDistribution(values.min(), values.max(), self._get_precision(values))
+    # precision_possibilities = ["microseconds", "seconds", "minutes", "hours", "days"]
+    def _fit(self, series, fit_log):
+        fit_log.add(method="Using earliest and latest times as parameters.")
+        return TimeUniformDistribution(series.min(), series.max(), self._get_precision(series))
 
 @builtin_fitter(distribution=DateTimeUniformDistribution, var_type="datetime")
 class DateTimeUniformFitter(BaseDTUniformFitter):
     """Fitter for datetime uniform distribution."""
 
-    def _fit(self, values):
-        return DateTimeUniformDistribution(values.min(), values.max(), self._get_precision(values))
+    def _fit(self, series, fit_log):
+        fit_log.add(method="Using earliest and latest datetimes as parameters.")
+        return DateTimeUniformDistribution(series.min(), series.max(), self._get_precision(series))
 
 
 @builtin_fitter(distribution=DateUniformDistribution, var_type="date")
@@ -440,15 +445,17 @@ class DateUniformFitter(BaseDTUniformFitter):
     """Fitter for date uniform distribution."""
 
     precision_possibilities = ["days"]
-    def _fit(self, values):
-        return DateUniformDistribution(values.min(), values.max())
+    def _fit(self, series, fit_log):
+        fit_log.add(method="Using earliest and latest dates as parameters.")
+        return DateUniformDistribution(series.min(), series.max())
 
 @builtin_fitter(distribution=DurationUniformDistribution, var_type="duration")
 class DurationUniformFitter(BaseDTUniformFitter):
     """Fitter for the uniform duration distirbution."""
 
-    def _fit(self, values):
-        return DurationUniformDistribution(values.min(), values.max(), self._get_precision(values))
+    def _fit(self, series, fit_log):
+        fit_log.add(method="Using smallest and larges duration as parameters.")
+        return DurationUniformDistribution(series.min(), series.max(), self._get_precision(series))
 
     @classmethod
     def _get_precision(cls, values):
