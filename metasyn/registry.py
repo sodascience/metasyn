@@ -8,20 +8,12 @@ from __future__ import annotations
 
 import warnings
 from importlib.metadata import entry_points
-from inspect import signature
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import Any, Optional
 
-import numpy as np
-import polars as pl
-
+from metasyn.distribution import builtin_operators
 from metasyn.distribution.base import BaseDistribution, BaseFitter
-from metasyn.distribution.na import NADistribution
 from metasyn.privacy import BasePrivacy, BasicPrivacy
 from metasyn.util import get_registry
-from metasyn.varspec import DistributionSpec
-
-if TYPE_CHECKING:
-    from metasyn.config import VarSpec, VarSpecAccess
 
 
 class DistributionRegistry():
@@ -48,7 +40,7 @@ class DistributionRegistry():
         self.fitters = fitters
 
     @classmethod
-    def parse(cls, plugins: Union[list[str], None, str]):
+    def parse(cls, plugins: list[str] | None | str | DistributionRegistry):
         """Initialize the distribution registry from plugin names.
 
         Parameters
@@ -56,6 +48,8 @@ class DistributionRegistry():
         plugins:
             Name of plugin(s) for fitters/distribution or a list of names.
         """
+        if isinstance(plugins, DistributionRegistry):
+            return plugins
         fitters = []
         if isinstance(plugins, str):
             plugins = [plugins]
@@ -81,129 +75,14 @@ class DistributionRegistry():
                               f" broken or out of date: {exc}")
         return cls(fitters)
 
-    def fit(self, series: pl.Series,
-            var_type: str,
-            dist_spec: DistributionSpec,
-            privacy: BasePrivacy = BasicPrivacy()) -> tuple[BaseDistribution, Optional[BaseFitter]]:
-        """Fit a distribution to a column/series.
-
-        Parameters
-        ----------
-        series:
-            The data to fit the distributions to.
-        var_type:
-            The variable type of the data.
-        dist_spec:
-            Distribution to fit. If not supplied or None, the information
-            criterion will be used to determine which distribution is the most
-            suitable. For most variable types, the information criterion is based on
-            the BIC (Bayesian Information Criterion).
-        privacy:
-            Level of privacy that will be used in the fit.
-        """
-        if dist_spec.distribution is not None:
-            return dist_spec.distribution, None
-        if dist_spec.name is not None:
-            return self._fit_distribution(series, dist_spec, var_type, privacy)
-        return self._find_best_fit(series, var_type, dist_spec.unique, privacy)
-
-    def create(self, var_spec: Union[VarSpec, VarSpecAccess]) -> BaseDistribution:
-        """Create a distribution without any data.
-
-        Parameters
-        ----------
-        var_spec
-            A variable configuration that provides all the information to create the distribution.
-
-        Returns
-        -------
-            A distribution according to the variable specifications.
-        """
-        dist_spec = var_spec.dist_spec
-        unique = dist_spec.unique if dist_spec.unique else False
-        if dist_spec.name is None:
-            raise ValueError("Cannot create distribution without specifying the 'name' key.")
-        dist_class = self.find_distribution(
-            dist_spec.name, var_spec.var_type, unique=unique)
-        try:
-            return dist_class(**dist_spec.parameters)  # type: ignore
-        except TypeError as err:
-            dist_param = set(signature(dist_class.__init__).parameters) - {"self"}  # type: ignore
-            unknown_param = set(dist_spec.parameters) - dist_param  # type: ignore
-            missing_param = dist_param - set(dist_spec.parameters)  # type: ignore
-            if len(unknown_param) > 0:
-                raise TypeError(f"Unknown parameters {unknown_param} for variable {var_spec.name}."
-                                f"Available parameters: {dist_param}")
-            if len(missing_param) > 0:
-                raise ValueError(f"Missing parameters for variable {var_spec.name}:"
-                                 f" {missing_param}.")
-            raise err
-
-    def _find_best_fit(self, series: pl.Series, var_type: str,
-                       unique: Optional[bool],
-                       privacy: BasePrivacy) -> tuple[BaseDistribution, Optional[BaseFitter]]:
-        """Fit a distribution to a series.
-
-        Search for the distribution within all available distributions in the tree.
-
-        Parameters
-        ----------
-        series:
-            Series to fit a distribution to.
-        var_type:
-            Variable type of the series.
-        unique:
-            Whether the variable should be unique or not.
-        privacy:
-            Privacy level to find the best fit with.
-
-        Returns
-        -------
-        BaseDistribution:
-            Distribution fitted to the series.
-        """
-        if len(series.drop_nulls()) == 0:
-            return NADistribution(), None
-        try_unique = unique is True
-        fitters = self.filter_fitters(privacy=privacy, var_type=var_type, unique=try_unique)
-        if len(fitters) == 0:
-            raise ValueError(f"No available distributions with variable type: '{var_type}'"
-                             f" and unique={try_unique}")
-        fit_instances = [f(privacy) for f in fitters]
-        dist_instances = [(f.fit(series), f) for f in fit_instances]
-        dist_bic = [d.information_criterion(series) for d, _ in dist_instances]
-        if unique is None:
-            fit_list_unq = self.filter_fitters(privacy=privacy, var_type=var_type, unique=True)
-            if len(fit_list_unq) > 0:
-                fit_inst_unq = [f(privacy) for f in fit_list_unq]
-                dist_inst_unq = [(f.fit(series), f) for f in fit_inst_unq]
-                dist_bic_unq = [d.information_criterion(series) for d, _ in dist_inst_unq]
-                # We don't want to warn about potential uniqueness too easily
-                # The offset is a heuristic that ensures about 12 rows are needed for uniqueness
-                # Or 5 rows for consecutive values.
-                if np.min(dist_bic_unq) + 16 < np.min(dist_bic):
-                    best_dist, best_fitter = dist_inst_unq[np.argmin(dist_bic_unq)]
-                    if best_dist.name == "core.unique_key" and best_dist.consecutive:  # type: ignore
-                        return best_dist, best_fitter
-                    warnings.warn(
-                        f"\nMetasyn detected that variable '{series.name}' is potentially unique.\n"
-                        f"Use var_spec=[VarSpec(\"{series.name}\", unique=True)] to make it unique."
-                        f"\nTo dismiss this warning use [VarSpec(\"{series.name}\", unique=False)]."
-                        "\nIf you are using a configuration file add distribution = {unique = True}"
-                        f" for the variable with name '{series.name}'.",
-                        UserWarning
-                    )
-
-        return dist_instances[np.argmin(dist_bic)]
-
     def find_distribution(
             self,
-            dist_name: str,
-            var_type: Optional[str],
+            name: str,
+            var_type: str | None,
             unique: bool = False,
-            version: Optional[str] = None
+            version: str | None = None
         ) -> type[BaseDistribution]:
-        dist_classes = self.filter_distributions(name=dist_name, var_type=var_type,
+        dist_classes = self.filter_distributions(name=name, var_type=var_type,
                                                  unique=unique, version=version)
         if len(dist_classes) == 1:
             return dist_classes[0]
@@ -211,24 +90,24 @@ class DistributionRegistry():
         if len(dist_classes) > 1:
             dist_str = [f"({d.__name__}, {d.var_type}, {d.unique}, {d.version})"
                         for d in dist_classes]
-            raise ValueError(f"Multiple valid distributions found with name {dist_name}, var_type "
+            raise ValueError(f"Multiple valid distributions found with name {name}, var_type "
                              f"{var_type}, unique {unique}, version {version}."
                              f" Alternatives: {dist_str}")
-        name_classes = self.filter_distributions(name=dist_name)
+        name_classes = self.filter_distributions(name=name)
         if len(name_classes) == 0:
-            raise ValueError(f"No known distributions with name '{dist_name}'.")
+            raise ValueError(f"No known distributions with name '{name}'.")
         dist_str = [f"({d.__name__}, {d.var_type}, {d.unique}, {d.version})"
             for d in name_classes]
-        raise ValueError(f"No distribution found with name {dist_name}, var_type "
+        raise ValueError(f"No distribution found with name {name}, var_type "
                          f"{var_type}, unique {unique}, version {version}."
                          f" Alternatives: {dist_str}")
 
-    def find_fitter(self,
-                    dist_name: str,
-                    var_type: Optional[str],
-                    privacy: Optional[BasePrivacy] = BasicPrivacy(),
-                    unique: bool = False,
-                    version: Optional[str] = None) -> type[BaseFitter]:
+    def find_fitters(self,
+                     dist_name: str,
+                     var_type: Optional[str],
+                     privacy: Optional[BasePrivacy] = BasicPrivacy(),
+                     unique: bool = False,
+                     version: Optional[str] = None) -> list[type[BaseFitter]]:
         """Find a distribution and fit keyword arguments from a name.
 
         Sometimes there might be multiple possible fitters that satisfy the criteria.
@@ -259,14 +138,14 @@ class DistributionRegistry():
         fitter_classes = self.filter_fitters(
             name=dist_name, privacy=privacy, var_type=var_type, unique=unique, version=version)
         if len(fitter_classes) == 1:
-            return fitter_classes[0]
+            return fitter_classes
 
         if len(fitter_classes) > 1:
             if var_type is None and not all([
                     f.var_type == fitter_classes[0] for f in fitter_classes]):
                 raise ValueError(f"Multiple valid fitters found with name {dist_name}, "
                                  "please specify var_type.")
-            return fitter_classes[0]
+            return fitter_classes
 
         name_classes = self.filter_fitters(name=dist_name)
         if len(name_classes) == 0:
@@ -276,47 +155,6 @@ class DistributionRegistry():
         raise ValueError(f"No fitter found with name {dist_name}, var_type "
                          f"{var_type}, unique {unique}, version {version}."
                          f" Alternatives: {fitter_str}")
-
-    def _fit_distribution(self, series: pl.Series,
-                          dist_spec: DistributionSpec,
-                          var_type: str,
-                          privacy: BasePrivacy) -> tuple[BaseDistribution, Optional[BaseFitter]]:
-        """Fit a specific distribution to a series.
-
-        In contrast the fit method, this needs a supplied distribution(type).
-
-        Parameters
-        ----------
-        series:
-            Series to fit the distribution to.
-        dist_spec:
-            Distribution to fit (if it is not already fitted).
-        var_type:
-            Type of variable to fit the distribution for.
-        privacy:
-            Privacy level to fit the distribution with.
-
-        Returns
-        -------
-        BaseDistribution:
-            Fitted distribution.
-        """
-        unique = dist_spec.unique
-        unique = unique if unique else False
-        assert dist_spec.name is not None
-
-        # If the parameters are already specified, the privacy level doesn't matter anymore.
-        if dist_spec.parameters is not None:
-            dist_class = self.find_distribution(dist_spec.name, var_type, unique=unique)
-            return dist_class(**dist_spec.parameters), None
-
-        fitter_class = self.find_fitter(dist_spec.name, var_type, privacy=privacy,
-                                        unique=unique)
-
-        fit_kwargs = dist_spec.fit_kwargs
-        fitter = fitter_class(privacy)
-        dist_instance = fitter.fit(series, **fit_kwargs)
-        return dist_instance, fitter
 
     def filter_fitters(self,
                        name: Optional[str] = None,
@@ -385,16 +223,37 @@ class DistributionRegistry():
         BaseDistribution:
             Distribution representing the dictionary.
         """
+        return self._convert_dict(var_dict["distribution"], var_dict["type"])
+
+    def _convert_dict(self, dist_dict, var_type):
+        if not isinstance(dist_dict, dict):
+            return dist_dict
         try:
-            dist_name = var_dict["distribution"]["name"]
+            dist_name = dist_dict["class_name"]
+            var_type = None
         except KeyError:
-            dist_name = var_dict["distribution"]["implements"]
-        version = var_dict["distribution"].get("version", "1.0")
-        var_type = var_dict["type"]
-        unique = var_dict["distribution"]["unique"]
+            try:
+                dist_name = dist_dict["name"]
+            except KeyError:
+                dist_name = dist_dict["implements"]
+
+        if "operands" in dist_dict:
+            operands = [self._convert_dict(op_dict, var_type) for op_dict in dist_dict["operands"]]
+            dist_dict["operands"] = operands
+
+        version = dist_dict.get("version", "1.0")
+
+
+        # Operators
+        if "unique" not in dist_dict:
+            for op_class in builtin_operators:
+                if op_class.__name__ == dist_dict["name"]:
+                    return op_class.from_dict(dist_dict)
+
+        unique = dist_dict["unique"]
         dist_class = self.find_distribution(dist_name, version=version,
                                             var_type=var_type, unique=unique)
-        return dist_class.from_dict(var_dict["distribution"])
+        return dist_class.from_dict(dist_dict)
 
     @property
     def distributions(self):

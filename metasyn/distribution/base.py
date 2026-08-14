@@ -16,8 +16,9 @@ which is used to set the class attributes of a distribution.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABC, abstractclassmethod, abstractmethod
 from copy import deepcopy
+from dataclasses import dataclass, fields
 from importlib import metadata
 from typing import Any, Optional, Sequence, Union
 
@@ -41,6 +42,100 @@ def convert_to_series(values: Union[npt.NDArray, pl.Series]) -> pl.Series:
         series = pl.Series(series_array)
     return series
 
+class VarLog():
+    """Log book for fitting single variables."""
+
+    attrs = ["created_by", "method", "recipe", "fitter", "bic", "privacy"]
+
+    def __init__(self):
+        self.created_by = []
+        self.method = []
+        self.recipe = []
+        self.fitter = []
+        self.bic = []
+        self.privacy = []
+
+    def add(self, **kwargs) -> VarLog:
+        """Add a new entry to the log book.
+
+        Parameters
+        ----------
+        kwargs:
+            Entries to be added to the log book. Choose from
+            ["created_by", "method", "recipe", "fitter", "bic", "privacy"] for the keywords.
+
+        Examples
+        --------
+        >>> vlog = VarLog()
+        >>> vlog.add(method="This is a method message", bic=2.34)
+
+        Returns
+        -------
+            Itself.
+        """
+        for key, val in kwargs.items():
+            getattr(self, key).append(val)
+            if isinstance(val, BaseFitter):
+                self.add(privacy=val.privacy.describe())
+        return self
+
+    def extend(self, other):
+        """Extend the varlog with another one.
+
+        Parameters
+        ----------
+        other:
+            The other VarLog object to extend with.
+
+        Returns
+        -------
+            Itself.
+        """
+        for attr in self.attrs:
+            getattr(self, attr).extend(getattr(other, attr, []))
+        return self
+
+    @property
+    def creation_method(self) -> dict:
+        """Get a dictionary with information on how the distribution was created.
+
+        Returns
+        -------
+            A dictionary with the keys "created_by" and "fitter".
+        """
+        if len(self.fitter) == 0:
+            fitter = None
+        elif len(self.fitter) == 1:
+            fitter = self.fitter[0].to_dict()
+        else:
+            fitter = [f.to_dict() for f in self.fitter]
+        return {
+            "created_by": " ".join(self.created_by),
+            "fitter": fitter,
+        }
+
+    def to_dict(self):
+        return {attr: self.describe(attr) for attr in self.attrs}
+
+    def to_md(self, name: str) -> str:
+        md_str = f"## {name}\n"
+        for key in self.attrs:
+            if len(getattr(self, key)) == 0:
+                continue
+            md_str += f"- {key}: {self.describe(key)}\n"
+        return md_str
+
+    def describe(self, key: str) -> str:
+        """Create a descriptions of one of the keywords."""
+        match key:
+            case "fitter":
+                return " ".join(f.describe() for f in self.fitter)
+            case _:
+                return " ".join(str(x) for x in getattr(self, key))
+
+    def __str__(self) -> str:
+        return "\n".join(self.to_md("").split("\n")[1:])
+
 class BaseFitter(ABC):
     """Base class for fitters."""
 
@@ -56,14 +151,18 @@ class BaseFitter(ABC):
             raise TypeError(f"To initialize fitter, supply a Privacy object, not {type(privacy)}.")
         self.privacy = privacy
 
-    def fit(self, values: Union[npt.NDArray, pl.Series]) -> BaseDistribution:
+    def fit(self, values: Union[npt.NDArray, pl.Series],
+            fit_log: VarLog | None = None) -> BaseDistribution:
+        if fit_log is None:
+            fit_log = VarLog()
         pl_series = convert_to_series(values)
         if len(pl_series) == 0:
+            fit_log.add(method="Using default distribution, because all values are NA.")
             return self.distribution.default_distribution(get_var_type(pl_series))
-        return self._fit(pl_series)
+        return self._fit(pl_series, fit_log)
 
     @abstractmethod
-    def _fit(self, series: pl.Series) -> BaseDistribution:
+    def _fit(self, series: pl.Series, fit_log) -> BaseDistribution:
         raise NotImplementedError
 
     @classmethod
@@ -101,7 +200,404 @@ class BaseFitter(ABC):
             "plugin_version": self.plugin_version,
         }
 
-class BaseDistribution(ABC):
+    def describe(self):
+        return (f"Fitter {self.__class__.__name__} version {self.version} from plugin "
+                f"{self.plugin}-{self.plugin_version}. " + self.privacy.describe())
+
+class DistributionLike(ABC):  #noqa: PLW1641
+    """Objects that behave like distributions.
+
+    That includes the BaseDistributions and Operators (which are factually composed distributions).
+    """
+
+    def __add__(self, other):
+        return PlusOperator(self, other)
+
+    def __radd__(self, other):
+        return PlusOperator(other, self)
+
+    def __sub__(self, other):
+        return SubOperator(self, other)
+
+    def __rsub__(self, other):
+        return SubOperator(other, self)
+
+    def __mul__(self, other):
+        return MultiplyOperator(self, other)
+
+    def __rmul__(self, other):
+        return MultiplyOperator(other, self)
+
+    def __truediv__(self, other):
+        return DivideOperator(self, other)
+
+    def __rtruediv__(self, other):
+        return DivideOperator(other, self)
+
+    def __pow__(self, other):
+        return PowerOperator(self, other)
+
+    def __rpow__(self, other):
+        return PowerOperator(other, self)
+
+    def __neg__(self):
+        return SubOperator(0, self)
+
+    def __invert__(self):
+        return NotOperator(self)
+
+    def __and__(self, other):
+        return AndOperator(self, other)
+
+    def __rand__(self, other):
+        return AndOperator(other, self)
+
+    def __or__(self, other):
+        return OrOperator(self, other)
+
+    def __ror__(self, other):
+        return OrOperator(other, self)
+
+    def __eq__(self, other):
+        return EqualsCondition(self, other)
+
+    def __ne__(self, other):
+        return NotEqualsCondition(self, other)
+
+    def __lt__(self, other):
+        return LessThanCondition(self, other)
+
+    def __gt__(self, other):
+        return GreaterThanCondition(self, other)
+
+    def __le__(self, other):
+        return OrOperator(LessThanCondition(self, other), EqualsCondition(self, other))
+
+    def __ge__(self, other):
+        return OrOperator(GreaterThanCondition(self, other), EqualsCondition(self, other))
+
+    @property
+    def dependencies(self) -> set[str]:
+        """The column dependencies of the distribution."""
+        return set()
+
+    @abstractmethod
+    def draw_reset(self):
+        """Reset the distribution so that it will start again from the start."""
+
+    @abstractmethod
+    def draw_list(self, n: int, synth_dict: dict):
+        """Draw a list of values from the distribution."""
+
+    @abstractmethod
+    def to_dict(self) -> dict:
+        """Create a dictionary from the distribution like.
+
+        Returns
+        -------
+            A serialized version of the object.
+        """
+
+    @abstractclassmethod  # type: ignore
+    def schema(cls) -> dict:
+        raise NotImplementedError()
+
+    @abstractclassmethod  # type: ignore
+    def from_dict(cls, dist_dict) -> DistributionLike:
+        raise NotImplementedError()
+
+
+@dataclass
+class Operator(DistributionLike):
+    """Base class for distribution operators.
+
+    These include basic operations such as '+' and '-'.
+    """
+
+    def draw_reset(self):
+        for operand in self.operands:
+            if isinstance(operand, DistributionLike):
+                operand.draw_reset()
+
+
+    def __iter__(self):
+        for op_field in fields(self.__class__):
+            yield op_field.name
+
+    @abstractmethod
+    def compute(self, *args):
+        pass
+
+    def draw_list(self, n, synth_dict):
+        all_lists = {}
+        for op_name in self:
+            val = getattr(self, op_name)
+            if isinstance(val, DistributionLike):
+                all_lists[op_name] = val.draw_list(n, synth_dict)
+            else:
+                all_lists[op_name] = n*[val]
+        results = []
+        for i_val in range(n):
+            results.append(self.compute(**{name: all_lists[name][i_val]
+                                           for name in all_lists.keys()}))
+        return results
+
+    @property
+    def dependencies(self):
+        deps = set()
+        for operand in self.operands:
+            operand
+            if isinstance(operand, DistributionLike):
+                deps |= operand.dependencies
+        return deps
+
+    @property
+    def name(self):
+        return f"{self.__class__.__name__}({', '.join('...' for _ in self)})"
+
+    @property
+    def operands(self):
+        for op_name in self:
+            yield getattr(self, op_name)
+
+    def to_dict(self):
+        return {
+            "name": self.__class__.__name__,
+            "operands": [op.to_dict() if isinstance(op, DistributionLike) else op
+                         for op in self.operands]
+        }
+
+    @classmethod
+    def schema(cls):
+        return {
+            "type": "object",
+            "properties": {
+                "name": {"const": cls.__name__},
+                "operands": {
+                    "type": "array",
+                    "minItems": len(list(fields(cls))),
+                    "maxItems": len(list(fields(cls))),
+                },
+            },
+            "required": ["name", "operands"]
+        }
+
+    @classmethod
+    def from_dict(cls, dist_dict) -> Operator:
+        return cls(*dist_dict["operands"])
+
+@dataclass
+class IsNull(Operator):
+    """Operator to test whether a column is None/null."""
+
+    operand: Any
+
+    def compute(self, operand):
+        if operand is None:
+            return True
+        return False
+
+
+@dataclass
+class EqualsCondition(Operator):
+    """Operator to test whether two values are the same."""
+
+    left_operand: Any
+    right_operand: Any
+
+    def compute(self, left_operand: Any, right_operand: Any) -> bool | None:
+        if left_operand is None or right_operand is None:
+            return None
+        return left_operand == right_operand
+
+@dataclass
+class IfThenElse(Operator):
+    """Ternary operator that tests a condition and returns from two alternatives."""
+
+    condition: Any
+    then_operand: Any
+    else_operand: Any
+
+    def compute(self, condition: Any, then_operand: Any, else_operand: Any) -> Any:
+        if condition is None:
+            return None
+        return then_operand if condition else else_operand
+
+
+@dataclass
+class PlusOperator(Operator):
+    """Add two values together."""
+
+    left_operand: Any
+    right_operand: Any
+
+    def compute(self, left_operand, right_operand):
+        if left_operand is None or right_operand is None:
+            return None
+        return left_operand + right_operand
+
+
+@dataclass
+class MultiplyOperator(Operator):
+    """Multiply two values."""
+
+    left_operand: Any
+    right_operand: Any
+
+    def compute(self, left_operand: Any, right_operand: Any) -> Any:
+        if left_operand is None or right_operand is None:
+            return None
+        return left_operand * right_operand
+
+@dataclass
+class DivideOperator(Operator):
+    """Divide one value by another."""
+
+    left_operand: Any
+    right_operand: Any
+
+    def compute(self, left_operand: Any, right_operand: Any) -> Any:
+        if left_operand is None or right_operand is None:
+            return None
+        return left_operand / right_operand
+
+@dataclass
+class SubOperator(Operator):
+    """Subtract two values."""
+
+    left_operand: Any
+    right_operand: Any
+
+    def compute(self, left_operand: Any, right_operand: Any) -> Any:
+        if left_operand is None or right_operand is None:
+            return None
+        return left_operand - right_operand
+
+@dataclass
+class PowerOperator(Operator):
+    """Raise a value to a power."""
+
+    left_operand: Any
+    right_operand: Any
+
+    def compute(self, left_operand: Any, right_operand: Any) -> Any:
+        if left_operand is None or right_operand is None:
+            return None
+        return left_operand ** right_operand
+
+@dataclass
+class AndOperator(Operator):
+    """Logical AND operator between two values."""
+
+    left_operand: Any
+    right_operand: Any
+
+    def compute(self, left_operand: Any, right_operand: Any) -> bool | None:
+        if left_operand is None or right_operand is None:
+            return None
+        return left_operand and right_operand
+
+@dataclass
+class OrOperator(Operator):
+    """Logical OR operator between two values."""
+
+    left_operand: Any
+    right_operand: Any
+
+    def compute(self, left_operand: Any, right_operand: Any) -> bool | None:
+        if left_operand is None or right_operand is None:
+            return None
+        return left_operand or right_operand
+
+@dataclass
+class LessThanCondition(Operator):
+    """Operator to test whether the left value is less than the right value."""
+
+    left_operand: Any
+    right_operand: Any
+
+    def compute(self, left_operand: Any, right_operand: Any) -> bool | None:
+        if left_operand is None or right_operand is None:
+            return None
+        return left_operand < right_operand
+
+@dataclass
+class GreaterThanCondition(Operator):
+    """Operator to test whether the left value is greater than the right value."""
+
+    left_operand: Any
+    right_operand: Any
+
+    def compute(self, left_operand: Any, right_operand: Any) -> bool | None:
+        if left_operand is None or right_operand is None:
+            return None
+        return left_operand > right_operand
+
+@dataclass
+class NotEqualsCondition(Operator):
+    """Operator to test whether two values are not equal."""
+
+    left_operand: Any
+    right_operand: Any
+
+    def compute(self, left_operand: Any, right_operand: Any) -> bool | None:
+        if left_operand is None or right_operand is None:
+            return None
+        return left_operand != right_operand
+
+@dataclass
+class NotOperator(Operator):
+    """Logical NOT operator that negates a value."""
+
+    operand: Any
+
+    def compute(self, operand: Any) -> bool | None:
+        if operand is None:
+            return None
+        return not operand
+
+class ColumnReference(DistributionLike):
+    """Returns the value of another already synthesized column."""
+
+    def __init__(self, ref_name):
+        self.ref_name = ref_name
+
+    def draw_list(self, n, synth_dict):  # noqa: ARG002
+        return synth_dict[self.ref_name].to_list()
+
+    @property
+    def dependencies(self) -> set:
+        return set([self.ref_name])
+
+    def draw_reset(self):
+        pass
+
+    @property
+    def name(self):
+        return f"ref{{\"{self.ref_name}\"}}"
+
+    def to_dict(self):
+        return {
+            "name": self.__class__.__name__,
+            "ref_name": self.ref_name,
+        }
+
+    @classmethod
+    def from_dict(cls, dist_dict) -> ColumnReference:
+        return cls(dist_dict["ref_name"])
+
+    @classmethod
+    def schema(cls) -> dict:
+        return {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string"},
+                "ref_name": {"type": "string"},
+            },
+            "required": ["name", "ref_name"],
+        }
+
+class BaseDistribution(DistributionLike):
     """Abstract base class to define a distribution.
 
     All distributions should be derived from this class, and should implement
@@ -188,7 +684,7 @@ class BaseDistribution(ABC):
         """Create a distribution from a dictionary."""
         return cls(**dist_dict["parameters"])
 
-    def information_criterion(self, values: Union[pl.Series, npt.NDArray]) -> float: # noqa: ARG002
+    def information_criterion(self, values: pl.Series | npt.NDArray) -> float: # noqa: ARG002
         """Get the BIC value for a particular set of values.
 
         Parameters
@@ -230,7 +726,7 @@ class BaseDistribution(ABC):
         """Get a distribution with default parameters."""
         return cls()
 
-    def draw_list(self, n: int) -> list:
+    def draw_list(self, n: int, synth_dict: dict) -> list:  #noqa: ARG002
         """Draw a list of values from the distribution.
 
         Parameters
@@ -247,7 +743,7 @@ class BaseDistribution(ABC):
         -------
             List of values.
         """
-        raise NotImplementedError()
+        return [self.draw() for _ in range(n)]
 
 def metadist(
         name: Optional[str] = None,
@@ -446,7 +942,7 @@ class ScipyDistribution(BaseDistribution):
             return int(val)
         return val
 
-    def draw_list(self, n: int) -> list:
+    def draw_list(self, n: int, synth_dict: dict) -> list:  #noqa: ARG002
         values = self.dist.rvs(n)
         if self.var_type == "discrete":
             values = values.astype(np.int64)
@@ -465,8 +961,9 @@ class ScipyDistribution(BaseDistribution):
 class ScipyFitter(BaseFitter):
     """Base fitter for scipy distributions."""
 
-    def _fit(self, series):
+    def _fit(self, series, fit_log):
         param = self.distribution.scipy_class.fit(series)  # type: ignore  # All derived classes have dist_class
+        fit_log.add(method="Using a scipy distribution.")
         return self.distribution(*param)
 
 
@@ -503,7 +1000,7 @@ class UniqueDistributionMixin(BaseDistribution):
             n_retry += 1
         raise ValueError(f"Failed to draw unique string after {n_retry} tries.")
 
-    def information_criterion(self, values): # noqa: ARG002
+    def information_criterion(self, values: pl.Series | npt.NDArray): # noqa: ARG002
         return 9999999
 
 

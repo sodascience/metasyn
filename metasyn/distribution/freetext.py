@@ -94,16 +94,18 @@ class FreeTextFitter(BaseFitter):
 
     distribution: type[FreeTextDistribution]
 
-    def _fit(self, series, max_values: int = 50):
+    def _fit(self, series, fit_log, max_values: int = 50):
         """Select the appropriate faker function and locale."""
         lang_str = detect_language(series[:max_values])
         if lang_str is None:
-            return self.distribution.default_distribution()
-
-        try:
-            Faker(lang_str)
-        except AttributeError:
+            fit_log.add(method="Could not determine language, using english.")
             lang_str = "EN"
+        else:
+            try:
+                Faker(lang_str)
+            except AttributeError:
+                fit_log.add(method="Language not available in faker package, using engligh.")
+                lang_str = "EN"
 
         all_text = "\n".join(series)
         n_non_empty = (series != "").sum()
@@ -114,6 +116,7 @@ class FreeTextFitter(BaseFitter):
         else:
             avg_sentence = n_punctuation/len(series)
         avg_words = n_words/len(series)
+        fit_log.add(method="Using average number of sentences and words as parameters.")
         return self.distribution(lang_str, avg_sentence, avg_words)
 
 

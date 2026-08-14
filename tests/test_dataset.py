@@ -11,8 +11,8 @@ from metasyn.demo.dataset import (
     _AVAILABLE_DATASETS,
     BaseMultiDataset,
     _get_demo_class,
-    demo_file,
     demo_data,
+    demo_file,
 )
 from metasyn.metaframe import MetaFrame
 from metasyn.multiframe import MultiFrame
@@ -113,7 +113,7 @@ def test_dataset(tmp_path, dataframe_lib):
     assert isinstance(repr(dataset), str)
 
     # Check whether non-columns raise an error
-    with pytest.raises(ValueError):
+    with pytest.raises(KeyError):
         dataset = MetaFrame.fit_dataframe(df, var_specs=[{"name": "unicorn", "prop_missing": 0.5}])
 
 

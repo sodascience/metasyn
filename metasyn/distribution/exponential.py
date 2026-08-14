@@ -45,12 +45,15 @@ class ExponentialDistribution(ScipyDistribution):
         }
 
 
+
 @builtin_fitter(distribution=ExponentialDistribution, var_type="continuous")
 class ExponentialFitter(BaseFitter):
     """Fitter for exponential distribution."""
 
-    def _fit(self, series):
+    def _fit(self, series, fit_log):
+        fit_log.add(method="Removed all negative values.")
         series = series.filter(series > 0)
         if len(series) == 0:
+            fit_log.add(method="No non-NA values, using default distribution.")
             return self.distribution.default_distribution()
         return self.distribution(rate=1/expon.fit(series, floc=0)[1])

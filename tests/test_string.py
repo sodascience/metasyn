@@ -58,7 +58,7 @@ def test_unique_regex():
     assert len(series.unique()) == 10
 
     with pytest.raises(ValueError):
-        var.draw()
+        var.distribution.draw()
 
 def test_unique_faker():
     dist = UniqueFakerDistribution("city")
@@ -66,3 +66,7 @@ def test_unique_faker():
 
     series = var.draw_series(1000, None)
     assert len(series.unique()) == 1000
+
+def test_type_error():
+    with pytest.raises(TypeError):
+        FreeTextFitter(10)

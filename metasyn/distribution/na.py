@@ -5,7 +5,15 @@ return NA.
 """
 
 
-from metasyn.distribution.base import BaseDistribution, BaseFitter, builtin_fitter, metadist
+import numpy as np
+
+from metasyn.distribution.base import (
+    BaseDistribution,
+    BaseFitter,
+    builtin_fitter,
+    convert_to_series,
+    metadist,
+)
 
 
 @metadist(name="core.na", var_type=["continuous", "discrete", "categorical", "string"])
@@ -27,12 +35,15 @@ class NADistribution(BaseDistribution):
         return {}
 
     def information_criterion(self, values): # noqa: ARG002
-        return 1e10
+        series = convert_to_series(values)
+        if len(series) == 0:
+            return -np.inf
+        return np.inf
 
 @builtin_fitter(distribution=NADistribution,
                 var_type=["continuous", "discrete", "categorical", "string"])
 class NAFitter(BaseFitter):
     """Fitter for NA distribution."""
 
-    def _fit(self, series):  # noqa: ARG002
+    def _fit(self, series, fit_log):  # noqa: ARG002
         return self.distribution()

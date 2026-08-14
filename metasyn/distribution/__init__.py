@@ -10,6 +10,24 @@ information criterion, used for selecting the best distribution for
 a given set of values.
 """
 
+from metasyn.distribution.base import (
+    AndOperator,
+    ColumnReference,
+    DivideOperator,
+    EqualsCondition,
+    GreaterThanCondition,
+    IfThenElse,
+    IsNull,
+    LessThanCondition,
+    MultiplyOperator,
+    NotEqualsCondition,
+    NotOperator,
+    Operator,
+    OrOperator,
+    PlusOperator,
+    PowerOperator,
+    SubOperator,
+)
 from metasyn.distribution.categorical import MultinoulliDistribution, MultinoulliFitter
 from metasyn.distribution.constant import (
     ContinuousConstantDistribution,
@@ -62,6 +80,8 @@ from metasyn.distribution.uniform import (
     DateUniformFitter,
     DiscreteUniformDistribution,
     DiscreteUniformFitter,
+    DurationUniformDistribution,
+    DurationUniformFitter,
     TimeUniformDistribution,
     TimeUniformFitter,
 )
@@ -69,7 +89,7 @@ from metasyn.distribution.uniquekey import UniqueKeyDistribution, UniqueKeyFitte
 
 builtin_fitters = [
     DiscreteUniformFitter, ContinuousUniformFitter, DateUniformFitter, TimeUniformFitter,
-    DateTimeUniformFitter,
+    DateTimeUniformFitter, DurationUniformFitter,
     RegexFitter, UniqueRegexFitter,
     ContinuousConstantFitter, DiscreteConstantFitter, DateConstantFitter,
     DateTimeConstantFitter, TimeConstantFitter, StringConstantFitter,
@@ -84,7 +104,29 @@ builtin_fitters = [
     NAFitter,
 ]
 
+builtin_operators: list[Operator]= [  # type: ignore
+    EqualsCondition, IfThenElse, PlusOperator, MultiplyOperator, DivideOperator,  # type: ignore
+    SubOperator, PowerOperator, AndOperator, OrOperator, LessThanCondition, GreaterThanCondition,  # type: ignore
+    NotEqualsCondition, NotOperator, ColumnReference, IsNull, # type: ignore
+]
+
 __all__ = [
+    "EqualsCondition",
+    "IfThenElse",
+    "PlusOperator",
+    "MultiplyOperator",
+    "DivideOperator",
+    "SubOperator",
+    "PowerOperator",
+    "AndOperator",
+    "OrOperator",
+    "IsNone",
+    "LessThanCondition",
+    "GreaterThanCondition",
+    "NotEqualsCondition",
+    "NotOperator",
+    "ColumnReference",
+    "MetaFrameBuilder",
     "MultinoulliDistribution",
     "ExponentialDistribution",
     "LogNormalDistribution",
@@ -111,4 +153,5 @@ __all__ = [
     "DateConstantDistribution",
     "TimeConstantDistribution",
     "DateTimeConstantDistribution",
+    "DurationUniformDistribution",
 ]

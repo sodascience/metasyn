@@ -75,6 +75,8 @@ class MultinoulliDistribution(BaseDistribution):
                               values: Union[pl.Series, npt.NDArray]
                               ) -> float:
         series = convert_to_series(values)
+        if len(series) == 0:
+            return 9999999
         labels, counts = np.unique(series, return_counts=True)
         log_lik = 0.0
         pdict = dict(zip(self.labels, self.probs))
@@ -153,7 +155,23 @@ class MultinoulliFitter(BaseFitter):
 
     distribution: type[MultinoulliDistribution]
 
-    def _fit(self, series: pl.Series):
+    def _fit(self, series: pl.Series, fit_log):
         labels, counts = np.unique(series, return_counts=True)
         probs = counts/np.sum(counts)
+        fit_log.add(method=f"Multinoulli distribution with {len(counts)} categories and"
+                           f" {counts.sum()} counts.")
+
+        sorted_counts = counts[np.argsort(counts)]
+        sorted_labels = labels[np.argsort(counts)]
+        text = []
+        if len(counts) > 6:
+            for i in range(2):
+                text.append(f"{sorted_labels[i]}: {sorted_counts[i]}")
+            text.append("...")
+            for i in range(-2, 0):
+                text.append(f"{sorted_labels[i]}: {sorted_counts[i]}")
+        else:
+            for i in range(len(counts)):
+                text.append(f"{sorted_labels[i]}: {sorted_counts[i]}")
+        fit_log.add(method=", ".join(text))
         return self.distribution(labels, probs)

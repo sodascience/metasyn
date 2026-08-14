@@ -7,6 +7,7 @@ import polars as pl
 from metasyn.distribution.base import (
     BaseDistribution,
     BaseFitter,
+    VarLog,
     builtin_fitter,
     convert_to_series,
     metadist,
@@ -32,7 +33,7 @@ class BaseConstantDistribution(BaseDistribution):
 
     def information_criterion(self, values):
         vals = convert_to_series(values)
-        return -np.inf if vals.n_unique() < 2 else np.inf
+        return -np.inf if vals.n_unique() == 1 else np.inf
 
 
 class BaseConstantFitter(BaseFitter):
@@ -40,11 +41,14 @@ class BaseConstantFitter(BaseFitter):
 
     distribution: type[BaseConstantDistribution]
 
-    def _fit(self, values: pl.Series) -> BaseDistribution:
+    def _fit(self, values: pl.Series, fit_log: VarLog) -> BaseDistribution:
         # if unique, just get that value
         if values.n_unique() == 1:
+            fit_log.add(method=f"All non-NA ){len(values)} values in the column are "
+                        f"the same: {values[0]}")
             return self.distribution(values.unique()[0])
 
+        fit_log.add(method="Not all values are the same, taking most common value.")
         # otherwise get most common value
         val = values.value_counts(sort=True)[0,0]
         return self.distribution(val)

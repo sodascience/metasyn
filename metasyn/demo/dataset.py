@@ -12,8 +12,6 @@ import faker
 import numpy as np
 import polars as pl
 
-from metasyn.varspec import VarSpec
-
 _AVAILABLE_DATASETS: dict[str, BaseDataset] = {}
 
 
@@ -95,7 +93,7 @@ class TitanicDataset(BaseDataset):
 
     @property
     def var_specs(self):
-        return [VarSpec("PassengerId", unique=True)]
+        return [{"name": "PassengerId", "distribution": {"unique": True}}]
 
 
 @register
@@ -131,7 +129,8 @@ class FruitDataset(BaseDataset):
 
     @property
     def var_specs(self):
-        return [VarSpec("ID", unique=True), VarSpec("B", unique=False)]
+        return [{"name": "ID", "distribution": {"unique": True}},
+                {"name": "B", "distribution": {"unique": False}}]
 
 
 @register
@@ -273,6 +272,15 @@ class TestDataset(BaseDataset):
                 dtype=pl.Time,
             )
         )
+        # all_series.append(
+        #     pl.Series(
+        #         "Duration",
+        #         [timedelta(days=np.random.randint(0, 10), hours=np.random.randint(0, 24),
+        #                    minutes=np.random.randint(0, 60), seconds=np.random.randint(0, 60),
+        #                    microseconds=np.random.randint(0, 1000000))
+        #          for _ in range(n_rows)]
+        #     )
+        # )
         all_series.append(
             pl.Series(
                 "String", np.random.choice(list(string.printable), size=n_rows), dtype=pl.String

@@ -1,10 +1,11 @@
 """Module for distributions that use the faker package."""
 from __future__ import annotations
 
-from typing import Iterable
+import polars as pl
 
 # from lingua._constant import LETTERS, PUNCTUATION
 from faker import Faker
+from numpy import typing as npt
 
 from metasyn.distribution.base import (
     BaseDistribution,
@@ -46,7 +47,7 @@ class FakerDistribution(BaseDistribution):
     def draw(self):
         return getattr(self.fake, self.faker_type)()
 
-    def information_criterion(self, values: Iterable) -> float: # noqa: ARG002
+    def information_criterion(self, values: pl.Series | npt.NDArray) -> float: # noqa: ARG002
         return 99999
 
     @classmethod
@@ -73,9 +74,10 @@ class FakerFitter(BaseFitter):
 
     distribution: type[FakerDistribution]
 
-    def _fit(self, values, faker_type: str = "city", locale: str = "en_US"): # noqa: ARG002
+    def _fit(self, values, fit_log): # noqa: ARG002
         """Select the appropriate faker function and locale."""
-        return self.distribution(faker_type, locale)
+        fit_log.add(method="Cannot fit faker distribution, so using defaults")
+        return self.distribution.default_distribution()
 
 
 @metadist(name="core.faker", var_type="string")

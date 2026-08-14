@@ -1,31 +1,35 @@
 # Example toml file as input for metasyn
-config_version = "1.0"
-plugins = ["builtin", "metasyn-disclosure"]
 
-[privacy]
-name = "disclosure"
-parameters = {partition_size = 11}
+config_version = "2.0"
+
+[[table]]
+name = "single"
+table_type = "dataframe"
+
+[table.file_format]
+name = "csv"  # The file is a CSV file
+arguments = {encoding = "windows-1252", separator = ","}
 
 
-[[var]]
+[[table.var]]
 name = "PassengerId"
 distribution = {unique = true}  # Notice booleans are lower case in .toml files.
 
-[[var]]
+[[table.var]]
 name = "Name"
 prop_missing = 0.1
 description = "Name of the unfortunate passenger of the titanic."
 distribution = {name = "core.faker", parameters = {faker_type = "name", locale = "en_US"}}
 
-[[var]]
+[[table.var]]
 name = "Fare"
 distribution = {name = "core.exponential"}
 
-[[var]]
+[[table.var]]
 name = "Age"
 distribution = {name = "core.uniform", parameters = {lower = 20, upper = 40}}
 
-[[var]]
+[[table.var]]
 name = "Cabin"
 distribution = {name = "core.regex", parameters = {regex_data = "[A-F][0-9]{2,3}"}}
-privacy = {name = "disclosure", parameters = {partition_size = 21}}
+

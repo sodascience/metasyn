@@ -120,9 +120,10 @@ class UniqueKeyFitter(BaseFitter):
 
     distribution: type[UniqueKeyDistribution]
 
-    def _fit(self, series) -> UniqueKeyDistribution:
+    def _fit(self, series, fit_log) -> UniqueKeyDistribution:
         lower = series.min()
         high = series.max() + 1
         if len(series) == high-lower and np.all(series.to_numpy() == np.arange(lower, high)):
+            fit_log.add(method="Detected values to be consecutive")
             return self.distribution(lower, True)
         return self.distribution(lower, False)
