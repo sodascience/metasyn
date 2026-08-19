@@ -17,7 +17,7 @@ from tqdm import tqdm
 from metasyn.distribution.base import BaseFitter, DistributionLike, VarLog
 from metasyn.file import BaseFileInterface
 from metasyn.metaframe import MetaFrame
-from metasyn.privacy import BasePrivacy, BasicPrivacy
+from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
 from metasyn.registry import DistributionRegistry
 from metasyn.util import get_var_type
 from metasyn.var import MetaVar
@@ -366,7 +366,7 @@ class MetaFrameBuilder():
                 raise value_error
         else:
             config_dict = config
-        config_version = config_dict.get("config_version", "2.0")
+        config_version = str(config_dict.get("config_version", "2.0"))
 
         for parser in [ConfigV1XParser()]:
             if config_version in parser.supports:
@@ -457,10 +457,14 @@ class ConfigV1XParser():
         if "privacy" in config_dict and "defaults" in config_dict:
             raise ValueError("Error parsing configuration file: cannot have both [privacy]"
                                  " and [defaults] tables.")
+        defaults = {}
         if "privacy" in config_dict:
-            builder.defaults["privacy"] = config_dict["privacy"]
+            defaults = {"privacy": config_dict["privacy"]}
         if "defaults" in config_dict:
-            builder.defaults = config_dict["defaults"]
+            defaults = config_dict["defaults"]
+        if "privacy" in defaults:
+            defaults["privacy"] = get_privacy(**defaults.pop("privacy"))
+        builder.defaults = defaults
 
 
 class BaseRecipe(ABC):
@@ -501,11 +505,13 @@ class DistributionRecipe(BaseRecipe):
         elif (isinstance(var_builder.distribution, dict)
                 and "parameters" in var_builder.distribution):
             name = var_builder.distribution.get("name")
+            if name is None:
+                name = var_builder.distribution.get("implements")
             if name is None or not isinstance(name, str):
                 raise TypeError("Distribution dictionary with parameters, but name missing or "
                                 f"wrong type for column {var_builder.name}.")
             dist_class = var_builder.registry.find_distribution(
-                var_builder.distribution["name"],
+                name,
                 var_builder.var_type,
                 var_builder.distribution.get("unique", False),
                 var_builder.distribution.get("version", None))
