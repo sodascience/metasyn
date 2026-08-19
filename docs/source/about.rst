@@ -6,7 +6,8 @@ About
 Contact us
 ----------
 
-**Metasyn** is a project by the `ODISSEI Social Data Science (SoDa) <https://odissei-data.nl/nl/soda/>`_ team and is currently being maintained by Raoul Schram.
+**Metasyn** is a project by the `ODISSEI Social Data Science (SoDa) <https://odissei-data.nl/nl/soda/>`_ team.
+The project was originally started and developed by Erik-Jan van Kesteren and Raoul Schram, and is currently being maintained by Raoul Schram.
 
 .. image:: /images/logos/soda.png
    :alt: SODA_logo
