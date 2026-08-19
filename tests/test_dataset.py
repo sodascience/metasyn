@@ -116,7 +116,7 @@ def test_dataset(tmp_path, dataframe_lib):
     assert isinstance(repr(dataset), str)
 
     # Check whether non-columns raise an error
-    with pytest.raises(ValueError):
+    with pytest.raises(KeyError):
         _bad_dataset = MetaFrame.fit_dataframe(df, var_specs=[{"name": "unicorn", "prop_missing": 0.5}])
 
     dest_path = file_format.check_filename(fp=tmp_path, file_prefix="syn_")
