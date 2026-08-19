@@ -197,12 +197,26 @@ Example: {EXAMPLE_SYNTHESIZE}
         help="preview six-row synthesized data frame in console and exit",
         action="store_true",
     )
+    parser.add_argument(
+        "-c", "--column-prefix",
+        help="Prefix the columns of the dataset. For example, if the prefix is SYNTHETIC_, then "
+        "column id will become SYNTHETIC_id.",
+        default="",
+        required=False,
+    )
+    parser.add_argument(
+        "-f", "--file-prefix",
+        help="Prefix the filename. For example if the prefix is syn_, then a test.csv will become "
+        "syn_test.csv.",
+        default="",
+        required=False,
+    )
 
     # parse the args without the subcommand
-    args, _ = parser.parse_known_args(input_args)
+    args = parser.parse_args(input_args)
 
-    if not args.preview and not args.output:
-        parser.error("Output file is required if you are not using the preview option.")
+    # if not args.preview and not args.output:
+        # parser.error("Output file is required if you are not using the preview option.")
 
     # Create the metaframe from the GMF file
     try:
@@ -225,14 +239,16 @@ Example: {EXAMPLE_SYNTHESIZE}
     # Store the dataframe to file
     if meta_frame.file_format is not None:
         file_interface = file_interface_from_dict(meta_frame.file_format)
-        if args.output.suffix not in file_interface.extensions:
+        if args.output is not None and args.output.suffix not in file_interface.extensions:
             file_interface = get_file_interface_class(args.output).default_interface(args.output)
         meta_frame.write_synthetic(args.output, n=args.num_rows, seed=args.seed,
-                                   file_format=file_interface)
+                                   file_format=file_interface, column_prefix=args.column_prefix,
+                                   file_prefix=args.file_prefix)
     else:
         file_interface = get_file_interface_class(args.output).default_interface(args.output)
         meta_frame.write_synthetic(args.output, n=args.num_rows, seed=args.seed,
-                                   file_format=file_interface)
+                                   file_format=file_interface, column_prefix=args.column_prefix,
+                                   file_prefix=args.file_prefix)
 
 
 def schema(input_args) -> None:

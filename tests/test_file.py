@@ -104,6 +104,13 @@ def test_sav_warning():
     with pytest.warns(UserWarning):
         SavFileInterface.read_file(Path("tests", "data", "actually_a_sav_file.csv"))
 
+def test_prefix_filename():
+    df, file_format = ms.read_csv(demo_file("fruit"))
+    fp = file_format.check_filename()
+    assert isinstance(fp, Path)
+    assert fp.name == "demo_fruit.csv"
+    fp_2 = file_format.check_filename(file_prefix="syn_")
+    assert fp_2.name == "syn_demo_fruit.csv"
 
 @mark.parametrize("filename",
                   ["SAQ (Item 3 Reversed).sav", "GlastonburyFestival.sav",
