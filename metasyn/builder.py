@@ -256,7 +256,7 @@ class VarBuilder():
         if self.prop_missing is None and self.series is not None:
             prop_missing = (len(self.series) - len(self.series.drop_nulls())) / len(self.series)
         elif self.prop_missing is None:
-            prop_missing = 0.0
+            prop_missing = self.mf_builder.defaults.get("prop_missing", 0.0)
         else:
             prop_missing = self.prop_missing
         if self.var_type is None:
@@ -295,11 +295,11 @@ class MetaFrameBuilder():
         the same time.
     """
 
-    def __init__(self, name="single"):
+    def __init__(self, name="single", n_rows: Optional[int]=None):
         self.file_format = None
         self.columns = []
         self.var_builders = {}
-        self.n_rows = None
+        self.n_rows = n_rows
         self.plugins = None
         self.name = name
         self.defaults = {}
