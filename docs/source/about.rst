@@ -42,15 +42,18 @@ Maintainers
 Feel free to contact one of the maintainers directly:
 
 * Raoul Schram: `https://github.com/qubixes <https://github.com/qubixes>`_
+* Matty Vermet: `https://github.com/MSVermet <https://github.com/MSVermet>`_
+* Maarten Schermer: `https://github.com/maartenschermer <https://github.com/maartenschermer>`_
+
 
 
 Contributor hall of fame
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-* Erik-Jan van Kesteren: Former project lead, maintainer and developer
+* Erik-Jan van Kesteren: Original creator, former project lead, maintainer and developer
 * Samuel Spithorst: Documentation and user experience
-* Matty Vermet: Developer
-* Maarten Schermer: Developer
+* Matty Vermet: Current maintainer, developer
+* Maarten Schermer: Current maintainer, developer
 * Raoul Schram: Current maintainer, developer, project lead
 
 License

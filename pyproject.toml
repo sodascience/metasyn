@@ -9,7 +9,9 @@ authors = [
     { name = "Raoul Schram", email = "r.d.schram@uu.nl" }
 ]
 maintainers = [
-    { name = "Raoul Schram", email = "r.d.schram@uu.nl"}
+    { name = "Raoul Schram", email = "r.d.schram@uu.nl"},
+    { name = "Matty Vermet" },
+    { name = "Maarten Schermer" }
 ]
 description = "Package for creating synthetic datasets while preserving privacy."
 readme = "README.md"
