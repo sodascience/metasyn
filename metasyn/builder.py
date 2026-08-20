@@ -295,7 +295,7 @@ class MetaFrameBuilder():
         the same time.
     """
 
-    def __init__(self, name="single", n_rows: Optional[int]=None):
+    def __init__(self, name: str = "single", n_rows: Optional[int]=None):
         self.file_format = None
         self.columns = []
         self.var_builders = {}
