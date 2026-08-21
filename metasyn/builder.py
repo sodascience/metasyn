@@ -318,7 +318,7 @@ class MetaFrameBuilder():
         file_format
             File format description linked to the dataframe.
         """
-        self.columns = df.columns
+        self.columns.extend(df.columns)
 
         self.file_format = file_format
         for col in df.columns:
