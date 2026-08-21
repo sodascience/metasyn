@@ -8,7 +8,7 @@ from collections import defaultdict
 from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 import numpy as np
 import polars as pl
@@ -179,6 +179,9 @@ class VarBuilder():
         if isinstance(self._series, DistributionLike):
             if self.mf_builder is None:
                 raise ValueError("Cannot create series without correspondig Metaframe builder.")
+            if self.mf_builder.n_rows is None:
+                raise ValueError("Cannot create series without knowing the number of rows, "
+                                 "set builder.n_rows")
             synth_dict = {name: self.mf_builder[name].series for name in self._series.dependencies}
             return pl.Series(self._series.draw_list(self.mf_builder.n_rows, synth_dict))
         return pl.Series(self._series)
@@ -255,8 +258,10 @@ class VarBuilder():
         """
         if self.prop_missing is None and self.series is not None:
             prop_missing = (len(self.series) - len(self.series.drop_nulls())) / len(self.series)
-        elif self.prop_missing is None:
+        elif self.prop_missing is None and self.mf_builder is not None:
             prop_missing = self.mf_builder.defaults.get("prop_missing", 0.0)
+        elif self.prop_missing is None:
+            prop_missing = 0.0
         else:
             prop_missing = self.prop_missing
         if self.var_type is None:
@@ -296,13 +301,13 @@ class MetaFrameBuilder():
     """
 
     def __init__(self, name: str = "single", n_rows: Optional[int]=None):
-        self.file_format = None
-        self.columns = []
-        self.var_builders = {}
+        self.file_format: BaseFileInterface | dict | None = None
+        self.columns: list[str] = []
+        self.var_builders : dict[str, VarBuilder]= {}
         self.n_rows = n_rows
-        self.plugins = None
+        self.plugins: list[str] | None = None
         self.name = name
-        self.defaults = {}
+        self.defaults: dict[str, Any] = {}
         self.fit_log = FitLog()
 
     def __getitem__(self, item: str):
@@ -411,6 +416,8 @@ class MetaFrameBuilder():
         """
         vars = []
         self.fit_log.reset()
+        if self.n_rows is None:
+            raise ValueError("Set number of rows builder.n_rows before fitting.")
         for col in tqdm(self.columns, disable=not progress_bar):
             vars.append(self.var_builders[col].fit(self.fit_log[col]))
         return MetaFrame(vars, self.n_rows, self.file_format, self.name)
