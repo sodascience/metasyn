@@ -110,7 +110,8 @@ Examples:
     )
     parser.add_argument(
         "input",
-        help="input file; a CSV file that you want to synthesize later.",
+        help="input file; tabular data file, such as a CSV file. Can be left empty if the "
+        "configuration file has only data free columns.",
         type=pathlib.Path,
         default=None,
         nargs="?",
