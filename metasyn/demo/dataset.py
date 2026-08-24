@@ -199,6 +199,23 @@ class DrugUseDataset(BaseDataset):
     @property
     def schema(self):
         return {}
+    
+@register
+class HospitalAdmissionsDataset(BaseDataset):
+    """Example electronic health record hospital admissions dataset.
+
+    The columns of this dataset and the first row are manually created by the metasyn team. 
+    The rest of the rows are generated through Claude Sonnet 4.6 on 17-08-2026 using the following prompt:
+    > Could you create more fictive rows for this csv file? 
+    """
+
+    @property
+    def name(self):
+        return "hospital_admissions"
+
+    @property
+    def schema(self):
+        return {}    
 
 
 @register
