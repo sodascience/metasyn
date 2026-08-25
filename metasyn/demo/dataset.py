@@ -215,7 +215,7 @@ class HospitalAdmissionsDataset(BaseDataset):
 
     @property
     def schema(self):
-        return {}    
+        return {"Admission_date": pl.Date, "Discharge_date": pl.Date, "Sex": pl.Categorical}
 
 
 @register
