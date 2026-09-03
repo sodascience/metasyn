@@ -4,7 +4,7 @@ Creating file interfaces
 .. currentmodule:: metasyn.file
 
 File interfaces are used to read the original dataset and write the synthetic dataset.
-Metasyn implements currently four file readers:
+Metasyn implements currently four file interfaces:
 
 * :class:`CsvFileInterface`
 * :class:`ExcelFileInterface`
@@ -12,7 +12,7 @@ Metasyn implements currently four file readers:
 * :class:`SavFileInterface`
 
 To implement a new file interface, you should create a new class that is derived from the :class:`BaseFileInterface`.
-To ensure that the file reader is available to metasyn, you have to decorate the class with the :func:`@fileinterface`
+To ensure that the file interface is available to metasyn, you have to decorate the class with the :func:`@fileinterface`
 decorator. At a minimum, you should also implement the following methods:
 
 * :meth:`BaseFileInterface._write_file`, used to write the synthetic file.
@@ -23,7 +23,7 @@ Below is the excel file interface as an example:
 
 .. code-block:: python
 
-    from metasyn.file import filereader, BaseFileReader
+    from metasyn.file import fileinterface, BaseFileInterface
 
     @fileinterface
     class ExcelFileInterface(BaseFileInterface):
