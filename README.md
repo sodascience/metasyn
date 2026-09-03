@@ -115,6 +115,6 @@ Metasyn is an open-source project, and we welcome contributions from the communi
 
 ## Contact
 **Metasyn** is a project by the [ODISSEI Social Data Science (SoDa)](https://odissei-data.nl/nl/soda/) team.
-Do you have questions, suggestions, or remarks on the technical implementation? Create an issue in the [issue tracker](https://github.com/sodascience/metasyn/issues) or feel free to contact [Erik-Jan van Kesteren](https://github.com/vankesteren) or [Raoul Schram](https://github.com/qubixes).
+Do you have questions, suggestions, or remarks on the technical implementation? Create an issue in the [issue tracker](https://github.com/sodascience/metasyn/issues) or feel free to contact [Raoul Schram](https://github.com/qubixes).
 
 <img src="docs/source/images/logos/soda.png" alt="SoDa logo" width="250px"/> 

@@ -5,8 +5,13 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "metasyn"
 authors = [
-    { name = "Raoul Schram", email = "r.d.schram@uu.nl" },
-    { name = "Erik-Jan van Kesteren", email = "e.vankesteren1@uu.nl" },
+    { name = "Erik-Jan van Kesteren" },
+    { name = "Raoul Schram", email = "r.d.schram@uu.nl" }
+]
+maintainers = [
+    { name = "Raoul Schram", email = "r.d.schram@uu.nl"},
+    { name = "Matty Vermet" },
+    { name = "Maarten Schermer" }
 ]
 description = "Package for creating synthetic datasets while preserving privacy."
 readme = "README.md"
