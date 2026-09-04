@@ -20,7 +20,57 @@ In the ``metasyn`` workflow, once you have a MetaFrame, ``metasyn`` can generate
 
 The process of generating synthetic data solely from the MetaFrame ensures that this synthetic data is separate and independent from the original sensitive source data, thereby reducing privacy concerns while sharing or distributing this synthetic data.
 
+**Should I use Metaframe.fit_dataframe or MetaFrameBuilder?**
+-------------------------------------------------------------
 
+The :class:`metasyn.builder.MetaFrameBuilder` class is a helper class that makes it easier to create a :class:`MetaFrame`.
+We generally recommend using the :class:`MetaFrameBuilder` class, since it provides more flexibility, generally is easier to understand,
+and has some extra features such as the :class:`metasyn.builder.FitLog`. While there are no concrete plans,
+the :method:`metasyn.metaframe.MetaFrame.fit_dataframe` method might be deprecated in the future.
+
+**What is the fit log?**
+------------------------
+
+The fit log is an object that keeps notes on the process of fitting the original data. The fit log is
+automatically filled when the :class:`MetaFrame` is generated. This can be accessed as follows:
+
+.. code-block:: python
+
+   from metasyn.builder import MetaFrameBuilder
+
+   builder = MetaFrameBuilder()
+   builder.add_dataframe(df)
+   builder.fit()
+   print(builder.fit_log)
+   print(builder.fit_log["some_column"])
+
+The fit log can be more easily studied by exporting the log to a file:
+
+.. code-block:: python
+
+   builder.fit_log.save_md("fitlog.md")
+   builder.fit_log.save_csv("fitlog.csv")
+
+
+**What should I publish, when releasing the synthetic dataset?**
+----------------------------------------------------------------
+
+You can choose to release either the GMF file, or the synthetic dataset, this is up to you. The synthetic
+dataset is generally more convenient for users, since users won't have to use metasyn to generate their
+synthetic data. In some cases, there might be some worries about reputation damage between the real dataset
+and the synthetic dataset. In this situation it might be more proper to release the GMF file instead. Another
+benefit of releasing the GMF file is that users can generate datasets of different lengths. In any case,
+do **not** release the fit log if your dataset is privacy sensitive.
+
+**Is my synthetic data generated with metasyn privacy safe?**
+-------------------------------------------------------------
+
+This question cannot be generally answered, but in many cases yes. We recommend reading our :doc:`privacy_guide`.
+
+**Which distributions are available in metasyn?**
+-------------------------------------------------
+
+We have a list of distributions available in our API :doc:`developer/distributions`.
 
 **I encountered the warning: "Metasyn detected that variable {x} is potentially unique." What should I do?**
 ------------------------------------------------------------------------------------------------------------
@@ -90,3 +140,4 @@ To some extent, the answer is yes. You can set the seed for the generation of sy
 This should give the same results when you run it multiple times on your machine. However,
 we cannot guarantee reproducibility across different versions of Python, Numpy, Faker. Different
 CPU architectures will also most likely produce different results.
+

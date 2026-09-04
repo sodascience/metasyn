@@ -27,7 +27,7 @@ Key features
 - **Fast**: Creating synthetic data takes mere seconds for medium sized (~1000 rows) datasets.
 - **Safe and Understandable Synthetic Data**: As little information as possible is retained from the original dataset, and you can inspect and understand exactly which information is used to create your synthetic data.
 - **Flexible**: You can :doc:`adjust <improve_synth>` the synthetic data columns to your liking, create your own distributions, plugins and more.
-- **Data Type Support**: Metasyn supports generating synthetic data for a variety of common data types including ``categorical``, ``string``, ``integer``, ``float``, ``date``, ``time``, and ``datetime``.
+- **Data Type Support**: Metasyn supports generating synthetic data for a variety of common data types including ``categorical``, ``string``, ``integer``, ``float``, ``date``, ``time``, ``datetime``, and ``duration''.
 - **Integration with Faker**: Metasyn integrates with the `faker <https://github.com/joke2k/faker>`__ package, a Python library for generating fake data such as names and emails. Allowing for more realistic synthetic data.
 - **Structured String Detection**: Metasyn identifies structured strings within your dataset, which can include formatted text, codes, identifiers, or any string that follows a specific pattern.
 - **Handling Unique Values**: Metasyn can identify and process variables with unique values or keys in the data, preserving their uniqueness in the synthetic dataset.
@@ -60,7 +60,7 @@ which is known as marginal independence. For each column, metasyn considers mult
 After fitting all candidate distributions to the data, it selects the best-fitting one using a `BIC <https://en.wikipedia.org/wiki/Bayesian_information_criterion>`_ (or pseudo-BIC when not applicable).
 
 Once the MetaFrame is created, metasyn generates synthetic data by randomly sampling values from the fitted distribution. 
-Finally, you can save your MetaFrame to a file (as JSON or TOML format).
+Finally, you can save your MetaFrame to a file as a JSON file.
 
 For more detail on how metasyn works, see our `paper <https://github.com/sodascience/metasyn/blob/main/docs/paper/paper.pdf>`_.
 
@@ -89,7 +89,7 @@ Metadata Format (GMF). The equivalent object in Python is the :class:`metasyn.me
   context, which metasyn does not have access to. We also generally recommend saving the GMF file
   for reproducibility purposes.
 
-The GMF format can be stored as a ``.json`` file (default) or as a ``.toml`` file.
+The GMF format can be stored as a ``.json`` file (default).
 
 .. raw:: html
 

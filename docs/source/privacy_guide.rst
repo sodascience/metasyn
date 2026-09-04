@@ -16,7 +16,7 @@ for mitigating the risks of diclosure.
 
 .. admonition:: Disclaimer
 
-    The software metasyn and this privacy guide are provided as is and any repsonsibility for disclosing privacy sensitive
+    The software metasyn and this privacy guide are provided as is and any responsibility for disclosing privacy sensitive
     information is disclaimed, whether this is due to misuse, omission, bugs or any other reason.
 
 Luckily, metasyn gives you the opportunity to audit the exact information that will be released with your
@@ -75,3 +75,25 @@ File metadata
 Some files such as .sav and .dta files have the ability to store metadata. This metadata can contain privacy sensitive information,
 which can end up in the GMF file, and thus the synthetic file. With these kinds of file formats, always look through the
 metadata in the GMF file to prevent this.
+
+Fit log
+-------
+
+Since version 3.0, metasyn can create a report on the fitting procedure. This will give information on the different
+distributions that were fitted, which privacy parameters where used, and any particularities that were encounted
+during the fit. The fit log can be accessed using the :class:`MetaFrameBuilder` class:
+
+.. code:: python
+
+    from metasyn.builder import MetaFrameBuilder
+
+    builder = MetaFrameBuilder()
+    builder.add_dataframe(df)
+    mf = builder.fit()
+    builder.fit_log.save_md("fitlog.md")
+
+.. admonition:: FitLog
+
+    Do **not** publish the fit log! The fit can generally contain information that is more privacy sensitive
+    than the metaframe or synthetic dataset. It shows the creator of the synthetic data a more complete
+    picture on what metasyn has done, and allows the creator to adjust the procedure if necessary.

@@ -9,7 +9,7 @@ This section aims to give an overview of all classes, functions and methods in t
    metasyn.distribution
    metasyn.demo
    metaframe
-   varspec
    multiframe
+   builder
    developer_reference
 

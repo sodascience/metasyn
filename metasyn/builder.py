@@ -8,7 +8,7 @@ from collections import defaultdict
 from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 import numpy as np
 import polars as pl
@@ -17,7 +17,7 @@ from tqdm import tqdm
 from metasyn.distribution.base import BaseFitter, DistributionLike, VarLog
 from metasyn.file import BaseFileInterface
 from metasyn.metaframe import MetaFrame
-from metasyn.privacy import BasePrivacy, BasicPrivacy
+from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
 from metasyn.registry import DistributionRegistry
 from metasyn.util import get_var_type
 from metasyn.var import MetaVar
@@ -179,6 +179,9 @@ class VarBuilder():
         if isinstance(self._series, DistributionLike):
             if self.mf_builder is None:
                 raise ValueError("Cannot create series without correspondig Metaframe builder.")
+            if self.mf_builder.n_rows is None:
+                raise ValueError("Cannot create series without knowing the number of rows, "
+                                 "set builder.n_rows")
             synth_dict = {name: self.mf_builder[name].series for name in self._series.dependencies}
             return pl.Series(self._series.draw_list(self.mf_builder.n_rows, synth_dict))
         return pl.Series(self._series)
@@ -255,6 +258,8 @@ class VarBuilder():
         """
         if self.prop_missing is None and self.series is not None:
             prop_missing = (len(self.series) - len(self.series.drop_nulls())) / len(self.series)
+        elif self.prop_missing is None and self.mf_builder is not None:
+            prop_missing = self.mf_builder.defaults.get("prop_missing", 0.0)
         elif self.prop_missing is None:
             prop_missing = 0.0
         else:
@@ -295,14 +300,14 @@ class MetaFrameBuilder():
         the same time.
     """
 
-    def __init__(self, name="single"):
-        self.file_format = None
-        self.columns = []
-        self.var_builders = {}
-        self.n_rows = None
-        self.plugins = None
+    def __init__(self, name: str = "single", n_rows: Optional[int]=None):
+        self.file_format: BaseFileInterface | dict | None = None
+        self.columns: list[str] = []
+        self.var_builders : dict[str, VarBuilder]= {}
+        self.n_rows = n_rows
+        self.plugins: list[str] | None = None
         self.name = name
-        self.defaults = {}
+        self.defaults: dict[str, Any] = {}
         self.fit_log = FitLog()
 
     def __getitem__(self, item: str):
@@ -366,7 +371,7 @@ class MetaFrameBuilder():
                 raise value_error
         else:
             config_dict = config
-        config_version = config_dict.get("config_version", "2.0")
+        config_version = str(config_dict.get("config_version", "2.0"))
 
         for parser in [ConfigV1XParser()]:
             if config_version in parser.supports:
@@ -411,6 +416,8 @@ class MetaFrameBuilder():
         """
         vars = []
         self.fit_log.reset()
+        if self.n_rows is None:
+            raise ValueError("Set number of rows builder.n_rows before fitting.")
         for col in tqdm(self.columns, disable=not progress_bar):
             vars.append(self.var_builders[col].fit(self.fit_log[col]))
         return MetaFrame(vars, self.n_rows, self.file_format, self.name)
@@ -457,10 +464,14 @@ class ConfigV1XParser():
         if "privacy" in config_dict and "defaults" in config_dict:
             raise ValueError("Error parsing configuration file: cannot have both [privacy]"
                                  " and [defaults] tables.")
+        defaults = {}
         if "privacy" in config_dict:
-            builder.defaults["privacy"] = config_dict["privacy"]
+            defaults = {"privacy": config_dict["privacy"]}
         if "defaults" in config_dict:
-            builder.defaults = config_dict["defaults"]
+            defaults = config_dict["defaults"]
+        if "privacy" in defaults:
+            defaults["privacy"] = get_privacy(**defaults.pop("privacy"))
+        builder.defaults = defaults
 
 
 class BaseRecipe(ABC):
@@ -501,11 +512,13 @@ class DistributionRecipe(BaseRecipe):
         elif (isinstance(var_builder.distribution, dict)
                 and "parameters" in var_builder.distribution):
             name = var_builder.distribution.get("name")
+            if name is None:
+                name = var_builder.distribution.get("implements")
             if name is None or not isinstance(name, str):
                 raise TypeError("Distribution dictionary with parameters, but name missing or "
                                 f"wrong type for column {var_builder.name}.")
             dist_class = var_builder.registry.find_distribution(
-                var_builder.distribution["name"],
+                name,
                 var_builder.var_type,
                 var_builder.distribution.get("unique", False),
                 var_builder.distribution.get("version", None))

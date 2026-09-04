@@ -12,7 +12,7 @@ Modules
    :toctree: generated
    :recursive:
 
-   config
+   builder
    demo
    distribution
    file
@@ -25,7 +25,6 @@ Modules
    testutils
    util
    var
-   varspec
 
 Top-level classes
 -----------------
@@ -34,9 +33,9 @@ Top-level classes
    :toctree: generated
 
    MetaFrame
+   MetaFrameBuilder
    MultiFrame
    MetaVar
-   VarSpec
 
 Top-level functions
 -------------------
