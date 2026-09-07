@@ -330,6 +330,7 @@ class MetaFrameBuilder():
             self.var_builders[col] = VarBuilder(df[col], col, self)
             self.fit_log.add_col(col)
         self.n_rows = len(df) if self.n_rows is None else self.n_rows
+        return self
 
     def add_column(self, name: str, hidden: bool = False, var_type: str | None = None):
         """Add a new column to the MetaFrame being built.
@@ -342,6 +343,7 @@ class MetaFrameBuilder():
         self.var_builders[name] = VarBuilder(None, name, self, hidden=hidden, var_type=var_type)
         self.fit_log.add_col(name)
         self.columns.append(name)
+        return self
 
     def add_config(self, config: Path | str | dict) -> "MetaFrameBuilder":
         """Configure the MetaFrame from a configuration file.
