@@ -17,6 +17,7 @@ from tqdm import tqdm
 from metasyn.distribution.base import BaseFitter, DistributionLike, VarLog
 from metasyn.file import BaseFileInterface
 from metasyn.metaframe import MetaFrame
+from metasyn.multiframe import ColumnRelation, MultiFrame
 from metasyn.privacy import BasePrivacy, BasicPrivacy
 from metasyn.registry import DistributionRegistry
 from metasyn.util import get_var_type
@@ -415,6 +416,42 @@ class MetaFrameBuilder():
             vars.append(self.var_builders[col].fit(self.fit_log[col]))
         return MetaFrame(vars, self.n_rows, self.file_format, self.name)
 
+
+class MetaMultiFrameBuilder():
+    """Builder class for creating metamultiframes.
+
+    # This class allows you to build your metaframe step by step instead of in one go with the
+    # ``MetaFrame.fit_dataframe()` method.
+
+    # Parameters
+    # ----------
+    # dataframes:
+    # relations:
+    """
+
+    def __init__(self, 
+                 dataframes = {},
+                 relations: list[ColumnRelation] = [],
+                 n_rows = {}):
+        self.relations = relations
+        self.builders = {}
+
+        for k, df in dataframes.items():
+            self.builders[k] = MetaFrameBuilder()
+            self.builders[k].n_rows = n_rows[k] if k in n_rows else None
+            self.builders[k].add_dataframe(df)
+
+    def fit(self) -> MultiFrame:
+        """Create a MetaFrame from the builder.
+
+        Parameters
+        ----------
+        """
+        mfs = {k: b.fit() for k, b in self.builders.items()}
+        return MultiFrame(mfs, self.relations)
+
+
+
 class ConfigV1XParser():
     """TOML confifuration parser for versions 1.0, 1.1 and 1.2."""
 
@@ -629,3 +666,4 @@ class UnqFindDistributionRecipe(BaseRecipe):
                     return FitterRecipe(var_builder.series, unq_fitters[0])
                 return FindDistributionRecipe(var_builder.series, unq_fitters)
             return cls(var_builder.series, fitters, unq_fitters)
+
