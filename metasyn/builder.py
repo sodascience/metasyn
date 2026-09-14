@@ -429,17 +429,17 @@ class MetaMultiFrameBuilder():
     # relations:
     """
 
-    def __init__(self, 
-                 dataframes = {},
-                 relations: list[ColumnRelation] = [],
-                 n_rows = {}):
-        self.relations = relations
+    def __init__(self):
+        self.relations = []
         self.builders = {}
+        self.dfs = {}
+        self._default_privacy = None
+        self.default_distributions = {}
 
-        for k, df in dataframes.items():
-            self.builders[k] = MetaFrameBuilder()
-            self.builders[k].n_rows = n_rows[k] if k in n_rows else None
-            self.builders[k].add_dataframe(df)
+        # for k, df in dataframes.items():
+        #     self.builders[k] = MetaFrameBuilder()
+        #     self.builders[k].n_rows = n_rows[k] if k in n_rows else None
+        #     self.builders[k].add_dataframe(df)
 
     def fit(self) -> MultiFrame:
         """Create a MetaFrame from the builder.
@@ -450,6 +450,25 @@ class MetaMultiFrameBuilder():
         mfs = {k: b.fit() for k, b in self.builders.items()}
         return MultiFrame(mfs, self.relations)
 
+    def add_dataframe(self, dataframe) -> "MetaMultiFrameBuilder":
+        ...
+
+    def add_relation(self, relation) -> "MetaMultiFrameBuilder":
+        ...  #validate here
+
+    def __getitem__(self, key) -> MetaFrameBuilder:
+        ...
+
+    @property
+    def privacy(self):
+        ...
+
+    @privacy.setter
+    def privacy(self, val):
+        ...
+
+    def get_default_distribution(self, var_type):
+        ...
 
 
 class ConfigV1XParser():
