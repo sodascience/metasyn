@@ -1,12 +1,8 @@
-"""Module for the free text distribution that detects the language."""
+"""Module for the free text distribution that generates random words after on another."""
 from __future__ import annotations
 
-from typing import Iterable, Optional
-
-# from lingua._constant import LETTERS, PUNCTUATION
 import regex
 from faker import Faker
-from lingua import LanguageDetectorBuilder
 from scipy.stats import poisson
 
 from metasyn.distribution.base import (
@@ -25,9 +21,9 @@ PUNCTUATION = regex.compile(r"\p{P}")
 class FreeTextDistribution(BaseDistribution):
     """Free text distribution.
 
-    This distribution detects the language and generates sentences using
+    This distribution generates random sentences using
     the Faker package. The average number of sentences and words per item
-    are detected using regexes (with the lingua package).
+    are detected using regexes.
 
     Parameters
     ----------
@@ -64,9 +60,7 @@ class FreeTextDistribution(BaseDistribution):
         # Check the average number of characters
         avg_chars = series.str.len_chars().mean()
         if avg_chars is not None and avg_chars >= 25:  # type: ignore  # Workaround polars typing
-            lang = detect_language(series)
-            if lang is not None:
-                return -1.0
+            return 10 + (avg_chars - self.avg_words*6)**2
         return 99999999
 
     @classmethod
@@ -94,18 +88,12 @@ class FreeTextFitter(BaseFitter):
 
     distribution: type[FreeTextDistribution]
 
-    def _fit(self, series, fit_log, max_values: int = 50):
+    def _fit(self, series, fit_log):
         """Select the appropriate faker function and locale."""
-        lang_str = detect_language(series[:max_values])
-        if lang_str is None:
-            fit_log.add(method="Could not determine language, using english.")
-            lang_str = "EN"
-        else:
-            try:
-                Faker(lang_str)
-            except AttributeError:
-                fit_log.add(method="Language not available in faker package, using engligh.")
-                lang_str = "EN"
+        fit_log.add(method="Language is not detected anymore since metasyn version 3.0, "
+                    "using English. You can manually set the distribution to another language:"
+                    " FreeTextDistribution(locale='nl_NL').")
+        lang_str = "en_US"
 
         all_text = "\n".join(series)
         n_non_empty = (series != "").sum()
@@ -118,24 +106,3 @@ class FreeTextFitter(BaseFitter):
         avg_words = n_words/len(series)
         fit_log.add(method="Using average number of sentences and words as parameters.")
         return self.distribution(lang_str, avg_sentence, avg_words)
-
-
-def detect_language(values: Iterable) -> Optional[str]:
-    """Detect the language of some text.
-
-    Parameters
-    ----------
-    values:
-        Values to detect the language of (usually polars dataframe).
-
-    Returns
-    -------
-    language:
-        Two letter ISO code to represent the language, or None if it could not be determined.
-
-    """
-    detector = LanguageDetectorBuilder.from_all_languages().with_low_accuracy_mode().build()
-    lang = detector.detect_language_of("\n".join(values))
-    if lang is None:
-        return None
-    return str(lang.iso_code_639_1).rsplit(".", maxsplit=1)[-1]

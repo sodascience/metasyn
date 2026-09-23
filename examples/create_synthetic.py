@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.24.0"
+__generated_with = "0.24.2"
 app = marimo.App(width="full", app_title="metasyn")
 
 
@@ -9,6 +9,15 @@ def _(mo):
     mo.md(r"""
     # Metasyn - generate synthetic data
     """)
+    return
+
+
+@app.cell
+async def _():
+    import micropip
+
+    await micropip.install("metasyn")
+    import metasyn
     return
 
 
@@ -205,7 +214,7 @@ def _(mo, np, reg, update_param_defaults, update_param_state):
                     array_change = lambda v, idx=idx, param_name=key: update_param_state(idx, param_name, v.split(","), list(params))
 
                 cur_param_form.append(mo.ui.text(value=",".join(str(x) for x in val), label=key + ": ", on_change=array_change))
-            
+
             else:
                 raise ValueError("Not implemented type: ", type(params[key]), params[key])
         return cur_param_form
@@ -311,7 +320,7 @@ def _(mf, mo):
     def _to_json(mf):
         mf_dict = _jsonify(mf.to_dict())
         return json.dumps(mf_dict, indent=4).encode("utf-8")
-    
+
 
     mo.download(
         data=_to_json(mf),
@@ -348,6 +357,12 @@ def _(mf, mo):
         mimetype="text/csv",
         label="Generate CSV",
     )
+    return
+
+
+@app.cell
+def _(get_param_state):
+    get_param_state()
     return
 
 
