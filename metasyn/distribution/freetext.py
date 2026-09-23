@@ -1,6 +1,8 @@
 """Module for the free text distribution that generates random words after on another."""
 from __future__ import annotations
 
+from typing import Optional
+
 import regex
 from faker import Faker
 from scipy.stats import poisson
@@ -88,12 +90,25 @@ class FreeTextFitter(BaseFitter):
 
     distribution: type[FreeTextDistribution]
 
+    def __init__(self, privacy, lang_str: Optional[str] = None):
+        self.lang_str = lang_str
+        super().__init__(privacy)
+
     def _fit(self, series, fit_log):
         """Select the appropriate faker function and locale."""
-        fit_log.add(method="Language is not detected anymore since metasyn version 3.0, "
-                    "using English. You can manually set the distribution to another language:"
-                    " FreeTextDistribution(locale='nl_NL').")
-        lang_str = "en_US"
+        lang_str = self.lang_str
+        if self.lang_str is None:
+            fit_log.add(method="Language is not detected anymore since metasyn version 3.0, "
+                        "using English. You can manually set the distribution to another language:"
+                        " FreeTextDistribution(locale='nl_NL').")
+            lang_str = "en_US"
+
+        try:
+            Faker(lang_str)
+        except AttributeError:
+            fit_log.add(method=f"Language '{lang_str}' is not supported by the Faker package, "
+                        "using 'en_US'.")
+            lang_str = "en_US"
 
         all_text = "\n".join(series)
         n_non_empty = (series != "").sum()
