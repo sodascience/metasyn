@@ -18,6 +18,7 @@ async def _():
 
     await micropip.install("metasyn")
     import metasyn
+
     return
 
 
@@ -259,13 +260,10 @@ def _(mo):
 
 
 @app.cell
-def _(dist_array, mo, name_array, param_array, unq_array, var_array):
-    mo.vstack([
-        mo.hstack(name_array),
-        mo.hstack(var_array),
-        mo.hstack(unq_array),
-        mo.hstack(dist_array),
-        mo.hstack(mo.vstack(x) for x in param_array)
+def _(col_form, dist_array, mo, name_array, param_array, unq_array, var_array):
+    mo.hstack([
+        mo.vstack([name_array[i], var_array[i], unq_array[i], dist_array[i], *param_array[i]])
+        for i in range(col_form.value)
     ])
     return
 
@@ -357,12 +355,6 @@ def _(mf, mo):
         mimetype="text/csv",
         label="Generate CSV",
     )
-    return
-
-
-@app.cell
-def _(get_param_state):
-    get_param_state()
     return
 
 
