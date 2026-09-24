@@ -219,6 +219,8 @@ class ReadStatInterface(BaseFileInterface, ABC):
         for i_row in tqdm(range(0, n_rows, skip_size), disable=disable):
             # If we need less than a chunk
             row_limit = min(chunk_size, max_rows - (i_row//skip_size)*chunk_size)
+            if row_limit == 0:
+                break
             temp_df, prs_meta = prs_func(fp, row_offset=i_row, row_limit=row_limit,
                                          apply_value_formats=True, output_format="polars")
             all_df.append(temp_df)
