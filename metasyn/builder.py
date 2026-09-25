@@ -429,8 +429,7 @@ class MultiFrameBuilder():
         self.builders = {}
         self.dfs = {}
         self._default_privacy = None
-        #TODO: where does this get populated? can't do self.builders[...].get_distro() instead?
-        self.default_distributions = {}
+        # self.default_distributions = {}
 
     def fit(self) -> MultiFrame:
         """Create a MetaFrame from the builder.
@@ -441,16 +440,16 @@ class MultiFrameBuilder():
         mfs = {k: b.fit() for k, b in self.builders.items()}
         return MultiFrame(mfs, self.relations)
 
-    def add_dataframe(self, name: str, df: pl.DataFrame) -> "MultiFrameBuilder":
+    def add_dataframe(self, 
+                      name: str,
+                      df: pl.DataFrame,
+                      n_rows: int | None = None,
+                      file_format: BaseFileInterface | dict | None = None) -> "MultiFrameBuilder":
         self.builders[name] = MetaFrameBuilder()
         self.builders[name].add_dataframe(df)
-
-        #TODO can't this be derived from self.builders somehow?
+        self.builders[name].file_format = file_format
+        self.builders[name].n_rows = len(df) if n_rows is None else n_rows
         self.dfs[name] = df
-               
-        #TODO what about these two?
-        # file_format
-        # n_rows
 
     def add_relation(self, relation: ColumnRelation) -> "MultiFrameBuilder":
         self.relations.append(relation)
@@ -461,18 +460,14 @@ class MultiFrameBuilder():
 
     @property
     def privacy(self) -> BasePrivacy:
-        #TODO how is this used?
         return self._default_privacy
 
     @privacy.setter
     def privacy(self, value: BasePrivacy):
         self._default_privacy = value
 
-    #TODO: assuming this can be different for each separate MetaFrame 
     def get_default_distribution(self, name, var_type) -> str | dict | None | DistributionLike:
         return self.builders[name].get_default_distribution(var_type)
-
-
 
 class ConfigV1XParser():
     """TOML confifuration parser for versions 1.0, 1.1 and 1.2."""
