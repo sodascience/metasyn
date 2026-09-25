@@ -29,6 +29,28 @@ except ImportError:
     import tomli as tomllib  # type: ignore  # noqa
 
 
+def _get_config(config: Path | str | dict) -> dict:
+    if isinstance(config, (Path, str)):
+        try:
+            with open(config, "rb") as handle:
+                config_dict: dict = tomllib.load(handle)
+        except FileNotFoundError as fnf_error:
+            raise FileNotFoundError(
+                f"It appears '{config}' is not a valid filepath."
+                f" Please provide a path to a .toml file to load a MetaConfig"
+                f" from.") from fnf_error
+        except tomllib.TOMLDecodeError as value_error:
+            if Path(config).suffix != ".toml":
+                raise ValueError(f"It appears '{Path(config).name}' is a"
+                                # f" '{Path(config).suffix}' file."
+                                f" To load a MetaConfig, "
+                                f"provide the configuration as a .toml file.") from value_error
+            raise value_error
+    else:
+        config_dict = config
+
+    return config_dict
+
 class FitLog():
     """Logbook for the builder fitting process."""
 
@@ -468,6 +490,22 @@ class MultiFrameBuilder():
 
     def get_default_distribution(self, name, var_type) -> str | dict | None | DistributionLike:
         return self.builders[name].get_default_distribution(var_type)
+
+    def add_config(self, config: Path | str | dict):
+        """Configure the MultiFrame from a configuration file.
+
+        Parameters
+        ----------
+        config:
+            Configuration file or dictionary that will be applied to the MetaFrame.
+        """
+        config = _get_config(config)
+        for table in config['table']:
+            if table['name'] in self.builders:
+                self.builders[table['name']].add_config(table)
+            else:
+                raise ValueError(f"Unknown table '{table['name']}'")
+
 
 class ConfigV1XParser():
     """TOML confifuration parser for versions 1.0, 1.1 and 1.2."""
