@@ -444,6 +444,7 @@ class MetaFrame:
         overwrite: bool = False,
         column_prefix: str = "",
         file_prefix: str = "",
+        progress_bar: bool = True,
     ):
         """Write a synthetic dataset to a file.
 
@@ -471,6 +472,9 @@ class MetaFrame:
             class:`metasyn.fileinterface.SavFileReader`. By default the file_format is None,
             in which case the file interface from the GMF file will be used, otherwise an error
             will be thrown.
+        progress_bar:
+            Whether to show a progress bar, by default True.
+
 
         Raises
         ------
@@ -489,16 +493,18 @@ class MetaFrame:
                         f"dataset. Original: {self.file_format['file_interface_name']}, "
                         f"Synthetic: {file_format['file_interface_name']}"
                     )
-            self.file_format = file_format  # type: ignore
-        if self.file_format is None:
+        else:
+            file_format = self.file_format
+
+        if file_format is None:
             raise ValueError(
                 "Cannot write synthetic dataset without file handler."
                 " Use write_synthetic(..., file_format=your_file_handler.to_dict())"
             )
-        file_handler = file_interface_from_dict(self.file_format)
+        file_handler = file_interface_from_dict(file_format)
         # Check whether file exists before synthesis
         file_handler.check_filename(file_name, overwrite=overwrite, file_prefix=file_prefix)
-        syn_df = self.synthesize(n, seed, column_prefix=column_prefix)
+        syn_df = self.synthesize(n, seed, column_prefix=column_prefix, progress_bar=progress_bar)
         file_handler.write_file(syn_df, file_name, overwrite=overwrite, file_prefix=file_prefix)
 
     def __repr__(self) -> str:

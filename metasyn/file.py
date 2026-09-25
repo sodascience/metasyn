@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import warnings
 from abc import ABC, abstractmethod
+from io import BytesIO
 from pathlib import Path
 from typing import Any, Optional, Type, Union
 
@@ -109,8 +110,8 @@ class BaseFileInterface(ABC):
         self._write_file(df, fp)
 
     def check_filename(self,  fp: Union[None, Path, str] = None,
-                        overwrite: bool = False,
-                        file_prefix: str = "") -> Path:
+                       overwrite: bool = False,
+                       file_prefix: str = "") -> Path:
         """Check whether the filename can be written to.
 
         Parameters
@@ -131,9 +132,11 @@ class BaseFileInterface(ABC):
         FileNotFoundError:
             If the parent directory of fp does not exist.
         """
+        if isinstance(fp, BytesIO):
+            return fp
         if fp is None:
             fp = file_prefix + self.file_name
-        if Path(fp).is_file() and not overwrite:
+        if not isinstance(fp, BytesIO) and Path(fp).is_file() and not overwrite:
             raise FileExistsError(f"File '{fp}' already exists, choose a different name or write "
                                   "to a different directory.")
         elif Path(fp).is_dir():
