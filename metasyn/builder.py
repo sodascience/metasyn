@@ -371,24 +371,7 @@ class MetaFrameBuilder():
         config:
             Configuration file or dictionary that will be applied to the MetaFrame.
         """
-        if isinstance(config, (Path, str)):
-            try:
-                with open(config, "rb") as handle:
-                    config_dict: dict = tomllib.load(handle)
-            except FileNotFoundError as fnf_error:
-                raise FileNotFoundError(
-                    f"It appears '{config}' is not a valid filepath."
-                    f" Please provide a path to a .toml file to load a MetaConfig"
-                    f" from.") from fnf_error
-            except tomllib.TOMLDecodeError as value_error:
-                if Path(config).suffix != ".toml":
-                    raise ValueError(f"It appears '{Path(config).name}' is a"
-                                    # f" '{Path(config).suffix}' file."
-                                    f" To load a MetaConfig, "
-                                    f"provide the configuration as a .toml file.") from value_error
-                raise value_error
-        else:
-            config_dict = config
+        config_dict = _get_config(config)
         config_version = config_dict.get("config_version", "2.0")
 
         for parser in [ConfigV1XParser()]:
