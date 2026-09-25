@@ -17,7 +17,7 @@ from tqdm import tqdm
 from metasyn.distribution.base import BaseFitter, DistributionLike, VarLog
 from metasyn.file import BaseFileInterface
 from metasyn.metaframe import MetaFrame
-from metasyn.multiframe import ColumnRelation, MultiFrame
+from metasyn.multiframe import ColumnRelation, MultiFrame, _validate_relations
 from metasyn.privacy import BasePrivacy, BasicPrivacy
 from metasyn.registry import DistributionRegistry
 from metasyn.util import get_var_type
@@ -417,16 +417,11 @@ class MetaFrameBuilder():
         return MetaFrame(vars, self.n_rows, self.file_format, self.name)
 
 
-class MetaMultiFrameBuilder():
-    """Builder class for creating metamultiframes.
+class MultiFrameBuilder():
+    """Builder class for creating multiframes.
 
     # This class allows you to build your metaframe step by step instead of in one go with the
     # ``MetaFrame.fit_dataframe()` method.
-
-    # Parameters
-    # ----------
-    # dataframes:
-    # relations:
     """
 
     def __init__(self):
@@ -434,12 +429,8 @@ class MetaMultiFrameBuilder():
         self.builders = {}
         self.dfs = {}
         self._default_privacy = None
+        #TODO: where does this get populated? can't do self.builders[...].get_distro() instead?
         self.default_distributions = {}
-
-        # for k, df in dataframes.items():
-        #     self.builders[k] = MetaFrameBuilder()
-        #     self.builders[k].n_rows = n_rows[k] if k in n_rows else None
-        #     self.builders[k].add_dataframe(df)
 
     def fit(self) -> MultiFrame:
         """Create a MetaFrame from the builder.
@@ -450,25 +441,37 @@ class MetaMultiFrameBuilder():
         mfs = {k: b.fit() for k, b in self.builders.items()}
         return MultiFrame(mfs, self.relations)
 
-    def add_dataframe(self, dataframe) -> "MetaMultiFrameBuilder":
-        ...
+    def add_dataframe(self, name: str, df: pl.DataFrame) -> "MultiFrameBuilder":
+        self.builders[name] = MetaFrameBuilder()
+        self.builders[name].add_dataframe(df)
 
-    def add_relation(self, relation) -> "MetaMultiFrameBuilder":
-        ...  #validate here
+        #TODO can't this be derived from self.builders somehow?
+        self.dfs[name] = df
+               
+        #TODO what about these two?
+        # file_format
+        # n_rows
+
+    def add_relation(self, relation: ColumnRelation) -> "MultiFrameBuilder":
+        self.relations.append(relation)
+        _validate_relations(self.relations, self.dfs)        
 
     def __getitem__(self, key) -> MetaFrameBuilder:
-        ...
+        return self.builders[key]
 
     @property
-    def privacy(self):
-        ...
+    def privacy(self) -> BasePrivacy:
+        #TODO how is this used?
+        return self._default_privacy
 
     @privacy.setter
-    def privacy(self, val):
-        ...
+    def privacy(self, value: BasePrivacy):
+        self._default_privacy = value
 
-    def get_default_distribution(self, var_type):
-        ...
+    #TODO: assuming this can be different for each separate MetaFrame 
+    def get_default_distribution(self, name, var_type) -> str | dict | None | DistributionLike:
+        return self.builders[name].get_default_distribution(var_type)
+
 
 
 class ConfigV1XParser():
