@@ -42,7 +42,7 @@ class FreeTextDistribution(BaseDistribution):
     def __init__(self, locale: str, avg_sentences: float, avg_words: float):
         self.locale: str = locale
         self.avg_sentences = avg_sentences
-        self.avg_words = avg_words
+        self.avg_words: float = avg_words
         self.fake = Faker(locale=self.locale)
 
 
@@ -62,7 +62,7 @@ class FreeTextDistribution(BaseDistribution):
         # Check the average number of characters
         avg_chars = series.str.len_chars().mean()
         if avg_chars is not None and avg_chars >= 25:  # type: ignore  # Workaround polars typing
-            return 10 + (avg_chars - self.avg_words*6)**2
+            return 10 + (avg_chars - self.avg_words*6)**2  # type: ignore  # Workaround polars typing
         return 99999999
 
     @classmethod
