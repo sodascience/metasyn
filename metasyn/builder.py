@@ -17,7 +17,7 @@ from tqdm import tqdm
 from metasyn.distribution.base import BaseFitter, DistributionLike, VarLog
 from metasyn.file import BaseFileInterface
 from metasyn.metaframe import MetaFrame
-from metasyn.multiframe import ColumnRelation, MultiFrame
+from metasyn.multiframe import ColumnRelation, MultiFrame, _validate_relations
 from metasyn.privacy import BasePrivacy, BasicPrivacy
 from metasyn.registry import DistributionRegistry
 from metasyn.util import get_var_type
@@ -28,6 +28,28 @@ try:
 except ImportError:
     import tomli as tomllib  # type: ignore  # noqa
 
+
+def _get_config(config: Path | str | dict) -> dict:
+    if isinstance(config, (Path, str)):
+        try:
+            with open(config, "rb") as handle:
+                config_dict: dict = tomllib.load(handle)
+        except FileNotFoundError as fnf_error:
+            raise FileNotFoundError(
+                f"It appears '{config}' is not a valid filepath."
+                f" Please provide a path to a .toml file to load a MetaConfig"
+                f" from.") from fnf_error
+        except tomllib.TOMLDecodeError as value_error:
+            if Path(config).suffix != ".toml":
+                raise ValueError(f"It appears '{Path(config).name}' is a"
+                                # f" '{Path(config).suffix}' file."
+                                f" To load a MetaConfig, "
+                                f"provide the configuration as a .toml file.") from value_error
+            raise value_error
+    else:
+        config_dict = config
+
+    return config_dict
 
 class FitLog():
     """Logbook for the builder fitting process."""
@@ -349,24 +371,7 @@ class MetaFrameBuilder():
         config:
             Configuration file or dictionary that will be applied to the MetaFrame.
         """
-        if isinstance(config, (Path, str)):
-            try:
-                with open(config, "rb") as handle:
-                    config_dict: dict = tomllib.load(handle)
-            except FileNotFoundError as fnf_error:
-                raise FileNotFoundError(
-                    f"It appears '{config}' is not a valid filepath."
-                    f" Please provide a path to a .toml file to load a MetaConfig"
-                    f" from.") from fnf_error
-            except tomllib.TOMLDecodeError as value_error:
-                if Path(config).suffix != ".toml":
-                    raise ValueError(f"It appears '{Path(config).name}' is a"
-                                    # f" '{Path(config).suffix}' file."
-                                    f" To load a MetaConfig, "
-                                    f"provide the configuration as a .toml file.") from value_error
-                raise value_error
-        else:
-            config_dict = config
+        config_dict = _get_config(config)
         config_version = config_dict.get("config_version", "2.0")
 
         for parser in [ConfigV1XParser()]:
@@ -417,29 +422,19 @@ class MetaFrameBuilder():
         return MetaFrame(vars, self.n_rows, self.file_format, self.name)
 
 
-class MetaMultiFrameBuilder():
-    """Builder class for creating metamultiframes.
+class MultiFrameBuilder():
+    """Builder class for creating multiframes.
 
     # This class allows you to build your metaframe step by step instead of in one go with the
     # ``MetaFrame.fit_dataframe()` method.
-
-    # Parameters
-    # ----------
-    # dataframes:
-    # relations:
     """
 
-    def __init__(self, 
-                 dataframes = {},
-                 relations: list[ColumnRelation] = [],
-                 n_rows = {}):
-        self.relations = relations
+    def __init__(self):
+        self.relations = []
         self.builders = {}
-
-        for k, df in dataframes.items():
-            self.builders[k] = MetaFrameBuilder()
-            self.builders[k].n_rows = n_rows[k] if k in n_rows else None
-            self.builders[k].add_dataframe(df)
+        self.dfs = {}
+        self._default_privacy = None
+        # self.default_distributions = {}
 
     def fit(self) -> MultiFrame:
         """Create a MetaFrame from the builder.
@@ -450,6 +445,49 @@ class MetaMultiFrameBuilder():
         mfs = {k: b.fit() for k, b in self.builders.items()}
         return MultiFrame(mfs, self.relations)
 
+    def add_dataframe(self, 
+                      name: str,
+                      df: pl.DataFrame,
+                      n_rows: int | None = None,
+                      file_format: BaseFileInterface | dict | None = None) -> "MultiFrameBuilder":
+        self.builders[name] = MetaFrameBuilder()
+        self.builders[name].add_dataframe(df)
+        self.builders[name].file_format = file_format
+        self.builders[name].n_rows = len(df) if n_rows is None else n_rows
+        self.dfs[name] = df
+
+    def add_relation(self, relation: ColumnRelation) -> "MultiFrameBuilder":
+        self.relations.append(relation)
+        _validate_relations(self.relations, self.dfs)        
+
+    def __getitem__(self, key) -> MetaFrameBuilder:
+        return self.builders[key]
+
+    @property
+    def privacy(self) -> BasePrivacy:
+        return self._default_privacy
+
+    @privacy.setter
+    def privacy(self, value: BasePrivacy):
+        self._default_privacy = value
+
+    def get_default_distribution(self, name, var_type) -> str | dict | None | DistributionLike:
+        return self.builders[name].get_default_distribution(var_type)
+
+    def add_config(self, config: Path | str | dict):
+        """Configure the MultiFrame from a configuration file.
+
+        Parameters
+        ----------
+        config:
+            Configuration file or dictionary that will be applied to the MetaFrame.
+        """
+        config = _get_config(config)
+        for table in config['table']:
+            if table['name'] in self.builders:
+                self.builders[table['name']].add_config(table)
+            else:
+                raise ValueError(f"Unknown table '{table['name']}'")
 
 
 class ConfigV1XParser():
