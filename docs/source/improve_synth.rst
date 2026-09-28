@@ -397,3 +397,91 @@ and let metasyn find the parameters or specify both the type and parameters of t
 
 Ensure that the column type matches the type of the distribution, for example if the column has string values, use a distribution
 that supports the string type. An overview of all distributions sorted by type can be found in the :doc:`API<api/metasyn.distribution>`
+
+
+Conditional distributions
+"""""""""""""""""""""""""
+
+It is possible to preserve relationships between synthetic columns. You can use
+:class:`~metasyn.distribution.ColumnReference` to refer to a value generated for another column in the same row and use it 
+to create a conditional distribution.
+
+For example, generate different heights for male and female patients:
+
+.. tab:: Python (MetaFrameBuilder)
+
+   .. code-block:: python
+
+      from metasyn.distribution import (
+         ColumnReference,
+         DiscreteTruncatedNormalDistribution,
+         IfThenElse,
+      )
+
+      builder["Height_cm"].distribution = IfThenElse(
+         ColumnReference("Sex") == "M",
+         DiscreteTruncatedNormalDistribution(lower=160, upper=200, mean=180, sd=10),
+         DiscreteTruncatedNormalDistribution(lower=150, upper=190, mean=170, sd=10),
+      )
+
+You can also define a column entirely from another column, for example:
+
+.. tab:: Python (MetaFrameBuilder)
+
+   .. code-block:: python
+
+      builder["Adult"].distribution = ColumnReference("Age") > 18
+
+The following operators have been implemented and can be used to create conditional distributions:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Dunder
+     - Operator
+     - Example
+   * - ``__add__``
+     - ``a + b``
+     - ``Age + 10``
+   * - ``__sub__``
+     - ``a - b``
+     - ``Age - 10``
+   * - ``__mul__``
+     - ``a * b``
+     - ``Weight_kg * 2``
+   * - ``__truediv__``
+     - ``a / b``
+     - ``Weight_kg / 2``
+   * - ``__pow__``
+     - ``a ** b``
+     - ``Weight_kg ** 2``
+   * - ``__neg__``
+     - ``-a``
+     - ``-Weight_kg``
+   * - ``__invert__``
+     - ``~a``
+     - ``~Adult``
+   * - ``__and__``
+     - ``a & b``
+     - ``Adult & (Sex == "M")``
+   * - ``__or__``
+     - ``a | b``
+     - ``Adult | Child``
+   * - ``__eq__``
+     - ``a == b``
+     - ``Sex == "F"``
+   * - ``__ne__``
+     - ``a != b``
+     - ``Sex != "M"``
+   * - ``__lt__``
+     - ``a < b``
+     - ``Age < 18``
+   * - ``__gt__``
+     - ``a > b``
+     - ``Age > 17``
+   * - ``__le__``
+     - ``a <= b``
+     - ``Age <= 17``
+   * - ``__ge__``
+     - ``a >= b``
+     - ``Age >= 18``
