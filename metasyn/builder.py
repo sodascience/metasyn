@@ -470,10 +470,10 @@ class MultiFrameBuilder():
                       name: str,
                       n_rows: int | None = None,
                       file_format: BaseFileInterface | dict | None = None) -> "MultiFrameBuilder":
-        self.builders[name] = MetaFrameBuilder()
+        self.builders[name] = MetaFrameBuilder(name=name,
+                                               n_rows=len(df) if n_rows is None else n_rows)
         self.builders[name].add_dataframe(df)
         self.builders[name].file_format = file_format
-        self.builders[name].n_rows = len(df) if n_rows is None else n_rows
         self.dfs[name] = df
         return self
 
