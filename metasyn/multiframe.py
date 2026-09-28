@@ -167,7 +167,7 @@ def _validate_all_relations(relations: list[ColumnRelation], mf_or_df_dict):
 
 
 def _validate_relation(rel: ColumnRelation, all_relations: list[ColumnRelation], mf_or_df_dict,
-                       columns: dict[list[str]]):
+                       columns: dict[str, list[str]]):
 
     # for rel in relations:
     if rel.primary_table not in mf_or_df_dict:
@@ -313,7 +313,7 @@ class MultiFrame():
                         f"{rel.foreign_key} should have the same number of rows.")
 
         if progress_bar is True:
-            pbar = tqdm(total=sum(len(mf.meta_vars) for mf in self.metaframes.values()))
+            pbar: tqdm|bool = tqdm(total=sum(len(mf.meta_vars) for mf in self.metaframes.values()))
         else:
             pbar = False
         # Generate the first version of the synthetic tables.
@@ -441,7 +441,7 @@ class MultiFrame():
             A fitted multiframe object, containing the metadata for all tables and their
             relationships.
         """
-        from metasyn.builder import MultiFrameBuilder
+        from metasyn.builder import MultiFrameBuilder  # noqa: PLC0415
 
         mfb = MultiFrameBuilder()
         for name, df in dataframes.items():

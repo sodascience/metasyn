@@ -388,7 +388,7 @@ class MetaFrame:
         self,
         n: Optional[int] = None,
         seed: Optional[int] = None,
-        progress_bar: bool|tqdm.tqdm = True,
+        progress_bar: bool|tqdm = True,
         column_prefix: str = "",
     ) -> pl.DataFrame:
         """Create a synthetic Polars dataframe.

@@ -381,7 +381,7 @@ class MetaFrameBuilder():
         config_dict = _get_config(config)
         config_version = config_dict.get("config_version", "2.0")
 
-        for parser in [ConfigV1XParser(), ConfigV2Parser()]:
+        for parser in (ConfigV1XParser(), ConfigV2Parser()):
             if config_version in parser.supports:
                 parser.read_dict(config_dict, self)
                 return self
@@ -414,7 +414,7 @@ class MetaFrameBuilder():
     # def preview(self, n_row_synthesize: int = 10, n_row_fit: None | int = None):
         # pass
 
-    def fit(self, progress_bar: bool|tqdm.tqdm = True) -> MetaFrame:
+    def fit(self, progress_bar: bool|tqdm = True) -> MetaFrame:
         """Create a MetaFrame from the builder.
 
         Parameters
@@ -457,11 +457,11 @@ class MultiFrameBuilder():
         """Create a MetaFrame from the builder."""
         if progress_bar is True:
             # print(total=sum(b.columns for b in self.builders.values()))
-            pbar = tqdm(total=sum(len(b.columns) for b in self.builders.values()))
+            pbar: tqdm|bool = tqdm(total=sum(len(b.columns) for b in self.builders.values()))
         else:
             pbar = False
         mfs = {k: b.fit(pbar) for k, b in self.builders.items()}
-        if progress_bar is True:
+        if progress_bar is True and not isinstance(pbar, bool):
             pbar.close()
         return MultiFrame(mfs, self.relations)
 
@@ -475,6 +475,7 @@ class MultiFrameBuilder():
         self.builders[name].file_format = file_format
         self.builders[name].n_rows = len(df) if n_rows is None else n_rows
         self.dfs[name] = df
+        return self
 
     def add_relation(self, relation: ColumnRelation | str) -> "MultiFrameBuilder":
         if isinstance(relation, str):
@@ -483,6 +484,7 @@ class MultiFrameBuilder():
                            {name: df.columns for name, df in self.dfs.items()})
         _infer_relation(relation, self.dfs)
         self.relations.append(relation)
+        return self
 
     def __getitem__(self, key) -> MetaFrameBuilder:
         return self.builders[key]
@@ -509,12 +511,22 @@ class MultiFrameBuilder():
         config = _get_config(config)
         config_version = config.get("config_version", "2.0")
 
-        for parser in [ConfigV1XParser(), ConfigV2Parser()]:
+        for parser in (ConfigV1XParser(), ConfigV2Parser()):
             if config_version in parser.supports:
                 parser.read_dict(config, self)
                 return self
         raise ValueError(f"Cannot read configuration file, because version {config_version} is not "
                          "supported.")
+
+class BaseParser(ABC):
+    """Base class for parsing configuration files."""
+
+    keys: list[str] = []
+    supports: list[str] = []
+
+    @abstractmethod
+    def read_dict(self, config_dict: dict, builder):
+        """Read a configuration dictionary into the builder."""
 
 
 class ConfigV1XParser():
@@ -524,7 +536,7 @@ class ConfigV1XParser():
             "var", "name"]
     supports = ["1.0", "1.1", "1.2"]
 
-    def read_dict(self, config_dict: dict, builder: MetaFrameBuilder):
+    def read_dict(self, config_dict: dict, builder: MetaFrameBuilder|MultiFrameBuilder):
         """Read a dictionary containing the configuration.
 
         Parameters
@@ -539,6 +551,8 @@ class ConfigV1XParser():
         ValueError
             If unknown keys are detected or if there are both privacy and defaults sections.
         """
+        if isinstance(builder, MultiFrameBuilder):
+            raise ValueError("Cannot parse MultiFrame configuration files with V1 parser.")
         config_dict = deepcopy(config_dict)
         if not set(config_dict.keys()) <= set(self.keys):
             unknown_keys = set(config_dict.keys()) - set(self.keys)
@@ -597,7 +611,7 @@ class ConfigV2Parser():
             except IndexError:
                 raise ValueError("Builder has name '{builder.name}' which cannot be found in the "
                                  "configuration file.")
-            ConfigV1XParser().read_dict(table_dict["table"][idx], builder)
+            ConfigV1XParser().read_dict(config_dict["table"][idx], builder)
 
 
 class BaseRecipe(ABC):
