@@ -17,7 +17,7 @@ from tqdm import tqdm
 from metasyn.distribution.base import BaseFitter, DistributionLike, VarLog
 from metasyn.file import BaseFileInterface
 from metasyn.metaframe import MetaFrame
-from metasyn.multiframe import ColumnRelation, MultiFrame, _validate_relations
+from metasyn.multiframe import ColumnRelation, MultiFrame, _infer_relation, _validate_relation
 from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
 from metasyn.registry import DistributionRegistry
 from metasyn.util import get_var_type
@@ -381,7 +381,7 @@ class MetaFrameBuilder():
         config_dict = _get_config(config)
         config_version = config_dict.get("config_version", "2.0")
 
-        for parser in [ConfigV1XParser()]:
+        for parser in [ConfigV1XParser(), ConfigV2Parser()]:
             if config_version in parser.supports:
                 parser.read_dict(config_dict, self)
                 return self
@@ -414,7 +414,7 @@ class MetaFrameBuilder():
     # def preview(self, n_row_synthesize: int = 10, n_row_fit: None | int = None):
         # pass
 
-    def fit(self, progress_bar: bool = True) -> MetaFrame:
+    def fit(self, progress_bar: bool|tqdm.tqdm = True) -> MetaFrame:
         """Create a MetaFrame from the builder.
 
         Parameters
@@ -426,8 +426,16 @@ class MetaFrameBuilder():
         self.fit_log.reset()
         if self.n_rows is None:
             raise ValueError("Set number of rows builder.n_rows before fitting.")
-        for col in tqdm(self.columns, disable=not progress_bar):
+        if progress_bar is True or progress_bar is False:
+            pbar = tqdm(total=len(self.columns), disable=not progress_bar)
+        else:
+            pbar = progress_bar
+        for col in self.columns:
+            pbar.set_description(desc=col)
             vars.append(self.var_builders[col].fit(self.fit_log[col]))
+            pbar.update(1)
+        if progress_bar is True:
+            pbar.close()
         return MetaFrame(vars, self.n_rows, self.file_format, self.name)
 
 
@@ -445,18 +453,21 @@ class MultiFrameBuilder():
         self._default_privacy = None
         # self.default_distributions = {}
 
-    def fit(self) -> MultiFrame:
-        """Create a MetaFrame from the builder.
-
-        Parameters
-        ----------
-        """
-        mfs = {k: b.fit() for k, b in self.builders.items()}
+    def fit(self, progress_bar: bool = True) -> MultiFrame:
+        """Create a MetaFrame from the builder."""
+        if progress_bar is True:
+            # print(total=sum(b.columns for b in self.builders.values()))
+            pbar = tqdm(total=sum(len(b.columns) for b in self.builders.values()))
+        else:
+            pbar = False
+        mfs = {k: b.fit(pbar) for k, b in self.builders.items()}
+        if progress_bar is True:
+            pbar.close()
         return MultiFrame(mfs, self.relations)
 
-    def add_dataframe(self, 
-                      name: str,
+    def add_dataframe(self,
                       df: pl.DataFrame,
+                      name: str,
                       n_rows: int | None = None,
                       file_format: BaseFileInterface | dict | None = None) -> "MultiFrameBuilder":
         self.builders[name] = MetaFrameBuilder()
@@ -465,9 +476,13 @@ class MultiFrameBuilder():
         self.builders[name].n_rows = len(df) if n_rows is None else n_rows
         self.dfs[name] = df
 
-    def add_relation(self, relation: ColumnRelation) -> "MultiFrameBuilder":
+    def add_relation(self, relation: ColumnRelation | str) -> "MultiFrameBuilder":
+        if isinstance(relation, str):
+            relation = ColumnRelation.parse(relation)
+        _validate_relation(relation, self.relations, self.dfs,
+                           {name: df.columns for name, df in self.dfs.items()})
+        _infer_relation(relation, self.dfs)
         self.relations.append(relation)
-        _validate_relations(self.relations, self.dfs)        
 
     def __getitem__(self, key) -> MetaFrameBuilder:
         return self.builders[key]
@@ -492,18 +507,21 @@ class MultiFrameBuilder():
             Configuration file or dictionary that will be applied to the MetaFrame.
         """
         config = _get_config(config)
-        for table in config['table']:
-            if table['name'] in self.builders:
-                self.builders[table['name']].add_config(table)
-            else:
-                raise ValueError(f"Unknown table '{table['name']}'")
+        config_version = config.get("config_version", "2.0")
+
+        for parser in [ConfigV1XParser(), ConfigV2Parser()]:
+            if config_version in parser.supports:
+                parser.read_dict(config, self)
+                return self
+        raise ValueError(f"Cannot read configuration file, because version {config_version} is not "
+                         "supported.")
 
 
 class ConfigV1XParser():
-    """TOML confifuration parser for versions 1.0, 1.1 and 1.2."""
+    """TOML configuration parser for versions 1.0, 1.1 and 1.2."""
 
     keys = ["n_rows", "config_version", "file", "privacy", "defaults", "plugins",
-            "var"]
+            "var", "name"]
     supports = ["1.0", "1.1", "1.2"]
 
     def read_dict(self, config_dict: dict, builder: MetaFrameBuilder):
@@ -523,8 +541,9 @@ class ConfigV1XParser():
         """
         config_dict = deepcopy(config_dict)
         if not set(config_dict.keys()) <= set(self.keys):
+            unknown_keys = set(config_dict.keys()) - set(self.keys)
             raise ValueError(f"Error parsing configuration."
-                             f" Unknown keys detected: '{list(config_dict)}'")
+                             f" Unknown keys detected: '{unknown_keys}'")
 
         for var_dict in config_dict.get("var", []):
             if var_dict.get("data_free", config_dict.get("defaults", {}).get("data_free", False)):
@@ -549,6 +568,36 @@ class ConfigV1XParser():
         if "privacy" in defaults:
             defaults["privacy"] = get_privacy(**defaults.pop("privacy"))
         builder.defaults = defaults
+
+
+class ConfigV2Parser():
+    """Parser for configuration files version 2.0.
+
+    Version 2.0 of the configuration file (TOML) adds support for multiple tables in the
+    configuration file. It also allows one to specify the relations between the different columns.
+    """
+
+    supports = ["2.0"]
+
+    def read_dict(self, config_dict: dict, builder: MetaFrameBuilder | MultiFrameBuilder):
+        if isinstance(builder, MultiFrameBuilder):
+            for table_dict in config_dict["table"]:
+                name = table_dict.get("name", None)
+                if name is None:
+                    raise ValueError("Table present in configuration file with no name.")
+                if name not in builder.builders:
+                    raise ValueError(f"Unknown table '{name}', use mfb.add_dataframe(df, '{name}')"
+                                     " to add the dataframe first.")
+                ConfigV1XParser().read_dict(table_dict, builder.builders[name])
+            for rel in table_dict.get("relations", []):
+                builder.add_relation(rel)
+        else:
+            try:
+                idx = [t["name"] for t in config_dict["table"]].index(builder.name)
+            except IndexError:
+                raise ValueError("Builder has name '{builder.name}' which cannot be found in the "
+                                 "configuration file.")
+            ConfigV1XParser().read_dict(table_dict["table"][idx], builder)
 
 
 class BaseRecipe(ABC):
@@ -603,6 +652,14 @@ class DistributionRecipe(BaseRecipe):
             # if var_builder.series is None:
                 # var_builder.series = pl.Series([dist.draw()])
             return cls(dist)
+        elif isinstance(var_builder.distribution, dict):
+            try:
+                return cls(var_builder.registry.from_dict({
+                    "distribution": var_builder.distribution,
+                    "type": var_builder.var_type
+                }))
+            except Exception:
+                pass
         return None
 
 @dataclass

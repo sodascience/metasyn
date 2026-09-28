@@ -9,6 +9,7 @@ from enum import Enum
 from typing import Any, Optional, Union
 
 import polars as pl
+from tqdm import tqdm
 
 from metasyn.gmf import parse_gmf_dict, validate_gmf_dict
 from metasyn.metaframe import MetaFrame, _jsonify
@@ -153,7 +154,7 @@ class ColumnRelation():
         new_col_dict["relation_type"] = RelationType(col_dict["relation_type"])
         return cls(**new_col_dict)
 
-def _validate_relations(relations: list[ColumnRelation], mf_or_df_dict):
+def _validate_all_relations(relations: list[ColumnRelation], mf_or_df_dict):
     columns = {}
     for name, mf_or_df in mf_or_df_dict.items():
         if isinstance(mf_or_df, MetaFrame):
@@ -161,54 +162,60 @@ def _validate_relations(relations: list[ColumnRelation], mf_or_df_dict):
         else:
             columns[name] = mf_or_df.columns
 
-    for rel in relations:
-        if rel.primary_table not in mf_or_df_dict:
-            raise ValueError(f"Cannot find table with name {rel.primary_table}, "
-                             f"available: {list(mf_or_df)}.")
-        if rel.primary_key not in columns[rel.primary_table]:
-            raise ValueError(
-                f"Cannot find column '{rel.primary_key}' in table "
-                f"'{rel.primary_table}, available columns: {columns[rel.primary_table]}'")
-        if rel.foreign_table not in mf_or_df_dict:
-            raise ValueError(f"Cannot find table with name {rel.foreign_table}.")
-        if rel.foreign_key not in columns[rel.foreign_table]:
-            raise ValueError(
-                f"Cannot find column '{rel.foreign_key}' in table "
-                f"'{rel.foreign_table}, available columns: {columns[rel.foreign_table]}'")
-        for other_rel in relations:
-            if (rel.primary_table == other_rel.foreign_table
-                    and rel.primary_key == other_rel.foreign_key):
-                raise ValueError(f"Column in {rel.primary_table}: {rel.primary_key} cannot be "
-                                    "a foreign and primary key at the same time.")
-        if (isinstance(mf_or_df_dict[rel.primary_table], pl.DataFrame)
-                and not mf_or_df_dict[rel.primary_table][rel.primary_key].is_unique().all()):
-            warnings.warn(f"Column '{rel.primary_key}' in table '{rel.primary_table}' is a "
-                            "primary key, but not unique.")
+    for i_rel, rel in enumerate(relations):
+        _validate_relation(rel, relations[:i_rel], mf_or_df_dict, columns)
 
-def _infer_relations(relations, dfs_dict):
+
+def _validate_relation(rel: ColumnRelation, all_relations: list[ColumnRelation], mf_or_df_dict,
+                       columns: dict[list[str]]):
+
+    # for rel in relations:
+    if rel.primary_table not in mf_or_df_dict:
+        raise ValueError(f"Cannot find table with name {rel.primary_table}, "
+                            f"available: {list(columns)}.")
+    if rel.primary_key not in columns[rel.primary_table]:
+        raise ValueError(
+            f"Cannot find column '{rel.primary_key}' in table "
+            f"'{rel.primary_table}, available columns: {columns[rel.primary_table]}'")
+    if rel.foreign_table not in mf_or_df_dict:
+        raise ValueError(f"Cannot find table with name {rel.foreign_table}.")
+    if rel.foreign_key not in columns[rel.foreign_table]:
+        raise ValueError(
+            f"Cannot find column '{rel.foreign_key}' in table "
+            f"'{rel.foreign_table}, available columns: {columns[rel.foreign_table]}'")
+    for other_rel in all_relations:
+        if (rel.primary_table == other_rel.foreign_table
+                and rel.primary_key == other_rel.foreign_key):
+            raise ValueError(f"Column in {rel.primary_table}: {rel.primary_key} cannot be "
+                                "a foreign and primary key at the same time.")
+    if (isinstance(mf_or_df_dict[rel.primary_table], pl.DataFrame)
+            and not mf_or_df_dict[rel.primary_table][rel.primary_key].is_unique().all()):
+        warnings.warn(f"Column '{rel.primary_key}' in table '{rel.primary_table}' is a "
+                        "primary key, but not unique.")
+
+def _infer_relation(rel, dfs_dict):
     """For all relations that have RelationType.Infer try to guess the relation.
 
     This only works if the dataframe objects are provided.
     """
-    for rel in relations:
-        if rel.relation_type != RelationType.Infer:
-            continue
-        if dfs_dict is None:
-            raise ValueError("Cannot infer any relations without the original dataframes.")
-        primary_series = dfs_dict[rel.primary_table][rel.primary_key]
-        foreign_series = dfs_dict[rel.foreign_table][rel.foreign_key]
-        if (len(primary_series) == len(foreign_series)
-                and (primary_series == foreign_series).all()):
-            rel.relation_type = RelationType.EqualOrdered
-        elif (len(primary_series) == len(foreign_series)
-                and (primary_series.sort() == foreign_series.sort()).all()):
-            rel.relation_type = RelationType.Equal
-        elif (pl.union((primary_series, foreign_series)).unique().len()
-                == primary_series.unique().len()):
-            rel.relation_type = RelationType.Subset
-        else:
-            raise ValueError(f"Cannot infer relation type for relation {rel}, possible issues:"
-                             " new item in foreign table.")
+    if rel.relation_type != RelationType.Infer:
+        return
+    if dfs_dict is None:
+        raise ValueError("Cannot infer any relations without the original dataframes.")
+    primary_series = dfs_dict[rel.primary_table][rel.primary_key]
+    foreign_series = dfs_dict[rel.foreign_table][rel.foreign_key]
+    if (len(primary_series) == len(foreign_series)
+            and (primary_series == foreign_series).all()):
+        rel.relation_type = RelationType.EqualOrdered
+    elif (len(primary_series) == len(foreign_series)
+            and (primary_series.sort() == foreign_series.sort()).all()):
+        rel.relation_type = RelationType.Equal
+    elif (pl.union((primary_series, foreign_series)).unique().len()
+            == primary_series.unique().len()):
+        rel.relation_type = RelationType.Subset
+    else:
+        raise ValueError(f"Cannot infer relation type for relation {rel}, possible issues:"
+                            " new item in foreign table.")
 
 
 
@@ -240,8 +247,9 @@ class MultiFrame():
         self.dfs = dataframes
         self.relations = [ColumnRelation.parse(rel) if isinstance(rel, str) else rel
                           for rel in relations]
-        _validate_relations(self.relations, metaframes if dataframes is None else dataframes)
-        _infer_relations(self.relations, dataframes)
+        _validate_all_relations(self.relations, metaframes if dataframes is None else dataframes)
+        for rel in self.relations:
+            _infer_relation(rel, dataframes)
 
     def __getitem__(self, key: str):
         if key not in self.metaframes:
@@ -266,7 +274,8 @@ class MultiFrame():
                 all_str += "    " + str(rel) + "\n"
         return all_str
 
-    def synthesize(self, n: Optional[dict] = None) -> dict[str, pl.DataFrame]:
+    def synthesize(self, n: Optional[dict] = None, progress_bar: bool = True
+                   ) -> dict[str, pl.DataFrame]:
         """Synthesize multiple tables.
 
         Parameters
@@ -303,8 +312,13 @@ class MultiFrame():
                         f"the same number of rows, since column {rel.primary_key} and "
                         f"{rel.foreign_key} should have the same number of rows.")
 
+        if progress_bar is True:
+            pbar = tqdm(total=sum(len(mf.meta_vars) for mf in self.metaframes.values()))
+        else:
+            pbar = False
         # Generate the first version of the synthetic tables.
-        dfs = {key: mf.synthesize(n_rows[key]) for key, mf in self.metaframes.items()}
+        dfs = {key: mf.synthesize(n_rows[key], progress_bar=pbar)
+               for key, mf in self.metaframes.items()}
 
         # Implement the relations.
         for rel in self.relations:
@@ -403,8 +417,7 @@ class MultiFrame():
 
     @classmethod
     def fit_dataframes(cls, dataframes: dict[str, pl.DataFrame], relations: list[ColumnRelation],
-                       extra_kwargs: Optional[dict[str, dict]] = None,
-                       **global_kwargs) -> "MultiFrame":
+                       progress_bar: bool = True) -> "MultiFrame":
         """Fit multiple dataframes to create a MultiFrame.
 
         Parameters
@@ -428,20 +441,12 @@ class MultiFrame():
             A fitted multiframe object, containing the metadata for all tables and their
             relationships.
         """
-        extra_kwargs = {} if extra_kwargs is None else extra_kwargs
-        for key in extra_kwargs:
-            if key not in dataframes:
-                raise ValueError(f"Key '{key}' is not the name of a dataframe supplied with the "
-                                 f"dataframe argument. Available tables: {list(dataframes)}.")
-        relations = [ColumnRelation.parse(rel) if isinstance(rel, str) else rel
-                     for rel in relations]
-        _validate_relations(relations, dataframes)
-        _infer_relations(relations, dataframes)
-        mfs = {}
-        for name, df in dataframes.items():
-            cur_extra_kwargs = extra_kwargs.get(name, {})
-            cur_kwargs = deepcopy(global_kwargs)
-            cur_kwargs.update(cur_extra_kwargs)
-            mfs[name] = MetaFrame.fit_dataframe(df, **cur_kwargs, name=name)
+        from metasyn.builder import MultiFrameBuilder
 
-        return cls(mfs, relations, dataframes)
+        mfb = MultiFrameBuilder()
+        for name, df in dataframes.items():
+            mfb.add_dataframe(df, name)
+        for rel in relations:
+            mfb.add_relation(rel)
+
+        return mfb.fit(progress_bar=progress_bar)

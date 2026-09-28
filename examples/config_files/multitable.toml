@@ -2,34 +2,51 @@
 
 config_version = "2.0"
 
+relations = [
+    "purchases[customer_id] SUBSET OF customers[id]",
+    "purchases[product_id] SUBSET OF products[id]"
+]
+
+
 [[table]]
-name = "single"
-table_type = "dataframe"
+name = "customers"
 
-[table.file_format]
+[table.file]
 name = "csv"  # The file is a CSV file
-arguments = {encoding = "windows-1252", separator = ","}
-
+arguments = {encoding = "utf-8", separator = ","}
 
 [[table.var]]
-name = "PassengerId"
+name = "id"
 distribution = {unique = true}  # Notice booleans are lower case in .toml files.
 
 [[table.var]]
-name = "Name"
-prop_missing = 0.1
-description = "Name of the unfortunate passenger of the titanic."
-distribution = {name = "core.faker", parameters = {faker_type = "name", locale = "en_US"}}
+name = "address"
+distribution = {name = "core.faker", parameters = {faker_type = "address", locale = "en_US"}}
+
+
+[[table]]
+name = "products"
+
+[table.file]
+name = "csv"  # The file is a CSV file
+arguments = {encoding = "utf-8", separator = ","}
 
 [[table.var]]
-name = "Fare"
-distribution = {name = "core.exponential"}
+name = "id"
+distribution = {unique = true}
 
 [[table.var]]
-name = "Age"
-distribution = {name = "core.uniform", parameters = {lower = 20, upper = 40}}
+name = "name"
+distribution = {name = "core.faker", parameters = {faker_type = "word", locale = "en_US"}}
+
+
+[[table]]
+name = "purchases"
+
+[table.file]
+name = "csv"  # The file is a CSV file
+arguments = {encoding = "utf-8", separator = ","}
 
 [[table.var]]
-name = "Cabin"
-distribution = {name = "core.regex", parameters = {regex_data = "[A-F][0-9]{2,3}"}}
-
+name = "id"
+distribution = {unique = true}
