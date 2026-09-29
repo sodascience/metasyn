@@ -399,12 +399,12 @@ Ensure that the column type matches the type of the distribution, for example if
 that supports the string type. An overview of all distributions sorted by type can be found in the :doc:`API<api/metasyn.distribution>`
 
 
-Conditional distributions
+Composed distributions
 """""""""""""""""""""""""
 
 It is possible to preserve relationships between synthetic columns. You can use
 :class:`~metasyn.distribution.ColumnReference` to refer to a value generated for another column in the same row and use it 
-to create a conditional distribution.
+to create a composed distribution. These relationships can only be specified manually. 
 
 For example, generate different heights for male and female patients:
 
@@ -432,7 +432,11 @@ You can also define a column entirely from another column, for example:
 
       builder["Adult"].distribution = ColumnReference("Age") > 18
 
-The following operators have been implemented and can be used to create conditional distributions:
+Operands can also be composed distributions, allowing operators to be nested recursively. It is usually safer to preserve the broad structure of the data than to
+reproduce every numerical detail exactly. Metasyn can reduce disclosure risk, but overly specific rules may still encode
+sensitive information indirectly, so aim for realistic but approximate relationships.
+
+The following operators have been implemented and can be used to create composed distributions:
 
 .. list-table::
    :header-rows: 1
