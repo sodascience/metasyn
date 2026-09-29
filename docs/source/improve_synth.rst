@@ -383,7 +383,7 @@ and let metasyn find the parameters or specify both the type and parameters of t
       from metasyn.distribution import RegexDistribution
 
       cabin_dist = RegexDistribution("[A-F][0-9]{2,3}")
-      specs = [ VarSpec(name="Cabin", distribution=cabin_dist) ]
+      specs = [ {"name": "Cabin", "distribution": cabin_dist} ]
       MetaFrame.fit_dataframe(df, var_specs=specs)
 
 .. tab:: Configuration file
@@ -397,3 +397,113 @@ and let metasyn find the parameters or specify both the type and parameters of t
 
 Ensure that the column type matches the type of the distribution, for example if the column has string values, use a distribution
 that supports the string type. An overview of all distributions sorted by type can be found in the :doc:`API<api/metasyn.distribution>`
+
+
+Composed distributions
+""""""""""""""""""""""
+
+It is possible to preserve relationships between synthetic columns. You can use
+:class:`~metasyn.distribution.ColumnReference` to refer to a value generated for another column in the same row and use it 
+to create a composed distribution. These relationships can only be specified manually. 
+
+For example, generate different heights for male and female patients:
+
+.. tab:: Python (MetaFrameBuilder)
+
+   .. code-block:: python
+
+      from metasyn.distribution.base import ColumnReference, IfThenElse
+      from metasyn.distribution import DiscreteTruncatedNormalDistribution
+
+      builder["Height_cm"].distribution = IfThenElse(
+         ColumnReference("Sex") == "M",
+         DiscreteTruncatedNormalDistribution(lower=160, upper=200, mean=180, sd=10),
+         DiscreteTruncatedNormalDistribution(lower=150, upper=190, mean=170, sd=10),
+      )
+
+.. tab:: Python (fit_dataframe)
+
+   .. code-block:: python
+
+      from metasyn.distribution.base import ColumnReference, IfThenElse
+      from metasyn.distribution import DiscreteTruncatedNormalDistribution
+
+      specs = [ {"name": "Height_cm", "distribution": IfThenElse(
+         ColumnReference("Sex") == "M",
+         DiscreteTruncatedNormalDistribution(lower=160, upper=200, mean=180, sd=10),
+         DiscreteTruncatedNormalDistribution(lower=150, upper=190, mean=170, sd=10))} ]
+
+      MetaFrame.fit_dataframe(df, var_specs=specs)
+
+You can also define a column entirely from another column, for example:
+
+.. tab:: Python (MetaFrameBuilder)
+
+   .. code-block:: python
+
+      builder["Adult"].distribution = ColumnReference("Age") > 18
+
+.. tab:: Python (fit_dataframe)
+
+   .. code-block:: python
+
+      specs = [ {"name": "Adult", "distribution": ColumnReference("Age") > 18} ]
+      MetaFrame.fit_dataframe(df, var_specs=specs)
+
+Operands can also be composed distributions, allowing operators to be nested recursively. It is usually safer to preserve the broad structure of the data than to
+reproduce every numerical detail exactly. Metasyn can reduce disclosure risk, but overly specific rules may still encode
+sensitive information indirectly, so aim for realistic but approximate relationships.
+
+The following operators have been implemented and can be used to create composed distributions:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Dunder
+     - Operator
+     - Example
+   * - ``__add__``
+     - ``a + b``
+     - ``Age + 10``
+   * - ``__sub__``
+     - ``a - b``
+     - ``Age - 10``
+   * - ``__mul__``
+     - ``a * b``
+     - ``Weight_kg * 2``
+   * - ``__truediv__``
+     - ``a / b``
+     - ``Weight_kg / 2``
+   * - ``__pow__``
+     - ``a ** b``
+     - ``Weight_kg ** 2``
+   * - ``__neg__``
+     - ``-a``
+     - ``-Weight_kg``
+   * - ``__invert__``
+     - ``~a``
+     - ``~Adult``
+   * - ``__and__``
+     - ``a & b``
+     - ``Adult & (Sex == "M")``
+   * - ``__or__``
+     - ``a | b``
+     - ``Adult | Child``
+   * - ``__eq__``
+     - ``a == b``
+     - ``Sex == "F"``
+   * - ``__ne__``
+     - ``a != b``
+     - ``Sex != "M"``
+   * - ``__lt__``
+     - ``a < b``
+     - ``Age < 18``
+   * - ``__gt__``
+     - ``a > b``
+     - ``Age > 17``
+   * - ``__le__``
+     - ``a <= b``
+     - ``Age <= 17``
+   * - ``__ge__``
+     - ``a >= b``
+     - ``Age >= 18``
