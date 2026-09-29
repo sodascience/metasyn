@@ -383,7 +383,7 @@ and let metasyn find the parameters or specify both the type and parameters of t
       from metasyn.distribution import RegexDistribution
 
       cabin_dist = RegexDistribution("[A-F][0-9]{2,3}")
-      specs = [ VarSpec(name="Cabin", distribution=cabin_dist) ]
+      specs = [ {"name": "Cabin", "distribution": cabin_dist} ]
       MetaFrame.fit_dataframe(df, var_specs=specs)
 
 .. tab:: Configuration file
@@ -412,17 +412,28 @@ For example, generate different heights for male and female patients:
 
    .. code-block:: python
 
-      from metasyn.distribution import (
-         ColumnReference,
-         DiscreteTruncatedNormalDistribution,
-         IfThenElse,
-      )
+      from metasyn.distribution.base import ColumnReference, IfThenElse
+      from metasyn.distribution import DiscreteTruncatedNormalDistribution
 
       builder["Height_cm"].distribution = IfThenElse(
          ColumnReference("Sex") == "M",
          DiscreteTruncatedNormalDistribution(lower=160, upper=200, mean=180, sd=10),
          DiscreteTruncatedNormalDistribution(lower=150, upper=190, mean=170, sd=10),
       )
+
+.. tab:: Python (fit_dataframe)
+
+   .. code-block:: python
+
+      from metasyn.distribution.base import ColumnReference, IfThenElse
+      from metasyn.distribution import DiscreteTruncatedNormalDistribution
+
+      specs = [ {"name": "Height_cm", "distribution": IfThenElse(
+         ColumnReference("Sex") == "M",
+         DiscreteTruncatedNormalDistribution(lower=160, upper=200, mean=180, sd=10),
+         DiscreteTruncatedNormalDistribution(lower=150, upper=190, mean=170, sd=10))} ]
+
+      MetaFrame.fit_dataframe(df, var_specs=specs)
 
 You can also define a column entirely from another column, for example:
 
@@ -431,6 +442,13 @@ You can also define a column entirely from another column, for example:
    .. code-block:: python
 
       builder["Adult"].distribution = ColumnReference("Age") > 18
+
+.. tab:: Python (fit_dataframe)
+
+   .. code-block:: python
+
+      specs = [ {"name": "Adult", "distribution": ColumnReference("Age") > 18} ]
+      MetaFrame.fit_dataframe(df, var_specs=specs)
 
 Operands can also be composed distributions, allowing operators to be nested recursively. It is usually safer to preserve the broad structure of the data than to
 reproduce every numerical detail exactly. Metasyn can reduce disclosure risk, but overly specific rules may still encode
