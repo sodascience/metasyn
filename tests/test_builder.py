@@ -9,6 +9,7 @@ from metasyn.builder import (
     FitLog,
     FitterRecipe,
     MetaFrameBuilder,
+    MultiFrameBuilder,
     UnqFindDistributionRecipe,
     VarBuilder,
 )
@@ -152,3 +153,43 @@ def test_fit_log(tmpdir):
     assert len(fitlog["test"].method) == 0
     assert isinstance(str(fitlog), str)
     assert isinstance(fitlog.to_dataframe(), pl.DataFrame)
+
+
+class PrivacyA(BasicPrivacy):
+    pass
+
+class PrivacyA1(BasicPrivacy):
+    pass
+
+class PrivacyB1(BasicPrivacy):
+    pass
+
+class PrivacyAny(BasicPrivacy):
+    pass
+
+def test_privacy_distributions():
+    multi_builder = MultiFrameBuilder()
+    multi_builder.add_dataframe(None, "builder_A", n_rows=10)
+    multi_builder.add_dataframe(None, "builder_B", n_rows=10)
+    multi_builder["builder_A"].add_column("col_A1", var_type="continuous")
+    multi_builder["builder_A"].add_column("col_A2", var_type="continuous")
+    multi_builder["builder_B"].add_column("col_B1", var_type="continuous")
+    multi_builder["builder_B"].add_column("col_B2", var_type="continuous")
+
+    multi_builder["builder_A"].privacy = PrivacyA()
+    multi_builder["builder_A"]["col_A1"].privacy = PrivacyA1()
+    multi_builder["builder_B"]["col_B1"].privacy = PrivacyB1()
+    multi_builder.privacy = PrivacyAny()
+
+    assert isinstance(multi_builder["builder_A"]["col_A1"].privacy, PrivacyA1)
+    assert isinstance(multi_builder["builder_A"]["col_A2"].privacy, PrivacyA)
+    assert isinstance(multi_builder["builder_B"]["col_B1"].privacy, PrivacyB1)
+    assert isinstance(multi_builder["builder_B"]["col_B2"].privacy, PrivacyAny)
+
+    multi_builder["builder_A"].set_default_distribution("continuous",
+                                                        ContinuousConstantDistribution(0.0))
+    multi_builder.set_default_distribution("continuous",
+                                           ContinuousConstantDistribution(1.0))
+
+    assert multi_builder["builder_A"]["col_A1"].distribution.value == 0.0
+    assert multi_builder["builder_B"]["col_B1"].distribution.value == 1.0

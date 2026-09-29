@@ -323,7 +323,8 @@ class MetaFrameBuilder():
         the same time.
     """
 
-    def __init__(self, name: str = "single", n_rows: Optional[int]=None):
+    def __init__(self, name: str = "single", n_rows: Optional[int]=None,
+                 multi_builder: MultiFrameBuilder|None=None):
         self.file_format: BaseFileInterface | dict | None = None
         self.columns: list[str] = []
         self.var_builders : dict[str, VarBuilder]= {}
@@ -332,6 +333,7 @@ class MetaFrameBuilder():
         self.name = name
         self.defaults: dict[str, Any] = {}
         self.fit_log = FitLog()
+        self.multi_builder = multi_builder
 
     def __getitem__(self, item: str):
         return self.var_builders[item]
@@ -400,12 +402,21 @@ class MetaFrameBuilder():
         -------
             The default distribution.
         """
-        return self.defaults.get("distribution", {}).get(var_type, None)
+        default = self.defaults.get("distribution", {}).get(var_type, None)
+        if default is None and self.multi_builder is not None:
+            return self.multi_builder.get_default_distribution(var_type)
+        return default
+
+    def set_default_distribution(self, var_type, distribution):
+        if "distribution" not in self.defaults:
+            self.defaults["distribution"] = {}
+        self.defaults["distribution"][var_type] = distribution
 
     @property
     def privacy(self) -> BasePrivacy:
         """The default privacy for all columns."""
-        return self.defaults.get("privacy", BasicPrivacy())
+        fall_privacy = BasicPrivacy() if self.multi_builder is None else self.multi_builder.privacy
+        return self.defaults.get("privacy", fall_privacy)
 
     @privacy.setter
     def privacy(self, value: BasePrivacy):
@@ -450,7 +461,7 @@ class MultiFrameBuilder():
         self.relations = []
         self.builders = {}
         self.dfs = {}
-        self._default_privacy = None
+        self.defaults = {}
         # self.default_distributions = {}
 
     def fit(self, progress_bar: bool = True) -> MultiFrame:
@@ -466,13 +477,17 @@ class MultiFrameBuilder():
         return MultiFrame(mfs, self.relations)
 
     def add_dataframe(self,
-                      df: pl.DataFrame,
+                      df: pl.DataFrame|None,
                       name: str,
                       n_rows: int | None = None,
                       file_format: BaseFileInterface | dict | None = None) -> "MultiFrameBuilder":
+        if df is None and n_rows is None:
+            raise ValueError("Cannot add dataframe without actual dataframe or number of rows.")
         self.builders[name] = MetaFrameBuilder(name=name,
-                                               n_rows=len(df) if n_rows is None else n_rows)
-        self.builders[name].add_dataframe(df)
+                                               n_rows=len(df) if n_rows is None else n_rows,  # type: ignore
+                                               multi_builder=self)
+        if df is not None:
+            self.builders[name].add_dataframe(df)
         self.builders[name].file_format = file_format
         self.dfs[name] = df
         return self
@@ -491,14 +506,19 @@ class MultiFrameBuilder():
 
     @property
     def privacy(self) -> BasePrivacy:
-        return self._default_privacy
+        return self.defaults.get("privacy", BasicPrivacy())
 
     @privacy.setter
     def privacy(self, value: BasePrivacy):
-        self._default_privacy = value
+        self.defaults["privacy"] = value
 
-    def get_default_distribution(self, name, var_type) -> str | dict | None | DistributionLike:
-        return self.builders[name].get_default_distribution(var_type)
+    def get_default_distribution(self, var_type) -> str | dict | None | DistributionLike:
+        return self.defaults.get("distribution", {}).get(var_type, None)
+
+    def set_default_distribution(self, var_type, distribution):
+        if "distribution" not in self.defaults:
+            self.defaults["distribution"] = {}
+        self.defaults["distribution"][var_type] = distribution
 
     def add_config(self, config: Path | str | dict):
         """Configure the MultiFrame from a configuration file.
@@ -609,7 +629,7 @@ class ConfigV2Parser():
             try:
                 idx = [t["name"] for t in config_dict["table"]].index(builder.name)
             except IndexError:
-                raise ValueError("Builder has name '{builder.name}' which cannot be found in the "
+                raise ValueError(f"Builder has name '{builder.name}' which cannot be found in the "
                                  "configuration file.")
             ConfigV1XParser().read_dict(config_dict["table"][idx], builder)
 
