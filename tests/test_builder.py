@@ -21,6 +21,7 @@ from metasyn.distribution import (
     RegexFitter,
 )
 from metasyn.distribution.base import BaseFitter, VarLog
+from metasyn.metaframe import MetaFrame
 from metasyn.privacy import BasicPrivacy
 from metasyn.registry import DistributionRegistry
 
@@ -51,6 +52,25 @@ def test_builder_privacy(builder):
     assert isinstance(builder["Int64"].privacy, OtherPrivacy)
     builder["Int64"].privacy = BasicPrivacy()
     assert builder["Int64"].privacy.__class__ == BasicPrivacy
+
+def test_varbuilder_error():
+    vb = VarBuilder(series=ContinuousConstantDistribution(1.0))
+    with pytest.raises(ValueError):
+        vb.series
+    builder = MetaFrameBuilder()
+    vb.mf_builder = builder
+    with pytest.raises(ValueError):
+        vb.series
+    builder.n_rows = 10
+    vb.distribution = 10
+    with pytest.raises(TypeError):
+        vb.recipe
+
+def test_builder_without_progress_bar():
+    builder = MetaFrameBuilder(n_rows=10)
+    builder.add_column("test", var_type="continuous")
+    builder["test"].distribution = ContinuousConstantDistribution(1.0)
+    assert isinstance(builder.fit(progress_bar=False), MetaFrame)
 
 def test_add_column():
     builder = MetaFrameBuilder()
@@ -101,7 +121,7 @@ def test_find_fitter_error(builder):
     with pytest.raises(ValueError):
         bld.fit()
 
-def test_fit_log():
+def test_fit_log_integration():
     builder = MetaFrameBuilder()
     builder.add_dataframe(demo_data("titanic")[:50])
     builder["Fare"].distribution = ContinuousConstantDistribution(10)
@@ -118,3 +138,17 @@ def test_fit_log():
     assert len(builder.fit_log["PassengerId"].bic) == 1
     assert builder.fit_log["Cabin"].method[0].startswith("Fitting regex using method 'fast'") == 1
     assert builder.fit_log["Cabin"].privacy[0].startswith("The privacy was done using the basic")
+
+def test_fit_log(tmpdir):
+    fitlog = FitLog()
+    fitlog.add_col("test")
+    fitlog.add_col("test2")
+    fitlog["test"].add(method="blabla")
+    fitlog.save_csv(tmpdir / "test.csv")
+    assert (tmpdir / "test.csv").isfile()
+    fitlog.save_csv(tmpdir / "test.md")
+    assert (tmpdir / "test.md").isfile()
+    fitlog.reset()
+    assert len(fitlog["test"].method) == 0
+    assert isinstance(str(fitlog), str)
+    assert isinstance(fitlog.to_dataframe(), pl.DataFrame)

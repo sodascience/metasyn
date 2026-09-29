@@ -216,7 +216,7 @@ class VarBuilder():
     @property
     def privacy(self) -> BasePrivacy:
         if self.mf_builder is not None and self._privacy is None:
-            return self.mf_builder.defaults.get("privacy", BasicPrivacy())
+            return self.mf_builder.privacy
         return self._privacy if self._privacy is not None else BasicPrivacy()
 
     @privacy.setter

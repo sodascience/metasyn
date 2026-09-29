@@ -1,8 +1,12 @@
+from pathlib import Path
+
 import numpy as np
 import polars as pl
 import pytest
 from pytest import mark
 
+from metasyn.builder import MetaFrameBuilder, MultiFrameBuilder
+from metasyn.demo import demo_data
 from metasyn.metaframe import MetaFrame
 from metasyn.multiframe import ColumnRelation, MultiFrame, RelationType
 
@@ -146,3 +150,20 @@ def test_multi_synthesize(mock_data):
     with pytest.raises(ValueError):
         mfs.synthesize(n={"a": 100, "b": 50})
 
+def test_multi_add_config():
+    config_fp = Path("examples", "config_files", "multitable.toml")
+    mfb = MultiFrameBuilder()
+    data = demo_data("shop_multi")
+    for name, df in data.items():
+        mfb.add_dataframe(df, name)
+    mfb.add_config(config_fp)
+    mfs = mfb.fit(progress_bar=False)
+    assert isinstance(mfs, MultiFrame)
+
+    with pytest.raises(ValueError):
+        MultiFrameBuilder().add_config(config_fp)
+
+    builder = MetaFrameBuilder("different_tag")
+    builder.add_dataframe(data["customers"])
+    with pytest.raises(ValueError):
+        builder.add_config(config_fp)
