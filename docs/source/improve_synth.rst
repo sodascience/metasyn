@@ -400,7 +400,7 @@ that supports the string type. An overview of all distributions sorted by type c
 
 
 Composed distributions
-"""""""""""""""""""""""""
+""""""""""""""""""""""
 
 It is possible to preserve relationships between synthetic columns. You can use
 :class:`~metasyn.distribution.ColumnReference` to refer to a value generated for another column in the same row and use it 
