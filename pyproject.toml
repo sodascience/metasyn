@@ -47,6 +47,8 @@ documentation = "https://metasyn.readthedocs.io/en/latest/index.html"
 [project.optional-dependencies]
 extra = ["xlsxwriter", "tomlkit",
          "pyreadstat>=1.3", "fastexcel"]
+
+[dependency-groups]
 check = ["ruff", "mypy", "types-tqdm", "types-regex"]
 test = ["pytest", "nbval", "pytest-cov", "pandas"]
 docs = [
@@ -55,7 +57,10 @@ docs = [
     "sphinx-autobuild"
 ]
 dev = [
-    "metasyn[extra,check,test,docs]"
+    "metasyn[extra]",
+    {include-group = "check"},
+    {include-group = "test"},
+    {include-group = "docs"},
 ]
 
 [project.scripts]
