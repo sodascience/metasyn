@@ -37,7 +37,6 @@ dependencies = [
     "pyarrow", # Dependency of polars since we're converting from pandas.
     "scipy",
     "faker",
-    "lingua-language-detector",
     "regex",
     "jsonschema",
     "tomli;python_version<'3.11'",
