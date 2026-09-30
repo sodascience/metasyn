@@ -1,4 +1,4 @@
-"""Module for the free text distribution that generates random words after on another."""
+"""Module for the free text distribution that generates random words one after another."""
 from __future__ import annotations
 
 from typing import Optional
