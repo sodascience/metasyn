@@ -1,19 +1,16 @@
 from pathlib import Path
 
-from metasyn import MetaFrame, demo_data
-from metasyn.config import VarSpec
+from metasyn import MetaFrame, demo_data, MetaFrameBuilder
 
 # example dataframe from polars website
 df = demo_data("fruit")
 
-# set A to unique and B to not unique
-specs = [
-    VarSpec("ID", unique=True),
-    VarSpec("B", unique=False),
-]
-
 # create MetaFrame
-mf = MetaFrame.fit_dataframe(df, var_specs=specs)
+builder = MetaFrameBuilder()
+builder.add_dataframe(df)
+builder["ID"].unique = True
+builder["B"].unique = False
+mf = builder.fit()
 
 # write to json
 gmf_path = Path("examples", "gmf_files", "example_gmf_simple.json")

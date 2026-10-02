@@ -90,7 +90,7 @@ class RegexDistribution(BaseDistribution):
     def information_criterion(self, values):
         mean_len = values.str.len_chars().mean()
         diff = ((values.str.len_chars() - mean_len)**2).mean()
-        if mean_len > 3 and diff < 1:
+        if mean_len is None or mean_len > 3 and diff < 1:
             return -2
         return 0
 
@@ -101,7 +101,12 @@ class RegexFitter(BaseFitter):
 
     distribution: type[RegexDistribution]
 
-    def _fit(self, series, count_thres: Optional[int] = None, method: str = "auto"):
+    def __init__(self, privacy, count_thres: Optional[int] = None, method: str = "auto"):
+        self.count_thres = count_thres
+        self.method = method
+        super().__init__(privacy)
+
+    def _fit(self, series, fit_log):
         """Fit a regex to structured strings.
 
         Arguments
@@ -116,20 +121,29 @@ class RegexFitter(BaseFitter):
             The "auto" method switches between the "accurate" and "fast" methods depending on
             the number of characters (fast if #char > 10000) in the series.
         """
-        if method == "auto":
+        if self.method == "auto":
             if series.str.len_chars().mean() > 10:
                 method = "fast"
             else:
                 method = "accurate"
+        else:
+            method = self.method
 
         # Make count_thres ~= #series/100 up to 50 if in auto mode.
-        if count_thres is None:
+        if self.count_thres is None:
             count_thres = min(50, max(2, round(len(series)/50)))
+        else:
+            count_thres = self.count_thres
+
+        fit_log.add(method=f"Fitting regex using method '{self.method}' and "
+                       f"count threshold {self.count_thres}.")
 
         # Try to fit the series, if it cannot be fit, then use the default distribution.
         try:
             model = RegexModel.fit(series, count_thres=count_thres, method=method)
         except NotFittedError:
+            fit_log.add(method="Could not find regex matching the input, "
+                        "using default distribution.")
             return self.distribution.default_distribution()
         return self.distribution(model)
 

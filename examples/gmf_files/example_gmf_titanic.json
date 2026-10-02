@@ -1,17 +1,28 @@
 {
-    "gmf_version": "2.0",
+    "gmf_version": "2.1",
     "provenance": {
         "created by": {
             "name": "metasyn",
-            "version": "1.1.1.dev33+g0df642883"
+            "version": "2.1.0"
         },
-        "creation time": "2026-03-26T10:25:03.211415"
+        "creation time": "2026-08-12T15:15:46.675361"
     },
     "tables": [
         {
             "name": "single_table",
             "n_rows": 891,
             "n_columns": 13,
+            "file_format": {
+                "file_interface_name": "csv",
+                "format_metadata": {
+                    "separator": ",",
+                    "line_terminator": "\n",
+                    "quote_char": "\"",
+                    "null_value": "",
+                    "encoding": "utf-8"
+                },
+                "file_name": "demo_titanic.csv"
+            },
             "vars": [
                 {
                     "name": "PassengerId",
@@ -38,7 +49,7 @@
                             },
                             "version": "1.0",
                             "plugin": "builtin",
-                            "plugin_version": "1.1.1.dev33+g0df642883"
+                            "plugin_version": "2.1.0"
                         }
                     }
                 },
@@ -68,7 +79,7 @@
                             },
                             "version": "1.0",
                             "plugin": "builtin",
-                            "plugin_version": "1.1.1.dev33+g0df642883"
+                            "plugin_version": "2.1.0"
                         }
                     }
                 },
@@ -103,7 +114,7 @@
                             },
                             "version": "1.0",
                             "plugin": "builtin",
-                            "plugin_version": "1.1.1.dev33+g0df642883"
+                            "plugin_version": "2.1.0"
                         }
                     }
                 },
@@ -118,10 +129,10 @@
                         "class_name": "DiscreteTruncatedNormalDistribution",
                         "unique": false,
                         "parameters": {
-                            "lower": -1e-08,
-                            "upper": 80.00000001,
-                            "mean": 28.403638823278087,
-                            "sd": 15.862325051407092
+                            "lower": 0,
+                            "upper": 80,
+                            "mean": 28.40362496024861,
+                            "sd": 15.862313470214364
                         }
                     },
                     "creation_method": {
@@ -134,7 +145,7 @@
                             },
                             "version": "1.0",
                             "plugin": "builtin",
-                            "plugin_version": "1.1.1.dev33+g0df642883"
+                            "plugin_version": "2.1.0"
                         }
                     }
                 },
@@ -149,10 +160,10 @@
                         "class_name": "DiscreteTruncatedNormalDistribution",
                         "unique": false,
                         "parameters": {
-                            "lower": -1e-08,
-                            "upper": 6.00000001,
-                            "mean": -425.30866115809334,
-                            "sd": 12.827869304621283
+                            "lower": 0,
+                            "upper": 6,
+                            "mean": -415.8118915187023,
+                            "sd": 12.636742750108436
                         }
                     },
                     "creation_method": {
@@ -165,7 +176,7 @@
                             },
                             "version": "1.0",
                             "plugin": "builtin",
-                            "plugin_version": "1.1.1.dev33+g0df642883"
+                            "plugin_version": "2.1.0"
                         }
                     }
                 },
@@ -230,7 +241,7 @@
                             },
                             "version": "2.0",
                             "plugin": "builtin",
-                            "plugin_version": "1.1.1.dev33+g0df642883"
+                            "plugin_version": "2.1.0"
                         }
                     }
                 },
@@ -258,7 +269,7 @@
                             },
                             "version": "1.0",
                             "plugin": "builtin",
-                            "plugin_version": "1.1.1.dev33+g0df642883"
+                            "plugin_version": "2.1.0"
                         }
                     }
                 },
@@ -319,7 +330,7 @@
                             },
                             "version": "2.0",
                             "plugin": "builtin",
-                            "plugin_version": "1.1.1.dev33+g0df642883"
+                            "plugin_version": "2.1.0"
                         }
                     }
                 },
@@ -356,7 +367,7 @@
                             },
                             "version": "1.0",
                             "plugin": "builtin",
-                            "plugin_version": "1.1.1.dev33+g0df642883"
+                            "plugin_version": "2.1.0"
                         }
                     }
                 },
@@ -385,7 +396,7 @@
                             },
                             "version": "1.0",
                             "plugin": "builtin",
-                            "plugin_version": "1.1.1.dev33+g0df642883"
+                            "plugin_version": "2.1.0"
                         }
                     }
                 },
@@ -415,7 +426,7 @@
                             },
                             "version": "1.0",
                             "plugin": "builtin",
-                            "plugin_version": "1.1.1.dev33+g0df642883"
+                            "plugin_version": "2.1.0"
                         }
                     }
                 },
@@ -445,7 +456,7 @@
                             },
                             "version": "1.0",
                             "plugin": "builtin",
-                            "plugin_version": "1.1.1.dev33+g0df642883"
+                            "plugin_version": "2.1.0"
                         }
                     }
                 },
@@ -462,21 +473,20 @@
                         "parameters": {}
                     },
                     "creation_method": {
-                        "created_by": "metasyn"
+                        "created_by": "metasyn",
+                        "fitter": {
+                            "name": "NAFitter",
+                            "privacy": {
+                                "name": "none",
+                                "parameters": {}
+                            },
+                            "version": "1.0",
+                            "plugin": "builtin",
+                            "plugin_version": "2.1.0"
+                        }
                     }
                 }
-            ],
-            "file_format": {
-                "file_interface_name": "csv",
-                "format_metadata": {
-                    "separator": ",",
-                    "line_terminator": "\n",
-                    "quote_char": "\"",
-                    "null_value": "",
-                    "encoding": "utf-8"
-                },
-                "file_name": "demo_titanic.csv"
-            }
+            ]
         }
     ]
 }

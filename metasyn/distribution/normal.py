@@ -94,10 +94,11 @@ class LogNormalDistribution(ScipyDistribution):
 class LogNormalFitter(BaseFitter):
     """Fitter for log normal distribution."""
 
-    def _fit(self, series):
+    def _fit(self, series, fit_log):
         try:
             sd, _, scale = self.distribution.scipy_class.fit(series, floc=0)
         except FitDataError:
+            fit_log.add(method="Failed to converge, using default distribution.")
             return self.distribution(0, 1)
         return self.distribution(np.log(scale), sd)
 
@@ -148,11 +149,13 @@ class ContinuousTruncatedNormalDistribution(ScipyDistribution):
 class ContinuousTruncatedNormalFitter(BaseFitter):
     """Fitter for continuous truncated normal fitter."""
 
-    def _fit(self, series):
+    def _fit(self, series, fit_log):
         lower = series.min()
         upper = series.max()
         if lower == upper:
+            fit_log.add(method="Only one value in data, using very steep parameters.")
             return self.distribution(lower-1e-8, upper+1e-8, lower, 1)
+        fit_log.add(method="Fit normal distribution between lowest and highest value.")
         return self._fit_with_bounds(series, lower, upper)
 
     def _fit_with_bounds(self, values, lower, upper):

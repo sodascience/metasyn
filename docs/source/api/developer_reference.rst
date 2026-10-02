@@ -12,19 +12,19 @@ Modules
    :toctree: generated
    :recursive:
 
-   config
+   builder
    demo
    distribution
    file
+   gmf
    metaframe
+   multiframe
    privacy
    registry
    schema
    testutils
    util
-   validation
    var
-   varspec
 
 Top-level classes
 -----------------
@@ -33,8 +33,9 @@ Top-level classes
    :toctree: generated
 
    MetaFrame
+   MetaFrameBuilder
+   MultiFrame
    MetaVar
-   VarSpec
 
 Top-level functions
 -------------------
@@ -42,6 +43,7 @@ Top-level functions
 .. autosummary::
    :toctree: generated
 
+   demo_data
    demo_dataframe
    demo_file
    metadist

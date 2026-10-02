@@ -5,8 +5,13 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "metasyn"
 authors = [
-    { name = "Raoul Schram", email = "r.d.schram@uu.nl" },
-    { name = "Erik-Jan van Kesteren", email = "e.vankesteren1@uu.nl" },
+    { name = "Erik-Jan van Kesteren" },
+    { name = "Raoul Schram", email = "r.d.schram@uu.nl" }
+]
+maintainers = [
+    { name = "Raoul Schram", email = "r.d.schram@uu.nl"},
+    { name = "Matty Vermet" },
+    { name = "Maarten Schermer" }
 ]
 description = "Package for creating synthetic datasets while preserving privacy."
 readme = "README.md"
@@ -20,6 +25,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Development Status :: 5 - Production/Stable",
 ]
 
@@ -31,7 +37,6 @@ dependencies = [
     "pyarrow", # Dependency of polars since we're converting from pandas.
     "scipy",
     "faker",
-    "lingua-language-detector",
     "regex",
     "jsonschema",
     "tomli;python_version<'3.11'",

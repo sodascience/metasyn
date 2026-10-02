@@ -1,0 +1,684 @@
+{
+    "gmf_version": "2.1",
+    "provenance": {
+        "created by": {
+            "name": "metasyn",
+            "version": "2.1.0"
+        },
+        "creation time": "2026-09-07T13:24:27.472755"
+    },
+    "tables": [
+        {
+            "name": "single_table",
+            "n_rows": 100,
+            "n_columns": 18,
+            "vars": [
+                {
+                    "name": "Int8",
+                    "type": "discrete",
+                    "dtype": "Int8",
+                    "prop_missing": 0.1,
+                    "distribution": {
+                        "name": "core.truncated_normal",
+                        "version": "1.0",
+                        "class_name": "DiscreteTruncatedNormalDistribution",
+                        "unique": false,
+                        "parameters": {
+                            "lower": -10,
+                            "upper": 9,
+                            "mean": 3.520463455553994,
+                            "sd": 14.464259890589302
+                        }
+                    },
+                    "creation_method": {
+                        "created_by": "metasyn",
+                        "fitter": {
+                            "name": "DiscreteTruncatedNormalFitter",
+                            "privacy": {
+                                "name": "none",
+                                "parameters": {}
+                            },
+                            "version": "1.0",
+                            "plugin": "builtin",
+                            "plugin_version": "2.1.0"
+                        }
+                    }
+                },
+                {
+                    "name": "UInt8",
+                    "type": "discrete",
+                    "dtype": "UInt8",
+                    "prop_missing": 0.1,
+                    "distribution": {
+                        "name": "core.truncated_normal",
+                        "version": "1.0",
+                        "class_name": "DiscreteTruncatedNormalDistribution",
+                        "unique": false,
+                        "parameters": {
+                            "lower": 0,
+                            "upper": 9,
+                            "mean": 423.69609179807406,
+                            "sd": 84.13870063560148
+                        }
+                    },
+                    "creation_method": {
+                        "created_by": "metasyn",
+                        "fitter": {
+                            "name": "DiscreteTruncatedNormalFitter",
+                            "privacy": {
+                                "name": "none",
+                                "parameters": {}
+                            },
+                            "version": "1.0",
+                            "plugin": "builtin",
+                            "plugin_version": "2.1.0"
+                        }
+                    }
+                },
+                {
+                    "name": "Int16",
+                    "type": "discrete",
+                    "dtype": "Int16",
+                    "prop_missing": 0.1,
+                    "distribution": {
+                        "name": "core.truncated_normal",
+                        "version": "1.0",
+                        "class_name": "DiscreteTruncatedNormalDistribution",
+                        "unique": false,
+                        "parameters": {
+                            "lower": -10,
+                            "upper": 9,
+                            "mean": -1129.3842679857696,
+                            "sd": 339.2571492197259
+                        }
+                    },
+                    "creation_method": {
+                        "created_by": "metasyn",
+                        "fitter": {
+                            "name": "DiscreteTruncatedNormalFitter",
+                            "privacy": {
+                                "name": "none",
+                                "parameters": {}
+                            },
+                            "version": "1.0",
+                            "plugin": "builtin",
+                            "plugin_version": "2.1.0"
+                        }
+                    }
+                },
+                {
+                    "name": "UInt16",
+                    "type": "discrete",
+                    "dtype": "UInt16",
+                    "prop_missing": 0.1,
+                    "distribution": {
+                        "name": "core.truncated_normal",
+                        "version": "1.0",
+                        "class_name": "DiscreteTruncatedNormalDistribution",
+                        "unique": false,
+                        "parameters": {
+                            "lower": 0,
+                            "upper": 9,
+                            "mean": 268.0334456914305,
+                            "sd": 100.73055928968468
+                        }
+                    },
+                    "creation_method": {
+                        "created_by": "metasyn",
+                        "fitter": {
+                            "name": "DiscreteTruncatedNormalFitter",
+                            "privacy": {
+                                "name": "none",
+                                "parameters": {}
+                            },
+                            "version": "1.0",
+                            "plugin": "builtin",
+                            "plugin_version": "2.1.0"
+                        }
+                    }
+                },
+                {
+                    "name": "Int32",
+                    "type": "discrete",
+                    "dtype": "Int32",
+                    "prop_missing": 0.1,
+                    "distribution": {
+                        "name": "core.truncated_normal",
+                        "version": "1.0",
+                        "class_name": "DiscreteTruncatedNormalDistribution",
+                        "unique": false,
+                        "parameters": {
+                            "lower": -10,
+                            "upper": 9,
+                            "mean": -132.12302547586683,
+                            "sd": 203.08897435579334
+                        }
+                    },
+                    "creation_method": {
+                        "created_by": "metasyn",
+                        "fitter": {
+                            "name": "DiscreteTruncatedNormalFitter",
+                            "privacy": {
+                                "name": "none",
+                                "parameters": {}
+                            },
+                            "version": "1.0",
+                            "plugin": "builtin",
+                            "plugin_version": "2.1.0"
+                        }
+                    }
+                },
+                {
+                    "name": "UInt32",
+                    "type": "discrete",
+                    "dtype": "UInt32",
+                    "prop_missing": 0.1,
+                    "distribution": {
+                        "name": "core.truncated_normal",
+                        "version": "1.0",
+                        "class_name": "DiscreteTruncatedNormalDistribution",
+                        "unique": false,
+                        "parameters": {
+                            "lower": 0,
+                            "upper": 9,
+                            "mean": -665.1099865384795,
+                            "sd": 124.3365741119186
+                        }
+                    },
+                    "creation_method": {
+                        "created_by": "metasyn",
+                        "fitter": {
+                            "name": "DiscreteTruncatedNormalFitter",
+                            "privacy": {
+                                "name": "none",
+                                "parameters": {}
+                            },
+                            "version": "1.0",
+                            "plugin": "builtin",
+                            "plugin_version": "2.1.0"
+                        }
+                    }
+                },
+                {
+                    "name": "Int64",
+                    "type": "discrete",
+                    "dtype": "Int64",
+                    "prop_missing": 0.1,
+                    "distribution": {
+                        "name": "core.truncated_normal",
+                        "version": "1.0",
+                        "class_name": "DiscreteTruncatedNormalDistribution",
+                        "unique": false,
+                        "parameters": {
+                            "lower": -10,
+                            "upper": 9,
+                            "mean": -59.55643982022354,
+                            "sd": 81.61439152377969
+                        }
+                    },
+                    "creation_method": {
+                        "created_by": "metasyn",
+                        "fitter": {
+                            "name": "DiscreteTruncatedNormalFitter",
+                            "privacy": {
+                                "name": "none",
+                                "parameters": {}
+                            },
+                            "version": "1.0",
+                            "plugin": "builtin",
+                            "plugin_version": "2.1.0"
+                        }
+                    }
+                },
+                {
+                    "name": "UInt64",
+                    "type": "discrete",
+                    "dtype": "UInt64",
+                    "prop_missing": 0.1,
+                    "distribution": {
+                        "name": "core.truncated_normal",
+                        "version": "1.0",
+                        "class_name": "DiscreteTruncatedNormalDistribution",
+                        "unique": false,
+                        "parameters": {
+                            "lower": 0,
+                            "upper": 9,
+                            "mean": -255.64746051464658,
+                            "sd": 583.0359741837374
+                        }
+                    },
+                    "creation_method": {
+                        "created_by": "metasyn",
+                        "fitter": {
+                            "name": "DiscreteTruncatedNormalFitter",
+                            "privacy": {
+                                "name": "none",
+                                "parameters": {}
+                            },
+                            "version": "1.0",
+                            "plugin": "builtin",
+                            "plugin_version": "2.1.0"
+                        }
+                    }
+                },
+                {
+                    "name": "Float32",
+                    "type": "continuous",
+                    "dtype": "Float32",
+                    "prop_missing": 0.1,
+                    "distribution": {
+                        "name": "core.normal",
+                        "version": "1.0",
+                        "class_name": "ContinuousNormalDistribution",
+                        "unique": false,
+                        "parameters": {
+                            "mean": 0.006140087265521288,
+                            "sd": 1.035672903060913
+                        }
+                    },
+                    "creation_method": {
+                        "created_by": "metasyn",
+                        "fitter": {
+                            "name": "ContinuousNormalFitter",
+                            "privacy": {
+                                "name": "none",
+                                "parameters": {}
+                            },
+                            "version": "1.0",
+                            "plugin": "builtin",
+                            "plugin_version": "2.1.0"
+                        }
+                    }
+                },
+                {
+                    "name": "Float64",
+                    "type": "continuous",
+                    "dtype": "Float64",
+                    "prop_missing": 0.1,
+                    "distribution": {
+                        "name": "core.truncated_normal",
+                        "version": "1.0",
+                        "class_name": "ContinuousTruncatedNormalDistribution",
+                        "unique": false,
+                        "parameters": {
+                            "lower": -2.4805797273917585,
+                            "upper": 2.0486129701603715,
+                            "mean": 0.042615275744953655,
+                            "sd": 1.3041858182609414
+                        }
+                    },
+                    "creation_method": {
+                        "created_by": "metasyn",
+                        "fitter": {
+                            "name": "ContinuousTruncatedNormalFitter",
+                            "privacy": {
+                                "name": "none",
+                                "parameters": {}
+                            },
+                            "version": "1.0",
+                            "plugin": "builtin",
+                            "plugin_version": "2.1.0"
+                        }
+                    }
+                },
+                {
+                    "name": "Date",
+                    "type": "date",
+                    "dtype": "Date",
+                    "prop_missing": 0.1,
+                    "distribution": {
+                        "name": "core.uniform",
+                        "version": "1.0",
+                        "class_name": "DateUniformDistribution",
+                        "unique": false,
+                        "parameters": {
+                            "lower": "2024-09-04",
+                            "upper": "2024-12-12"
+                        }
+                    },
+                    "creation_method": {
+                        "created_by": "metasyn",
+                        "fitter": {
+                            "name": "DateUniformFitter",
+                            "privacy": {
+                                "name": "none",
+                                "parameters": {}
+                            },
+                            "version": "1.0",
+                            "plugin": "builtin",
+                            "plugin_version": "2.1.0"
+                        }
+                    }
+                },
+                {
+                    "name": "Datetime",
+                    "type": "datetime",
+                    "dtype": "Datetime(time_unit='us', time_zone=None)",
+                    "prop_missing": 0.1,
+                    "distribution": {
+                        "name": "core.uniform",
+                        "version": "1.0",
+                        "class_name": "DateTimeUniformDistribution",
+                        "unique": false,
+                        "parameters": {
+                            "lower": "2024-09-04T12:30:12",
+                            "upper": "2024-09-08T18:53:09",
+                            "precision": "seconds"
+                        }
+                    },
+                    "creation_method": {
+                        "created_by": "metasyn",
+                        "fitter": {
+                            "name": "DateTimeUniformFitter",
+                            "privacy": {
+                                "name": "none",
+                                "parameters": {}
+                            },
+                            "version": "1.0",
+                            "plugin": "builtin",
+                            "plugin_version": "2.1.0"
+                        }
+                    }
+                },
+                {
+                    "name": "Time",
+                    "type": "time",
+                    "dtype": "Time",
+                    "prop_missing": 0.1,
+                    "distribution": {
+                        "name": "core.uniform",
+                        "version": "1.0",
+                        "class_name": "TimeUniformDistribution",
+                        "unique": false,
+                        "parameters": {
+                            "lower": "03:06:12",
+                            "upper": "07:14:14",
+                            "precision": "seconds"
+                        }
+                    },
+                    "creation_method": {
+                        "created_by": "metasyn",
+                        "fitter": {
+                            "name": "TimeUniformFitter",
+                            "privacy": {
+                                "name": "none",
+                                "parameters": {}
+                            },
+                            "version": "1.0",
+                            "plugin": "builtin",
+                            "plugin_version": "2.1.0"
+                        }
+                    }
+                },
+                {
+                    "name": "String",
+                    "type": "string",
+                    "dtype": "String",
+                    "prop_missing": 0.1,
+                    "distribution": {
+                        "name": "core.regex",
+                        "version": "2.0",
+                        "class_name": "RegexDistribution",
+                        "unique": false,
+                        "parameters": {
+                            "regex_data": {
+                                "regex": "([A-Z]|[a-z]|[0-9]|\\#|\\]|\\\t|\\\n|\\\f|\\(|=|>|@|_)",
+                                "counts": [
+                                    [
+                                        [
+                                            25,
+                                            25
+                                        ],
+                                        [
+                                            23,
+                                            23
+                                        ],
+                                        [
+                                            11,
+                                            11
+                                        ],
+                                        [
+                                            3,
+                                            3
+                                        ],
+                                        [
+                                            3,
+                                            3
+                                        ],
+                                        [
+                                            2,
+                                            2
+                                        ],
+                                        [
+                                            2,
+                                            2
+                                        ],
+                                        [
+                                            2,
+                                            2
+                                        ],
+                                        [
+                                            2,
+                                            2
+                                        ],
+                                        [
+                                            2,
+                                            2
+                                        ],
+                                        [
+                                            2,
+                                            2
+                                        ],
+                                        [
+                                            2,
+                                            2
+                                        ],
+                                        [
+                                            2,
+                                            2
+                                        ]
+                                    ],
+                                    0
+                                ]
+                            }
+                        }
+                    },
+                    "creation_method": {
+                        "created_by": "metasyn",
+                        "fitter": {
+                            "name": "RegexFitter",
+                            "privacy": {
+                                "name": "none",
+                                "parameters": {}
+                            },
+                            "version": "2.0",
+                            "plugin": "builtin",
+                            "plugin_version": "2.1.0"
+                        }
+                    }
+                },
+                {
+                    "name": "Utf8",
+                    "type": "string",
+                    "dtype": "String",
+                    "prop_missing": 0.1,
+                    "distribution": {
+                        "name": "core.regex",
+                        "version": "2.0",
+                        "class_name": "RegexDistribution",
+                        "unique": false,
+                        "parameters": {
+                            "regex_data": {
+                                "regex": "([A-Z]|[a-z]|[0-9]|<|=|\\?|\\\n|\\&|\\(|\\-|;)",
+                                "counts": [
+                                    [
+                                        [
+                                            25,
+                                            25
+                                        ],
+                                        [
+                                            21,
+                                            21
+                                        ],
+                                        [
+                                            11,
+                                            11
+                                        ],
+                                        [
+                                            3,
+                                            3
+                                        ],
+                                        [
+                                            3,
+                                            3
+                                        ],
+                                        [
+                                            3,
+                                            3
+                                        ],
+                                        [
+                                            2,
+                                            2
+                                        ],
+                                        [
+                                            2,
+                                            2
+                                        ],
+                                        [
+                                            2,
+                                            2
+                                        ],
+                                        [
+                                            2,
+                                            2
+                                        ],
+                                        [
+                                            2,
+                                            2
+                                        ]
+                                    ],
+                                    0
+                                ]
+                            }
+                        }
+                    },
+                    "creation_method": {
+                        "created_by": "metasyn",
+                        "fitter": {
+                            "name": "RegexFitter",
+                            "privacy": {
+                                "name": "none",
+                                "parameters": {}
+                            },
+                            "version": "2.0",
+                            "plugin": "builtin",
+                            "plugin_version": "2.1.0"
+                        }
+                    }
+                },
+                {
+                    "name": "Categorical",
+                    "type": "categorical",
+                    "dtype": "Categorical",
+                    "prop_missing": 0.0,
+                    "distribution": {
+                        "name": "core.multinoulli",
+                        "version": "1.0",
+                        "class_name": "MultinoulliDistribution",
+                        "unique": false,
+                        "parameters": {
+                            "labels": [
+                                "A",
+                                "B",
+                                "C",
+                                "D",
+                                "E"
+                            ],
+                            "probs": [
+                                0.17,
+                                0.22,
+                                0.18,
+                                0.2,
+                                0.23
+                            ]
+                        }
+                    },
+                    "creation_method": {
+                        "created_by": "metasyn",
+                        "fitter": {
+                            "name": "MultinoulliFitter",
+                            "privacy": {
+                                "name": "none",
+                                "parameters": {}
+                            },
+                            "version": "1.0",
+                            "plugin": "builtin",
+                            "plugin_version": "2.1.0"
+                        }
+                    }
+                },
+                {
+                    "name": "Boolean",
+                    "type": "categorical",
+                    "dtype": "Boolean",
+                    "prop_missing": 0.1,
+                    "distribution": {
+                        "name": "core.multinoulli",
+                        "version": "1.0",
+                        "class_name": "MultinoulliDistribution",
+                        "unique": false,
+                        "parameters": {
+                            "labels": [
+                                false,
+                                true
+                            ],
+                            "probs": [
+                                0.5,
+                                0.5
+                            ]
+                        }
+                    },
+                    "creation_method": {
+                        "created_by": "metasyn",
+                        "fitter": {
+                            "name": "MultinoulliFitter",
+                            "privacy": {
+                                "name": "none",
+                                "parameters": {}
+                            },
+                            "version": "1.0",
+                            "plugin": "builtin",
+                            "plugin_version": "2.1.0"
+                        }
+                    }
+                },
+                {
+                    "name": "NA",
+                    "type": "string",
+                    "dtype": "String",
+                    "prop_missing": 1.0,
+                    "distribution": {
+                        "name": "core.na",
+                        "version": "1.0",
+                        "class_name": "NADistribution",
+                        "unique": false,
+                        "parameters": {}
+                    },
+                    "creation_method": {
+                        "created_by": "metasyn",
+                        "fitter": {
+                            "name": "NAFitter",
+                            "privacy": {
+                                "name": "none",
+                                "parameters": {}
+                            },
+                            "version": "1.0",
+                            "plugin": "builtin",
+                            "plugin_version": "2.1.0"
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

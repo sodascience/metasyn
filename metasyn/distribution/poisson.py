@@ -50,7 +50,8 @@ class PoissonDistribution(ScipyDistribution):
 class PoissonFitter(BaseFitter):
     """Fitter for Poisson distribution."""
 
-    def _fit(self, series):
+    def _fit(self, series, fit_log):
         mean_series = series.mean()
         mean_series = mean_series if mean_series >= 0 else 0
+        fit_log.add(method="Using mean (or 0 if mean is negative) as parameter.")
         return self.distribution(mean_series)

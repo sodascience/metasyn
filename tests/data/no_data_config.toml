@@ -1,6 +1,6 @@
 # Example toml file as input for metasyn
 n_rows = 100
-
+config_version = "1.0"
 
 [[var]]
 

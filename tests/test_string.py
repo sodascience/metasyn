@@ -30,17 +30,17 @@ def test_faker(series_type):
     "series,lang,avg_sentences,avg_words", [
             (pl.Series(
                 ["hotdog", "mother", "yes", "tip", "crate",
-                 "sink", "dark", "crossbar", "toilet", "grow", "patient"]), "EN", 0.0, 1),
+                 "sink", "dark", "crossbar", "toilet", "grow", "patient"]), "en_US", 0.0, 1),
             (pl.Series(["hotdog mother", "yes tip", "crate sink", "dark crossbar", "toilet grow",
-                        "patient is"]), "EN", 0.0, 2),
+                        "patient is"]), "en_US", 0.0, 2),
             (pl.Series(["hotdog mother.", "yes tip.", "crate sink.", "dark crossbar.",
-                        "toilet grow.", "patient is."]), "EN", 1, 2),
+                        "toilet grow.", "patient is."]), "en_US", 1, 2),
             (pl.Series(["gaat naar school. Ik ben benieuwd.", "Wat is vraag? Wanneer komt hij."]),
-             "NL", 2, 6)
+             "nl_NL", 2, 6)
     ])
 def test_free_text(series, lang, avg_sentences, avg_words):
     """Test whether the free text distribution does the right inference."""
-    dist = FreeTextFitter(BasicPrivacy()).fit(series)
+    dist = FreeTextFitter(BasicPrivacy(), lang_str=lang).fit(series)
     assert dist.locale == lang
     assert dist.avg_sentences == avg_sentences
     assert dist.avg_words == avg_words
@@ -58,7 +58,7 @@ def test_unique_regex():
     assert len(series.unique()) == 10
 
     with pytest.raises(ValueError):
-        var.draw()
+        var.distribution.draw()
 
 def test_unique_faker():
     dist = UniqueFakerDistribution("city")
@@ -66,3 +66,7 @@ def test_unique_faker():
 
     series = var.draw_series(1000, None)
     assert len(series.unique()) == 1000
+
+def test_type_error():
+    with pytest.raises(TypeError):
+        FreeTextFitter(10)

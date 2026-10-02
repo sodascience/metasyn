@@ -21,6 +21,7 @@ generated synthetic data.
 from importlib.metadata import version
 
 from metasyn import distribution, file, privacy
+from metasyn.builder import MetaFrameBuilder
 from metasyn.demo.dataset import demo_data, demo_dataframe, demo_file
 from metasyn.distribution.base import metadist
 from metasyn.file import (
@@ -38,17 +39,16 @@ from metasyn.file import (
 from metasyn.metaframe import MetaFrame
 from metasyn.multiframe import MultiFrame
 from metasyn.var import MetaVar
-from metasyn.varspec import VarSpec
 
 __all__ = [
     "MetaVar",
     "MetaFrame",
+    "MetaFrameBuilder",
     "MultiFrame",
     "demo_file",
     "demo_data",
     "demo_dataframe",
     "metadist",
-    "VarSpec",
     "read_csv",
     "read_sav",
     "read_tsv",

@@ -73,13 +73,13 @@ Here's how you can use Docker to access Metasyn's CLI:
 
 
 .. note:: 
-   You can also specify which ``metasyn`` version to use in docker, by adding a tag to the docker image. For example, to use version 2.1.0, you can use the following command:
+   You can also specify which ``metasyn`` version to use in docker, by adding a tag to the docker image. For example, to use version 3.0.0, you can use the following command:
 
    .. tab:: Installing a specific version
       
       .. code-block:: console
 
-         docker pull sodateam/metasyn:v2.1.0
+         docker pull sodateam/metasyn:v3.0.0
 
    .. tab:: Using a command on a specific version
 
@@ -87,13 +87,13 @@ Here's how you can use Docker to access Metasyn's CLI:
 
          .. code-block:: console
 
-            docker run -v %cd%:/wd sodateam/metasyn:v2.1.0 --help
+            docker run -v %cd%:/wd sodateam/metasyn:v3.0.0 --help
 
       .. tab:: Unix or MacOS:
 
          .. code-block:: console
 
-            docker run -v $(pwd):/wd sodateam/metasyn:v2.1.0 --help
+            docker run -v $(pwd):/wd sodateam/metasyn:v3.0.0 --help
 
 
 Creating generative metadata
@@ -121,10 +121,9 @@ This will:
 2. Estimate the metadata from the data
 3. Serialize the metadata into a GMF file and save it at the `[output]` filepath
 
-The ``create-meta`` command takes two positional arguments:
+The ``create-meta`` command takes one positional argument:
 
 * ``[input]``: The filepath and name of the file from which the metadata will be generated.
-* ``[output]``: The filepath and name of the output JSON file that will contain the generative metadata.
 
 An example of how to use the ``create-meta`` subcommand is as follows:
 
@@ -148,9 +147,10 @@ An example of how to use the ``create-meta`` subcommand is as follows:
 
          docker run -v $(pwd):/wd sodateam/metasyn create-meta wd/my_dataset.csv wd/my_gmf.json
 
-The ``create-meta`` command also takes one optional argument:
+The ``create-meta`` command also takes two optional arguments:
 
 * ``--config [config-file]``: The filepath and name of a .toml configuration file that specifies distribution behavior. For example, if we want to set a column to be unique or to have a specific distribution, we can do so by specifying it in the configuration file. Information on how to use these files can be found in the :doc:`improve_synth` section.
+* ``-o [file]`` or ``--output [file]``: The filepath and name of the output JSON file that will contain the generative metadata. If unused, the GMF will be printed to screen.
 
 .. admonition:: Generating a GMF file without a dataset
 
@@ -181,7 +181,6 @@ This will:
 The ``synthesize`` command takes two positional arguments:
 
 * ``[input]``: The filepath and name of the GMF file.
-* ``[output]``: The Filepath and name of the desired synthetic data output file. The file extension determines the output format. Currently supported file types are ``.csv``, ``.sav``, ``.zsav``, ``.feather``, ``.parquet``, ``.pkl`` and ``.xlsx``.
 
 An example of how to use the ``synthesize`` subcommand is as follows:
 
@@ -189,7 +188,7 @@ An example of how to use the ``synthesize`` subcommand is as follows:
 
    .. code-block:: console
 
-      metasyn synthesize wd/my_gmf.json wd/my_synthetic_data.csv
+      metasyn synthesize wd/my_gmf.json -o wd/my_synthetic_data.csv
 
 .. tab:: Docker Container
 
@@ -197,27 +196,24 @@ An example of how to use the ``synthesize`` subcommand is as follows:
 
       .. code-block:: console
 
-         docker run -v %cd%:/wd sodateam/metasyn synthesize wd/my_gmf.json wd/my_synthetic_data.csv
+         docker run -v %cd%:/wd sodateam/metasyn synthesize wd/my_gmf.json -o wd/my_synthetic_data.csv
 
    .. tab:: Unix or MacOS:
 
       .. code-block:: console
 
-         docker run -v $(pwd):/wd sodateam/metasyn synthesize wd/my_gmf.json wd/my_synthetic_data.csv
+         docker run -v $(pwd):/wd sodateam/metasyn synthesize wd/my_gmf.json -o wd/my_synthetic_data.csv
 
 
 
-The ``synthesize`` command also takes two optional arguments:
+The ``synthesize`` command also takes optional arguments:
 
+- ``-o [file]`` or ``--output [file]``: Destination file for the synthetic data, by default the original filename is used.
 - ``-n [rows]`` or ``--num_rows [rows]``: To generate a specific number of data rows.
 - ``-p`` or ``--preview``: To preview the first six rows of synthesized data. This can be extremely useful for quick data validation without saving it to a file.
 - ``-s [seed]`` or ``--seed [seed]``: Set the seed for the generation of synthetic data.
-
-.. note::
-
-   The ``output`` is required unless ``--preview`` is used.
-
-
+- ``-c [prefix]`` or ``--column-prefix [prefix]``: Put a prefix before all columns, e.g. with ``SYN_`` as prefix, column ``ID`` becomes ``SYN_ID``.
+- ``-f [file_prefix]`` or ``--file-prefix [file_prefix]``: Put a prefix before the file name.
 
 
 Creating validation schemas

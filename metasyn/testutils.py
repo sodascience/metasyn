@@ -82,7 +82,7 @@ def check_fitter(fitter: type[BaseFitter], privacy: BasePrivacy,
     else:
         var_types = distribution.var_type
     for vt in var_types:
-        DistributionRegistry.parse(provenance).find_fitter(
+        DistributionRegistry.parse(provenance).find_fitters(
             distribution.name, var_type=vt, privacy=privacy,
             unique=distribution.unique)
 

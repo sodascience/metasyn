@@ -3,13 +3,14 @@ from __future__ import annotations
 
 import warnings
 from abc import ABC, abstractmethod
+from io import BytesIO
 from pathlib import Path
 from typing import Any, Optional, Type, Union
 
 import polars as pl
 from tqdm import tqdm
 
-_AVAILABLE_FILE_INTERFACES = {}
+_AVAILABLE_FILE_INTERFACES: dict[str, type[BaseFileInterface]] = {}
 
 
 def fileinterface(*args):
@@ -86,7 +87,7 @@ class BaseFileInterface(ABC):
         raise NotImplementedError("Write synthetic is not implemented for the BaseFileInterface.")
 
     def write_file(self, df: pl.DataFrame, fp: Union[None, Path, str] = None,
-                        overwrite: bool = False):
+                        overwrite: bool = False, file_prefix: str = ""):
         """Write the synthetic dataframe to a file.
 
         Parameters
@@ -105,11 +106,12 @@ class BaseFileInterface(ABC):
         FileExistsError
             If the file already exists and the overwrite argument is False.
         """
-        fp = self.check_filename(fp, overwrite=overwrite)
+        fp = self.check_filename(fp, overwrite=overwrite, file_prefix=file_prefix)
         self._write_file(df, fp)
 
     def check_filename(self,  fp: Union[None, Path, str] = None,
-                        overwrite: bool = False) -> Union[Path, str]:
+                       overwrite: bool = False,
+                       file_prefix: str = "") -> Path:
         """Check whether the filename can be written to.
 
         Parameters
@@ -130,21 +132,23 @@ class BaseFileInterface(ABC):
         FileNotFoundError:
             If the parent directory of fp does not exist.
         """
+        if isinstance(fp, BytesIO):
+            return fp
         if fp is None:
-            fp = self.file_name
-        if Path(fp).is_file() and not overwrite:
+            fp = file_prefix + self.file_name
+        if not isinstance(fp, BytesIO) and Path(fp).is_file() and not overwrite:
             raise FileExistsError(f"File '{fp}' already exists, choose a different name or write "
                                   "to a different directory.")
         elif Path(fp).is_dir():
-            fp = Path(fp) / self.file_name
+            fp = Path(fp) / (file_prefix + self.file_name)
         elif not Path(fp).parent.is_dir():
             raise FileNotFoundError(f"Parent directory does not exist for '{fp}'.")
-        return fp
+        return Path(fp)
 
     @classmethod
     @abstractmethod
     def default_interface(cls, fp: Union[Path, str]):
-        """Create a defeault interface with the most likely settings for writing.
+        """Create a default interface with the most likely settings for writing.
 
         Parameters
         ----------
@@ -159,7 +163,7 @@ class BaseFileInterface(ABC):
 
     @classmethod
     @abstractmethod
-    def read_file(cls, fp: Union[Path, str]):
+    def read_file(cls, fp: Union[Path, str]) -> tuple[pl.DataFrame, BaseFileInterface]:
         """Create a file interface from a path.
 
         Parameters
@@ -218,6 +222,8 @@ class ReadStatInterface(BaseFileInterface, ABC):
         for i_row in tqdm(range(0, n_rows, skip_size), disable=disable):
             # If we need less than a chunk
             row_limit = min(chunk_size, max_rows - (i_row//skip_size)*chunk_size)
+            if row_limit == 0:
+                break
             temp_df, prs_meta = prs_func(fp, row_offset=i_row, row_limit=row_limit,
                                          apply_value_formats=True, output_format="polars")
             all_df.append(temp_df)

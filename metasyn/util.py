@@ -74,6 +74,7 @@ def get_var_type(series: pl.Series) -> str:
         "Date": "date",
         "Datetime": "datetime",
         "Time": "time",
+        "Duration": "duration",
         "String": "string",
         "Categorical": "categorical",
         "Enum": "categorical",

@@ -1,0 +1,52 @@
+# Example toml file as input for metasyn
+
+config_version = "2.0"
+
+relations = [
+    "purchases[customer_id] SUBSET OF customers[id]",
+    "purchases[product_id] SUBSET OF products[id]"
+]
+
+
+[[table]]
+name = "customers"
+
+[table.file]
+name = "csv"  # The file is a CSV file
+arguments = {encoding = "utf-8", separator = ","}
+
+[[table.var]]
+name = "id"
+distribution = {unique = true}  # Notice booleans are lower case in .toml files.
+
+[[table.var]]
+name = "address"
+distribution = {name = "core.faker", parameters = {faker_type = "address", locale = "en_US"}}
+
+
+[[table]]
+name = "products"
+
+[table.file]
+name = "csv"  # The file is a CSV file
+arguments = {encoding = "utf-8", separator = ","}
+
+[[table.var]]
+name = "id"
+distribution = {unique = true}
+
+[[table.var]]
+name = "name"
+distribution = {name = "core.faker", parameters = {faker_type = "word", locale = "en_US"}}
+
+
+[[table]]
+name = "purchases"
+
+[table.file]
+name = "csv"  # The file is a CSV file
+arguments = {encoding = "utf-8", separator = ","}
+
+[[table.var]]
+name = "id"
+distribution = {unique = true}

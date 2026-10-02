@@ -1,5 +1,5 @@
 # Example toml file as input for metasyn
-
+config_version = "1.0"
 plugins = ["builtin", "metasyn-disclosure"]
 
 [privacy]

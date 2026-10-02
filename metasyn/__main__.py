@@ -12,9 +12,17 @@ from importlib.metadata import entry_points, version
 from typing import Optional
 
 from metasyn import MetaFrame
-from metasyn.config import MetaConfig
+from metasyn.builder import MetaFrameBuilder
+
+# from metasyn.config import MetaConfig
 from metasyn.file import file_interface_from_dict, get_file_interface_class, read_file
-from metasyn.gmf import GmfV20Parser
+from metasyn.gmf import GmfV11Parser, GmfV20Parser, GmfV21Parser
+
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib  # type: ignore  # noqa
+
 
 EXAMPLE_CREATE_META="metasyn create-meta your_dataset.csv -o your_gmf_file.json --config your_config.toml" # noqa: E501
 EXAMPLE_CREATE_TOML="metasyn create-meta your_dataset.csv -o your_gmf_file.toml --config your_config.toml" # noqa: E501
@@ -102,7 +110,8 @@ Examples:
     )
     parser.add_argument(
         "input",
-        help="input file; a CSV file that you want to synthesize later.",
+        help="input file; tabular data file, such as a CSV file. Can be left empty if the "
+        "configuration file has only data free columns.",
         type=pathlib.Path,
         default=None,
         nargs="?",
@@ -121,24 +130,31 @@ Examples:
         default=None,
     )
 
-    args, _ = parser.parse_known_args(input_args)
+
+    args = parser.parse_args(input_args)
+    if args.config is None and args.input is None:
+        raise parser.error("Please supply either an input dataset or a configuration file.")
+    builder = MetaFrameBuilder()
     if args.config is not None:
-        meta_config = MetaConfig.from_toml(args.config)
+        with open(args.config, "rb") as handle:
+            meta_config = tomllib.load(handle)
+        file_format = meta_config.get("file", {})
     else:
         meta_config = None
+        file_format = {}
 
-    if args.input is None:
-        if meta_config is None:
-            raise parser.error("Please supply either an input dataset or a configuration file.")
-        meta_frame = MetaFrame.from_config(meta_config)
-    else:
-        if meta_config is not None and meta_config.file_config is not None:
-            data_frame, file_handler = read_file(args.input, **meta_config.file_config)
-        else:
-            data_frame, file_handler = read_file(args.input)
-        meta_frame = MetaFrame.fit_dataframe(data_frame, config=meta_config)
-        meta_frame.file_format = file_handler.to_dict()
-    meta_frame.save(args.output)
+    if args.input is not None:
+        data_frame, file_handler = read_file(args.input, **file_format)
+        builder.add_dataframe(data_frame, file_format)
+    elif len(file_format) > 0:
+        builder.file_format = file_format
+
+
+    if meta_config is not None:
+        builder.add_config(meta_config)
+
+    mf = builder.fit()
+    mf.save(args.output)
 
 
 def synthesize(input_args) -> None:
@@ -182,12 +198,26 @@ Example: {EXAMPLE_SYNTHESIZE}
         help="preview six-row synthesized data frame in console and exit",
         action="store_true",
     )
+    parser.add_argument(
+        "-c", "--column-prefix",
+        help="Prefix the columns of the dataset. For example, if the prefix is SYNTHETIC_, then "
+        "column id will become SYNTHETIC_id.",
+        default="",
+        required=False,
+    )
+    parser.add_argument(
+        "-f", "--file-prefix",
+        help="Prefix the filename. For example if the prefix is syn_, then a test.csv will become "
+        "syn_test.csv.",
+        default="",
+        required=False,
+    )
 
     # parse the args without the subcommand
-    args, _ = parser.parse_known_args(input_args)
+    args = parser.parse_args(input_args)
 
-    if not args.preview and not args.output:
-        parser.error("Output file is required if you are not using the preview option.")
+    # if not args.preview and not args.output:
+        # parser.error("Output file is required if you are not using the preview option.")
 
     # Create the metaframe from the GMF file
     try:
@@ -210,14 +240,16 @@ Example: {EXAMPLE_SYNTHESIZE}
     # Store the dataframe to file
     if meta_frame.file_format is not None:
         file_interface = file_interface_from_dict(meta_frame.file_format)
-        if args.output.suffix not in file_interface.extensions:
+        if args.output is not None and args.output.suffix not in file_interface.extensions:
             file_interface = get_file_interface_class(args.output).default_interface(args.output)
         meta_frame.write_synthetic(args.output, n=args.num_rows, seed=args.seed,
-                                   file_format=file_interface)
+                                   file_format=file_interface, column_prefix=args.column_prefix,
+                                   file_prefix=args.file_prefix)
     else:
         file_interface = get_file_interface_class(args.output).default_interface(args.output)
         meta_frame.write_synthetic(args.output, n=args.num_rows, seed=args.seed,
-                                   file_format=file_interface)
+                                   file_format=file_interface, column_prefix=args.column_prefix,
+                                   file_prefix=args.file_prefix)
 
 
 def schema(input_args) -> None:
@@ -245,6 +277,12 @@ def schema(input_args) -> None:
         type=pathlib.Path,
     )
 
+    parser.add_argument(
+        "-v", "--version",
+        default="2.1",
+        help="Version of the GMF file to create a schema for."
+    )
+
     # parse the args without the subcommand
     args = parser.parse_args(input_args)
 
@@ -265,7 +303,17 @@ def schema(input_args) -> None:
             f"\n  Available plugins: {pl_avail}"
         )
         parser.error(errmsg)
-    jsonschema = GmfV20Parser().create_schema(list(plugins))
+    parsers = {
+        "1.1": GmfV11Parser(),
+        "2.0": GmfV20Parser(),
+        "2.1": GmfV21Parser(),
+    }
+    try:
+        jsonschema = parsers[args.version].create_schema(list(plugins))
+    except KeyError:
+        parser.error(f"Unknown gmf schema version {args.version}.")
+        return
+
     if args.output is None:
         print(json.dumps(jsonschema, indent=4))
     else:

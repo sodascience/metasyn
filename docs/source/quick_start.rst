@@ -164,6 +164,15 @@ If you used :func:`metasyn.read_csv` to read in your file and added the file for
 
    mf.write_synthetic("some_file_name.csv")
 
+It can be useful to create a synthetic dataset where it is more clear that the data is synthetic. You can do this by giving a column prefix or a file prefix:
+
+.. code-block:: python
+
+   mf.write_synthetic(column_prefix="synthetic_", file_prefix="SYN_")
+
+
+This will result in columns that are named synthetic_PassengerId, synthetic_name, ... and the filename SYN_titanic.csv.
+
 Conclusion
 ----------
 

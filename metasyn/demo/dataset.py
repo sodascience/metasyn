@@ -1,6 +1,6 @@
 """Create and retrieve demo datasets."""
+from __future__ import annotations
 
-# import random
 import string
 import warnings
 from abc import ABC, abstractmethod
@@ -12,9 +12,7 @@ import faker
 import numpy as np
 import polars as pl
 
-from metasyn.varspec import VarSpec
-
-_AVAILABLE_DATASETS = {}
+_AVAILABLE_DATASETS: dict[str, BaseDataset] = {}
 
 
 def register(*args):
@@ -95,7 +93,7 @@ class TitanicDataset(BaseDataset):
 
     @property
     def var_specs(self):
-        return [VarSpec("PassengerId", unique=True)]
+        return [{"name": "PassengerId", "distribution": {"unique": True}}]
 
 
 @register
@@ -131,7 +129,8 @@ class FruitDataset(BaseDataset):
 
     @property
     def var_specs(self):
-        return [VarSpec("ID", unique=True), VarSpec("B", unique=False)]
+        return [{"name": "ID", "distribution": {"unique": True}},
+                {"name": "B", "distribution": {"unique": False}}]
 
 
 @register
@@ -200,6 +199,24 @@ class DrugUseDataset(BaseDataset):
     @property
     def schema(self):
         return {}
+
+
+@register
+class HospitalAdmissionsDataset(BaseDataset):
+    """Example electronic health record hospital admissions dataset.
+
+    The columns of this dataset and the first row are manually created by the metasyn team.
+    The other rows are generated through Claude Sonnet 4.6 on 17-08-2026 using the following prompt:
+    > Could you create more fictive rows for this csv file?
+    """
+
+    @property
+    def name(self):
+        return "hospital_admissions"
+
+    @property
+    def schema(self):
+        return {"Admission_date": pl.Date, "Discharge_date": pl.Date, "Sex": pl.Categorical}
 
 
 @register
@@ -273,6 +290,15 @@ class TestDataset(BaseDataset):
                 dtype=pl.Time,
             )
         )
+        # all_series.append(
+        #     pl.Series(
+        #         "Duration",
+        #         [timedelta(days=np.random.randint(0, 10), hours=np.random.randint(0, 24),
+        #                    minutes=np.random.randint(0, 60), seconds=np.random.randint(0, 60),
+        #                    microseconds=np.random.randint(0, 1000000))
+        #          for _ in range(n_rows)]
+        #     )
+        # )
         all_series.append(
             pl.Series(
                 "String", np.random.choice(list(string.printable), size=n_rows), dtype=pl.String
