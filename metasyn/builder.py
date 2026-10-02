@@ -17,6 +17,7 @@ from tqdm import tqdm
 from metasyn.distribution.base import BaseFitter, DistributionLike, VarLog
 from metasyn.file import BaseFileInterface
 from metasyn.metaframe import MetaFrame
+from metasyn.multiframe import ColumnRelation, MultiFrame, _infer_relation, _validate_relation
 from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
 from metasyn.registry import DistributionRegistry
 from metasyn.util import get_var_type
@@ -27,6 +28,28 @@ try:
 except ImportError:
     import tomli as tomllib  # type: ignore  # noqa
 
+
+def _get_config(config: Path | str | dict) -> dict:
+    if isinstance(config, (Path, str)):
+        try:
+            with open(config, "rb") as handle:
+                config_dict: dict = tomllib.load(handle)
+        except FileNotFoundError as fnf_error:
+            raise FileNotFoundError(
+                f"It appears '{config}' is not a valid filepath."
+                f" Please provide a path to a .toml file to load a MetaConfig"
+                f" from.") from fnf_error
+        except tomllib.TOMLDecodeError as value_error:
+            if Path(config).suffix != ".toml":
+                raise ValueError(f"It appears '{Path(config).name}' is a"
+                                 f" '{Path(config).suffix}' file."
+                                 f" To load a MetaConfig, "
+                                 f"provide the configuration as a .toml file.") from value_error
+            raise value_error
+    else:
+        config_dict = config
+
+    return config_dict
 
 class FitLog():
     """Logbook for the builder fitting process."""
@@ -193,7 +216,7 @@ class VarBuilder():
     @property
     def privacy(self) -> BasePrivacy:
         if self.mf_builder is not None and self._privacy is None:
-            return self.mf_builder.defaults.get("privacy", BasicPrivacy())
+            return self.mf_builder.privacy
         return self._privacy if self._privacy is not None else BasicPrivacy()
 
     @privacy.setter
@@ -300,7 +323,8 @@ class MetaFrameBuilder():
         the same time.
     """
 
-    def __init__(self, name: str = "single", n_rows: Optional[int]=None):
+    def __init__(self, name: str = "single", n_rows: Optional[int]=None,
+                 multi_builder: MultiFrameBuilder|None=None):
         self.file_format: BaseFileInterface | dict | None = None
         self.columns: list[str] = []
         self.var_builders : dict[str, VarBuilder]= {}
@@ -309,6 +333,7 @@ class MetaFrameBuilder():
         self.name = name
         self.defaults: dict[str, Any] = {}
         self.fit_log = FitLog()
+        self.multi_builder = multi_builder
 
     def __getitem__(self, item: str):
         return self.var_builders[item]
@@ -355,27 +380,10 @@ class MetaFrameBuilder():
         config:
             Configuration file or dictionary that will be applied to the MetaFrame.
         """
-        if isinstance(config, (Path, str)):
-            try:
-                with open(config, "rb") as handle:
-                    config_dict: dict = tomllib.load(handle)
-            except FileNotFoundError as fnf_error:
-                raise FileNotFoundError(
-                    f"It appears '{config}' is not a valid filepath."
-                    f" Please provide a path to a .toml file to load a MetaConfig"
-                    f" from.") from fnf_error
-            except tomllib.TOMLDecodeError as value_error:
-                if Path(config).suffix != ".toml":
-                    raise ValueError(f"It appears '{Path(config).name}' is a"
-                                    # f" '{Path(config).suffix}' file."
-                                    f" To load a MetaConfig, "
-                                    f"provide the configuration as a .toml file.") from value_error
-                raise value_error
-        else:
-            config_dict = config
-        config_version = str(config_dict.get("config_version", "2.0"))
+        config_dict = _get_config(config)
+        config_version = config_dict.get("config_version", "2.0")
 
-        for parser in [ConfigV1XParser()]:
+        for parser in (ConfigV1XParser(), ConfigV2Parser()):
             if config_version in parser.supports:
                 parser.read_dict(config_dict, self)
                 return self
@@ -394,12 +402,21 @@ class MetaFrameBuilder():
         -------
             The default distribution.
         """
-        return self.defaults.get("distribution", {}).get(var_type, None)
+        default = self.defaults.get("distribution", {}).get(var_type, None)
+        if default is None and self.multi_builder is not None:
+            return self.multi_builder.get_default_distribution(var_type)
+        return default
+
+    def set_default_distribution(self, var_type, distribution):
+        if "distribution" not in self.defaults:
+            self.defaults["distribution"] = {}
+        self.defaults["distribution"][var_type] = distribution
 
     @property
     def privacy(self) -> BasePrivacy:
         """The default privacy for all columns."""
-        return self.defaults.get("privacy", BasicPrivacy())
+        fall_privacy = BasicPrivacy() if self.multi_builder is None else self.multi_builder.privacy
+        return self.defaults.get("privacy", fall_privacy)
 
     @privacy.setter
     def privacy(self, value: BasePrivacy):
@@ -408,7 +425,7 @@ class MetaFrameBuilder():
     # def preview(self, n_row_synthesize: int = 10, n_row_fit: None | int = None):
         # pass
 
-    def fit(self, progress_bar: bool = True) -> MetaFrame:
+    def fit(self, progress_bar: bool|tqdm = True) -> MetaFrame:
         """Create a MetaFrame from the builder.
 
         Parameters
@@ -420,18 +437,126 @@ class MetaFrameBuilder():
         self.fit_log.reset()
         if self.n_rows is None:
             raise ValueError("Set number of rows builder.n_rows before fitting.")
-        for col in tqdm(self.columns, disable=not progress_bar):
+        if progress_bar is True or progress_bar is False:
+            pbar = tqdm(total=len(self.columns), disable=not progress_bar)
+        else:
+            pbar = progress_bar
+        for col in self.columns:
+            pbar.set_description(desc=col)
             vars.append(self.var_builders[col].fit(self.fit_log[col]))
+            pbar.update(1)
+        if progress_bar is True:
+            pbar.close()
         return MetaFrame(vars, self.n_rows, self.file_format, self.name)
 
+
+class MultiFrameBuilder():
+    """Builder class for creating multiframes.
+
+    # This class allows you to build your metaframe step by step instead of in one go with the
+    # ``MetaFrame.fit_dataframe()` method.
+    """
+
+    def __init__(self):
+        self.relations = []
+        self.builders = {}
+        self.dfs = {}
+        self.defaults = {}
+        # self.default_distributions = {}
+
+    def fit(self, progress_bar: bool = True) -> MultiFrame:
+        """Create a MetaFrame from the builder."""
+        if progress_bar is True:
+            # print(total=sum(b.columns for b in self.builders.values()))
+            pbar: tqdm|bool = tqdm(total=sum(len(b.columns) for b in self.builders.values()))
+        else:
+            pbar = False
+        mfs = {k: b.fit(pbar) for k, b in self.builders.items()}
+        if progress_bar is True and not isinstance(pbar, bool):
+            pbar.close()
+        return MultiFrame(mfs, self.relations)
+
+    def add_dataframe(self,
+                      df: pl.DataFrame|None,
+                      name: str,
+                      n_rows: int | None = None,
+                      file_format: BaseFileInterface | dict | None = None) -> "MultiFrameBuilder":
+        if df is None and n_rows is None:
+            raise ValueError("Cannot add dataframe without actual dataframe or number of rows.")
+        self.builders[name] = MetaFrameBuilder(name=name,
+                                               n_rows=len(df) if n_rows is None else n_rows,  # type: ignore
+                                               multi_builder=self)
+        if df is not None:
+            self.builders[name].add_dataframe(df)
+        self.builders[name].file_format = file_format
+        self.dfs[name] = df
+        return self
+
+    def add_relation(self, relation: ColumnRelation | str) -> "MultiFrameBuilder":
+        if isinstance(relation, str):
+            relation = ColumnRelation.parse(relation)
+        _validate_relation(relation, self.relations, self.dfs,
+                           {name: df.columns for name, df in self.dfs.items()})
+        _infer_relation(relation, self.dfs)
+        self.relations.append(relation)
+        return self
+
+    def __getitem__(self, key) -> MetaFrameBuilder:
+        return self.builders[key]
+
+    @property
+    def privacy(self) -> BasePrivacy:
+        return self.defaults.get("privacy", BasicPrivacy())
+
+    @privacy.setter
+    def privacy(self, value: BasePrivacy):
+        self.defaults["privacy"] = value
+
+    def get_default_distribution(self, var_type) -> str | dict | None | DistributionLike:
+        return self.defaults.get("distribution", {}).get(var_type, None)
+
+    def set_default_distribution(self, var_type, distribution):
+        if "distribution" not in self.defaults:
+            self.defaults["distribution"] = {}
+        self.defaults["distribution"][var_type] = distribution
+
+    def add_config(self, config: Path | str | dict):
+        """Configure the MultiFrame from a configuration file.
+
+        Parameters
+        ----------
+        config:
+            Configuration file or dictionary that will be applied to the MetaFrame.
+        """
+        config = _get_config(config)
+        config_version = config.get("config_version", "2.0")
+
+        for parser in (ConfigV1XParser(), ConfigV2Parser()):
+            if config_version in parser.supports:
+                parser.read_dict(config, self)
+                return self
+        raise ValueError(f"Cannot read configuration file, because version {config_version} is not "
+                         "supported.")
+
+class BaseParser(ABC):
+    """Base class for parsing configuration files."""
+
+    keys: list[str] = []
+    supports: list[str] = []
+
+    @abstractmethod
+    def read_dict(self, config_dict: dict, builder):
+        """Read a configuration dictionary into the builder."""
+
+
 class ConfigV1XParser():
-    """TOML confifuration parser for versions 1.0, 1.1 and 1.2."""
+    """TOML configuration parser for versions 1.0, 1.1 and 1.2."""
 
     keys = ["n_rows", "config_version", "file", "privacy", "defaults", "plugins",
-            "var"]
+            "var", "name"]
     supports = ["1.0", "1.1", "1.2"]
 
-    def read_dict(self, config_dict: dict, builder: MetaFrameBuilder):
+    def read_dict(self, config_dict: dict, builder: MetaFrameBuilder|MultiFrameBuilder):
         """Read a dictionary containing the configuration.
 
         Parameters
@@ -446,10 +571,13 @@ class ConfigV1XParser():
         ValueError
             If unknown keys are detected or if there are both privacy and defaults sections.
         """
+        if isinstance(builder, MultiFrameBuilder):
+            raise ValueError("Cannot parse MultiFrame configuration files with V1 parser.")
         config_dict = deepcopy(config_dict)
         if not set(config_dict.keys()) <= set(self.keys):
+            unknown_keys = set(config_dict.keys()) - set(self.keys)
             raise ValueError(f"Error parsing configuration."
-                             f" Unknown keys detected: '{list(config_dict)}'")
+                             f" Unknown keys detected: '{unknown_keys}'")
 
         for var_dict in config_dict.get("var", []):
             if var_dict.get("data_free", config_dict.get("defaults", {}).get("data_free", False)):
@@ -474,6 +602,36 @@ class ConfigV1XParser():
         if "privacy" in defaults:
             defaults["privacy"] = get_privacy(**defaults.pop("privacy"))
         builder.defaults = defaults
+
+
+class ConfigV2Parser():
+    """Parser for configuration files version 2.0.
+
+    Version 2.0 of the configuration file (TOML) adds support for multiple tables in the
+    configuration file. It also allows one to specify the relations between the different columns.
+    """
+
+    supports = ["2.0"]
+
+    def read_dict(self, config_dict: dict, builder: MetaFrameBuilder | MultiFrameBuilder):
+        if isinstance(builder, MultiFrameBuilder):
+            for table_dict in config_dict["table"]:
+                name = table_dict.get("name", None)
+                if name is None:
+                    raise ValueError("Table present in configuration file with no name.")
+                if name not in builder.builders:
+                    raise ValueError(f"Unknown table '{name}', use mfb.add_dataframe(df, '{name}')"
+                                     " to add the dataframe first.")
+                ConfigV1XParser().read_dict(table_dict, builder.builders[name])
+            for rel in table_dict.get("relations", []):
+                builder.add_relation(rel)
+        else:
+            try:
+                idx = [t["name"] for t in config_dict["table"]].index(builder.name)
+            except IndexError:
+                raise ValueError(f"Builder has name '{builder.name}' which cannot be found in the "
+                                 "configuration file.")
+            ConfigV1XParser().read_dict(config_dict["table"][idx], builder)
 
 
 class BaseRecipe(ABC):
@@ -528,6 +686,14 @@ class DistributionRecipe(BaseRecipe):
             # if var_builder.series is None:
                 # var_builder.series = pl.Series([dist.draw()])
             return cls(dist)
+        elif isinstance(var_builder.distribution, dict):
+            try:
+                return cls(var_builder.registry.from_dict({
+                    "distribution": var_builder.distribution,
+                    "type": var_builder.var_type
+                }))
+            except Exception:
+                pass
         return None
 
 @dataclass
@@ -644,3 +810,4 @@ class UnqFindDistributionRecipe(BaseRecipe):
                     return FitterRecipe(var_builder.series, unq_fitters[0])
                 return FindDistributionRecipe(var_builder.series, unq_fitters)
             return cls(var_builder.series, fitters, unq_fitters)
+

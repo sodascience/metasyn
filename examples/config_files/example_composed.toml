@@ -1,0 +1,22 @@
+config_version = "1.2"
+n_rows = 100
+
+[defaults]
+data_free = true
+
+[[var]]
+name = "a"
+var_type = "discrete"
+
+[var.distribution]
+name = "core.uniform"
+unique = false
+parameters = {lower=0, upper=10}
+
+[[var]]
+name = "b"
+var_type = "discrete"
+
+[var.distribution]
+name = "PlusOperator"
+operands = [{name = "ColumnReference", ref_name = "a"}, {name = "core.constant", parameters = {value = 1}, unique = false}]

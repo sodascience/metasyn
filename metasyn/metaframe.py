@@ -388,7 +388,7 @@ class MetaFrame:
         self,
         n: Optional[int] = None,
         seed: Optional[int] = None,
-        progress_bar: bool = True,
+        progress_bar: bool|tqdm = True,
         column_prefix: str = "",
     ) -> pl.DataFrame:
         """Create a synthetic Polars dataframe.
@@ -423,11 +423,20 @@ class MetaFrame:
             dep_graph.add(var.name, var.distribution.dependencies)
 
         synth_dict: dict[str, pl.Series] = {}
-        for name in  (pbar := tqdm(dep_graph, disable=not progress_bar, unit="variables")):
+        if progress_bar is True or progress_bar is False:
+            pbar = tqdm(dep_graph, disable=not progress_bar, unit="variables")
+        else:
+            pbar = progress_bar
+
+        for name in dep_graph:
             var = self.meta_vars[[x.name for x in self.meta_vars].index(name)]
             desc = var.name[:5] + "…" + var.name[-6:] if len(var.name) > 11 else var.name
             pbar.set_description(f"{desc:>12}")
+            pbar.update(1)
             synth_dict[var.name] = var.draw_series(n, synth_dict, seed=None)
+
+        if progress_bar is True:
+            pbar.close()
 
         synth_dict = {var.name: synth_dict[var.name] for var in self.meta_vars if not var.hidden}
         df = pl.DataFrame(synth_dict)
