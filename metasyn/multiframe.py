@@ -169,7 +169,6 @@ def _validate_all_relations(relations: list[ColumnRelation], mf_or_df_dict):
 def _validate_relation(rel: ColumnRelation, all_relations: list[ColumnRelation], mf_or_df_dict,
                        columns: dict[str, list[str]]):
 
-    # for rel in relations:
     if rel.primary_table not in mf_or_df_dict:
         raise ValueError(f"Cannot find table with name {rel.primary_table}, "
                             f"available: {list(columns)}.")

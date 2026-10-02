@@ -42,9 +42,9 @@ def _get_config(config: Path | str | dict) -> dict:
         except tomllib.TOMLDecodeError as value_error:
             if Path(config).suffix != ".toml":
                 raise ValueError(f"It appears '{Path(config).name}' is a"
-                                # f" '{Path(config).suffix}' file."
-                                f" To load a MetaConfig, "
-                                f"provide the configuration as a .toml file.") from value_error
+                                 f" '{Path(config).suffix}' file."
+                                 f" To load a MetaConfig, "
+                                 f"provide the configuration as a .toml file.") from value_error
             raise value_error
     else:
         config_dict = config
