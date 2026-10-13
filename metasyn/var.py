@@ -146,7 +146,10 @@ class MetaVar:
         synth_dict = {} if synth_dict is None else synth_dict
         value_list = self.distribution.draw_list(n, synth_dict)
         if self.dtype == "unknown":
-            self.dtype = str(pl.Series(value_list).dtype)
+            try:
+                self.dtype = str(pl.Series(value_list).dtype)
+            except TypeError:
+                self.dtype = str(pl.Object)
 
         n_extra_none = round(self.prop_missing*len(value_list)) - sum(x is None for x in value_list)
         if n_extra_none > 0:

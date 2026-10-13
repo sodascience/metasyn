@@ -80,6 +80,7 @@ def get_var_type(series: pl.Series) -> str:
         "Enum": "categorical",
         "Boolean": "categorical",
         "Null": "continuous",
+        "Object": "mixed",
     }
     try:
         return convert_dict[polars_dtype]
