@@ -556,6 +556,57 @@ class NotOperator(Operator):
             return None
         return not operand
 
+
+@dataclass
+class AsType(Operator):
+    """Convert from one type to another.
+
+    Only to string, integer and float are supported.
+    """
+
+    operand: Any
+    to_type: str
+
+    def __iter__(self):
+        yield "operand"
+
+    def compute(self, operand: Any) -> Any | None:
+        if operand is None:
+            return None
+        match self.to_type:
+            case "string":
+                return str(operand)
+            case "int":
+                return int(operand)
+            case "float":
+                return float(operand)
+            case _:
+                raise ValueError("Cannot convert to other types than 'string', 'int' or 'float'")
+
+    @classmethod
+    def schema(cls):
+        return {
+            "type": "object",
+            "properties": {
+                "name": {"const": cls.__name__},
+                "operand": {"type": "object"},
+                "to_type": {"type": "string"}
+            },
+            "required": ["name", "operands", "to_type"]
+        }
+
+    def to_dict(self) -> dict:
+        return {
+            "name": self.__class__.__name__,
+            "operand": self.operand,
+            "to_type": self.to_type,
+        }
+
+    @classmethod
+    def from_dict(cls, dist_dict) -> AsType:
+        return cls(dist_dict["operand"], dist_dict["to_type"])
+
+
 class ColumnReference(DistributionLike):
     """Returns the value of another already synthesized column."""
 
