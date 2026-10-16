@@ -166,10 +166,8 @@ class VarBuilder():
                  distribution: str | DistributionLike | dict | None = None,
                  fitter: BaseFitter | None = None,
                  description: str | None = None,
-                 var_type: str | None = None,
+                 dtype: str | None = None,
                  hidden: bool = False):
-        # if series is not None:
-            # series = pl.Series(series)
         self._series: pl.Series | DistributionLike | None = None
         self.series = series
         self.name = series.name if name is None and isinstance(series, pl.Series) else name
@@ -180,8 +178,8 @@ class VarBuilder():
         self.fitter = fitter
         self.description: str | None = description
         self.plugins: None | DistributionRegistry | str | list[str] = None
-        self._var_type: str | None = var_type
         self.hidden = hidden
+        self._dtype = dtype
 
     @property
     def registry(self) -> DistributionRegistry:
@@ -228,8 +226,8 @@ class VarBuilder():
     def distribution(self) -> None | dict | str | DistributionLike:
         """Distribution directives for fitting a distribution."""
         if (self.mf_builder is not None and self._distribution is None
-                and self.var_type is not None):
-            return self.mf_builder.get_default_distribution(self.var_type)
+                and self._dtype is not None):
+            return self.mf_builder.get_default_distribution(self._dtype)
         return self._distribution
 
     @distribution.setter
@@ -237,30 +235,18 @@ class VarBuilder():
         self._distribution = value
 
     @property
-    def var_type(self) -> str | None:
-        """Variable type for the distribution."""
-        if self._var_type is not None:
-            return self._var_type
-        distribution = {} if self._distribution is None else self._distribution
-
-        series_var_type = None if self.series is None else get_var_type(self.series)
-
-        if isinstance(distribution, dict):
-            var_type = distribution.get("var_type", series_var_type)
-            assert var_type is None or isinstance(var_type, str)
-            return distribution.get("var_type", series_var_type)
-        return series_var_type
-
-    @var_type.setter
-    def var_type(self, value: str):
-        self._var_type = value
-
-    @property
     def dtype(self) -> str:
         """Type of the elements in the series to be generated."""
-        if self.series is not None:
+        if self._dtype is not None:
+            return self._dtype
+        if self.series is not None and isinstance(self.series, pl.Series):
             return str(self.series.dtype)
-        return "unknown"
+        try:
+            var_dict = {} if self.mf_builder is None else self.mf_builder.var_builders
+            return self.recipe.fit(VarLog()).dtype(var_dict)
+        except TypeError:
+            pass
+        return None
 
     @property
     def recipe(self) -> BaseRecipe:
@@ -274,7 +260,7 @@ class VarBuilder():
                 return recipe
         raise TypeError(f"Cannot find recipe for distribution {self.distribution}, wrong type?.")
 
-    def fit(self, fit_log: VarLog | None = None):
+    def fit(self, fit_log: VarLog | None = None) -> MetaVar:
         """Fit or create the distribution.
 
         Returns
@@ -289,16 +275,19 @@ class VarBuilder():
             prop_missing = 0.0
         else:
             prop_missing = self.prop_missing
-        if self.var_type is None:
-            raise ValueError("Could not detect variable type, please set variable type for "
-                             f"'{self.name}'.")
+        # if self.var_type is None:
+            # raise ValueError("Could not detect variable type, please set variable type for "
+                            #  f"'{self.name}'.")
         if fit_log is None:
             fit_log = VarLog()
         dist = self.recipe.fit(fit_log)
+        # dtype = dist.dtype() if self.dtype is None else self.dtype
+        # print(dist)
         name = "unknown" if self.name is None else self.name
-        return MetaVar(name, self.var_type, dist, self.dtype, self.description,
+        return MetaVar(name, dist, self.dtype, self.description,
                        prop_missing, creation_method=fit_log.creation_method,
                        hidden=self.hidden)
+
     def _find_fitters(self, unique):
         return _find_fitters(unique, self.distribution, self.privacy, self.series, self.registry)
 
@@ -328,7 +317,7 @@ class MetaFrameBuilder():
     """
 
     def __init__(self, name: str = "single", n_rows: Optional[int]=None,
-                 multi_builder: MultiFrameBuilder|None=None):
+                 multi_builder: MultiFrameBuilder|None=None, auto_add_column: bool = False):
         self.file_format: BaseFileInterface | dict | None = None
         self.columns: list[str] = []
         self.var_builders : dict[str, VarBuilder]= {}
@@ -338,8 +327,11 @@ class MetaFrameBuilder():
         self.defaults: dict[str, Any] = {}
         self.fit_log = FitLog()
         self.multi_builder = multi_builder
+        self.auto_add_column = auto_add_column
 
     def __getitem__(self, item: str):
+        if item not in self.var_builders and self.auto_add_column:
+            self.add_column(item)
         return self.var_builders[item]
 
     def add_dataframe(self, df: pl.DataFrame, file_format: BaseFileInterface | dict | None = None):
@@ -361,7 +353,7 @@ class MetaFrameBuilder():
         self.n_rows = len(df) if self.n_rows is None else self.n_rows
         return self
 
-    def add_column(self, name: str, hidden: bool = False, var_type: str | None = None):
+    def add_column(self, name: str, hidden: bool = False, dtype: str | None = None):
         """Add a new column to the MetaFrame being built.
 
         Parameters
@@ -369,7 +361,7 @@ class MetaFrameBuilder():
         name
             Name of the new column.
         """
-        self.var_builders[name] = VarBuilder(None, name, self, hidden=hidden, var_type=var_type)
+        self.var_builders[name] = VarBuilder(None, name, self, hidden=hidden, dtype=dtype)
         self.fit_log.add_col(name)
         self.columns.append(name)
         return self
