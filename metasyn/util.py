@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import random
+from collections import defaultdict
 
 import faker
 import numpy as np
@@ -14,7 +15,32 @@ except ImportError:
 
 from importlib.resources import files
 
-ALL_VAR_TYPES = ["discrete", "continuous", "time", "date", "datetime", "string", "categorical"]
+ALL_VAR_TYPES = ["discrete", "continuous", "time", "date", "datetime", "string", "categorical",
+                 "duration"]
+
+CONVERT_DICT = {
+    "UInt8": "discrete",
+    "UInt16": "discrete",
+    "UInt32": "discrete",
+    "UInt64": "discrete",
+    "Int8": "discrete",
+    "Int16": "discrete",
+    "Int32": "discrete",
+    "Int64": "discrete",
+    "Null": "continuous",
+    "Float32": "continuous",
+    "Float64": "continuous",
+    "Date": "date",
+    "Datetime": "datetime",
+    "Time": "time",
+    "Duration": "duration",
+    "String": "string",
+    "Categorical": "categorical",
+    "Enum": "categorical",
+    "Boolean": "categorical",
+    "Object": "mixed",
+}
+
 
 def get_registry() -> dict:
     """Get the registry dictionary from the package.
@@ -59,29 +85,13 @@ def get_var_type(series: pl.Series) -> str:
     if not isinstance(series, pl.Series):
         series = pl.Series(series)
     polars_dtype = str(series.dtype.base_type())
-
-    convert_dict = {
-        "Int8": "discrete",
-        "Int16": "discrete",
-        "Int32": "discrete",
-        "Int64": "discrete",
-        "UInt8": "discrete",
-        "UInt16": "discrete",
-        "UInt32": "discrete",
-        "UInt64": "discrete",
-        "Float32": "continuous",
-        "Float64": "continuous",
-        "Date": "date",
-        "Datetime": "datetime",
-        "Time": "time",
-        "Duration": "duration",
-        "String": "string",
-        "Categorical": "categorical",
-        "Enum": "categorical",
-        "Boolean": "categorical",
-        "Null": "continuous",
-    }
     try:
-        return convert_dict[polars_dtype]
+        return CONVERT_DICT[polars_dtype]
     except KeyError as exc:
         raise TypeError(f"Unsupported polars type '{polars_dtype}'") from exc
+
+def get_dtype(var_type):
+    reverse_dict = defaultdict(list)
+    for dtype, vtype in CONVERT_DICT.items():
+        reverse_dict[vtype].append(dtype)
+    return reverse_dict[var_type][-1]

@@ -71,6 +71,11 @@ class MultinoulliDistribution(BaseDistribution):
     def draw(self):
         return np.random.choice(self.labels, p=self.probs)
 
+    def dtype(self, var_builder_dict: dict) -> str:
+        if isinstance(self.labels[0], int):
+            return "Int64"
+        return "Categorical"
+
     def information_criterion(self,
                               values: Union[pl.Series, npt.NDArray]
                               ) -> float:

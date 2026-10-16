@@ -40,6 +40,10 @@ class NADistribution(BaseDistribution):
             return -np.inf
         return np.inf
 
+    def dtype(self, var_builder_dict: dict) -> str:
+        return "String"
+
+
 @builtin_fitter(distribution=NADistribution,
                 var_type=["continuous", "discrete", "categorical", "string"])
 class NAFitter(BaseFitter):
