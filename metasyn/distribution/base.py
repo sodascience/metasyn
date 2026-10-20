@@ -30,6 +30,11 @@ from metasyn.privacy import BasePrivacy
 from metasyn.util import get_dtype, get_var_type
 
 
+def _get_dtype(dist_or_val, var_builder_dict):
+    if isinstance(dist_or_val, DistributionLike):
+        return dist_or_val.dtype(var_builder_dict)
+    return str(pl.Series([dist_or_val]).dtype)
+
 def convert_to_series(values: Union[npt.NDArray, pl.Series]) -> pl.Series:
     """Convert list or pandas series to polars series."""
     if not isinstance(values, (pl.Series, np.ndarray)):
@@ -391,17 +396,21 @@ class Operator(DistributionLike):
         return cls(*dist_dict["operands"])
 
     def dtype(self, var_builder_dict: dict) -> str:
-        return self.combine_dtypes(*[op.dtype(var_builder_dict) for op in self.operands])
+        return self.combine_dtypes(*[_get_dtype(d, var_builder_dict) for d in self.operands])
 
     @staticmethod
     def combine_dtypes(*dtypes) -> str | None:
+        dtypes = [d for d in dtypes if d != "Null"]
+        if len(dtypes) == 0:
+            return "Null"
+
         if all(d == dtypes[0] for d in dtypes):
             return dtypes[0]
         if all(d.startswith("Uint") for d in dtypes):
             return "Uint64"
-        if all(d.startswith(("Int", "Uint")) for d in dtypes):
+        if all(d.startswith(("Int", "Uint"))for d in dtypes):
             return "Int64"
-        if all(d.startswith(("Int", "Uint", "Float")) for d in dtypes):
+        if all(d.startswith(("Int", "Uint", "Float"))for d in dtypes):
             return "Float64"
         if any(d == "Time" for d in dtypes) and all(d in ("Time", "Duration") for d in dtypes):
             return "Time"
@@ -456,8 +465,10 @@ class IfThenElse(Operator):
         return then_operand if condition else else_operand
 
     def dtype(self, var_builder_dict: dict) -> str:
-        if self.then_operand.dtype == self.else_operand.dtype:
-            return self.then_operand.dtype(var_builder_dict)
+        then_dtype = _get_dtype(self.then_operand, var_builder_dict)
+        else_dtype = _get_dtype(self.else_operand, var_builder_dict)
+        if then_dtype == else_dtype:
+            return then_dtype
         return "Object"
 
 @dataclass
@@ -496,6 +507,12 @@ class DivideOperator(Operator):
         if left_operand is None or right_operand is None:
             return None
         return left_operand / right_operand
+
+    def dtype(self, var_builder_dict: dict) -> str:
+        dtype = super().dtype(var_builder_dict)
+        if dtype.startswith(["Uint", "Int"]):
+            return "Float64"
+        return dtype
 
 @dataclass
 class SubOperator(Operator):

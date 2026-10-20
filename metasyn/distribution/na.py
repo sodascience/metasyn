@@ -41,7 +41,7 @@ class NADistribution(BaseDistribution):
         return np.inf
 
     def dtype(self, var_builder_dict: dict) -> str:
-        return "String"
+        return "Null"
 
 
 @builtin_fitter(distribution=NADistribution,

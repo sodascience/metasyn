@@ -19,6 +19,7 @@ from metasyn.metaframe import MetaFrame
 from metasyn.multiframe import MultiFrame
 from metasyn.privacy import BasicPrivacy
 from metasyn.registry import DistributionRegistry
+from metasyn.util import dtype_to_vartype
 from metasyn.var import MetaVar
 
 dtypes = {
@@ -75,7 +76,7 @@ def test_dataset(tmp_path, dataframe_lib):
         }
         for col, type_name in dtypes.items():
             meta_var_type = sub_types[type_name]
-            assert dataset[col].var_type == meta_var_type
+            assert dtype_to_vartype(dataset[col].dtype) == meta_var_type
         with pytest.raises(KeyError):
             dataset["unknown"]
         with pytest.raises(IndexError):

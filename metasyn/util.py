@@ -85,12 +85,28 @@ def get_var_type(series: pl.Series) -> str:
     if not isinstance(series, pl.Series):
         series = pl.Series(series)
     polars_dtype = str(series.dtype.base_type())
+    return dtype_to_vartype(polars_dtype)
+
+
+def dtype_to_vartype(dtype: str) -> str:
+    if dtype is None:
+        return None
+    dtype = dtype.split("(", maxsplit=1)[0]
+    if dtype in ALL_VAR_TYPES:
+        return dtype
     try:
-        return CONVERT_DICT[polars_dtype]
+        return CONVERT_DICT[dtype]
     except KeyError as exc:
-        raise TypeError(f"Unsupported polars type '{polars_dtype}'") from exc
+        raise TypeError(f"Unsupported (polars) type '{dtype}'") from exc
+
 
 def get_dtype(var_type):
+    if var_type is None:
+        return None
+    var_type = var_type.split("(")[0]
+    if var_type in CONVERT_DICT:
+        return var_type
+
     reverse_dict = defaultdict(list)
     for dtype, vtype in CONVERT_DICT.items():
         reverse_dict[vtype].append(dtype)

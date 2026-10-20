@@ -9,7 +9,7 @@ import polars as pl
 
 from metasyn.distribution.base import DistributionLike
 from metasyn.registry import DistributionRegistry
-from metasyn.util import set_global_seeds
+from metasyn.util import set_global_seeds, get_dtype
 
 
 class MetaVar:
@@ -53,7 +53,7 @@ class MetaVar:
         self,
         name: str,
         distribution: DistributionLike,
-        dtype: str = "unknown",
+        dtype: str | None = None,
         description: Optional[str] = None,
         prop_missing: float = 0.0,
         creation_method: Optional[dict] = None,
@@ -61,7 +61,7 @@ class MetaVar:
     ):
         self.name = name
         self.distribution = distribution
-        self.dtype = dtype
+        self.dtype = get_dtype(dtype)
         self.description = description
         self.prop_missing = prop_missing
         self.creation_method = creation_method

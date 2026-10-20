@@ -21,7 +21,7 @@ from metasyn.metaframe import MetaFrame
 from metasyn.multiframe import ColumnRelation, MultiFrame, _infer_relation, _validate_relation
 from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
 from metasyn.registry import DistributionRegistry
-from metasyn.util import get_var_type
+from metasyn.util import CONVERT_DICT, dtype_to_vartype, get_var_type
 from metasyn.var import MetaVar
 
 try:
@@ -226,8 +226,8 @@ class VarBuilder():
     def distribution(self) -> None | dict | str | DistributionLike:
         """Distribution directives for fitting a distribution."""
         if (self.mf_builder is not None and self._distribution is None
-                and self._dtype is not None):
-            return self.mf_builder.get_default_distribution(self._dtype)
+                and self.dtype is not None):
+            return self.mf_builder.get_default_distribution(self.dtype)
         return self._distribution
 
     @distribution.setter
@@ -241,12 +241,24 @@ class VarBuilder():
             return self._dtype
         if self.series is not None and isinstance(self.series, pl.Series):
             return str(self.series.dtype)
+        if self.series is None and self._distribution is None:
+            return None
         try:
             var_dict = {} if self.mf_builder is None else self.mf_builder.var_builders
             return self.recipe.fit(VarLog()).dtype(var_dict)
         except TypeError:
             pass
         return None
+
+    @dtype.setter
+    def dtype(self, val):
+        self._dtype = val
+
+    def get_var_type(self) -> str:
+        dtype = self.dtype
+        if dtype is None:
+            return None
+        return CONVERT_DICT[dtype]
 
     @property
     def recipe(self) -> BaseRecipe:
@@ -275,14 +287,10 @@ class VarBuilder():
             prop_missing = 0.0
         else:
             prop_missing = self.prop_missing
-        # if self.var_type is None:
-            # raise ValueError("Could not detect variable type, please set variable type for "
-                            #  f"'{self.name}'.")
+
         if fit_log is None:
             fit_log = VarLog()
         dist = self.recipe.fit(fit_log)
-        # dtype = dist.dtype() if self.dtype is None else self.dtype
-        # print(dist)
         name = "unknown" if self.name is None else self.name
         return MetaVar(name, dist, self.dtype, self.description,
                        prop_missing, creation_method=fit_log.creation_method,
@@ -398,6 +406,7 @@ class MetaFrameBuilder():
         -------
             The default distribution.
         """
+        var_type = dtype_to_vartype(var_type)
         default = self.defaults.get("distribution", {}).get(var_type, None)
         if default is None and self.multi_builder is not None:
             return self.multi_builder.get_default_distribution(var_type)
@@ -579,7 +588,10 @@ class ConfigV1XParser():
             if var_dict.get("data_free", config_dict.get("defaults", {}).get("data_free", False)):
                 builder.add_column(var_dict["name"])
             for attr, val in var_dict.items():
-                setattr(builder[var_dict["name"]], attr, val)
+                if attr == "var_type":
+                    builder[var_dict["name"]].dtype = val
+                else:
+                    setattr(builder[var_dict["name"]], attr, val)
 
         if "n_rows" in config_dict:
             builder.n_rows = config_dict["n_rows"]
@@ -661,23 +673,28 @@ class DistributionRecipe(BaseRecipe):
 
     @classmethod
     def create(cls, var_builder: VarBuilder):
-        if isinstance(var_builder.distribution, DistributionLike):
+        distribution = var_builder.distribution
+        if isinstance(distribution, DistributionLike):
             # if var_builder.series is None:
                 # var_builder.series = pl.Series([var_builder.distribution.draw()])
-            return cls(var_builder.distribution)
-        elif (isinstance(var_builder.distribution, dict)
-                and "parameters" in var_builder.distribution):
+            return cls(distribution)
+        elif (isinstance(distribution, dict)
+                and "parameters" in distribution):
+            if "class_name" in distribution:
+                var_builder.registry.find_distribution(class_name=distribution["class_name"],
+                                                       version=distribution.get("version", None))
             name = var_builder.distribution.get("name")
             if name is None:
                 name = var_builder.distribution.get("implements")
             if name is None or not isinstance(name, str):
                 raise TypeError("Distribution dictionary with parameters, but name missing or "
                                 f"wrong type for column {var_builder.name}.")
+            dtype = distribution.get("dtype", getattr(var_builder, "dtype", None))
             dist_class = var_builder.registry.find_distribution(
                 name,
-                var_builder.var_type,
-                var_builder.distribution.get("unique", False),
-                var_builder.distribution.get("version", None))
+                dtype=dtype,
+                unique=distribution.get("unique", False),
+                version=distribution.get("version", None))
             dist = dist_class(**var_builder.distribution["parameters"])
             # if var_builder.series is None:
                 # var_builder.series = pl.Series([dist.draw()])
@@ -686,7 +703,7 @@ class DistributionRecipe(BaseRecipe):
             try:
                 return cls(var_builder.registry.from_dict({
                     "distribution": var_builder.distribution,
-                    "type": var_builder.var_type
+                    "type": var_builder.get_var_type()
                 }))
             except Exception:
                 pass
@@ -747,7 +764,7 @@ class FindDistributionRecipe(BaseRecipe):
             return cls(var_builder.series, fitters)
         if inspect.isclass(dist) and issubclass(dist, DistributionLike):
             fitter_classes = var_builder.registry.find_fitters(dist.name,
-                                                               var_type=var_builder.var_type)
+                                                               var_type=var_builder.get_var_type())
             fitters = [f(var_builder.privacy) for f in fitter_classes]
             if len(fitters) == 1:
                 return FitterRecipe(var_builder.series, fitters[0])
@@ -766,7 +783,7 @@ class FindDistributionRecipe(BaseRecipe):
             return cls(series, fitters)
         if inspect.isclass(dist) and issubclass(dist, DistributionLike):
             fitter_classes = var_builder.registry.find_fitters(dist.name,
-                                                               var_type=var_builder.var_type)
+                                                               var_type=var_builder.get_var_type())
             fitters = [f(var_builder.privacy) for f in fitter_classes]
             if len(fitters) == 1:
                 return FitterRecipe(series, fitters[0])

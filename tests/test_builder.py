@@ -69,7 +69,7 @@ def test_varbuilder_error():
 
 def test_builder_without_progress_bar():
     builder = MetaFrameBuilder(n_rows=10)
-    builder.add_column("test", var_type="continuous")
+    builder.add_column("test")
     builder["test"].distribution = ContinuousConstantDistribution(1.0)
     assert isinstance(builder.fit(progress_bar=False), MetaFrame)
 
@@ -94,6 +94,8 @@ def test_add_config():
 
 def test_default_distribution(builder):
     builder.defaults = {"distribution": {"discrete": DiscreteConstantDistribution(10)}}
+    print(builder["Int64"]._distribution, builder["Int64"]._dtype, builder["Int64"].mf_builder,
+          builder["Int64"].series, builder["Int64"].dtype)
     assert isinstance(builder["Int64"].distribution, DiscreteConstantDistribution)
     assert builder.get_default_distribution("continuous") is None
     builder.defaults = {}
@@ -171,10 +173,10 @@ def test_privacy_distributions():
     multi_builder = MultiFrameBuilder()
     multi_builder.add_dataframe(None, "builder_A", n_rows=10)
     multi_builder.add_dataframe(None, "builder_B", n_rows=10)
-    multi_builder["builder_A"].add_column("col_A1", var_type="continuous")
-    multi_builder["builder_A"].add_column("col_A2", var_type="continuous")
-    multi_builder["builder_B"].add_column("col_B1", var_type="continuous")
-    multi_builder["builder_B"].add_column("col_B2", var_type="continuous")
+    multi_builder["builder_A"].add_column("col_A1", dtype="continuous")
+    multi_builder["builder_A"].add_column("col_A2", dtype="continuous")
+    multi_builder["builder_B"].add_column("col_B1", dtype="continuous")
+    multi_builder["builder_B"].add_column("col_B2", dtype="continuous")
 
     multi_builder["builder_A"].privacy = PrivacyA()
     multi_builder["builder_A"]["col_A1"].privacy = PrivacyA1()

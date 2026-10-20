@@ -13,7 +13,7 @@ from typing import Any, Optional
 from metasyn.distribution import builtin_operators
 from metasyn.distribution.base import BaseDistribution, BaseFitter
 from metasyn.privacy import BasePrivacy, BasicPrivacy
-from metasyn.util import get_registry
+from metasyn.util import dtype_to_vartype, get_registry
 
 
 class DistributionRegistry():
@@ -77,13 +77,18 @@ class DistributionRegistry():
 
     def find_distribution(
             self,
-            name: str,
-            var_type: str | None,
+            name: str | None = None,
+            class_name: str | None = None,
+            dtype: str | None = None,
+            var_type: str | None = None,
             unique: bool = False,
             version: str | None = None
         ) -> type[BaseDistribution]:
+        var_dtype = dtype_to_vartype(dtype) if dtype is not None else None
+        var_type = var_type if var_type is not None else var_dtype
         dist_classes = self.filter_distributions(name=name, var_type=var_type,
-                                                 unique=unique, version=version)
+                                                 unique=unique, version=version,
+                                                 class_name=class_name)
         if len(dist_classes) == 1:
             return dist_classes[0]
 
@@ -193,7 +198,8 @@ class DistributionRegistry():
         return fitters
 
     def filter_distributions(self, name: Optional[str] = None, var_type: Optional[str] = None,
-                             unique: Optional[bool] = False, version: Optional[str] = None):
+                             unique: Optional[bool] = False, version: Optional[str] = None,
+                             class_name: str | None = None):
         dist = self.distributions
 
         if name is not None:
@@ -207,6 +213,9 @@ class DistributionRegistry():
 
         if version is not None:
             dist = [d for d in dist if d.version == version]
+
+        if class_name is not None:
+            dist = [d for d in dist if d.__class__.__name__ == class_name]
 
         return dist
 
@@ -223,7 +232,7 @@ class DistributionRegistry():
         BaseDistribution:
             Distribution representing the dictionary.
         """
-        return self._convert_dict(var_dict["distribution"], var_dict["type"])
+        return self._convert_dict(var_dict["distribution"], var_dict.get("type", None))
 
     def _convert_dict(self, dist_dict, var_type):
         if not isinstance(dist_dict, dict):

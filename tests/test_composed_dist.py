@@ -85,7 +85,7 @@ def test_composed_results(dist, result, tmpdir):
     # mf.save_json(tmpdir / "test.json")
     # new_mf = MetaFrame.load_json(tmpdir / "test.json")
     assert _compare_dist(mf["test"].distribution, new_mf["test"].distribution)
-    assert mf["test"].var_type == new_mf["test"].var_type
+    assert mf["test"].dtype == new_mf["test"].dtype
     # assert new_mf["test"].distribution.__class__ == mf["test"].distribution.__class__
     # assert new_mf["test"].distribution._param_dict() == mf["test"].distribution._param_dict()
 
@@ -121,4 +121,4 @@ def test_reference(tmpdir):
     new_mf = MetaFrame.load_json(tmpdir / "test.json")
     for col in ["a", "b", "c"]:
         assert _compare_dist(mf[col].distribution, new_mf[col].distribution)
-        assert mf[col].var_type == new_mf[col].var_type
+        assert mf[col].dtype == new_mf[col].dtype
