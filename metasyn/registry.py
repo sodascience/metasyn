@@ -250,6 +250,10 @@ class DistributionRegistry():
             operands = [self._convert_dict(op_dict, var_type) for op_dict in dist_dict["operands"]]
             dist_dict["operands"] = operands
 
+        if "operand" in dist_dict:
+            operand = self._convert_dict(dist_dict["operand"], var_type)
+            dist_dict["operand"] = operand
+
         version = dist_dict.get("version", "1.0")
 
 

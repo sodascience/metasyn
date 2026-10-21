@@ -414,9 +414,9 @@ class Operator(DistributionLike):
             return dtypes[0]
         if all(d.startswith("Uint") for d in dtypes):
             return "Uint64"
-        if all(d.startswith(("Int", "Uint"))for d in dtypes):
+        if all(d.startswith(("Int", "Uint")) for d in dtypes):
             return "Int64"
-        if all(d.startswith(("Int", "Uint", "Float"))for d in dtypes):
+        if all(d.startswith(("Int", "Uint", "Float")) for d in dtypes):
             return "Float64"
         if any(d == "Time" for d in dtypes) and all(d in ("Time", "Duration") for d in dtypes):
             return "Time"
@@ -672,16 +672,16 @@ class AsType(Operator):
             "type": "object",
             "properties": {
                 "name": {"const": cls.__name__},
-                "operand": {"type": "object"},
                 "to_type": {"type": "string"}
             },
-            "required": ["name", "operands", "to_type"]
+            "required": ["name", "operand", "to_type"]
         }
 
     def to_dict(self) -> dict:
+        op = self.operand
         return {
             "name": self.__class__.__name__,
-            "operand": self.operand,
+            "operand": op.to_dict() if isinstance(op, DistributionLike) else op,
             "to_type": self.to_type,
         }
 

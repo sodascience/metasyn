@@ -2,6 +2,8 @@ from pathlib import Path
 
 import polars as pl
 import pytest
+from pytest import mark
+from datetime import date, datetime, time
 
 from metasyn.builder import (
     DistributionRecipe,
@@ -18,6 +20,7 @@ from metasyn.distribution import (
     ContinuousConstantDistribution,
     DiscreteConstantDistribution,
     DiscreteConstantFitter,
+    IfThenElse,
     RegexDistribution,
     RegexFitter,
 )
@@ -112,6 +115,13 @@ def test_recipes(builder):
     builder["Int64"].series = DiscreteConstantDistribution(10)
     assert isinstance(builder["Int64"].recipe, UnqFindDistributionRecipe)
 
+def test_class_distribution():
+    series = pl.Series([1, 1, 1])
+    vb = VarBuilder(series, "test", distribution=DiscreteConstantDistribution)
+    mvar = vb.fit()
+    assert isinstance(mvar.distribution, DiscreteConstantDistribution)
+    assert mvar.distribution.value == 1
+
 def test_find_fitter_error(builder):
     bld = MetaFrameBuilder()
     bld.add_column("Int64")
@@ -156,6 +166,11 @@ def test_fit_log(tmpdir):
     assert isinstance(str(fitlog), str)
     assert isinstance(fitlog.to_dataframe(), pl.DataFrame)
 
+def test_add_none_multiframe():
+    builder = MultiFrameBuilder()
+    with pytest.raises(ValueError):
+        builder.add_dataframe(None, "blable", None)
+
 
 class PrivacyA(BasicPrivacy):
     pass
@@ -195,3 +210,50 @@ def test_privacy_distributions():
 
     assert multi_builder["builder_A"]["col_A1"].distribution.value == 0.0
     assert multi_builder["builder_B"]["col_B1"].distribution.value == 1.0
+
+
+@mark.parametrize(
+    "list_a,list_b,dtype",
+    [
+        ([1, 2, 2], ["a", "b", "c"], "Object"),
+        ([1, 2, 3], [0.3, 0.5, 0.6], "Object"),
+        (["a", "b", "c"], 3*[date(1993, 4, 12)], "Object"),
+        (["a", "b", "c"], 3*[time(14, 5)], "Object"),
+        (["a", "b", "c"], 3*[datetime(1993, 4, 7, 10, 26)], "Object"),
+        (["a", "b", "c"], [None, None, None], "String"),
+        ([1, 2, 3], [None, None, None], "Int64"),
+    ])
+def test_mixed_distributions(list_a, list_b, dtype):
+    pl_dtype = getattr(pl, dtype)
+    series = pl.Series(list_a + list_b, dtype=pl_dtype)
+    builder = VarBuilder(series, "test")
+    mvar = builder.fit()
+    assert mvar.dtype == dtype
+    if dtype == "Object":
+        assert isinstance(mvar.distribution, IfThenElse)
+    else:
+        assert not isinstance(mvar.distribution, IfThenElse)
+    assert mvar.draw_series(10).dtype == pl_dtype
+
+def test_unique_mixed_distributions():
+    series = pl.Series([1, 2, "a", "b"], dtype=pl.Object)
+    builder = VarBuilder(series, "test", distribution={"unique": True})
+    mvar = builder.fit()
+    assert isinstance(mvar.distribution, IfThenElse)
+    assert mvar.dtype == "Object"
+
+@mark.parametrize("save_meth", ["save_csv", "save_md"])
+def test_write_fitlog(save_meth, tmpdir):
+    builder = MetaFrameBuilder(auto_add_column=True, n_rows=10)
+    builder["a"].distribution = ContinuousConstantDistribution(10.3)
+    builder.fit()
+    getattr(builder.fit_log, save_meth)(tmpdir / "test")
+    assert (tmpdir/"test").isfile()
+    assert any(len(getattr(builder.fit_log["a"], attr))!=0 for attr in builder.fit_log["a"].attrs)
+    assert len(str(builder.fit_log["a"])) > 0
+    builder.fit_log.reset()
+    assert all(len(getattr(builder.fit_log["a"], attr))==0 for attr in builder.fit_log["a"].attrs)
+
+def test_dtype_none():
+    builder = VarBuilder()
+    assert builder.dtype is None
