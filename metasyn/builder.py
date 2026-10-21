@@ -752,8 +752,8 @@ class FindDistributionRecipe(BaseRecipe):
             fitters = var_builder._find_fitters(dist["unique"])
             return cls(var_builder.series, fitters)
         if inspect.isclass(dist) and issubclass(dist, DistributionLike):
-            fitter_classes = var_builder.registry.find_fitters(dist.name,
-                                                               var_type=var_builder.get_var_type())
+            fitter_classes = var_builder.registry.find_fitters(
+                dist.name, var_type=dtype_to_vartype(var_builder.dtype))
             fitters = [f(var_builder.privacy) for f in fitter_classes]
             if len(fitters) == 1:
                 return FitterRecipe(var_builder.series, fitters[0])
@@ -771,8 +771,8 @@ class FindDistributionRecipe(BaseRecipe):
                                     var_builder.registry)
             return cls(series, fitters)
         if inspect.isclass(dist) and issubclass(dist, DistributionLike):
-            fitter_classes = var_builder.registry.find_fitters(dist.name,
-                                                               var_type=var_builder.get_var_type())
+            fitter_classes = var_builder.registry.find_fitters(
+                dist.name, var_type=dtype_to_vartype(var_builder.dtype))
             fitters = [f(var_builder.privacy) for f in fitter_classes]
             if len(fitters) == 1:
                 return FitterRecipe(series, fitters[0])
