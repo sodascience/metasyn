@@ -9,7 +9,7 @@ import polars as pl
 
 from metasyn.distribution.base import DistributionLike
 from metasyn.registry import DistributionRegistry
-from metasyn.util import set_global_seeds, get_dtype
+from metasyn.util import get_dtype, set_global_seeds
 
 
 class MetaVar:

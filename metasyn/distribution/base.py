@@ -311,10 +311,16 @@ class DistributionLike(ABC):  #noqa: PLW1641
     def from_dict(cls, dist_dict) -> DistributionLike:
         raise NotImplementedError()
 
-    @property
     @abstractmethod
     def dtype(self, var_builder_dict: dict) -> str | None:
-        pass
+        """Get the dtype of the distribution.
+
+        Parameters
+        ----------
+        var_builder_dict:
+            Dictionary containing var_builders for all available columns.
+            This is only used for the column reference operator.
+        """
 
 @dataclass
 class Operator(DistributionLike):
@@ -399,8 +405,8 @@ class Operator(DistributionLike):
         return self.combine_dtypes(*[_get_dtype(d, var_builder_dict) for d in self.operands])
 
     @staticmethod
-    def combine_dtypes(*dtypes) -> str | None:
-        dtypes = [d for d in dtypes if d != "Null"]
+    def combine_dtypes(*all_dtypes) -> str:  # noqa: PLR0911
+        dtypes = [d for d in all_dtypes if d != "Null"]
         if len(dtypes) == 0:
             return "Null"
 
@@ -432,7 +438,7 @@ class IsNull(Operator):
             return True
         return False
 
-    def dtype(self, var_builder_dict: dict):
+    def dtype(self, var_builder_dict: dict):  # noqa: ARG002
         return "Boolean"
 
 
@@ -448,7 +454,7 @@ class EqualsCondition(Operator):
             return None
         return left_operand == right_operand
 
-    def dtype(self, var_builder_dict: dict) -> str:
+    def dtype(self, var_builder_dict: dict) -> str:  # noqa: ARG002
         return "Boolean"
 
 @dataclass
@@ -510,7 +516,7 @@ class DivideOperator(Operator):
 
     def dtype(self, var_builder_dict: dict) -> str:
         dtype = super().dtype(var_builder_dict)
-        if dtype.startswith(["Uint", "Int"]):
+        if dtype.startswith(("Uint", "Int")):
             return "Float64"
         return dtype
 
@@ -574,7 +580,7 @@ class LessThanCondition(Operator):
             return None
         return left_operand < right_operand
 
-    def dtype(self, var_builder_dict: dict) -> str:
+    def dtype(self, var_builder_dict: dict) -> str:  # noqa: ARG002
         return "Boolean"
 
 @dataclass
@@ -589,7 +595,7 @@ class GreaterThanCondition(Operator):
             return None
         return left_operand > right_operand
 
-    def dtype(self, var_builder_dict: dict) -> str:
+    def dtype(self, var_builder_dict: dict) -> str:  # noqa: ARG002
         return "Boolean"
 
 @dataclass
@@ -604,7 +610,7 @@ class NotEqualsCondition(Operator):
             return None
         return left_operand != right_operand
 
-    def dtype(self) -> str:
+    def dtype(self, var_builder_dict: dict) -> str:  # noqa: ARG002
         return "Boolean"
 
 @dataclass
@@ -619,7 +625,7 @@ class NotOperator(Operator):
         return not operand
 
 
-    def dtype(self, var_builder_dict: dict) -> str:
+    def dtype(self, var_builder_dict: dict) -> str:  # noqa: ARG002
         return "Boolean"
 
 
@@ -649,7 +655,7 @@ class AsType(Operator):
             case _:
                 raise ValueError("Cannot convert to other types than 'string', 'int' or 'float'")
 
-    def dtype(self, var_builder_dict: dict) -> str:
+    def dtype(self, var_builder_dict: dict) -> str:  # noqa: ARG002
         match self.to_type:
             case "string":
                 return "String"
@@ -879,9 +885,11 @@ class BaseDistribution(DistributionLike):
         """
         return [self.draw() for _ in range(n)]
 
-    def dtype(self, var_builder_dict: dict) -> str:
+    def dtype(self, var_builder_dict: dict) -> str:  # noqa: ARG002
         if isinstance(self.var_type, str):
-            return get_dtype(self.var_type)
+            dtype = get_dtype(self.var_type)
+            assert dtype is not None
+            return dtype
         raise NotImplementedError("f{self.__class__.__name__} has not implemented dtype when having"
                                   " multiple.")
 

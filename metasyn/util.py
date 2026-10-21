@@ -85,10 +85,31 @@ def get_var_type(series: pl.Series) -> str:
     if not isinstance(series, pl.Series):
         series = pl.Series(series)
     polars_dtype = str(series.dtype.base_type())
-    return dtype_to_vartype(polars_dtype)
+    var_type = dtype_to_vartype(polars_dtype)
+    if var_type is not None:
+        return var_type
+    raise ValueError("Internal error: cannot get var_type from series.")
 
 
-def dtype_to_vartype(dtype: str) -> str:
+def dtype_to_vartype(dtype: str|None) -> str | None:
+    """Convert dtype to var_type.
+
+    Can also be supplied var_types in which case it will return the var_type.
+
+    Parameters
+    ----------
+    dtype
+        Polars dtype to be converted.
+
+    Returns
+    -------
+        The corresponding var_type.
+
+    Raises
+    ------
+    TypeError
+        If the var_type is not supported.
+    """
     if dtype is None:
         return None
     dtype = dtype.split("(", maxsplit=1)[0]
@@ -100,7 +121,19 @@ def dtype_to_vartype(dtype: str) -> str:
         raise TypeError(f"Unsupported (polars) type '{dtype}'") from exc
 
 
-def get_dtype(var_type):
+def get_dtype(var_type: str|None) -> str | None:
+    """Convert a var_type to a dtype.
+
+    Parameters
+    ----------
+    var_type
+        Variable type as in discrete, continuous, etc. Can also be provided a dtype in
+        which the function will return this. If None, returns None.
+
+    Returns
+    -------
+        The associated dtype.
+    """
     if var_type is None:
         return None
     var_type = var_type.split("(")[0]

@@ -71,7 +71,7 @@ class MultinoulliDistribution(BaseDistribution):
     def draw(self):
         return np.random.choice(self.labels, p=self.probs)
 
-    def dtype(self, var_builder_dict: dict) -> str:
+    def dtype(self, var_builder_dict: dict) -> str:  # noqa: ARG002
         if isinstance(self.labels[0], int):
             return "Int64"
         return "Categorical"

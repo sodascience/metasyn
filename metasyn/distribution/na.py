@@ -40,7 +40,7 @@ class NADistribution(BaseDistribution):
             return -np.inf
         return np.inf
 
-    def dtype(self, var_builder_dict: dict) -> str:
+    def dtype(self, var_builder_dict: dict) -> str:  # noqa: ARG002
         return "Null"
 
 

@@ -21,7 +21,7 @@ from metasyn.metaframe import MetaFrame
 from metasyn.multiframe import ColumnRelation, MultiFrame, _infer_relation, _validate_relation
 from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
 from metasyn.registry import DistributionRegistry
-from metasyn.util import CONVERT_DICT, dtype_to_vartype, get_var_type
+from metasyn.util import dtype_to_vartype, get_var_type
 from metasyn.var import MetaVar
 
 try:
@@ -96,10 +96,6 @@ class FitLog():
         for key in self.log:
             self.log[key] = VarLog()
 
-    # def print(self):
-        # pass
-        # print("\n\n".join(str(x) for x in self.log.values()))
-
     def __str__(self) -> str:
         var_str_list = ["Fit notes:"]
         for var_name, var_log in self.log.items():
@@ -111,7 +107,6 @@ class FitLog():
             var_str_list.append(f"Notes on column {var_name}:\n\n{var_str}")
 
         return "\n\n".join(var_str_list)
-            # fit_str += var_str
 
     def to_dataframe(self) -> pl.DataFrame:
         """Create dataframe from fit log.
@@ -235,7 +230,7 @@ class VarBuilder():
         self._distribution = value
 
     @property
-    def dtype(self) -> str:
+    def dtype(self) -> str | None:
         """Type of the elements in the series to be generated."""
         if self._dtype is not None:
             return self._dtype
@@ -253,12 +248,6 @@ class VarBuilder():
     @dtype.setter
     def dtype(self, val):
         self._dtype = val
-
-    def get_var_type(self) -> str:
-        dtype = self.dtype
-        if dtype is None:
-            return None
-        return CONVERT_DICT[dtype]
 
     @property
     def recipe(self) -> BaseRecipe:
@@ -427,9 +416,6 @@ class MetaFrameBuilder():
     def privacy(self, value: BasePrivacy):
         self.defaults.update({"privacy": value})
 
-    # def preview(self, n_row_synthesize: int = 10, n_row_fit: None | int = None):
-        # pass
-
     def fit(self, progress_bar: bool|tqdm = True) -> MetaFrame:
         """Create a MetaFrame from the builder.
 
@@ -561,7 +547,7 @@ class ConfigV1XParser():
             "var", "name"]
     supports = ["1.0", "1.1", "1.2"]
 
-    def read_dict(self, config_dict: dict, builder: MetaFrameBuilder|MultiFrameBuilder):
+    def read_dict(self, config_dict: dict, builder: MetaFrameBuilder|MultiFrameBuilder):  #noqa: PLR0912
         """Read a dictionary containing the configuration.
 
         Parameters
@@ -657,6 +643,10 @@ class BaseRecipe(ABC):
         If the recipe cannot build itself from the provided information, None will be returned.
         """
 
+    @classmethod
+    def _create(cls, var_builder, series):  # noqa: ARG003
+        return cls.create(var_builder)
+
 @dataclass
 class DistributionRecipe(BaseRecipe):
     """Distribution recipe without any fitting.
@@ -683,9 +673,9 @@ class DistributionRecipe(BaseRecipe):
             if "class_name" in distribution:
                 var_builder.registry.find_distribution(class_name=distribution["class_name"],
                                                        version=distribution.get("version", None))
-            name = var_builder.distribution.get("name")
+            name = distribution.get("name")
             if name is None:
-                name = var_builder.distribution.get("implements")
+                name = distribution.get("implements")
             if name is None or not isinstance(name, str):
                 raise TypeError("Distribution dictionary with parameters, but name missing or "
                                 f"wrong type for column {var_builder.name}.")
@@ -695,19 +685,19 @@ class DistributionRecipe(BaseRecipe):
                 dtype=dtype,
                 unique=distribution.get("unique", False),
                 version=distribution.get("version", None))
-            dist = dist_class(**var_builder.distribution["parameters"])
-            # if var_builder.series is None:
-                # var_builder.series = pl.Series([dist.draw()])
+            dist = dist_class(**distribution["parameters"])
             return cls(dist)
+
         elif isinstance(var_builder.distribution, dict):
             try:
                 return cls(var_builder.registry.from_dict({
-                    "distribution": var_builder.distribution,
-                    "type": var_builder.get_var_type()
+                    "distribution": distribution,
+                    "type": dtype_to_vartype(var_builder.dtype)
                 }))
             except Exception:
                 pass
         return None
+
 
 @dataclass
 class FitterRecipe(BaseRecipe):
@@ -886,7 +876,7 @@ class MixedFindDistributionRecipe(BaseRecipe):
         series_len = [len(s) for s in var_series.values()]
         series_frac = [curl/sum(series_len) for curl in series_len]
         if dist is None or dist.get("unique", None) is None:
-            recipe_class = UnqFindDistributionRecipe
+            recipe_class: type[BaseRecipe] = UnqFindDistributionRecipe
         else:
             recipe_class = FindDistributionRecipe
 
