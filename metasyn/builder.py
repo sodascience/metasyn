@@ -458,7 +458,6 @@ class MultiFrameBuilder():
     def fit(self, progress_bar: bool = True) -> MultiFrame:
         """Create a MetaFrame from the builder."""
         if progress_bar is True:
-            # print(total=sum(b.columns for b in self.builders.values()))
             pbar: tqdm|bool = tqdm(total=sum(len(b.columns) for b in self.builders.values()))
         else:
             pbar = False
