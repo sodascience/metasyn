@@ -155,7 +155,7 @@ class MetaVar:
             value_list = [None if x is None else bool(x) for x in value_list]
 
         # Some dtypes have extra information, discard that
-        return pl.Series(value_list, dtype=getattr(pl, pl_type))
+        return pl.Series(name=self.name, values=value_list, dtype=getattr(pl, pl_type))
 
     @classmethod
     def from_dict(

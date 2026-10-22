@@ -1,9 +1,9 @@
+from datetime import date, datetime, time
 from pathlib import Path
 
 import polars as pl
 import pytest
 from pytest import mark
-from datetime import date, datetime, time
 
 from metasyn.builder import (
     DistributionRecipe,
@@ -21,7 +21,6 @@ from metasyn.distribution import (
     DiscreteConstantDistribution,
     DiscreteConstantFitter,
     IfThenElse,
-    RegexDistribution,
     RegexFitter,
 )
 from metasyn.distribution.base import BaseFitter, VarLog
