@@ -9,7 +9,7 @@ import polars as pl
 
 from metasyn.distribution.base import DistributionLike
 from metasyn.registry import DistributionRegistry
-from metasyn.util import set_global_seeds
+from metasyn.util import get_dtype, set_global_seeds
 
 
 class MetaVar:
@@ -52,18 +52,16 @@ class MetaVar:
     def __init__(  # noqa: PLR0913
         self,
         name: str,
-        var_type: str,
         distribution: DistributionLike,
-        dtype: str = "unknown",
+        dtype: str | None = None,
         description: Optional[str] = None,
         prop_missing: float = 0.0,
         creation_method: Optional[dict] = None,
         hidden: bool = False
     ):
         self.name = name
-        self.var_type = var_type
         self.distribution = distribution
-        self.dtype = dtype
+        self.dtype = get_dtype(dtype)
         self.description = description
         self.prop_missing = prop_missing
         self.creation_method = creation_method
@@ -74,9 +72,6 @@ class MetaVar:
             raise ValueError(
                 f"Cannot create variable '{self.name}' with proportion missing outside range [0, 1]"
             )
-        if self.dtype == "unknown" and self.var_type == "categorical":
-                self.dtype = "Categorical"
-
 
     def to_dict(self) -> Dict[str, Any]:
         """Create a dictionary from the variable."""
@@ -86,7 +81,6 @@ class MetaVar:
             dist_dict = self.distribution.to_dict()
         var_dict = {
             "name": self.name,
-            "type": self.var_type,
             "dtype": self.dtype,
             "prop_missing": self.prop_missing,
             "distribution": dist_dict,
@@ -110,7 +104,6 @@ class MetaVar:
         return (
             f'"{self.name}"\n'
             f"{description}"
-            f"- Variable Type: {self.var_type}\n"
             f"- Data Type: {self.dtype}\n"
             f"- Proportion of Missing Values: {self.prop_missing:.4f}\n"
             f"- Distribution:\n{distribution_formatted}\n"
@@ -145,7 +138,7 @@ class MetaVar:
         self.distribution.draw_reset()
         synth_dict = {} if synth_dict is None else synth_dict
         value_list = self.distribution.draw_list(n, synth_dict)
-        if self.dtype == "unknown":
+        if self.dtype is None:
             self.dtype = str(pl.Series(value_list).dtype)
 
         n_extra_none = round(self.prop_missing*len(value_list)) - sum(x is None for x in value_list)
@@ -162,7 +155,7 @@ class MetaVar:
             value_list = [None if x is None else bool(x) for x in value_list]
 
         # Some dtypes have extra information, discard that
-        return pl.Series(value_list, dtype=getattr(pl, pl_type))
+        return pl.Series(name=self.name, values=value_list, dtype=getattr(pl, pl_type))
 
     @classmethod
     def from_dict(
@@ -190,7 +183,6 @@ class MetaVar:
         dist = dist_registry.from_dict(var_dict)
         return cls(
             name=var_dict["name"],
-            var_type=var_dict["type"],
             distribution=dist,
             prop_missing=var_dict["prop_missing"],
             dtype=var_dict["dtype"],
