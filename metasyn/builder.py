@@ -314,7 +314,7 @@ class MetaFrameBuilder():
     """Builder class for creating metaframes.
 
     This class allows you to build your metaframe step by step instead of in one go with the
-    ``MetaFrame.fit_dataframe()` method.
+    :meth:`metasyn.metaframe.MetaFrame.fit_dataframe` method.
 
     Parameters
     ----------
@@ -453,8 +453,8 @@ class MetaFrameBuilder():
 class MultiFrameBuilder():
     """Builder class for creating multiframes.
 
-    # This class allows you to build your metaframe step by step instead of in one go with the
-    # ``MetaFrame.fit_dataframe()` method.
+    This class allows you to build your metaframe step by step instead of in one go with the
+    :meth:`metasyn.metaframe.MetaFrame.fit_dataframe` method.
     """
 
     def __init__(self):
