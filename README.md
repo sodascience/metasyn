@@ -86,7 +86,7 @@ For more information on how to create dataframes with polars, refer to the [Pola
 ## Where to go next
 
 - Try the [metasyn-toolbox](https://sodascience.github.io/metasyn-tools/) where you can generate synthetic data using sliders and dropdown menus without any coding at all!
-- To explore more options and try this out online, take a look at our interactive tutorial: [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sodascience/metasyn/blob/main/examples/getting_started.ipynb) or follow our [quickstart](https://metasyn.readthedocs.io/en/latest/quick_start.html)
+- To explore more options and try this out online, take a look at our interactive tutorial: [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sodascience/metasyn/blob/main/examples/1_getting_started.ipynb) or follow our [quickstart](https://metasyn.readthedocs.io/en/latest/quick_start.html)
 - As a next step to learn more about generating synthetic data with metasyn we recommend to check out the [improve your documentation](https://metasyn.readthedocs.io/en/latest/improve_synth.html) section.
 - To learn about how minimize the privacy risk of synthetic data, we have a [privacy guide](https://metasyn.readthedocs.io/en/latest/privacy_guide.html) or have a look at our [disclosure control plugin](https://github.com/sodascience/metasyn-disclosure-control).
 - Want to create programs that build on metasyn? Take a look at our versioned [Docker containers](https://hub.docker.com/r/sodateam/metasyn) and our [CLI](https://metasyn.readthedocs.io/en/latest/usage/cli.html).
