@@ -96,8 +96,6 @@ def test_add_config():
 
 def test_default_distribution(builder):
     builder.defaults = {"distribution": {"discrete": DiscreteConstantDistribution(10)}}
-    print(builder["Int64"]._distribution, builder["Int64"]._dtype, builder["Int64"].mf_builder,
-          builder["Int64"].series, builder["Int64"].dtype)
     assert isinstance(builder["Int64"].distribution, DiscreteConstantDistribution)
     assert builder.get_default_distribution("continuous") is None
     builder.defaults = {}

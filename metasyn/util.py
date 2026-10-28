@@ -41,6 +41,18 @@ CONVERT_DICT = {
     "Object": "mixed",
 }
 
+DEFAULT_DTYPES = {
+    "discrete": "Int64",
+    "continuous": "Float64",
+    "date": "Date",
+    "datetime": "Datetime",
+    "time": "Time",
+    "duration": "Duration",
+    "string": "String",
+    "categorical": "Categorical",
+    "mixed": "Object"
+}
+
 
 def get_registry() -> dict:
     """Get the registry dictionary from the package.
@@ -140,7 +152,7 @@ def get_dtype(var_type: str|None) -> str | None:
     if var_type in CONVERT_DICT:
         return var_type
 
-    reverse_dict = defaultdict(list)
-    for dtype, vtype in CONVERT_DICT.items():
-        reverse_dict[vtype].append(dtype)
-    return reverse_dict[var_type][-1]
+    try:
+        return DEFAULT_DTYPES[var_type]
+    except KeyError as exc:
+        raise TypeError(f"Unsupported variable type {var_type}.") from exc

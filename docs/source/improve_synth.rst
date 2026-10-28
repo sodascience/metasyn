@@ -512,7 +512,7 @@ The following operators have been implemented and can be used to create composed
 Type conversions
 ^^^^^^^^^^^^^^^^
 
-When creating distributions, if can be necessary to convert distributions from one type to another.
+When creating distributions, it can be necessary to convert distributions from one type to another.
 For example, we might have "It is {degrees}C in {city}" for all rows. We can do that as follows:
 
 .. tab:: Python (MetaFrameBuilder)
