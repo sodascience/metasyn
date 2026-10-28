@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import random
-from collections import defaultdict
 
 import faker
 import numpy as np
