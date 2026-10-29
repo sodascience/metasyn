@@ -26,7 +26,7 @@ The process of generating synthetic data solely from the MetaFrame ensures that 
 The :class:`metasyn.builder.MetaFrameBuilder` class is a helper class that makes it easier to create a :class:`MetaFrame`.
 We generally recommend using the :class:`MetaFrameBuilder` class, since it provides more flexibility, generally is easier to understand,
 and has some extra features such as the :class:`metasyn.builder.FitLog`. While there are no concrete plans,
-the :method:`metasyn.metaframe.MetaFrame.fit_dataframe` method might be deprecated in the future.
+the :meth:`metasyn.metaframe.MetaFrame.fit_dataframe` method might be deprecated in the future.
 
 **What is the fit log?**
 ------------------------

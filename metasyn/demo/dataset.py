@@ -410,7 +410,7 @@ def demo_file(name: str = "titanic") -> Path:
     There are eight options:
         - titanic (Included in pandas, but post-processed to contain more columns)
         - spaceship (CC-BY from https://www.kaggle.com/competitions/spaceship-titanic)
-        - synthea_imaging (CC-BY from https://synthea.mitre.org/downloads)
+        - synthea_imaging (CC-BY from https://synthetichealth.github.io/downloads.html)
         - fruit (very basic example data from Polars)
         - survey (columns from ESS round 11 Human Values Scale questionnaire for the Netherlands)
         - test (columns with all supported data types)

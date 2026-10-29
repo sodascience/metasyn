@@ -5,7 +5,7 @@
     <span>
         <a href="https://www.repostatus.org/#active"><img src="https://www.repostatus.org/badges/latest/active.svg" alt="Project Status: Active – The project has reached a stable, usable state and is being actively developed." /></a>
         <a href="https://pypi.org/project/metasyn"><img src="https://img.shields.io/pypi/pyversions/metasyn" alt="metasyn on pypi"></img></a>
-        <a href="https://colab.research.google.com/github/sodascience/metasyn/blob/main/examples/getting_started.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="open getting started on colab"></img></a>
+        <a href="https://colab.research.google.com/github/sodascience/metasyn/blob/main/examples/1_getting_started.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="open getting started on colab"></img></a>
         <a href="https://metasyn.readthedocs.io/en/latest/index.html"><img src="https://readthedocs.org/projects/metasyn/badge/?version=latest" alt="Readthedocs"></img></a>
         <a href="https://hub.docker.com/r/sodateam/metasyn"><img src="https://img.shields.io/docker/v/sodateam/metasyn?logo=docker&label=docker&color=blue" alt="Docker image version"></img></a>
         <a href="https://zenodo.org/doi/10.5281/zenodo.7696031"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.7696031.svg" alt="DOI"></a>
@@ -79,13 +79,14 @@ df_synth.write_csv("output.csv")
 
 To explore more options and try this out online, take a look at our interactive tutorial:
 
-[![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sodascience/metasyn/blob/main/examples/getting_started.ipynb)
+[![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sodascience/metasyn/blob/main/examples/1_getting_started.ipynb)
 
 For more information on how to create dataframes with polars, refer to the [Polars documentation](https://pola.rs/). Metasyn also works with pandas dataframes!
 
 ## Where to go next
 
-- To explore more options and try this out online, take a look at our interactive tutorial: [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sodascience/metasyn/blob/main/examples/getting_started.ipynb) or follow our [quickstart](https://metasyn.readthedocs.io/en/latest/quick_start.html)
+- Try the [metasyn-toolbox](https://sodascience.github.io/metasyn-tools/) where you can generate synthetic data using sliders and dropdown menus without any coding at all!
+- To explore more options and try this out online, take a look at our interactive tutorial: [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sodascience/metasyn/blob/main/examples/1_getting_started.ipynb) or follow our [quickstart](https://metasyn.readthedocs.io/en/latest/quick_start.html)
 - As a next step to learn more about generating synthetic data with metasyn we recommend to check out the [improve your documentation](https://metasyn.readthedocs.io/en/latest/improve_synth.html) section.
 - To learn about how minimize the privacy risk of synthetic data, we have a [privacy guide](https://metasyn.readthedocs.io/en/latest/privacy_guide.html) or have a look at our [disclosure control plugin](https://github.com/sodascience/metasyn-disclosure-control).
 - Want to create programs that build on metasyn? Take a look at our versioned [Docker containers](https://hub.docker.com/r/sodateam/metasyn) and our [CLI](https://metasyn.readthedocs.io/en/latest/usage/cli.html).
