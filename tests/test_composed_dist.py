@@ -3,15 +3,18 @@ from pytest import mark
 
 from metasyn.builder import MetaFrameBuilder, VarBuilder
 from metasyn.distribution import (
+    AsType,
     ColumnReference,
     DiscreteConstantDistribution,
+    StringConstantDistribution,
+    ContinuousConstantDistribution,
     IfThenElse,
-    NADistribution,
     IsNull,
+    NADistribution,
 )
 from metasyn.distribution.base import BaseDistribution, Operator
-from metasyn.metaframe import MetaFrame
 from metasyn.gmf import parse_gmf_dict
+from metasyn.metaframe import MetaFrame
 
 
 def _compare_dist(dist_orig, dist_new):
@@ -67,7 +70,11 @@ def _compare_dist(dist_orig, dist_new):
         (NADistribution() != None, None),
         (IsNull(NADistribution()), True),
         (IsNull(DiscreteConstantDistribution(2)), False),
-        (NADistribution() != 3, None)
+        (NADistribution() != 3, None),
+        (AsType(DiscreteConstantDistribution(2), "string"), "2"),
+        (AsType(StringConstantDistribution("2.6"), "float"), 2.6),
+        (AsType(StringConstantDistribution("2"), "int"), 2),
+        (AsType(ContinuousConstantDistribution(2.5), "int"), 2),
     ]
 )
 def test_composed_results(dist, result, tmpdir):
@@ -85,7 +92,7 @@ def test_composed_results(dist, result, tmpdir):
     # mf.save_json(tmpdir / "test.json")
     # new_mf = MetaFrame.load_json(tmpdir / "test.json")
     assert _compare_dist(mf["test"].distribution, new_mf["test"].distribution)
-    assert mf["test"].var_type == new_mf["test"].var_type
+    assert mf["test"].dtype == new_mf["test"].dtype
     # assert new_mf["test"].distribution.__class__ == mf["test"].distribution.__class__
     # assert new_mf["test"].distribution._param_dict() == mf["test"].distribution._param_dict()
 
@@ -121,4 +128,41 @@ def test_reference(tmpdir):
     new_mf = MetaFrame.load_json(tmpdir / "test.json")
     for col in ["a", "b", "c"]:
         assert _compare_dist(mf[col].distribution, new_mf[col].distribution)
-        assert mf[col].var_type == new_mf[col].var_type
+        assert mf[col].dtype == new_mf[col].dtype
+
+@mark.parametrize("type_a,type_b,combined_type",
+    [
+        ("Uint8", "Uint8", "Uint8"),
+        ("Int32", "Uint32", "Int64"),
+        ("Int32", "Float64", "Float64"),
+        ("Time", "Duration", "Time"),
+        ("DateTime", "Duration", "DateTime"),
+        ("String", "Null", "String"),
+        ("Null", "Null", "Null"),
+    ]
+)
+def test_combine_types(type_a, type_b, combined_type):
+    res_type = Operator.combine_dtypes(type_a, type_b)
+    assert combined_type == res_type
+
+@mark.parametrize("type_a,type_b", [
+        ("Time", "String"),
+        ("Uint8", "Duration"),
+        ("Float", "Date"),
+    ])
+def test_incompatible_types(type_a, type_b):
+    with pytest.raises(ValueError):
+        Operator.combine_dtypes(type_a, type_b)
+
+
+def test_astype():
+    dist = AsType(2, "string")
+    assert dist.dtype({}) == "String"
+    assert isinstance(dist.draw_list(1, {})[0], str)
+    dist = AsType(2, "float")
+    assert dist.dtype({}) == "Float64"
+    assert isinstance(dist.draw_list(1, {})[0], float)
+    dist = AsType("2", "int")
+    assert dist.dtype({}) == "Int64"
+    assert isinstance(dist.draw_list(1, {})[0], int)
+
