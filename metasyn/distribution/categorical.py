@@ -71,11 +71,12 @@ class MultinoulliDistribution(BaseDistribution):
     @property
     def _params_formatted(self) -> str:
         n_categories = len(self.labels)
-        top_bottom_counts = (7, 3)       
+        top_bottom_counts = (7, 3)
         if n_categories <= top_bottom_counts[0]:
             return super()._params_formatted
         sorted_indices = np.argsort(-self.probs)
-        top_indices, bottom_indices = sorted_indices[:top_bottom_counts[0]], sorted_indices[-top_bottom_counts[1]:]
+        top_indices = sorted_indices[:top_bottom_counts[0]]
+        bottom_indices = sorted_indices[-top_bottom_counts[1]:]
         top_labels = ", ".join(repr(label) for label in self.labels[top_indices].tolist())
         top_probs = ", ".join(f"{prob:.3f}" for prob in self.probs[top_indices])
         bottom_labels = ", ".join(repr(label) for label in self.labels[bottom_indices].tolist())
