@@ -72,18 +72,15 @@ class MultinoulliDistribution(BaseDistribution):
     def _params_formatted(self) -> str:
         n_categories = len(self.labels)
         max_display = 10
-
         if n_categories > max_display:
             top_indices = np.argsort(-self.probs)[:max_display]
             labels = ", ".join(repr(label) for label in self.labels[top_indices].tolist())
             probs = ", ".join(f"{prob:.4f}" for prob in self.probs[top_indices])
-
             return (
                 f"\t- labels: [{labels}, ...]\n"
                 f"\t- probs: [{probs}, ...]\n"
                 f"\t- Showing {max_display} of {n_categories} categories"
             )
-
         else: 
             return "\n".join(
                 f"\t- {param}: {value}" for param,
