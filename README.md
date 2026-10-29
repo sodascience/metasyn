@@ -79,7 +79,7 @@ df_synth.write_csv("output.csv")
 
 To explore more options and try this out online, take a look at our interactive tutorial:
 
-[![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sodascience/metasyn/blob/main/examplesed.ipynb)
+[![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sodascience/metasyn/blob/main/examples/1_getting_started.ipynb)
 
 For more information on how to create dataframes with polars, refer to the [Polars documentation](https://pola.rs/). Metasyn also works with pandas dataframes!
 

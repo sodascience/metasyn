@@ -7,7 +7,7 @@ Metasyn-tools
 ^^^^^^^^^^^^^
 
 This is a set of tools that is installation-free and can be used without any Python knowledge. You can create synthetic datasets by setting the number of columns, rows and distributions.
-The tools can be found on `GitHub <https://sodascience.github.io/metasyn-tools/>`__`
+The tools can be found on `GitHub <https://sodascience.github.io/metasyn-tools/>`__.
 
 Interactive Tutorials
 ^^^^^^^^^^^^^^^^^^^^^
