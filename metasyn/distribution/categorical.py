@@ -71,21 +71,20 @@ class MultinoulliDistribution(BaseDistribution):
     @property
     def _params_formatted(self) -> str:
         n_categories = len(self.labels)
-        max_display = 10
-        if n_categories > max_display:
-            top_indices = np.argsort(-self.probs)[:max_display]
-            labels = ", ".join(repr(label) for label in self.labels[top_indices].tolist())
-            probs = ", ".join(f"{prob:.4f}" for prob in self.probs[top_indices])
-            return (
-                f"\t- labels: [{labels}, ...]\n"
-                f"\t- probs: [{probs}, ...]\n"
-                f"\t- Showing {max_display} of {n_categories} categories"
-            )
-        else:
-            return "\n".join(
-                f"\t- {param}: {value}" for param,
-                value in self._param_dict().items()
-            )
+        top_bottom_counts = (7, 3)       
+        if n_categories <= top_bottom_counts[0]:
+            return super()._params_formatted
+        sorted_indices = np.argsort(-self.probs)
+        top_indices, bottom_indices = sorted_indices[:top_bottom_counts[0]], sorted_indices[-top_bottom_counts[1]:]
+        top_labels = ", ".join(repr(label) for label in self.labels[top_indices].tolist())
+        top_probs = ", ".join(f"{prob:.3f}" for prob in self.probs[top_indices])
+        bottom_labels = ", ".join(repr(label) for label in self.labels[bottom_indices].tolist())
+        bottom_probs = ", ".join(f"{prob:.3f}" for prob in self.probs[bottom_indices])
+        return (
+            f"\t- labels: [{top_labels}, ..., {bottom_labels}]\n"
+            f"\t- probs: [{top_probs}, ..., {bottom_probs}]\n"
+            f"\tShowing {top_bottom_counts[0]+top_bottom_counts[1]} of {n_categories} categories"
+        )
 
     def draw(self):
         return np.random.choice(self.labels, p=self.probs)
