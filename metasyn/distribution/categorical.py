@@ -81,12 +81,12 @@ class MultinoulliDistribution(BaseDistribution):
                 f"\t- probs: [{probs}, ...]\n"
                 f"\t- Showing {max_display} of {n_categories} categories"
             )
-        else: 
+        else:
             return "\n".join(
                 f"\t- {param}: {value}" for param,
                 value in self._param_dict().items()
             )
-    
+
     def draw(self):
         return np.random.choice(self.labels, p=self.probs)
 
