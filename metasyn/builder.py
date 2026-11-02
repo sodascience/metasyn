@@ -873,12 +873,7 @@ class MixedFindDistributionRecipe(BaseRecipe):
         for val in var_builder.series:
             values_dict[val.__class__.__name__].append(val)
         series_list = [pl.Series(v) for v in values_dict.values()]
-        # series_by_vartype = defaultdict(list)
-        # for cur_series in series_list:
-            # series_by_vartype[get_var_type(cur_series)].append(cur_series)
 
-        # var_series = {var_type: pl.concat(v) for var_type, v in series_by_vartype.items()}
-        # var_series = {get_var_type(v): v for v in series_list}
         if any(get_var_type(v) == "mixed" for v in series_list):
             return None
         series_len = [len(s) for s in series_list]
