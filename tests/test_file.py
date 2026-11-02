@@ -138,7 +138,8 @@ def test_sav_interface(filename, tmpdir):
     (pl.Series([None, 1.0, 2.0]), pl.Series([None, "NA", 2.0], dtype=pl.Object),"F4.3", {1.0: "NA"}, pl.Object),
     (pl.Series([None, 1, 2]), pl.Series([None, "NA", 2], dtype=pl.Object), "F8.0", {1: "NA"}, pl.Object),
     (pl.Series([None, 2, 3]), pl.Series([None, 2, 3]), "F8.0", {1: "NA"}, pl.Int64),
-
+    (pl.Series([None, 1.5, 3.5]), pl.Series([None, 1.5, 3.5]), "F6.3", {1: "NA"}, pl.Float64),
+    (pl.Series([1, 2, 3]), pl.Series(["a", "b", "c"]), "F4.0", {1: "a", 2: "b", 3: "c"}, pl.Categorical),
 ])
 def test_sav_dtype_file(series, return_series, variable_format, labels, dtype, tmpdir):
     test_file = tmpdir / "test.sav"
