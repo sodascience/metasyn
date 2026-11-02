@@ -72,7 +72,7 @@ class MultinoulliDistribution(BaseDistribution):
     def _params_formatted(self) -> str:
         n_categories = len(self.labels)
         top_bottom_counts = (4, 3)
-        if n_categories <= top_bottom_counts[0]:
+        if n_categories <= sum(top_bottom_counts):
             return super()._params_formatted
         sorted_indices = np.argsort(-self.probs)
         top_indices = sorted_indices[:top_bottom_counts[0]]
