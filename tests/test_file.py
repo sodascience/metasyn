@@ -5,6 +5,7 @@ import pytest
 from pytest import mark
 
 import metasyn as ms
+from metasyn.builder import VarBuilder
 from metasyn.demo.dataset import _AVAILABLE_DATASETS, demo_data, demo_file
 from metasyn.file import (
     _AVAILABLE_FILE_INTERFACES,
@@ -132,6 +133,32 @@ def test_sav_interface(filename, tmpdir):
     new_df, new_sav_interface = SavFileInterface.read_file(zsav_file)
     assert new_sav_interface.metadata["compress"]
     assert new_df.columns == df.columns
+
+@mark.parametrize("series,return_series,variable_format,labels,dtype", [
+    (pl.Series([None, 1.0, 2.0]), pl.Series([None, "NA", 2.0], dtype=pl.Object),"F4.3", {1.0: "NA"}, pl.Object),
+    (pl.Series([None, 1, 2]), pl.Series([None, "NA", 2], dtype=pl.Object), "F8.0", {1: "NA"}, pl.Object),
+    (pl.Series([None, 2, 3]), pl.Series([None, 2, 3]), "F8.0", {1: "NA"}, pl.Int64),
+
+])
+def test_sav_dtype_file(series, return_series, variable_format, labels, dtype, tmpdir):
+    test_file = tmpdir / "test.sav"
+    df = pl.DataFrame({"test": series})
+    metadata = {
+        "column_labels": ["test_label"], "compress": False,
+        "variable_format": {"test": variable_format}, "variable_display_width": {"test": 8},
+        "variable_value_labels": {"test": labels},
+        "variable_measure": {"test": "scale"},
+    }
+    ff = SavFileInterface(metadata=metadata, file_name="test.sav")
+    ff.write_file(df, test_file)
+    new_df, ff2 = SavFileInterface.read_file(test_file)
+    ff2.metadata.pop("file_label")
+    assert ff.metadata == ff2.metadata
+    assert all(x == y for x, y in zip(new_df["test"], return_series))
+    assert all(type(x) is type(y) for x, y in zip(new_df["test"], return_series)), [type(y) for y in new_df["test"]]
+    assert new_df["test"].dtype == dtype
+    df_na, _ = SavFileInterface.read_file(test_file, apply_value_formats=False)
+    assert all(x == y for x, y in zip(df_na["test"], series))
 
 
 @mark.parametrize(

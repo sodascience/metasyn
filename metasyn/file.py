@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any, Optional, Type, Union
 
 import polars as pl
+from polars.exceptions import InvalidOperationError
 from tqdm import tqdm
 
 _AVAILABLE_FILE_INTERFACES: dict[str, type[BaseFileInterface]] = {}
@@ -190,7 +191,7 @@ class ReadStatInterface(BaseFileInterface, ABC):
         return df
 
     @classmethod
-    def _read_data(cls, fp, max_rows=None, chunk_size=None):
+    def _read_data(cls, fp, max_rows=None, chunk_size=None, apply_value_formats: bool = True):
         try:
             import pyreadstat  # noqa: PLC0415
         except ImportError as err:
@@ -200,12 +201,12 @@ class ReadStatInterface(BaseFileInterface, ABC):
 
         prs_func = getattr(pyreadstat, f"read_{cls.interface}")
         if max_rows is None:  # Read everything
-            return prs_func(fp, apply_value_formats=True, output_format="polars")
+            return prs_func(fp, apply_value_formats=apply_value_formats, output_format="polars")
         if chunk_size is None:  # Read first max_rows rows
-            return prs_func(fp, apply_value_formats=True, output_format="polars",
+            return prs_func(fp, apply_value_formats=apply_value_formats, output_format="polars",
                             row_limit=max_rows)
 
-        _, metadata = prs_func(fp, metadataonly=True)
+        _, metadata = prs_func(fp, metadataonly=apply_value_formats)
         n_rows = metadata.number_rows
 
         # Number of chunks is maximum number of rows divided by chunksize, rounded up
@@ -213,7 +214,7 @@ class ReadStatInterface(BaseFileInterface, ABC):
         # Starts of chunks are separated by total number of rows divided by number of chunks
         skip_size = n_rows // n_chunks
         if skip_size <= chunk_size:  # Sampling useless when all chunks are packed together
-            return prs_func(fp, apply_value_formats=True, output_format="polars",
+            return prs_func(fp, apply_value_formats=apply_value_formats, output_format="polars",
                             row_limit=max_rows)
 
         all_df = []
@@ -225,7 +226,8 @@ class ReadStatInterface(BaseFileInterface, ABC):
             if row_limit == 0:
                 break
             temp_df, prs_meta = prs_func(fp, row_offset=i_row, row_limit=row_limit,
-                                         apply_value_formats=True, output_format="polars")
+                                         apply_value_formats=apply_value_formats,
+                                         output_format="polars")
             all_df.append(temp_df)
 
         return pl.concat(all_df, how="vertical_relaxed"), prs_meta
@@ -233,7 +235,9 @@ class ReadStatInterface(BaseFileInterface, ABC):
     @classmethod
     def _get_df_metadata(cls, fp: Union[Path, str], **kwargs):
         """Read the dataset including the metadata."""
-        df, prs_metadata = cls._read_data(fp, **kwargs)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            df, prs_metadata = cls._read_data(fp, **kwargs)
         return cls._convert_with_orig_format(df, prs_metadata), prs_metadata
 
 
@@ -266,17 +270,28 @@ class ReadStatInterface(BaseFileInterface, ABC):
         except ImportError as err:
             raise ImportError(
                 f"Please install pyreadstat to write {'/'.join(self.extensions)} files.") from err
-        pd_df = self._prep_df_for_writing(df)
+        out_df = self._prep_df_for_writing(df)
         label_start = "This is a synthetic dataset created by metasyn. Original label: "
         metadata = {k: v for k, v in self.metadata.items()}
         orig_file_label = metadata.pop("file_label", None)
         orig_file_label = "" if orig_file_label is None else orig_file_label
-        metadata["variable_format"] = self._get_format(pd_df, df)
+        if "variable_value_labels" in self.metadata:
+            for col, mapping in self.metadata["variable_value_labels"].items():
+                if col not in df.columns or df[col].null_count() == len(df):
+                    continue
+                reverse_mapping = {v: k for k, v in mapping.items()}
+                try:
+                    out_df = out_df.with_columns(pl.col(col).replace_strict(reverse_mapping))
+                except InvalidOperationError:
+                    new_series = [x if x not in reverse_mapping else reverse_mapping[x]
+                                  for x in out_df[col]]
+                    df.replace_column(df.columns.index(col), pl.Series(col, new_series))
+        metadata["variable_format"] = self._get_format(out_df, df)
         if not orig_file_label.startswith(label_start):
             file_label = label_start + orig_file_label
         else:
             file_label = orig_file_label
-        getattr(pyreadstat, f"write_{self.interface}")(pd_df, out_fp, **metadata,
+        getattr(pyreadstat, f"write_{self.interface}")(out_df, out_fp, **metadata,
                                                        file_label=file_label)
 
     @classmethod
@@ -319,9 +334,17 @@ class SavFileInterface(ReadStatInterface):
         """Read the dataset including the metadata."""
         for col in df.columns:
             col_format = prs_metadata.original_variable_types[col]
-            if (col_format.startswith("F") and col_format.endswith(".0")
-                    and df[col].dtype == pl.Float64):
-                df = df.with_columns(pl.col(col).cast(pl.Int64))
+            if (col_format.startswith("F") and col_format.endswith(".0") ):
+                if df[col].dtype == pl.Object:
+                    df = df.map_columns(col, lambda x: x.map_elements(
+                        lambda y: int(y) if isinstance(y, float) else y, return_dtype=pl.Object))
+                elif df[col].dtype == pl.Float64 or df[col].dtype == pl.Float32:
+                    df = df.with_columns(pl.col(col).cast(pl.Int64))
+
+            if df[col].dtype == pl.Object and df[col].null_count() != len(df):
+                types = df[col].drop_nulls().map_elements(type)
+                if types.map_elements(lambda x: x == types[0]).all():
+                    df.replace_column(df.columns.index(col), pl.Series(col, df[col].to_list()))
         return df
 
     @classmethod
@@ -344,7 +367,6 @@ class SavFileInterface(ReadStatInterface):
 
         return metadata
 
-
     def _prep_df_for_writing(self, df):
         if "variable_format" in self.metadata:
             for col in df.columns:
@@ -353,6 +375,10 @@ class SavFileInterface(ReadStatInterface):
                         and df[col].dtype == pl.Float64):
                     n_round = int(col_format.split(".")[-1])
                     df = df.with_columns(pl.col(col).round(n_round))
+
+                # Workaround bug in pyreadstat 1.3.7, remove when fixed.
+                if len(df) == df[col].null_count() and df[col].dtype == pl.Object:
+                    df = df.with_columns(pl.col(col).cast(pl.String))
         return df
 
     @classmethod
