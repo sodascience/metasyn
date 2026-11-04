@@ -3,6 +3,7 @@
 import datetime as dt
 import re
 from abc import abstractmethod
+from dateutil.relativedelta import relativedelta
 from random import random
 from typing import Any, Dict
 
@@ -235,7 +236,9 @@ class DateTimeUniformDistribution(BaseDTUniformDistribution):
 
     @classmethod
     def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
-        return cls("2022-07-15T10:39:36", "2022-08-15T10:39:36", precision="seconds")
+        today = dt.datetime.now()
+        return cls((today + relativedelta(months=-12)).isoformat(),
+                   (today + relativedelta(months=-11)).isoformat(), precision="seconds")
 
 
 
