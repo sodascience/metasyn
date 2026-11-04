@@ -330,7 +330,9 @@ class DateUniformDistribution(BaseDTUniformDistribution):
 
     @classmethod
     def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
-        return cls("1903-07-15", "1940-07-16")
+        today = dt.datetime.now().date()
+        return cls((today + relativedelta(years=-31)).isoformat(),
+                   (today + relativedelta(years=-1)).isoformat())
 
     @classmethod
     def _param_schema(cls):
