@@ -149,17 +149,18 @@ def test_sav_dtype_file(series, return_series, variable_format, labels, dtype, t
         "variable_format": {"test": variable_format}, "variable_display_width": {"test": 8},
         "variable_value_labels": {"test": labels},
         "variable_measure": {"test": "scale"},
+        "apply_value_formats": True,
     }
     ff = SavFileInterface(metadata=metadata, file_name="test.sav")
     ff.write_file(df, test_file)
     new_df, ff2 = SavFileInterface.read_file(test_file)
     ff2.metadata.pop("file_label")
     assert ff.metadata == ff2.metadata
-    assert all(x == y for x, y in zip(new_df["test"], return_series))
+    assert all(x == y for x, y in zip(new_df["test"], return_series)), (new_df["test"], return_series)
     assert all(type(x) is type(y) for x, y in zip(new_df["test"], return_series)), [type(y) for y in new_df["test"]]
     assert new_df["test"].dtype == dtype
     df_na, _ = SavFileInterface.read_file(test_file, apply_value_formats=False)
-    assert all(x == y for x, y in zip(df_na["test"], series))
+    assert all(x == y for x, y in zip(df_na["test"], series)), (df_na["test"], series)
 
 
 @mark.parametrize(

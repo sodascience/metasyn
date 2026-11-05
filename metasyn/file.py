@@ -261,7 +261,7 @@ class ReadStatInterface(BaseFileInterface, ABC):
             warnings.warn(f"Trying to read file '{fp}' with extension different from"
                           f" {'/'.join(cls.extensions)}")
 
-        df, prs_metadata = cls._get_df_metadata(fp, **kwargs)
+        df, prs_metadata = cls._get_df_metadata(fp, **kwargs, apply_value_formats=apply_value_formats)
         metadata = cls._extract_metadata(prs_metadata, fp)
         metadata["apply_value_formats"] = apply_value_formats
         return df, cls(metadata, Path(fp).name)
@@ -276,10 +276,10 @@ class ReadStatInterface(BaseFileInterface, ABC):
         label_start = "This is a synthetic dataset created by metasyn. Original label: "
         metadata = {k: v for k, v in self.metadata.items()}
         orig_file_label = metadata.pop("file_label", None)
+        apply_value_formats = metadata.pop("apply_value_formats", True)
         orig_file_label = "" if orig_file_label is None else orig_file_label
         # If there are variable labels, reverse the application of variable labels
-        if ("variable_value_labels" in self.metadata
-                and self.metadata.get("apply_value_labels", True)):
+        if "variable_value_labels" in self.metadata and apply_value_formats:
             for col, mapping in self.metadata["variable_value_labels"].items():
                 if col not in df.columns or df[col].null_count() == len(df):
                     continue
