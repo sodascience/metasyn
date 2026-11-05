@@ -242,7 +242,7 @@ class ReadStatInterface(BaseFileInterface, ABC):
 
 
     @classmethod
-    def read_file(cls, fp: Union[Path, str], **kwargs):
+    def read_file(cls, fp: Union[Path, str], apply_value_formats=True, **kwargs):
         """Create the file interface from a .sav or .zsav file.
 
         Parameters
@@ -262,7 +262,9 @@ class ReadStatInterface(BaseFileInterface, ABC):
                           f" {'/'.join(cls.extensions)}")
 
         df, prs_metadata = cls._get_df_metadata(fp, **kwargs)
-        return df, cls(cls._extract_metadata(prs_metadata, fp), Path(fp).name)
+        metadata = cls._extract_metadata(prs_metadata, fp)
+        metadata["apply_value_formats"] = apply_value_formats
+        return df, cls(metadata, Path(fp).name)
 
     def _write_file(self, df: pl.DataFrame, out_fp: Union[Path, str]):
         try:
@@ -275,14 +277,18 @@ class ReadStatInterface(BaseFileInterface, ABC):
         metadata = {k: v for k, v in self.metadata.items()}
         orig_file_label = metadata.pop("file_label", None)
         orig_file_label = "" if orig_file_label is None else orig_file_label
-        if "variable_value_labels" in self.metadata:
+        # If there are variable labels, reverse the application of variable labels
+        if ("variable_value_labels" in self.metadata
+                and self.metadata.get("apply_value_labels", True)):
             for col, mapping in self.metadata["variable_value_labels"].items():
                 if col not in df.columns or df[col].null_count() == len(df):
                     continue
                 reverse_mapping = {v: k for k, v in mapping.items()}
                 try:
+                    # Try to replace the values back to the original with a fast method
                     out_df = out_df.with_columns(pl.col(col).replace_strict(reverse_mapping))
                 except InvalidOperationError:
+                    # Sometimes doesn't work if types are wrong, try the slow variant then
                     new_series = [x if x not in reverse_mapping else reverse_mapping[x]
                                   for x in out_df[col]]
                     df.replace_column(df.columns.index(col), pl.Series(col, new_series))
@@ -334,13 +340,17 @@ class SavFileInterface(ReadStatInterface):
         """Read the dataset including the metadata."""
         for col in df.columns:
             col_format = prs_metadata.original_variable_types[col]
+            # For .sav files, integers are denoted with the F{width}.0.
             if (col_format.startswith("F") and col_format.endswith(".0") ):
                 if df[col].dtype == pl.Object:
+                    # Slow cast to integer
                     df = df.map_columns(col, lambda x: x.map_elements(
                         lambda y: int(y) if isinstance(y, float) else y, return_dtype=pl.Object))
                 elif df[col].dtype == pl.Float64 or df[col].dtype == pl.Float32:
+                    # Fast cast to integer
                     df = df.with_columns(pl.col(col).cast(pl.Int64))
 
+            # If column has one type, then it should be converted from object dtype to that type.
             if df[col].dtype == pl.Object and df[col].null_count() != len(df):
                 types = df[col].drop_nulls().map_elements(type)
                 if types.map_elements(lambda x: x == types[0]).all():
