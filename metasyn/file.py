@@ -261,7 +261,8 @@ class ReadStatInterface(BaseFileInterface, ABC):
             warnings.warn(f"Trying to read file '{fp}' with extension different from"
                           f" {'/'.join(cls.extensions)}")
 
-        df, prs_metadata = cls._get_df_metadata(fp, **kwargs, apply_value_formats=apply_value_formats)
+        df, prs_metadata = cls._get_df_metadata(fp, **kwargs,
+                                                apply_value_formats=apply_value_formats)
         metadata = cls._extract_metadata(prs_metadata, fp)
         metadata["apply_value_formats"] = apply_value_formats
         return df, cls(metadata, Path(fp).name)
