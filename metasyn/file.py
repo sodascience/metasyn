@@ -73,6 +73,21 @@ class BaseFileInterface(ABC):
             "file_name": self.file_name,
         }
 
+    @classmethod
+    def from_dict(cls, interface_dict: dict):
+        """Create a file interface from the stored dictionary.
+
+        Parameters
+        ----------
+        interface_dict:
+            Dictionary containing the information to create the interface.
+        """
+        if interface_dict["file_interface_name"] != cls.format:
+            raise ValueError(f"Using wrong file interface, {interface_dict['file_interface_name']}"
+                             f" instead of {cls.format}.")
+        return cls(metadata=interface_dict["format_metadata"],
+                   file_name=interface_dict["file_name"])
+
     @abstractmethod
     def _write_file(self, df: pl.DataFrame, fp: Union[Path, str]):
         """Write synthetic file, to be implemented by file interface implementations.
@@ -185,6 +200,16 @@ class ReadStatInterface(BaseFileInterface, ABC):
 
     interface = "unknown"
 
+    def __init__(self, metadata, file_name):
+        super().__init__(metadata, file_name)
+        if "variable_value_labels" in metadata:
+            for col, data_dict in metadata["variable_value_labels"].items():
+                if not isinstance(data_dict, dict):
+                    continue
+                self.metadata["variable_value_labels"][col] = list(
+                    self.metadata["variable_value_labels"][col].items())
+
+
     def read_dataset(self, fp: Union[Path, str]):
         """Read the dataset without the metadata."""
         df, _ = SavFileInterface._get_df_metadata(fp)
@@ -284,7 +309,7 @@ class ReadStatInterface(BaseFileInterface, ABC):
             for col, mapping in self.metadata["variable_value_labels"].items():
                 if col not in df.columns or df[col].null_count() == len(df):
                     continue
-                reverse_mapping = {v: k for k, v in mapping.items()}
+                reverse_mapping = {v: k for k, v in mapping}
                 try:
                     # Try to replace the values back to the original with a fast method
                     out_df = out_df.with_columns(pl.col(col).replace_strict(reverse_mapping))
@@ -293,6 +318,9 @@ class ReadStatInterface(BaseFileInterface, ABC):
                     new_series = [x if x not in reverse_mapping else reverse_mapping[x]
                                   for x in out_df[col]]
                     df.replace_column(df.columns.index(col), pl.Series(col, new_series))
+            metadata["variable_value_labels"] = {
+                col: {k: v for k, v in data}
+                for col, data in metadata["variable_value_labels"].items()}
         metadata["variable_format"] = self._get_format(out_df, df)
         if not orig_file_label.startswith(label_start):
             file_label = label_start + orig_file_label
@@ -335,6 +363,7 @@ class SavFileInterface(ReadStatInterface):
     format = "sav"
     extensions = [".sav", ".zsav"]
     interface = "sav"
+
 
     @classmethod
     def _convert_with_orig_format(cls, df, prs_metadata):
@@ -389,6 +418,10 @@ class SavFileInterface(ReadStatInterface):
 
                 # Workaround bug in pyreadstat 1.3.7, remove when fixed.
                 if len(df) == df[col].null_count() and df[col].dtype == pl.Object:
+                    if col_format.startswith("F") and col_format.endswith(".0"):
+                        df = df.with_columns(pl.col(col).cast(pl.Int64))
+                    elif col_format.startswith("F"):
+                        df = df.with_columns(pl.col(col).cast(pl.Float64))
                     df = df.with_columns(pl.col(col).cast(pl.String))
         return df
 
@@ -598,8 +631,7 @@ def file_interface_from_dict(file_format_dict: dict) -> BaseFileInterface:
     """
     for interface_name, interface in _AVAILABLE_FILE_INTERFACES.items():
         if file_format_dict["file_interface_name"] == interface_name:
-            return interface(metadata=file_format_dict["format_metadata"],
-                             file_name=file_format_dict["file_name"])
+            return interface.from_dict(file_format_dict)
     raise ValueError(f"Cannot find file interface with name '{interface_name}'.")
 
 def read_file(fp: Union[Path, str], name: Optional[str] = None,
