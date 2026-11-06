@@ -141,14 +141,16 @@ def test_sav_interface(filename, tmpdir):
     (pl.Series([None, 2, 3]), pl.Series([None, 2, 3]), "F8.0", {1.0: "NA"}, pl.Int64),
     (pl.Series([None, 1.5, 3.5]), pl.Series([None, 1.5, 3.5]), "F6.3", {1.0: "NA"}, pl.Float64),
     (pl.Series([1, 2, 3]), pl.Series(["a", "b", "c"]), "F4.0", {1.0: "a", 2.0: "b", 3.0: "c"}, pl.Categorical),
+    (pl.Series([None, None, None], dtype=pl.Int64), pl.Series([None, None, None], dtype=pl.Int64), "F6.0", {}, pl.Null),
 ])
 def test_sav_dtype_file(series, return_series, variable_format, labels, dtype, tmpdir):
     test_file = tmpdir / "test.sav"
     df = pl.DataFrame({"test": series})
+    var_labels = {} if len(labels) == 0 else {"test": labels}
     metadata = {
         "column_labels": ["test_label"], "compress": False,
         "variable_format": {"test": variable_format}, "variable_display_width": {"test": 8},
-        "variable_value_labels": {"test": labels},
+        "variable_value_labels": var_labels,
         "variable_measure": {"test": "scale"},
         "apply_value_formats": True,
     }
@@ -157,7 +159,7 @@ def test_sav_dtype_file(series, return_series, variable_format, labels, dtype, t
     new_df, ff2 = SavFileInterface.read_file(test_file)
     ff2.metadata.pop("file_label")
     assert ff.metadata == ff2.metadata
-    new_label_keys = list(k for k, _ in ff2.metadata["variable_value_labels"]["test"])
+    new_label_keys = list(k for k, _ in ff2.metadata["variable_value_labels"].get("test", {}))
     assert new_label_keys == list(labels)
     assert all(type(new) is type(old) for new, old in zip(new_label_keys, list(labels)))
     assert all(x == y for x, y in zip(new_df["test"], return_series)), (new_df["test"], return_series)
@@ -169,7 +171,7 @@ def test_sav_dtype_file(series, return_series, variable_format, labels, dtype, t
     mf.save_json(tmpdir / "tmp.json")
     mf_new = MetaFrame.load_json(tmpdir / "tmp.json")
     print(mf_new.file_format)
-    new_labels = mf_new.file_format["format_metadata"]["variable_value_labels"]["test"]
+    new_labels = mf_new.file_format["format_metadata"]["variable_value_labels"].get("test", [])
     assert new_labels == list([k, v] for k, v in labels.items())
     assert [[type(k), type(v)] for k, v in new_labels] == list([type(k), type(v)] for k, v in labels.items())
 

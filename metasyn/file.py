@@ -418,6 +418,10 @@ class SavFileInterface(ReadStatInterface):
 
                 # Workaround bug in pyreadstat 1.3.7, remove when fixed.
                 if len(df) == df[col].null_count() and df[col].dtype == pl.Object:
+                    if col_format.startswith("F") and col_format.endswith(".0"):
+                        df = df.with_columns(pl.col(col).cast(pl.Int64))
+                    elif col_format.startswith("F"):
+                        df = df.with_columns(pl.col(col).cast(pl.Float64))
                     df = df.with_columns(pl.col(col).cast(pl.String))
         return df
 
