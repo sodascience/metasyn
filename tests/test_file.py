@@ -20,6 +20,7 @@ from metasyn.file import (
     read_sav,
     read_tsv,
 )
+from metasyn.metaframe import MetaFrame
 
 
 class BadFileInterface1(BaseFileInterface):
@@ -136,10 +137,10 @@ def test_sav_interface(filename, tmpdir):
 
 @mark.parametrize("series,return_series,variable_format,labels,dtype", [
     (pl.Series([None, 1.0, 2.0]), pl.Series([None, "NA", 2.0], dtype=pl.Object),"F4.3", {1.0: "NA"}, pl.Object),
-    (pl.Series([None, 1, 2]), pl.Series([None, "NA", 2], dtype=pl.Object), "F8.0", {1: "NA"}, pl.Object),
-    (pl.Series([None, 2, 3]), pl.Series([None, 2, 3]), "F8.0", {1: "NA"}, pl.Int64),
-    (pl.Series([None, 1.5, 3.5]), pl.Series([None, 1.5, 3.5]), "F6.3", {1: "NA"}, pl.Float64),
-    (pl.Series([1, 2, 3]), pl.Series(["a", "b", "c"]), "F4.0", {1: "a", 2: "b", 3: "c"}, pl.Categorical),
+    (pl.Series([None, 1, 2]), pl.Series([None, "NA", 2], dtype=pl.Object), "F8.0", {1.0: "NA"}, pl.Object),
+    (pl.Series([None, 2, 3]), pl.Series([None, 2, 3]), "F8.0", {1.0: "NA"}, pl.Int64),
+    (pl.Series([None, 1.5, 3.5]), pl.Series([None, 1.5, 3.5]), "F6.3", {1.0: "NA"}, pl.Float64),
+    (pl.Series([1, 2, 3]), pl.Series(["a", "b", "c"]), "F4.0", {1.0: "a", 2.0: "b", 3.0: "c"}, pl.Categorical),
 ])
 def test_sav_dtype_file(series, return_series, variable_format, labels, dtype, tmpdir):
     test_file = tmpdir / "test.sav"
@@ -156,12 +157,21 @@ def test_sav_dtype_file(series, return_series, variable_format, labels, dtype, t
     new_df, ff2 = SavFileInterface.read_file(test_file)
     ff2.metadata.pop("file_label")
     assert ff.metadata == ff2.metadata
+    new_label_keys = list(k for k, _ in ff2.metadata["variable_value_labels"]["test"])
+    assert new_label_keys == list(labels)
+    assert all(type(new) is type(old) for new, old in zip(new_label_keys, list(labels)))
     assert all(x == y for x, y in zip(new_df["test"], return_series)), (new_df["test"], return_series)
     assert all(type(x) is type(y) for x, y in zip(new_df["test"], return_series)), [type(y) for y in new_df["test"]]
     assert new_df["test"].dtype == dtype
-    df_na, _ = SavFileInterface.read_file(test_file, apply_value_formats=False)
+    df_na, ff = SavFileInterface.read_file(test_file, apply_value_formats=False)
     assert all(x == y for x, y in zip(df_na["test"], series)), (df_na["test"], series)
-
+    mf = MetaFrame.fit_dataframe(df_na, file_format=ff)
+    mf.save_json(tmpdir / "tmp.json")
+    mf_new = MetaFrame.load_json(tmpdir / "tmp.json")
+    print(mf_new.file_format)
+    new_labels = mf_new.file_format["format_metadata"]["variable_value_labels"]["test"]
+    assert new_labels == list([k, v] for k, v in labels.items())
+    assert [[type(k), type(v)] for k, v in new_labels] == list([type(k), type(v)] for k, v in labels.items())
 
 @mark.parametrize(
     "max_rows,chunk_size,length",
