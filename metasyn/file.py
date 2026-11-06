@@ -631,9 +631,7 @@ def file_interface_from_dict(file_format_dict: dict) -> BaseFileInterface:
     """
     for interface_name, interface in _AVAILABLE_FILE_INTERFACES.items():
         if file_format_dict["file_interface_name"] == interface_name:
-            return interface.from_dict(
-                metadata=file_format_dict["format_metadata"],
-                file_name=file_format_dict["file_name"])
+            return interface.from_dict(file_format_dict)
     raise ValueError(f"Cannot find file interface with name '{interface_name}'.")
 
 def read_file(fp: Union[Path, str], name: Optional[str] = None,
