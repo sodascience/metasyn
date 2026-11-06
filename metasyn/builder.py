@@ -803,8 +803,9 @@ class UnqFindDistributionRecipe(BaseRecipe):
                 return unq_dist
             warnings.warn(
                 f"\nMetasyn detected that variable '{series.name}' is potentially unique.\n"
-                f"Use var_spec=[VarSpec(\"{series.name}\", unique=True)] to make it unique."
-                f"\nTo dismiss this warning use [VarSpec(\"{series.name}\", unique=False)]."
+                f'Use builder["{series.name}"].distribution = {{"unique": True}} to make it unique.'
+                f'\nTo dismiss this warning use builder["{series.name}"].distribution = '
+                '{{"unique": False}}.'
                 "\nIf you are using a configuration file add distribution = {unique = True}"
                 f" for the variable with name '{series.name}'.",
                 UserWarning
@@ -846,6 +847,9 @@ class MixedFindDistributionRecipe(BaseRecipe):
     var_fractions: list[float]
 
     def fit(self, fit_log):
+        fit_log.add(created_by="metasyn")
+        fit_log.add(recipe="Mixed type distributions recipe with "
+                    f"{len(self.distribution_recipes)} types.")
         dist_list = [d.fit(fit_log) for d in self.distribution_recipes]
         return self._get_remaining_ifthenelse(dist_list, self.var_fractions)
 
@@ -869,15 +873,15 @@ class MixedFindDistributionRecipe(BaseRecipe):
         for val in var_builder.series:
             values_dict[val.__class__.__name__].append(val)
         series_list = [pl.Series(v) for v in values_dict.values()]
-        var_series = {get_var_type(v): v for v in series_list}
-        if "mixed" in var_series:
+
+        if any(get_var_type(v) == "mixed" for v in series_list):
             return None
-        series_len = [len(s) for s in var_series.values()]
+        series_len = [len(s) for s in series_list]
         series_frac = [curl/sum(series_len) for curl in series_len]
         if dist is None or dist.get("unique", None) is None:
             recipe_class: type[BaseRecipe] = UnqFindDistributionRecipe
         else:
             recipe_class = FindDistributionRecipe
 
-        return cls([recipe_class._create(var_builder, series) for series in var_series.values()],
+        return cls([recipe_class._create(var_builder, series) for series in series_list],
                    series_frac)
