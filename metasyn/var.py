@@ -26,8 +26,6 @@ class MetaVar:
 
     Parameters
     ----------
-    var_type:
-        String containing the variable type, e.g. continuous, string, etc.
     series:
         Series to create the variable from. Series is None by default and in
         this case the value is ignored. If it is not supplied, then the
