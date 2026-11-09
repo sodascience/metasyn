@@ -380,6 +380,12 @@ class SavFileInterface(ReadStatInterface):
                     # Fast cast to integer
                     df = df.with_columns(pl.col(col).cast(pl.Int64))
 
+            if df[col].dtype == pl.Null:
+                if col_format.startswith("F") and col_format.endswith(".0"):
+                    df = df.with_columns(pl.col(col).cast(pl.Int64))
+                elif col_format.startswith("F"):
+                    df = df.with_columns(pl.col(col).cast(pl.Float64))
+
             # If column has one type, then it should be converted from object dtype to that type.
             if df[col].dtype == pl.Object and df[col].null_count() != len(df):
                 types = df[col].drop_nulls().map_elements(type)
