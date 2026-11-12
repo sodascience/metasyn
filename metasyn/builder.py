@@ -236,6 +236,9 @@ class VarBuilder():
             return self._dtype
         if self.series is not None:
             return str(self.series.dtype)
+        var_dict = self.mf_builder.var_builders if self.mf_builder is not None else {}
+        if isinstance(self._distribution, DistributionLike):
+            return self._distribution.dtype(var_dict)
         if self._distribution is None or not isinstance(self._distribution, dict):
             return None
         try:
@@ -249,7 +252,6 @@ class VarBuilder():
                 dist = dist_class(**self._distribution["parameters"])
             else:
                 dist = self.registry.from_dict(self._distribution)
-            var_dict = self.mf_builder.var_builders if self.mf_builder is not None else {}
             return dist.dtype(var_dict)
         except Exception as exc:
             raise exc
