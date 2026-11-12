@@ -21,7 +21,7 @@ from metasyn.metaframe import MetaFrame
 from metasyn.multiframe import ColumnRelation, MultiFrame, _infer_relation, _validate_relation
 from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
 from metasyn.registry import DistributionRegistry
-from metasyn.util import dtype_to_vartype, get_var_type
+from metasyn.util import dtype_to_vartype, get_dtype, get_var_type
 from metasyn.var import MetaVar
 
 try:
@@ -242,18 +242,17 @@ class VarBuilder():
             if "parameters" in self._distribution:
                 dist_class = self.registry.find_distribution(
                     self._distribution.get("name", self._distribution.get("implements")),
-                    dtype=None,
+                    dtype=get_dtype(self._distribution.get("dtype",
+                                    self._distribution.get("var_type"))),
                     unique=self._distribution.get("unique", False),
                     version=self._distribution.get("version", None))
                 dist = dist_class(**self._distribution["parameters"])
             else:
-                dist = self.registry.from_dict({
-                    "distribution": self._distribution,
-                })
+                dist = self.registry.from_dict(self._distribution)
             var_dict = self.mf_builder.var_builders if self.mf_builder is not None else {}
             return dist.dtype(var_dict)
-        except Exception:
-            pass
+        except Exception as exc:
+            raise exc
         return None
 
 
@@ -696,9 +695,7 @@ class DistributionRecipe(BaseRecipe):
 
         elif isinstance(var_builder.distribution, dict):
             try:
-                return cls(var_builder.registry.from_dict({
-                    "distribution": distribution,
-                }))
+                return cls(var_builder.registry.from_dict(distribution))
             except Exception:
                 pass
         return None
