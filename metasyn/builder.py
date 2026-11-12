@@ -695,7 +695,7 @@ class DistributionRecipe(BaseRecipe):
             dist = dist_class(**distribution["parameters"])
             return cls(dist)
 
-        elif isinstance(var_builder.distribution, dict):
+        elif isinstance(distribution, dict):
             try:
                 return cls(var_builder.registry.from_dict(distribution))
             except Exception:
