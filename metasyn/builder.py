@@ -253,8 +253,8 @@ class VarBuilder():
             else:
                 dist = self.registry.from_dict(self._distribution)
             return dist.dtype(var_dict)
-        except Exception as exc:
-            raise exc
+        except Exception:
+            pass
         return None
 
 
