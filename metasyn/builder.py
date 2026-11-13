@@ -21,7 +21,7 @@ from metasyn.metaframe import MetaFrame
 from metasyn.multiframe import ColumnRelation, MultiFrame, _infer_relation, _validate_relation
 from metasyn.privacy import BasePrivacy, BasicPrivacy, get_privacy
 from metasyn.registry import DistributionRegistry
-from metasyn.util import dtype_to_vartype, get_var_type
+from metasyn.util import dtype_to_vartype, get_dtype, get_var_type
 from metasyn.var import MetaVar
 
 try:
@@ -234,16 +234,29 @@ class VarBuilder():
         """Type of the elements in the series to be generated."""
         if self._dtype is not None:
             return self._dtype
-        if self.series is not None and isinstance(self.series, pl.Series):
+        if self.series is not None:
             return str(self.series.dtype)
-        if self.series is None and self._distribution is None:
+        var_dict = self.mf_builder.var_builders if self.mf_builder is not None else {}
+        if isinstance(self._distribution, DistributionLike):
+            return self._distribution.dtype(var_dict)
+        if self._distribution is None or not isinstance(self._distribution, dict):
             return None
         try:
-            var_dict = {} if self.mf_builder is None else self.mf_builder.var_builders
-            return self.recipe.fit(VarLog()).dtype(var_dict)
-        except TypeError:
+            if "parameters" in self._distribution:
+                dist_class = self.registry.find_distribution(
+                    self._distribution.get("name", self._distribution.get("implements")),
+                    dtype=get_dtype(self._distribution.get("dtype",
+                                    self._distribution.get("var_type"))),
+                    unique=self._distribution.get("unique", False),
+                    version=self._distribution.get("version", None))
+                dist = dist_class(**self._distribution["parameters"])
+            else:
+                dist = self.registry.from_dict(self._distribution)
+            return dist.dtype(var_dict)
+        except Exception:
             pass
         return None
+
 
     @dtype.setter
     def dtype(self, val):
@@ -664,17 +677,12 @@ class DistributionRecipe(BaseRecipe):
     def create(cls, var_builder: VarBuilder):
         distribution = var_builder.distribution
         if isinstance(distribution, DistributionLike):
-            # if var_builder.series is None:
-                # var_builder.series = pl.Series([var_builder.distribution.draw()])
             return cls(distribution)
-        elif (isinstance(distribution, dict)
-                and "parameters" in distribution):
+        elif (isinstance(distribution, dict) and "parameters" in distribution):
             if "class_name" in distribution:
                 var_builder.registry.find_distribution(class_name=distribution["class_name"],
                                                        version=distribution.get("version", None))
-            name = distribution.get("name")
-            if name is None:
-                name = distribution.get("implements")
+            name = distribution.get("name", distribution.get("implements"))
             if name is None or not isinstance(name, str):
                 raise TypeError("Distribution dictionary with parameters, but name missing or "
                                 f"wrong type for column {var_builder.name}.")
@@ -687,12 +695,9 @@ class DistributionRecipe(BaseRecipe):
             dist = dist_class(**distribution["parameters"])
             return cls(dist)
 
-        elif isinstance(var_builder.distribution, dict):
+        elif isinstance(distribution, dict):
             try:
-                return cls(var_builder.registry.from_dict({
-                    "distribution": distribution,
-                    "type": dtype_to_vartype(var_builder.dtype)
-                }))
+                return cls(var_builder.registry.from_dict(distribution))
             except Exception:
                 pass
         return None

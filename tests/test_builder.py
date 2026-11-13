@@ -23,7 +23,7 @@ from metasyn.distribution import (
     IfThenElse,
     RegexFitter,
 )
-from metasyn.distribution.base import BaseFitter, VarLog
+from metasyn.distribution.base import BaseFitter, VarLog, BaseDistribution
 from metasyn.metaframe import MetaFrame
 from metasyn.privacy import BasicPrivacy
 from metasyn.registry import DistributionRegistry
@@ -55,6 +55,21 @@ def test_builder_privacy(builder):
     assert isinstance(builder["Int64"].privacy, OtherPrivacy)
     builder["Int64"].privacy = BasicPrivacy()
     assert builder["Int64"].privacy.__class__ == BasicPrivacy
+
+@mark.parametrize("dist,dtype", [
+    ({"name": "uniform", "dtype": "Float64", "parameters": {"lower": 1.0, "upper": 2.0}}, "Float64"),
+    ({"name": "uniform", "var_type": "discrete", "parameters": {"lower": 1, "upper": 2}}, "Int64"),
+    ({"distribution": DiscreteConstantDistribution(10).to_dict()}, "Int64"),
+    ({"implements": "uniform", "var_type": "discrete", "parameters": {"lower": 1, "upper": 2}}, "Int64"),
+
+])
+def test_infer_dtype(dist, dtype):
+    vb = VarBuilder()
+    vb.distribution = dist
+    assert vb.dtype == dtype
+    var = vb.fit()
+    assert isinstance(var.distribution, BaseDistribution)
+    assert var.distribution.dtype({}) == dtype
 
 def test_varbuilder_error():
     vb = VarBuilder(series=ContinuousConstantDistribution(1.0))
