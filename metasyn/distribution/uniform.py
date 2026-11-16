@@ -236,9 +236,9 @@ class DateTimeUniformDistribution(BaseDTUniformDistribution):
 
     @classmethod
     def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
-        today = dt.datetime.now()
-        return cls((today + relativedelta(months=-12)).isoformat(),
-                   (today + relativedelta(months=-11)).isoformat(), precision="seconds")
+        day = dt.datetime.fromisoformat('2026-01-01')
+        return cls((day + relativedelta(months=-12)).isoformat(),
+                   (day + relativedelta(months=-11)).isoformat(), precision="seconds")
 
 
 
