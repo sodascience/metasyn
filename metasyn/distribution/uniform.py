@@ -235,7 +235,7 @@ class DateTimeUniformDistribution(BaseDTUniformDistribution):
 
     @classmethod
     def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
-        return cls(('2025-01-01T00:00:00', '2025-02-01T00:00:00'), precision="seconds")
+        return cls('2025-01-01T00:00:00', '2025-02-01T00:00:00', precision="seconds")
 
 
 
@@ -327,7 +327,7 @@ class DateUniformDistribution(BaseDTUniformDistribution):
 
     @classmethod
     def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
-        return cls(('1995-01-01T00:00:00', '2025-01-01T00:00:00'))
+        return cls('1995-01-01T00:00:00', '2025-01-01T00:00:00')
 
     @classmethod
     def _param_schema(cls):
