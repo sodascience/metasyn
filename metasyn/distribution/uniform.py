@@ -8,7 +8,6 @@ from typing import Any, Dict
 
 import numpy as np
 import polars as pl
-from dateutil.relativedelta import relativedelta
 from scipy.stats import randint, uniform
 
 from metasyn.distribution.base import (
@@ -236,9 +235,7 @@ class DateTimeUniformDistribution(BaseDTUniformDistribution):
 
     @classmethod
     def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
-        day = dt.datetime.fromisoformat('2026-01-01')
-        return cls((day + relativedelta(months=-12)).isoformat(),
-                   (day + relativedelta(months=-11)).isoformat(), precision="seconds")
+        return cls(('2025-01-01T00:00:00', '2025-02-01T00:00:00'), precision="seconds")
 
 
 
@@ -330,10 +327,7 @@ class DateUniformDistribution(BaseDTUniformDistribution):
 
     @classmethod
     def default_distribution(cls, var_type=None) -> BaseDistribution: # noqa: ARG003
-        day = dt.datetime.fromisoformat('2026-01-01')
-        return cls((day + relativedelta(years=-31)).isoformat(),
-                   (day + relativedelta(years=-1)).isoformat())
-
+        return cls(('1995-01-01T00:00:00', '2025-01-01T00:00:00'))
 
     @classmethod
     def _param_schema(cls):
