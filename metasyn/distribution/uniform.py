@@ -3,12 +3,12 @@
 import datetime as dt
 import re
 from abc import abstractmethod
-from dateutil.relativedelta import relativedelta
 from random import random
 from typing import Any, Dict
 
 import numpy as np
 import polars as pl
+from dateutil.relativedelta import relativedelta
 from scipy.stats import randint, uniform
 
 from metasyn.distribution.base import (
