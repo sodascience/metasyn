@@ -41,8 +41,8 @@ name = "core.uniform"
 unique = false
 
 [var.distribution.parameters]
-lower = "1903-07-15"
-upper = "1940-07-16"
+lower = "1995-01-01"
+upper = "2025-01-01"
 
 
 [[var]]
@@ -68,8 +68,8 @@ name = "core.uniform"
 unique = false
 
 [var.distribution.parameters]
-lower = "2025-11-19T15:52:40"
-upper = "2025-12-19T15:52:40"
+lower = "2025-01-01T00:00:00"
+upper = "2025-02-01T00:00:00"
 precision = "seconds"
 
 
