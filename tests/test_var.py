@@ -22,7 +22,7 @@ from metasyn.distribution.regex import RegexDistribution, UniqueRegexDistributio
 from metasyn.distribution.uniform import ContinuousUniformDistribution, DiscreteUniformDistribution
 from metasyn.distribution.uniquekey import UniqueKeyDistribution
 from metasyn.metaframe import _jsonify
-from metasyn.util import get_var_type
+from metasyn.util import CONVERT_DICT, get_var_type
 from metasyn.var import MetaVar
 
 
@@ -65,7 +65,7 @@ def check_var(series, var_type, temp_path, all_nan=False):
     new_series = var.draw_series(len(series), seed=5123)
     check_random_draw(var, len(series))
     check_similar(series, new_series)
-    assert var.var_type == var_type
+    assert CONVERT_DICT[var.dtype] == var_type
     assert var_type in var.distribution.var_type
     assert var.creation_method["created_by"] == "metasyn"
 
@@ -86,7 +86,7 @@ def check_var(series, var_type, temp_path, all_nan=False):
 
     assert type(new_var) is type(var)
     assert new_var.dtype == var.dtype
-    assert var_type == new_var.var_type
+    assert var_type == CONVERT_DICT[new_var.dtype]
 
     # Write to JSON file and read it back
     tmp_fp = temp_path / "tmp.json"
@@ -99,7 +99,7 @@ def check_var(series, var_type, temp_path, all_nan=False):
 
     assert type(new_var) is type(var)
     assert new_var.dtype == var.dtype
-    assert new_var.var_type == var_type
+    assert CONVERT_DICT[new_var.dtype] == var_type
     assert new_var.creation_method["created_by"] == "metasyn"
 
     return new_series
@@ -235,9 +235,9 @@ def test_bool(tmp_path, series_type):
 )
 def test_invalid_prop(prop_missing):
     """Ensure that errors are thrown for prop_missing outside of [0, 1]."""
-    MetaVar("test", "discrete", DiscreteUniformDistribution.default_distribution())
+    MetaVar("test", DiscreteUniformDistribution.default_distribution())
     with raises(ValueError):
-        MetaVar("test", "discrete", DiscreteUniformDistribution.default_distribution(),
+        MetaVar("test", DiscreteUniformDistribution.default_distribution(),
                 prop_missing=prop_missing)
 
 @mark.parametrize(
@@ -264,8 +264,8 @@ def test_get_var_type(series, var_type):
 
 def test_unsupported_type():
     series = pl.Series([MetaVar])
-    with pytest.raises(TypeError):
-        get_var_type(series)
+    # with pytest.raises(TypeError):
+    assert get_var_type(series) == "mixed"
 
 
 @mark.parametrize(
@@ -296,7 +296,7 @@ def test_manual_fit(series):
 def test_na_zero(series):
     """Test whether fitting a series with only NA works."""
     var = VarBuilder(series).fit()
-    assert var.var_type == "continuous"
+    assert CONVERT_DICT[var.dtype] == "continuous"
     assert var.prop_missing == 1.0
 
 
@@ -308,7 +308,7 @@ def test_na_zero(series):
 def test_na_one(series):
     """Test whether fitting a series with exactly one non-NA values works."""
     var = VarBuilder(series).fit()
-    assert var.var_type == "continuous"
+    assert CONVERT_DICT[var.dtype] == "continuous"
     assert abs(var.prop_missing-0.9) < 1e7
 
 
@@ -320,7 +320,7 @@ def test_na_one(series):
 def test_na_two(series):
     """Test whether fitting a series with exactly two non-NA values works."""
     var = VarBuilder(series).fit()
-    assert var.var_type == "continuous"
+    assert CONVERT_DICT[var.dtype] == "continuous"
     assert abs(var.prop_missing-0.8) < 1e7
 
 

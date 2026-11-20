@@ -242,8 +242,8 @@ The most common use-case for this is to set the distribution type and/or paramet
       # And more specifications for that column after this.
 
 
-Description: ``description``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Description
+^^^^^^^^^^^
 
 You can add a description about your column. This will not be used in the estimation phase of metasyn,
 but it will be present in the resulting GMF file so that others can more easily understand what is
@@ -273,8 +273,8 @@ in the data.
       description = "Cabin number of the passenger."
 
 
-Missing values: ``prop_missing``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Missing values
+^^^^^^^^^^^^^^
 
 By default metasyn will estimate the proportion of missing values from the data, but you can
 overwrite this with the ``prop_missing`` parameter (between 0 and 1, inclusive):
@@ -301,8 +301,8 @@ overwrite this with the ``prop_missing`` parameter (between 0 and 1, inclusive):
       prop_missing = 0.2
 
 
-Privacy: ``privacy``
-^^^^^^^^^^^^^^^^^^^^
+Privacy
+^^^^^^^
 
 You can override the privacy level for specific columns:
 
@@ -332,8 +332,8 @@ You can override the privacy level for specific columns:
       privacy = "disclosure"
 
 
-Uniqueness: ``unique``
-^^^^^^^^^^^^^^^^^^^^^^
+Uniqueness
+^^^^^^^^^^
 
 Some distributions produce only values that are unique without any repeats (see distributions starting with ``Unique``
 in :doc:`api/metasyn.distribution`). By default, metasyn will not select any unique distributions. An exception
@@ -363,8 +363,8 @@ increasing. When the column represents a variable that is known to be unique (su
 
 
 
-Distribution: ``distribution``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Distributions
+^^^^^^^^^^^^^
 
 You can specify the distribution for a column in two different ways: either specify only the type of distribution
 and let metasyn find the parameters or specify both the type and parameters of the distribution.
@@ -400,7 +400,7 @@ that supports the string type. An overview of all distributions sorted by type c
 
 
 Composed distributions
-""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^
 
 It is possible to preserve relationships between synthetic columns. You can use
 :class:`~metasyn.distribution.ColumnReference` to refer to a value generated for another column in the same row and use it 
@@ -507,3 +507,39 @@ The following operators have been implemented and can be used to create composed
    * - ``__ge__``
      - ``a >= b``
      - ``Age >= 18``
+
+
+Type conversions
+^^^^^^^^^^^^^^^^
+
+When creating distributions, it can be necessary to convert distributions from one type to another.
+For example, we might have "It is {degrees}C in {city}" for all rows. We can do that as follows:
+
+.. tab:: Python (MetaFrameBuilder)
+
+   .. code-block:: python
+
+      from metasyn.distribution import StringConstantDistribution, AsType
+      from metasyn.distribution import DiscreteUniformDistribution
+
+      builder["Weather"].distribution = (
+            StringConstantDistribution("It is ") +
+            AsType(DiscreteUniformDistribution(-5, 25), "string") + 
+            StringConstantDistribution("C in ") +
+            FakerDistribution("city")
+      )
+
+.. tab:: Python (fit_dataframe)
+
+   .. code-block:: python
+
+      from metasyn.distribution import StringConstantDistribution, AsType
+      from metasyn.distribution import DiscreteUniformDistribution
+
+      specs = [ {"name": "Weather", "distribution": (
+         StringConstantDistribution("It is ") +
+         AsType(DiscreteUniformDistribution(-5, 25), "string") + 
+         StringConstantDistribution("C in ") +
+         FakerDistribution("city")
+      )}]
+      MetaFrame.fit_dataframe(df, var_specs=specs)

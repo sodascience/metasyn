@@ -27,8 +27,13 @@ import polars as pl
 from numpy import typing as npt
 
 from metasyn.privacy import BasePrivacy
-from metasyn.util import get_var_type
+from metasyn.util import get_dtype, get_var_type
 
+
+def _get_dtype(dist_or_val, var_builder_dict):
+    if isinstance(dist_or_val, DistributionLike):
+        return dist_or_val.dtype(var_builder_dict)
+    return str(pl.Series([dist_or_val]).dtype)
 
 def convert_to_series(values: Union[npt.NDArray, pl.Series]) -> pl.Series:
     """Convert list or pandas series to polars series."""
@@ -306,6 +311,16 @@ class DistributionLike(ABC):  #noqa: PLW1641
     def from_dict(cls, dist_dict) -> DistributionLike:
         raise NotImplementedError()
 
+    @abstractmethod
+    def dtype(self, var_builder_dict: dict) -> str | None:
+        """Get the dtype of the distribution.
+
+        Parameters
+        ----------
+        var_builder_dict:
+            Dictionary containing var_builders for all available columns.
+            This is only used for the column reference operator.
+        """
 
 @dataclass
 class Operator(DistributionLike):
@@ -386,6 +401,32 @@ class Operator(DistributionLike):
     def from_dict(cls, dist_dict) -> Operator:
         return cls(*dist_dict["operands"])
 
+    def dtype(self, var_builder_dict: dict) -> str:
+        return self.combine_dtypes(*[_get_dtype(d, var_builder_dict) for d in self.operands])
+
+    @staticmethod
+    def combine_dtypes(*all_dtypes) -> str:  # noqa: PLR0911
+        dtypes = [d for d in all_dtypes if d != "Null"]
+        if len(dtypes) == 0:
+            return "Null"
+
+        if all(d == dtypes[0] for d in dtypes):
+            return dtypes[0]
+        if all(d.startswith("Uint") for d in dtypes):
+            return "Uint64"
+        if all(d.startswith(("Int", "Uint")) for d in dtypes):
+            return "Int64"
+        if all(d.startswith(("Int", "Uint", "Float")) for d in dtypes):
+            return "Float64"
+        if any(d == "Time" for d in dtypes) and all(d in ("Time", "Duration") for d in dtypes):
+            return "Time"
+        if any(d == "DateTime" for d in dtypes) and all(d in ("DateTime", "Duration")
+                                                        for d in dtypes):
+            return "DateTime"
+        raise ValueError("Incompatible distribution: trying to combine incompatible types"
+                         f"{dtypes}")
+
+
 @dataclass
 class IsNull(Operator):
     """Operator to test whether a column is None/null."""
@@ -396,6 +437,9 @@ class IsNull(Operator):
         if operand is None:
             return True
         return False
+
+    def dtype(self, var_builder_dict: dict):  # noqa: ARG002
+        return "Boolean"
 
 
 @dataclass
@@ -410,6 +454,9 @@ class EqualsCondition(Operator):
             return None
         return left_operand == right_operand
 
+    def dtype(self, var_builder_dict: dict) -> str:  # noqa: ARG002
+        return "Boolean"
+
 @dataclass
 class IfThenElse(Operator):
     """Ternary operator that tests a condition and returns from two alternatives."""
@@ -423,6 +470,12 @@ class IfThenElse(Operator):
             return None
         return then_operand if condition else else_operand
 
+    def dtype(self, var_builder_dict: dict) -> str:
+        then_dtype = _get_dtype(self.then_operand, var_builder_dict)
+        else_dtype = _get_dtype(self.else_operand, var_builder_dict)
+        if then_dtype == else_dtype:
+            return then_dtype
+        return "Object"
 
 @dataclass
 class PlusOperator(Operator):
@@ -460,6 +513,12 @@ class DivideOperator(Operator):
         if left_operand is None or right_operand is None:
             return None
         return left_operand / right_operand
+
+    def dtype(self, var_builder_dict: dict) -> str:
+        dtype = super().dtype(var_builder_dict)
+        if dtype.startswith(("Uint", "Int")):
+            return "Float64"
+        return dtype
 
 @dataclass
 class SubOperator(Operator):
@@ -521,6 +580,9 @@ class LessThanCondition(Operator):
             return None
         return left_operand < right_operand
 
+    def dtype(self, var_builder_dict: dict) -> str:  # noqa: ARG002
+        return "Boolean"
+
 @dataclass
 class GreaterThanCondition(Operator):
     """Operator to test whether the left value is greater than the right value."""
@@ -532,6 +594,9 @@ class GreaterThanCondition(Operator):
         if left_operand is None or right_operand is None:
             return None
         return left_operand > right_operand
+
+    def dtype(self, var_builder_dict: dict) -> str:  # noqa: ARG002
+        return "Boolean"
 
 @dataclass
 class NotEqualsCondition(Operator):
@@ -545,6 +610,9 @@ class NotEqualsCondition(Operator):
             return None
         return left_operand != right_operand
 
+    def dtype(self, var_builder_dict: dict) -> str:  # noqa: ARG002
+        return "Boolean"
+
 @dataclass
 class NotOperator(Operator):
     """Logical NOT operator that negates a value."""
@@ -555,6 +623,72 @@ class NotOperator(Operator):
         if operand is None:
             return None
         return not operand
+
+
+    def dtype(self, var_builder_dict: dict) -> str:  # noqa: ARG002
+        return "Boolean"
+
+
+@dataclass
+class AsType(Operator):
+    """Convert from one type to another.
+
+    Only to string, integer and float are supported.
+    """
+
+    operand: Any
+    to_type: str
+
+    def __iter__(self):
+        yield "operand"
+
+    def compute(self, operand: Any) -> Any | None:
+        if operand is None:
+            return None
+        match self.to_type:
+            case "string":
+                return str(operand)
+            case "int":
+                return int(operand)
+            case "float":
+                return float(operand)
+            case _:
+                raise ValueError("Cannot convert to other types than 'string', 'int' or 'float'")
+
+    def dtype(self, var_builder_dict: dict) -> str:  # noqa: ARG002
+        match self.to_type:
+            case "string":
+                return "String"
+            case "int":
+                return "Int64"
+            case "float":
+                return "Float64"
+            case _:
+                raise ValueError(f"AsType has the wrong type: '{self.to_type}'")
+
+    @classmethod
+    def schema(cls):
+        return {
+            "type": "object",
+            "properties": {
+                "name": {"const": cls.__name__},
+                "to_type": {"type": "string"}
+            },
+            "required": ["name", "operand", "to_type"]
+        }
+
+    def to_dict(self) -> dict:
+        op = self.operand
+        return {
+            "name": self.__class__.__name__,
+            "operand": op.to_dict() if isinstance(op, DistributionLike) else op,
+            "to_type": self.to_type,
+        }
+
+    @classmethod
+    def from_dict(cls, dist_dict) -> AsType:
+        return cls(dist_dict["operand"], dist_dict["to_type"])
+
 
 class ColumnReference(DistributionLike):
     """Returns the value of another already synthesized column."""
@@ -596,6 +730,12 @@ class ColumnReference(DistributionLike):
             },
             "required": ["name", "ref_name"],
         }
+
+    def dtype(self, var_builder_dict: dict) -> str:
+        try:
+            return var_builder_dict[self.ref_name].dtype
+        except KeyError:
+            return "unknown"
 
 class BaseDistribution(DistributionLike):
     """Abstract base class to define a distribution.
@@ -744,6 +884,14 @@ class BaseDistribution(DistributionLike):
             List of values.
         """
         return [self.draw() for _ in range(n)]
+
+    def dtype(self, var_builder_dict: dict) -> str:  # noqa: ARG002
+        if isinstance(self.var_type, str):
+            dtype = get_dtype(self.var_type)
+            assert dtype is not None
+            return dtype
+        raise NotImplementedError("f{self.__class__.__name__} has not implemented dtype when having"
+                                  " multiple.")
 
 def metadist(
         name: Optional[str] = None,

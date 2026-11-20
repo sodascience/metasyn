@@ -20,7 +20,7 @@ def test_faker(series_type):
     assert 'faker' in str(dist)
     assert dist.locale == "en_US"
     assert dist.faker_type == "city"
-    var = MetaVar("some_city", "string", dist, prop_missing=0.0)
+    var = MetaVar("some_city", dist, prop_missing=0.0)
     series_1 = var.draw_series(100, seed=1234)
     series_2 = var.draw_series(100, seed=1234)
     assert all(series_1 == series_2)
@@ -44,7 +44,7 @@ def test_free_text(series, lang, avg_sentences, avg_words):
     assert dist.locale == lang
     assert dist.avg_sentences == avg_sentences
     assert dist.avg_words == avg_words
-    var = MetaVar("some_var", "string", dist, prop_missing=0.0)
+    var = MetaVar("some_var", dist, prop_missing=0.0)
     series_1 = var.draw_series(100, seed=1234)
     series_2 = var.draw_series(100, seed=1234)
     assert all(series_1 == series_2)
@@ -52,7 +52,7 @@ def test_free_text(series, lang, avg_sentences, avg_words):
 
 def test_unique_regex():
     dist = UniqueRegexDistribution(r"[0-9]")
-    var = MetaVar("some_var", "string", dist, prop_missing=0.0)
+    var = MetaVar("some_var", dist, dtype="String", prop_missing=0.0)
 
     series = var.draw_series(10, None)
     assert len(series.unique()) == 10
@@ -62,7 +62,7 @@ def test_unique_regex():
 
 def test_unique_faker():
     dist = UniqueFakerDistribution("city")
-    var = MetaVar("some_var", "string", dist, prop_missing=0.0)
+    var = MetaVar("some_var", dist, dtype="String", prop_missing=0.0)
 
     series = var.draw_series(1000, None)
     assert len(series.unique()) == 1000

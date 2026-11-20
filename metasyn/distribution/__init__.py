@@ -12,6 +12,7 @@ a given set of values.
 
 from metasyn.distribution.base import (
     AndOperator,
+    AsType,
     ColumnReference,
     DivideOperator,
     EqualsCondition,
@@ -107,7 +108,7 @@ builtin_fitters = [
 builtin_operators: list[Operator]= [  # type: ignore
     EqualsCondition, IfThenElse, PlusOperator, MultiplyOperator, DivideOperator,  # type: ignore
     SubOperator, PowerOperator, AndOperator, OrOperator, LessThanCondition, GreaterThanCondition,  # type: ignore
-    NotEqualsCondition, NotOperator, ColumnReference, IsNull, # type: ignore
+    NotEqualsCondition, NotOperator, ColumnReference, IsNull, AsType  # type: ignore
 ]
 
 __all__ = [

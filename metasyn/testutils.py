@@ -132,7 +132,7 @@ VAR_TEMPLATE = """
 
 - Distribution {class_name} with parameters:
 {parameters}
-- Variable type {var_type}
+- Distribution type {dtype}
 - Based on {n_based_on} values{disclosure}
 - Percentage missing: {missing_perc} %
 - Generated examples: {example_list}
@@ -199,7 +199,7 @@ def create_md_report(file_name, out_md_file):
                 disclosure = ""
             variables += VAR_TEMPLATE.format(
                 var_name = var.name,
-                var_type=var.var_type,
+                dtype=var.dtype,
                 class_name=var.distribution.__class__.__name__,
                 n_based_on=round(n_rows*(1-var.prop_missing)),
                 example_list=", ".join(examples) + ", ...",
