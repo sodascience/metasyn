@@ -689,6 +689,23 @@ class AsType(Operator):
     def from_dict(cls, dist_dict) -> AsType:
         return cls(dist_dict["operand"], dist_dict["to_type"])
 
+@dataclass
+class ConsistentFor(Operator):
+    """Operator to ensure the same value for all occurrences of a value in another column."""
+
+    distribution: Any
+    key_column: Any
+
+    def __post_init__(self):
+        self._value_map = {}
+
+    def compute(self, *args: Any, **kwargs: Any) -> Any:  # noqa: ARG002
+        key_column = kwargs.get("key_column")
+        if key_column is None or self.distribution is None:
+            return None
+        if key_column not in self._value_map:
+            self._value_map[key_column] = self.distribution.draw()
+        return self._value_map[key_column]
 
 class ColumnReference(DistributionLike):
     """Returns the value of another already synthesized column."""
