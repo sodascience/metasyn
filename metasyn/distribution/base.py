@@ -699,7 +699,8 @@ class ConsistentFor(Operator):
     def __post_init__(self):
         self._value_map = {}
 
-    def compute(self, key_column: Any, **kwargs) -> Any:  # noqa: ARG002
+    def compute(self, *args: Any, **kwargs: Any) -> Any:  # noqa: ARG002
+        key_column = kwargs.get("key_column")
         if key_column is None or self.distribution is None:
             return None
         if key_column not in self._value_map:
